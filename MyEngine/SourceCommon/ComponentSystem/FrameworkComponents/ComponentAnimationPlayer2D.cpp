@@ -37,7 +37,7 @@ ComponentAnimationPlayer2D::~ComponentAnimationPlayer2D()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
-    delete m_pAnimInfo;
+    SAFE_RELEASE( m_pAnimInfo );
     SAFE_RELEASE( m_pAnimationFile );
 }
 
@@ -255,10 +255,12 @@ void ComponentAnimationPlayer2D::SetAnimationFile(MyFileObject* pFile)
 
     SAFE_RELEASE( m_pAnimationFile );
     m_pAnimationFile = pFile;
-    m_pAnimInfo = 0;
 
     MyFileInfo* pFileInfo = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, m_SceneIDLoadedFrom );
     MyAssert( pFileInfo->Get2DAnimInfo() );
+    
+    pFileInfo->Get2DAnimInfo()->AddRef();
+    SAFE_RELEASE( m_pAnimInfo );
     m_pAnimInfo = pFileInfo->Get2DAnimInfo();
 }
 

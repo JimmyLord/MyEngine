@@ -377,7 +377,7 @@ public:
         SAFE_RELEASE( m_pSoundCue );
         SAFE_DELETE( m_pSpriteSheet );
         // SAFE_DELETE( m_pPrefabFile ); // TODO: Look into why this isn't necessary.
-        SAFE_DELETE( m_p2DAnimInfo );
+        SAFE_RELEASE( m_p2DAnimInfo );
     }
 
     SceneID GetSceneID() { return m_SceneID; }
@@ -404,7 +404,7 @@ public:
     void SetSoundCue(SoundCue* pSoundCue)           { m_pSoundCue = pSoundCue;          if( pSoundCue )     pSoundCue->AddRef(); }
     void SetSpriteSheet(SpriteSheet* pSpriteSheet)  { m_pSpriteSheet = pSpriteSheet; } //if( pSpriteSheet )  pSpriteSheet->AddRef(); }
     void SetPrefabFile(PrefabFile* pPrefabFile)     { m_pPrefabFile = pPrefabFile; } //if( pPrefabFile )   pPrefabFile->AddRef(); }
-    void Set2DAnimInfo(My2DAnimInfo* p2DAnimInfo)   { m_p2DAnimInfo = p2DAnimInfo; } //if( p2DAnimInfo )   p2DAnimInfo->AddRef(); }
+    void Set2DAnimInfo(My2DAnimInfo* p2DAnimInfo)   { m_p2DAnimInfo = p2DAnimInfo;      if( p2DAnimInfo )   p2DAnimInfo->AddRef(); }
 };
 
 #endif //__ComponentSystemManager_H__

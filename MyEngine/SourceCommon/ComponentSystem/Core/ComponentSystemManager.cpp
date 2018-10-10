@@ -762,6 +762,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
             pAnimInfo->SetSourceFile( pFile );
             pFileInfo->Set2DAnimInfo( pAnimInfo );
+            pAnimInfo->Release();
         }
 
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
@@ -798,6 +799,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
                     My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
                     pAnimInfo->SetSourceFile( pFile );
                     AddToFileList( pFile, 0, 0, 0, 0, 0, 0, pAnimInfo, sceneid );
+                    pAnimInfo->Release();
 
                     pAnimInfo->LoadFromSpriteSheet( pSpriteSheet, 0.2f );
                     pAnimInfo->SaveAnimationControlFile();
