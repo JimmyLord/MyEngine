@@ -622,8 +622,6 @@ void ComponentMesh::AddToSceneGraph()
     else if( m_WaitingToAddToSceneGraph == false )
     {
         m_WaitingToAddToSceneGraph = true;
-
-        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, Tick );
     }
 }
 
@@ -635,7 +633,6 @@ void ComponentMesh::RemoveFromSceneGraph()
     if( m_WaitingToAddToSceneGraph )
     {
         m_WaitingToAddToSceneGraph = false;
-        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         return;
     }
 
@@ -707,14 +704,20 @@ void ComponentMesh::TickCallback(float deltaTime)
 
     MyAssert( m_pGameObject->GetTransform() );
     MyAssert( m_pMesh );
-    MyAssert( m_WaitingToAddToSceneGraph );
 
-    if( IsMeshReady() )
+    // If we're done waiting to be added to the scene graph (either to be added to removed), we no longer need this callback.
+    if( m_WaitingToAddToSceneGraph == false )
     {
-        MeshFinishedLoading();
-
-        // AddToSceneGraph() will stop tick callbacks.
-        AddToSceneGraph();
+        // Callbacks can only be safely unregistered during their own callback.
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    }
+    else
+    {
+        if( IsMeshReady() )
+        {
+            MeshFinishedLoading();
+            AddToSceneGraph();
+        }
     }
 }
 

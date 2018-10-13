@@ -295,7 +295,6 @@ void ComponentSprite::AddToSceneGraph()
         m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pSprite, pMaterial, GL_TRIANGLES, 1, m_LayersThisExistsOn );
 
         m_WaitingToAddToSceneGraph = false;
-        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
     }
     else if( m_WaitingToAddToSceneGraph == false )
     {
@@ -309,7 +308,6 @@ void ComponentSprite::RemoveFromSceneGraph()
     if( m_WaitingToAddToSceneGraph )
     {
         m_WaitingToAddToSceneGraph = false;
-        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         return;
     }
 
@@ -339,10 +337,17 @@ void ComponentSprite::PushChangesToSceneGraphObjects()
 void ComponentSprite::TickCallback(float deltaTime)
 {
     MyAssert( m_pGameObject->GetTransform() );
-    MyAssert( m_WaitingToAddToSceneGraph );
 
-    // AddToSceneGraph() will stop tick callbacks.
-    AddToSceneGraph();
+    // If we're done waiting to be added to the scene graph (either to be added to removed), we no longer need this callback.
+    if( m_WaitingToAddToSceneGraph == false )
+    {
+        // Callbacks can only be safely unregistered during their own callback.
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    }
+    else
+    {
+        AddToSceneGraph();
+    }
 }
 
 void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
