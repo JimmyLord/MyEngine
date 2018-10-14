@@ -61,19 +61,22 @@ const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
 
 EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
+    m_ShowCloseEditorWarning = false;
+
     m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
     m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
-    
+
     m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
     m_pMaterialToPreview = 0;
 
     m_pMaterialBeingEdited = 0;
     m_IsMaterialEditorOpen = false;
 
+    // 2D Animation Editor.
+    m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
     m_p2DAnimInfoBeingEdited = 0;
     m_Is2DAnimationEditorOpen = false;
-
-    m_ShowCloseEditorWarning = false;
+    m_Current2DAnimationIndex = 0;
 
     // Log Window
     m_pLogWindow = MyNew EditorLogWindow_ImGui;
@@ -625,6 +628,7 @@ void EditorMainFrame_ImGui::Edit2DAnimInfo(My2DAnimInfo* pAnimInfo)
     m_p2DAnimInfoBeingEdited = pAnimInfo;
     ImGui::SetWindowFocus( "2D Animation Editor" );
     m_Is2DAnimationEditorOpen = true;
+    m_Current2DAnimationIndex = 0;
 }
 
 void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
@@ -3299,6 +3303,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         {
             My2DAnimInfo* pAnim = pFileInfo->Get2DAnimInfo();
             m_Is2DAnimationEditorOpen = true;
+            m_Current2DAnimationIndex = 0;
 
             if( pAnim->GetSourceFile() && pAnim->GetSourceFile()->IsFinishedLoading() )
             {
@@ -3355,10 +3360,14 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
             // First Column: Animations
             {
-                for( unsigned int animindex=0; animindex<pAnimInfo->GetNumberOfAnimations(); animindex++ )
+                for( unsigned int animIndex=0; animIndex<pAnimInfo->GetNumberOfAnimations(); animIndex++ )
                 {
-                    My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animindex );
-                    ImGui::Text( pAnim->GetName() );
+                    My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animIndex );
+
+                    if( ImGui::Selectable( pAnim->GetName(), m_Current2DAnimationIndex == animIndex ) )
+                    {
+                        m_Current2DAnimationIndex = animIndex;
+                    }
                 }
 
                 if( pAnimInfo->GetNumberOfAnimations() < My2DAnimInfo::MAX_ANIMATIONS )
@@ -3374,20 +3383,20 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
             // Second Column: Frame durations of currently selected animation.
             {
-                int animindex = 0;
+                int animIndex = m_Current2DAnimationIndex;
 
-                My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animindex );
+                My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animIndex );
                 //ImGui::Text( pAnim->GetName() );
 
                 unsigned int numframes = pAnim->GetFrameCount();
 
-                for( unsigned int frameindex=0; frameindex<numframes; frameindex++ )
+                for( unsigned int frameIndex=0; frameIndex<numframes; frameIndex++ )
                 {
-                    My2DAnimationFrame* pFrame = pAnim->GetFrameByIndex( frameindex );
+                    My2DAnimationFrame* pFrame = pAnim->GetFrameByIndex( frameIndex );
 
                     ImGui::PushID( pFrame );
 
-                    ImGui::Text( "Frame %d", frameindex );
+                    ImGui::Text( "Frame %d", frameIndex );
                     ImGui::SliderFloat( "Duration", &pFrame->m_Duration, 0, 1 );
 
                     if( ImGui::Button( "Remove" ) )
@@ -3416,7 +3425,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
             // Third Column: Material texture previews.
             {
-                int animindex = 0;
+                int animindex = m_Current2DAnimationIndex;
 
                 My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animindex );
 

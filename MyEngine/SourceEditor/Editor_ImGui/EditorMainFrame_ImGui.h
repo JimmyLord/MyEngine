@@ -16,20 +16,22 @@ class EditorLogWindow_ImGui;
 class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:
+    bool m_ShowCloseEditorWarning;
+
     FBODefinition* m_pGameFBO;
     FBODefinition* m_pEditorFBO;
+
     FBODefinition* m_pMaterialPreviewFBO;
     MaterialDefinition* m_pMaterialToPreview;
 
     MaterialDefinition* m_pMaterialBeingEdited;
     bool m_IsMaterialEditorOpen;
 
-    // 2D Animation Editor
+    // 2D Animation Editor.
     char m_FullPathToLast2DAnimInfoBeingEdited[MAX_PATH];
     My2DAnimInfo* m_p2DAnimInfoBeingEdited;
     bool m_Is2DAnimationEditorOpen;
-
-    bool m_ShowCloseEditorWarning;
+    unsigned int m_Current2DAnimationIndex;
 
     // Log Window.
     EditorLogWindow_ImGui* m_pLogWindow;
