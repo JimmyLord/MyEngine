@@ -134,15 +134,16 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "GetNextGameObjectInList", &GameObject::GetNextGameObjectInList ) // GameObject* GetNextGameObjectInList()
             .addFunction( "ReturnToPool", &GameObject::ReturnToPool ) // void GameObject::ReturnToPool()            
 
-            .addFunction( "GetSprite", &GameObject::GetSprite ) // ComponentSprite* GameObject::GetSprite()    
-            .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()              
+            .addFunction( "GetSprite", &GameObject::GetSprite ) // ComponentSprite* GameObject::GetSprite()
+            .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()
             .addFunction( "Get3DCollisionObject", &GameObject::Get3DCollisionObject ) // Component3DCollisionObject* GameObject::Get3DCollisionObject()
             .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject ) // Component2DCollisionObject* GameObject::Get2DCollisionObject()
             .addFunction( "GetLuaScript", &GameObject::GetLuaScript ) // ComponentLuaScript* GameObject::GetLuaScript()
-            .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()    
-            .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()    
-            .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer ) // ComponentAudioPlayer* GameObject::GetAudioPlayer()            
-            .addFunction( "GetObjectPool", &GameObject::GetObjectPool ) // ComponentObjectPool* GameObject::GetObjectPool()            
+            .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()
+            .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()
+            .addFunction( "Get2DAnimationPlayer", &GameObject::Get2DAnimationPlayer ) // ComponentAnimationPlayer2D* GameObject::Get2DAnimationPlayer()
+            .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer ) // ComponentAudioPlayer* GameObject::GetAudioPlayer()
+            .addFunction( "GetObjectPool", &GameObject::GetObjectPool ) // ComponentObjectPool* GameObject::GetObjectPool()
         .endClass();
 }
 #endif //MYFW_USING_LUA

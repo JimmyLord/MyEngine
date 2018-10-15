@@ -72,6 +72,7 @@ void ComponentAnimationPlayer2D::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentAnimationPlayer2D>( "ComponentAnimationPlayer2D" )
             //.addData( "m_TimeBetweenFrames", &ComponentAnimationPlayer2D::m_TimeBetweenFrames )
+            .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer2D::SetCurrentAnimation ) // void ComponentAnimationPlayer2D::SetCurrentAnimation(unsigned int anim)
             //m_AnimationIndex
             //m_AnimationTime
             //m_FrameIndex
@@ -351,4 +352,14 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
     m_pSpriteComponent->SetMaterial( pMaterial, 0 );
 
     //LOGInfo( LOGTag, "%d, %s\n", m_FrameIndex, (*pMaterial).GetName() );
+}
+
+void ComponentAnimationPlayer2D::SetCurrentAnimation(unsigned int anim)
+{
+    if( anim == m_AnimationIndex )
+        return;
+
+    m_AnimationIndex = anim;
+    m_AnimationTime = 0;
+    m_FrameIndex = 0;
 }

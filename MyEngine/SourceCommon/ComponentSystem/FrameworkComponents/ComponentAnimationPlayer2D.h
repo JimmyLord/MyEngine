@@ -49,6 +49,8 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    void SetCurrentAnimation(unsigned int anim);
+
 protected:
     // Callback functions for various events.
     MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback

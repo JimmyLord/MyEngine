@@ -27,7 +27,7 @@ class GameObject : public CPPListNode
     friend class EditorMainFrame_ImGui; // for m_DeletedPrefabChildIDs and m_DeletedPrefabComponentIDs
     friend class ComponentSystemManager; // for ComponentSystemManager::DeleteGameObject
 
-    static const int MAX_COMPONENTS = 8; // TODO: fix this hardcodedness
+    static const int MAX_COMPONENTS = 64; // TODO: fix this hardcodedness
 
 protected:
     PrefabReference m_PrefabRef;
@@ -142,6 +142,7 @@ public:
     ComponentLuaScript* GetLuaScript()                  { return (ComponentLuaScript*)GetFirstComponentOfType( "LuaScriptComponent" ); }
     ComponentParticleEmitter* GetParticleEmitter()      { return (ComponentParticleEmitter*)GetFirstComponentOfType( "ParticleEmitterComponent" ); }
     ComponentAnimationPlayer* GetAnimationPlayer()      { return (ComponentAnimationPlayer*)GetFirstComponentOfType( "AnimPlayerComponent" ); }
+    ComponentAnimationPlayer2D* Get2DAnimationPlayer()  { return (ComponentAnimationPlayer2D*)GetFirstComponentOfType( "Anim2DComponent" ); }
     ComponentAudioPlayer* GetAudioPlayer()              { return (ComponentAudioPlayer*)GetFirstComponentOfType( "AudioPlayerComponent" ); }
     ComponentObjectPool* GetObjectPool()                { return (ComponentObjectPool*)GetFirstComponentOfType( "ObjectPoolComponent" ); }
 
