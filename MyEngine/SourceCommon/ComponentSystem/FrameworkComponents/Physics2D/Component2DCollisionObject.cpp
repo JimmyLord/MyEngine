@@ -93,6 +93,12 @@ void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component
 #endif //MYFW_EDITOR
 }
 
+Component2DCollisionObject* CastAs_Component2DCollisionObject(ComponentBase* pComponent)
+{
+    MyAssert( pComponent->IsA( "2DCollisionObjectComponent" ) );
+    return (Component2DCollisionObject*)pComponent;
+}
+
 void Component2DCollisionObject::Reset()
 {
     ComponentBase::Reset();
@@ -126,6 +132,8 @@ void Component2DCollisionObject::Reset()
 #if MYFW_USING_LUA
 void Component2DCollisionObject::LuaRegister(lua_State* luastate)
 {
+    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_Component2DCollisionObject", CastAs_Component2DCollisionObject ); // Component2DCollisionObject* CastAs_Component2DCollisionObject(ComponentBase* pComponent)
+
     luabridge::getGlobalNamespace( luastate )
         .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )
             .addData( "density", &Component2DCollisionObject::m_Density ) // float
@@ -135,6 +143,7 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
             .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
             .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
             .addFunction( "GetMass", &Component2DCollisionObject::GetMass ) // float Component2DCollisionObject::GetMass()
+            .addFunction( "Editor_SetVertices", &Component2DCollisionObject::SetVertices ) // void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsigned int count)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -207,6 +216,20 @@ bool Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVari
     return true;
 }
 #endif //MYFW_USING_WX
+
+void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsigned int count)
+{
+    m_PrimitiveType = Physics2DPrimitiveType_Chain; // TODO: Don't hardcode this.
+    m_Static = true; // TODO: Or this.
+    
+    m_Vertices.resize( count );
+
+    for( uint32 i=0; i<count; i++ )
+    {
+        Vector2* pVert = verts[i+1];
+        m_Vertices[i] = b2Vec2( pVert->x, pVert->y );
+    }
+}
 
 void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, int x, int y)
 {
@@ -622,9 +645,9 @@ void Component2DCollisionObject::CreateBody()
                 }
             }
         }
-    }
 
-    m_pBody->SetActive( m_Enabled );
+        pBody->SetActive( m_Enabled );
+    }
 }
 
 void Component2DCollisionObject::TickCallback(float deltaTime)

@@ -1466,6 +1466,10 @@ void ComponentLuaScript::LoadScript()
                         // Call the OnLoad function in the Lua script.
                         CallFunctionEvenIfGameplayInactive( "OnLoad" );
                     }
+                    else
+                    {
+                        LOGInfo( LOGTag, "Object with matching name not found in Lua Script: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
+                    }
                 }
                 else
                 {

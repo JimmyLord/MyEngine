@@ -708,15 +708,16 @@
     // (TODO)     .addFunction( "GetNextGameObjectInList", &GameObject::GetNextGameObjectInList ) // GameObject* GetNextGameObjectInList()
     // (TODO)     .addFunction( "ReturnToPool", &GameObject::ReturnToPool ) // void GameObject::ReturnToPool()            
     //
-    // (TODO)     .addFunction( "GetSprite", &GameObject::GetSprite ) // ComponentSprite* GameObject::GetSprite()    
-    // (TODO)     .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()              
+    // (TODO)     .addFunction( "GetSprite", &GameObject::GetSprite ) // ComponentSprite* GameObject::GetSprite()
+    // (TODO)     .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()
     // (TODO)     .addFunction( "Get3DCollisionObject", &GameObject::Get3DCollisionObject ) // Component3DCollisionObject* GameObject::Get3DCollisionObject()
     // (TODO)     .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject ) // Component2DCollisionObject* GameObject::Get2DCollisionObject()
     // (TODO)     .addFunction( "GetLuaScript", &GameObject::GetLuaScript ) // ComponentLuaScript* GameObject::GetLuaScript()
-    // (TODO)     .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()    
-    // (TODO)     .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()    
-    // (TODO)     .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer ) // ComponentAudioPlayer* GameObject::GetAudioPlayer()            
-    // (TODO)     .addFunction( "GetObjectPool", &GameObject::GetObjectPool ) // ComponentObjectPool* GameObject::GetObjectPool()            
+    // (TODO)     .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()
+    // (TODO)     .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()
+    // (TODO)     .addFunction( "Get2DAnimationPlayer", &GameObject::Get2DAnimationPlayer ) // ComponentAnimationPlayer2D* GameObject::Get2DAnimationPlayer()
+    // (TODO)     .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer ) // ComponentAudioPlayer* GameObject::GetAudioPlayer()
+    // (TODO)     .addFunction( "GetObjectPool", &GameObject::GetObjectPool ) // ComponentObjectPool* GameObject::GetObjectPool()
     //        .endClass();
 
     //            .addFunction( "Editor_AddNewComponent", (ComponentBase* (GameObject::*)()
@@ -983,6 +984,7 @@
     ////ComponentType_3DJointSlider,
 
     //Component2DCollisionObject::LuaRegister( m_pLuaState );
+    // (TODO) luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_Component2DCollisionObject", CastAs_Component2DCollisionObject ); // Component2DCollisionObject* CastAs_Component2DCollisionObject(ComponentBase* pComponent)
     //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )
     //            .addData( "density", &Component2DCollisionObject::m_Density ) // float
@@ -992,6 +994,7 @@
     //            .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
     //            .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
     //            .addFunction( "GetMass", &Component2DCollisionObject::GetMass ) // float Component2DCollisionObject::GetMass()
+    // (TODO)     .addFunction( "Editor_SetVertices", &Component2DCollisionObject::SetVertices ) // void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsigned int count)
     //        .endClass();
 
     "Component2DCollisionObject:ClearVelocity": {
@@ -1062,6 +1065,7 @@
     //ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );
     //    .beginClass<ComponentAnimationPlayer2D>( "ComponentAnimationPlayer2D" )
     //        //.addData( "m_TimeBetweenFrames", &ComponentAnimationPlayer2D::m_TimeBetweenFrames )
+    // (TODO) .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer2D::SetCurrentAnimation ) // void ComponentAnimationPlayer2D::SetCurrentAnimation(unsigned int anim)
     //        //m_AnimationIndex
     //        //m_AnimationTime
     //        //m_FrameIndex
