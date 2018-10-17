@@ -65,6 +65,9 @@ public:
     //virtual void OnGameObjectEnabled();
     //virtual void OnGameObjectDisabled();
 
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentMesh*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
+    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+
     // ComponentRenderable overrides
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_pMaterials[submeshindex]; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);

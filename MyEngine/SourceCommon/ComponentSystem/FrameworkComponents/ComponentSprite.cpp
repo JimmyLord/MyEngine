@@ -39,6 +39,8 @@ ComponentSprite::~ComponentSprite()
 
     SAFE_RELEASE( m_pSprite );
 
+    m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
+
     RemoveFromSceneGraph();
 }
 
@@ -83,6 +85,8 @@ void ComponentSprite::Reset()
 
     if( m_pSprite == 0 )
         m_pSprite = MyNew MySprite( false );
+
+    m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
 
     m_Size.Set( 1.0f, 1.0f );
     m_Tint.Set( 255,255,255,255 );
@@ -232,6 +236,14 @@ void ComponentSprite::OnLoad()
 
     if( m_pSceneGraphObject == 0 )
         AddToSceneGraph();
+}
+
+void ComponentSprite::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+{
+    if( m_pSceneGraphObject != 0 )
+    {
+        g_pComponentSystemManager->GetSceneGraph()->ObjectMoved( m_pSceneGraphObject );
+    }
 }
 
 void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshIndex)

@@ -67,6 +67,8 @@ ComponentMesh::~ComponentMesh()
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
+    m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
+
     SAFE_RELEASE( m_pMesh );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
@@ -106,6 +108,8 @@ void ComponentMesh::Reset()
     SAFE_RELEASE( m_pMesh );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
         SAFE_RELEASE( m_pMaterials[i] );
+
+    m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
 
     m_pComponentLuaScript = 0;
 
@@ -531,6 +535,17 @@ bool ComponentMesh::OnEvent(MyEvent* pEvent)
     }
 
     return false;
+}
+
+void ComponentMesh::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+{
+    for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
+    {
+        if( m_pSceneGraphObjects[i] != 0 )
+        {
+            g_pComponentSystemManager->GetSceneGraph()->ObjectMoved( m_pSceneGraphObjects[i] );
+        }
+    }
 }
 
 void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)

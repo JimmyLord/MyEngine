@@ -577,6 +577,9 @@ void ComponentTransform::SetLocalTransform(MyMatrix* mat)
 // Exposed to Lua, change elsewhere if function signature changes.
 void ComponentTransform::SetLocalPosition(Vector3 pos)
 {
+    if( m_LocalPosition == pos )
+        return;
+
     m_LocalPosition = pos;
     m_LocalTransformIsDirty = true;
     if( m_pParentTransform == 0 )

@@ -47,6 +47,9 @@ public:
 
     virtual void OnLoad();
 
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentSprite*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
+    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+
     virtual MaterialDefinition* GetMaterial(int submeshIndex) { if( m_pSprite ) return m_pSprite->GetMaterial(); return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshIndex);
 
