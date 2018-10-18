@@ -122,6 +122,7 @@ protected:
     void AddLogWindow();
     void AddMemoryPanel();
 
+    void AddMenuOptionsForAddingComponents(GameObject* pGameObject);
     void AddMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID);
 
     void AddMemoryPanel_Materials();

@@ -455,6 +455,40 @@ void EditorMenuCommand(EditorMenuCommands command)
         // Handled after switch statement.
         break;
 
+    case EditorMenuCommand_Objects_MergeIntoFolder:
+        {
+            LOGError( LOGTag, "(TODO) Moving selected objects into folder has no undo!\n" );
+
+            int numSelected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+
+            if( numSelected > 0 )
+            {
+                GameObject* pFirstGO = g_pEngineCore->GetEditorState()->m_pSelectedObjects[0];
+                SceneID sceneID = pFirstGO->GetSceneID();
+                GameObject* pParentGO = pFirstGO->GetParentGameObject();
+
+                // Create a folder
+                GameObject* pFolder = g_pComponentSystemManager->CreateGameObject( true, sceneID, true, false, 0 );
+                pFolder->SetName( "New Merged Object Folder" );
+                pFolder->SetParentGameObject( pParentGO );
+
+                // Move all selected GOs into this folder.
+                for( int i=0; i<numSelected; i++ )
+                {
+                    GameObject* selectedGO = g_pEngineCore->GetEditorState()->m_pSelectedObjects[i];
+
+                    if( selectedGO->GetSceneID() != sceneID )
+                    {
+                        LOGInfo( LOGTag, "Selected object not placed in folder since it was part of a different scene: %s\n", selectedGO->GetName() );
+                        continue; // skip this GO.
+                    }
+                    
+                    selectedGO->SetParentGameObject( pFolder );
+                }
+            }
+        }
+        break;
+
     default:
         {
             // The only cases not handled above are launch platform cases, since there's a dynamic amount of them.

@@ -40,7 +40,7 @@ enum EditorMenuCommands
     EditorMenuCommand_Lua_RunLuaScript,
     EditorMenuCommand_Lua_RunRecentLuaScript,
     // Space for EditorPrefs::MAX_RECENT_LUA_SCRIPTS.
-    //EditorMenuCommand_ = EditorMenuCommand_Lua_RunRecentLuaScript + EditorPrefs::MAX_RECENT_LUA_SCRIPTS,
+    EditorMenuCommand_Objects_MergeIntoFolder = EditorMenuCommand_Lua_RunRecentLuaScript + EditorPrefs::MAX_RECENT_LUA_SCRIPTS,
 };
 
 void EditorMenuCommand(EditorMenuCommands command);

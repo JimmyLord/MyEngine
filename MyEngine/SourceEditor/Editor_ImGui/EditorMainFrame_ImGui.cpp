@@ -360,6 +360,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
         if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
         if( CS && keycode == 'L'   ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return true; }
+        if( CS && keycode == 'K'   ) { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return true; }
     }
 
     return false;
@@ -1507,11 +1508,17 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 {
                     //ImGui::Text( pGameObject->GetName() );
 
+                    // Menu options to add new components to a GameObject.
+                    if( ImGui::BeginMenu( "Add Component" ) )
+                    {
+                        AddMenuOptionsForAddingComponents( pGameObject );
+                        ImGui::EndMenu();
+                    }
+
                     // Menu options to add child GameObjects.
                     if( ImGui::BeginMenu( "Add Child" ) )
                     {
                         AddMenuOptionsForCreatingGameObjects( pGameObject, pGameObject->GetSceneID() );
-
                         ImGui::EndMenu();
                     }
 
@@ -1520,60 +1527,6 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     if( pGameObject->GetGameObjectThisInheritsFrom() )
                     {
                         if( ImGui::MenuItem( "Clear Parent/Prefab" ) ) { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
-                    }
-                    if( ImGui::BeginMenu( "Add Component" ) )
-                    {
-                        int first = 0;
-                        if( pGameObject->GetTransform() != 0 )
-                            first = 1;
-
-                        const char* lastcategory = 0;
-                        bool menuopen = false;
-
-                        unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
-                        for( unsigned int i=first; i<numtypes; i++ )
-                        {
-                            const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
-                            const char* nextcategory = 0;
-                            if( i < numtypes-1 )
-                                nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
-
-                            if( lastcategory != currentcategory )
-                            {
-                                menuopen = ImGui::BeginMenu( currentcategory );
-                            }
-
-                            if( menuopen )
-                            {
-                                if( i == ComponentType_Mesh )
-                                {
-                                    // don't include ComponentType_Mesh in the right-click menu.
-                                    // TODO: if more exceptions are made, improve this system.
-                                }
-                                else
-                                {
-                                    if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) )
-                                    {
-                                        ComponentBase* pComponent = 0;
-                                        if( g_pEngineCore->IsInEditorMode() )
-                                            pComponent = pGameObject->AddNewComponent( i, pGameObject->GetSceneID() );
-                                        else
-                                            pComponent = pGameObject->AddNewComponent( i, SCENEID_Unmanaged );
-
-                                        ImGui::CloseCurrentPopup();
-                                    }
-                                }
-                            }
-
-                            if( menuopen && currentcategory != nextcategory )
-                            {
-                                ImGui::EndMenu();
-                            }
-
-                            lastcategory = currentcategory;
-                        }
-
-                        ImGui::EndMenu();
                     }
                     if( ImGui::BeginMenu( "Create prefab in" ) )
                     {
@@ -2264,6 +2217,60 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
         }
     }
     ImGui::End();
+}
+
+void EditorMainFrame_ImGui::AddMenuOptionsForAddingComponents(GameObject* pGameObject)
+{
+    int first = 0;
+    if( pGameObject->GetTransform() != 0 )
+        first = 1;
+
+    const char* lastcategory = 0;
+    bool menuopen = false;
+
+    unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+    for( unsigned int i=first; i<numtypes; i++ )
+    {
+        const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
+        const char* nextcategory = 0;
+        if( i < numtypes-1 )
+            nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
+
+        if( lastcategory != currentcategory )
+        {
+            menuopen = ImGui::BeginMenu( currentcategory );
+        }
+
+        if( menuopen )
+        {
+            if( i == ComponentType_Mesh )
+            {
+                // don't include ComponentType_Mesh in the right-click menu.
+                // TODO: if more exceptions are made, improve this system.
+            }
+            else
+            {
+                if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) )
+                {
+                    ComponentBase* pComponent = 0;
+                    if( g_pEngineCore->IsInEditorMode() )
+                        pComponent = pGameObject->AddNewComponent( i, pGameObject->GetSceneID() );
+                    else
+                        pComponent = pGameObject->AddNewComponent( i, SCENEID_Unmanaged );
+
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+        }
+
+        if( menuopen && currentcategory != nextcategory )
+        {
+            ImGui::EndMenu();
+        }
+
+        lastcategory = currentcategory;
+    }
+
 }
 
 void EditorMainFrame_ImGui::AddMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID)
