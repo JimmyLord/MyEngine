@@ -637,6 +637,7 @@ void ComponentMesh::AddToSceneGraph()
     else if( m_WaitingToAddToSceneGraph == false )
     {
         m_WaitingToAddToSceneGraph = true;
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, Tick );
     }
 }
 
