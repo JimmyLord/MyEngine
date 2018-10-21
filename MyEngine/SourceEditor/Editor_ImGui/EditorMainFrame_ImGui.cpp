@@ -771,6 +771,12 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
     bool ShowNewSceneWarning = false;
     bool ShowLoadSceneWarning = false;
 
+    if( g_pEngineCore->IsInEditorMode() == false )
+    {
+        Vector4 gameRunningMenuBarColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_GameRunningMenuBarColor );
+        ImGui::PushStyleColor( ImGuiCol_MenuBarBg, gameRunningMenuBarColor );
+    }
+
     if( ImGui::BeginMainMenuBar() )
     {
         if( ImGui::BeginMenu( "File" ) )
@@ -1005,6 +1011,9 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         ImGui::EndMainMenuBar();
     }
+
+    if( g_pEngineCore->IsInEditorMode() == false )
+        ImGui::PopStyleColor();
 
     if( ShowNewSceneWarning )
     {

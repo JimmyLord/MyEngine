@@ -265,7 +265,7 @@ cJSON* EditorPrefs::SaveStart()
 
         // 2D Animation Editor
         My2DAnimInfo* pAnimInfo = g_pEngineCore->GetEditorMainFrame_ImGui()->Get2DAnimInfoBeingEdited();
-        if( pAnimInfo && pAnimInfo->GetSourceFile() )
+        if( pAnimInfo && pAnimInfo->GetSourceFile() && pAnimInfo->GetSourceFile()->GetFullPath() )
         {
             cJSON_AddStringToObject( jPrefs, "2DAnimInfoBeingEdited", pAnimInfo->GetSourceFile()->GetFullPath() );
         }

@@ -74,6 +74,7 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
     "TransformAlphaMin",
     "TransformAlphaInUse",
     "TransformAlphaMax",
+    "GameRunningMenuBarColor",
 };
 
 ImGuiStylePrefs::ImGuiStylePrefs()
@@ -116,6 +117,7 @@ ImGuiStylePrefs::ImGuiStylePrefs()
         m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMin]  .Set( 1, 1, 1, 0.05f );
         m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaInUse].Set( 1, 1, 1, 0.2f );
         m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMax]  .Set( 1, 1, 1, 1.0f );
+        m_DefaultColors[0][StylePref_Color_GameRunningMenuBarColor] .Set( 0.042f, 0.481f, 0.067f, 1.000f );
 
         // Copy some of style 0 into other 4 styles.
         for( int i=1; i<5; i++ )
@@ -125,6 +127,7 @@ ImGuiStylePrefs::ImGuiStylePrefs()
             m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaMin]   = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMin];
             m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaInUse] = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaInUse];
             m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaMax]   = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMax];
+            m_DefaultColors[i][StylePref_Color_GameRunningMenuBarColor]  = m_DefaultColors[0][StylePref_Color_GameRunningMenuBarColor];
         }
 
         // Custom
@@ -141,11 +144,13 @@ ImGuiStylePrefs::ImGuiStylePrefs()
         m_DefaultColors[3][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText];
         m_DefaultColors[3][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[3][StylePref_Color_Button] * 0.5f;
         m_DefaultColors[3][StylePref_Color_UnsetObjectText]          = m_DefaultColors[3][StylePref_Color_Text] * 0.5f;
+        m_DefaultColors[3][StylePref_Color_GameRunningMenuBarColor] .Set( 0.600f, 0.000f, 0.000f, 1.000f );
 
         // Light
         m_DefaultColors[4][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText];
         m_DefaultColors[4][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[4][StylePref_Color_Button] * 0.5f;
         m_DefaultColors[4][StylePref_Color_UnsetObjectText]          = m_DefaultColors[4][StylePref_Color_Text] * 0.5f;
+        m_DefaultColors[4][StylePref_Color_GameRunningMenuBarColor]  .Set(0.284f, 0.934f, 0.794f, 1.000f);
     }
 
     static const char* presets[] = { "MyDefaults", "Custom", "Classic", "Dark", "Light" };

@@ -77,6 +77,7 @@ public:
         StylePref_Color_TransformGizmoAlphaMin,
         StylePref_Color_TransformGizmoAlphaInUse,
         StylePref_Color_TransformGizmoAlphaMax,
+        StylePref_Color_GameRunningMenuBarColor,
         StylePref_Num,
     };
 
