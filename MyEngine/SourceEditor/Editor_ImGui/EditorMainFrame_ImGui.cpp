@@ -3035,7 +3035,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
             {
                 //g_pPanelWatch->AddEnum( "Blend", (int*)&m_BlendType, MaterialBlendType_NumTypes, MaterialBlendTypeStrings );
                 const char** items = MaterialBlendTypeStrings;
-                int currentItem = pMat->m_BlendType;
+                int currentItem = pMat->GetBlendType();
                 const char* currentItemStr = MaterialBlendTypeStrings[currentItem];
                 if( ImGui::BeginCombo( "Blend", currentItemStr ) )
                 {
@@ -3048,7 +3048,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                             //ComponentVariableValue oldvalue( this, pVar );
 
                             //// Change the value.
-                            pMat->m_BlendType = (MaterialBlendType)n;
+                            pMat->SetBlendType( (MaterialBlendType)n );
 
                             //// Store the new value.
                             //ComponentVariableValue newvalue( this, pVar );
@@ -3067,8 +3067,14 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                     ImGui::EndCombo();
                 }
 
-                ImGui::DragFloat2( "UVScale", &pMat->m_UVScale.x, 0.01f, 0, 1 );
-                ImGui::DragFloat2( "UVOffset", &pMat->m_UVOffset.x, 0.01f, 0, 1 );
+                if( ImGui::DragFloat2( "UVScale", &pMat->m_UVScale.x, 0.01f, 0, 1 ) )
+                {
+                    pMat->MarkDirty();
+                }
+                if( ImGui::DragFloat2( "UVOffset", &pMat->m_UVOffset.x, 0.01f, 0, 1 ) )
+                {
+                    pMat->MarkDirty();
+                }
 
                 // Deal with the shader attached to the material.
                 {
@@ -3268,25 +3274,28 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 }
 
                 // TODO: Copies of these colors are changing, fix that.
-                ColorFloat ambientColorFloat = pMat->m_ColorAmbient.AsColorFloat();
+                ColorFloat ambientColorFloat = pMat->GetColorAmbient().AsColorFloat();
                 if( ImGui::ColorEdit4( "Ambient Color", &ambientColorFloat.r ) )
                 {
-                    pMat->m_ColorAmbient.SetFromColorFloat( ambientColorFloat );
+                    pMat->SetColorAmbient( ambientColorFloat.AsColorByte() );
                 }
 
-                ColorFloat diffuseColorFloat = pMat->m_ColorDiffuse.AsColorFloat();
+                ColorFloat diffuseColorFloat = pMat->GetColorDiffuse().AsColorFloat();
                 if( ImGui::ColorEdit4( "Diffuse Color", &diffuseColorFloat.r ) )
                 {
-                    pMat->m_ColorDiffuse.SetFromColorFloat( diffuseColorFloat );
+                    pMat->SetColorDiffuse( diffuseColorFloat.AsColorByte() );
                 }
 
-                ColorFloat specularColorFloat = pMat->m_ColorSpecular.AsColorFloat();
+                ColorFloat specularColorFloat = pMat->GetColorSpecular().AsColorFloat();
                 if( ImGui::ColorEdit4( "Specular Color", &specularColorFloat.r ) )
                 {
-                    pMat->m_ColorSpecular.SetFromColorFloat( specularColorFloat );
+                    pMat->SetColorSpecular( specularColorFloat.AsColorByte() );
                 }
 
-                ImGui::DragFloat( "Shininess", &pMat->m_Shininess );
+                if( ImGui::DragFloat( "Shininess", &pMat->m_Shininess ) )
+                {
+                    pMat->MarkDirty();
+                }
             }
 
             {
