@@ -2771,25 +2771,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                                 {
                                     if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                     {
-                                        const char* extension = pFile->GetExtensionWithDot();
-
-                                        if( strcmp( extension, ".my2daniminfo" ) == 0 )
-                                        {
-                                            if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_Is2DAnimationEditorOpen ) )
-                                            {
-                                                My2DAnimInfo* pAnim = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, SCENEID_Any )->Get2DAnimInfo();
-                                                Edit2DAnimInfo( pAnim );
-                                                ImGui::CloseCurrentPopup();
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if( ImGui::MenuItem( "View in Watch Window (TODO)" ) )   { pFile->OnPopupClick( pFile, MyFileObject::RightClick_ViewInWatchWindow );    ImGui::CloseCurrentPopup(); }
-                                        }
-                                        if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Unload File" ) )            { pFile->OnPopupClick( pFile, MyFileObject::RightClick_UnloadFile );           ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+                                        AddContextMenuItemsForFiles( pFile );
                                         ImGui::EndPopup();
                                     }
 
@@ -2906,90 +2888,6 @@ void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
         ImGui::TreePop();
     }
     ImGui::PopID();
-}
-
-void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint)
-{
-    if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(150, 150), 1 ) )
-    {
-        TextureDefinition* pTexture = m_pMaterialPreviewFBO->GetColorTexture( 0 );
-        int texw = m_pMaterialPreviewFBO->GetTextureWidth();
-        int texh = m_pMaterialPreviewFBO->GetTextureHeight();
-
-        ImVec2 size = requestedSize;
-        if( size.x == 0 )
-            size = ImGui::GetContentRegionAvail();
-        if( size.x > size.y ) size.x = size.y;
-        if( size.y > size.x ) size.y = size.x;
-
-        if( pTexture )
-        {
-            int w = pTexture->GetWidth();
-            int h = pTexture->GetHeight();
-            //ImGui::ImageButton( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), -1, ImVec4(0,0,0,1) );
-            ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
-        }
-    }
-
-    if( createWindow == true )
-    {
-        ImGui::End(); // ImGui::Begin( "Material"...
-    }
-}
-
-void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(bool createWindow, MaterialDefinition* pMaterial, ImVec2 requestedSize, ImVec4 tint)
-{
-    ImVec2 startUV( pMaterial->GetUVOffset() );
-    ImVec2 endUV( pMaterial->GetUVOffset() + pMaterial->GetUVScale() );
-    AddTexturePreview( false, pMaterial->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), startUV, endUV );
-}
-
-void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
-{
-    MyAssert( pTexture );
-
-    if( createWindow == false || ImGui::Begin( "Texture", 0, ImVec2(150, 150), 1 ) )
-    {
-        int texw = pTexture->GetWidth();
-        int texh = pTexture->GetHeight();
-
-        ImVec2 size = requestedSize;
-        if( size.x == 0 )
-            size = ImGui::GetContentRegionAvail();
-        if( size.x > size.y ) size.x = size.y;
-        if( size.y > size.x ) size.y = size.x;
-
-        ImGui::Image( (void*)pTexture->GetTextureID(), size, startUV, endUV, tint );
-    }
-
-    if( createWindow == true )
-    {
-        ImGui::End(); // ImGui::Begin( "Texture"...
-    }
-}
-
-void EditorMainFrame_ImGui::AddDebug_MousePicker()
-{
-    if( ImGui::Begin( "Mouse Picker", 0, ImVec2(150, 150), 1 ) )
-    {
-        TextureDefinition* pTexture = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetColorTexture( 0 );
-        int texw = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureWidth();
-        int texh = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureHeight();
-
-        ImVec2 size = ImGui::GetContentRegionAvail();
-        if( size.x > size.y ) size.x = size.y;
-        if( size.y > size.x ) size.y = size.x;
-
-        if( pTexture )
-        {
-            //int w = pTexture->GetWidth();
-            //int h = pTexture->GetHeight();
-            int w = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetWidth();
-            int h = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetHeight();
-            ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
-        }
-    }
-    ImGui::End();
 }
 
 void EditorMainFrame_ImGui::AddMaterialEditor()
@@ -3498,6 +3396,113 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
     }
 
     ImGui::End();
+}
+
+void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint)
+{
+    if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(150, 150), 1 ) )
+    {
+        TextureDefinition* pTexture = m_pMaterialPreviewFBO->GetColorTexture( 0 );
+        int texw = m_pMaterialPreviewFBO->GetTextureWidth();
+        int texh = m_pMaterialPreviewFBO->GetTextureHeight();
+
+        ImVec2 size = requestedSize;
+        if( size.x == 0 )
+            size = ImGui::GetContentRegionAvail();
+        if( size.x > size.y ) size.x = size.y;
+        if( size.y > size.x ) size.y = size.x;
+
+        if( pTexture )
+        {
+            int w = pTexture->GetWidth();
+            int h = pTexture->GetHeight();
+            //ImGui::ImageButton( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), -1, ImVec4(0,0,0,1) );
+            ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
+        }
+    }
+
+    if( createWindow == true )
+    {
+        ImGui::End(); // ImGui::Begin( "Material"...
+    }
+}
+
+void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(bool createWindow, MaterialDefinition* pMaterial, ImVec2 requestedSize, ImVec4 tint)
+{
+    ImVec2 startUV( pMaterial->GetUVOffset() );
+    ImVec2 endUV( pMaterial->GetUVOffset() + pMaterial->GetUVScale() );
+    AddTexturePreview( false, pMaterial->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), startUV, endUV );
+}
+
+void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
+{
+    MyAssert( pTexture );
+
+    if( createWindow == false || ImGui::Begin( "Texture", 0, ImVec2(150, 150), 1 ) )
+    {
+        int texw = pTexture->GetWidth();
+        int texh = pTexture->GetHeight();
+
+        ImVec2 size = requestedSize;
+        if( size.x == 0 )
+            size = ImGui::GetContentRegionAvail();
+        if( size.x > size.y ) size.x = size.y;
+        if( size.y > size.x ) size.y = size.x;
+
+        ImGui::Image( (void*)pTexture->GetTextureID(), size, startUV, endUV, tint );
+    }
+
+    if( createWindow == true )
+    {
+        ImGui::End(); // ImGui::Begin( "Texture"...
+    }
+}
+
+void EditorMainFrame_ImGui::AddDebug_MousePicker()
+{
+    if( ImGui::Begin( "Mouse Picker", 0, ImVec2(150, 150), 1 ) )
+    {
+        TextureDefinition* pTexture = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetColorTexture( 0 );
+        int texw = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureWidth();
+        int texh = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureHeight();
+
+        ImVec2 size = ImGui::GetContentRegionAvail();
+        if( size.x > size.y ) size.x = size.y;
+        if( size.y > size.x ) size.y = size.x;
+
+        if( pTexture )
+        {
+            //int w = pTexture->GetWidth();
+            //int h = pTexture->GetHeight();
+            int w = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetWidth();
+            int h = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetHeight();
+            ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
+        }
+    }
+    ImGui::End();
+}
+
+void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile)
+{
+    const char* extension = pFile->GetExtensionWithDot();
+
+    if( strcmp( extension, ".my2daniminfo" ) == 0 )
+    {
+        if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_Is2DAnimationEditorOpen ) )
+        {
+            My2DAnimInfo* pAnim = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, SCENEID_Any )->Get2DAnimInfo();
+            Edit2DAnimInfo( pAnim );
+            ImGui::CloseCurrentPopup();
+        }
+    }
+    else
+    {
+        if( ImGui::MenuItem( "View in Watch Window (TODO)" ) )   { pFile->OnPopupClick( pFile, MyFileObject::RightClick_ViewInWatchWindow );    ImGui::CloseCurrentPopup(); }
+    }
+    if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
+    if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
+    if( ImGui::MenuItem( "Unload File" ) )            { pFile->OnPopupClick( pFile, MyFileObject::RightClick_UnloadFile );           ImGui::CloseCurrentPopup(); }
+    if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
 }
 
 void EditorMainFrame_ImGui::OnDropEditorWindow()

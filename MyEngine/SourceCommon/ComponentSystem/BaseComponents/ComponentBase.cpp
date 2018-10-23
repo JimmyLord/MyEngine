@@ -1259,6 +1259,17 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                     contextMenuItemCount++;
                 }
 
+                if( pVar->m_Type == ComponentVariableType_FilePtr )
+                {
+                    if( contextMenuItemCount > 0 )
+                        ImGui::Separator();
+
+                    MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
+                    g_pEngineCore->GetEditorMainFrame_ImGui()->AddContextMenuItemsForFiles( pFile );
+
+                    contextMenuItemCount++;
+                }
+
                 // Close the popup if no menu items were added to it.
                 if( contextMenuItemCount == 0 )
                 {
