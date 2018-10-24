@@ -57,7 +57,7 @@ public:
         StylePref_Color_TabUnfocused,
         StylePref_Color_TabUnfocusedActive,
         StylePref_Color_DockingPreview,
-        StylePref_Color_DockingBg,
+        StylePref_Color_DockingEmptyBg,
         StylePref_Color_PlotLines,
         StylePref_Color_PlotLinesHovered,
         StylePref_Color_PlotHistogram,

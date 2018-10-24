@@ -77,6 +77,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_p2DAnimInfoBeingEdited = 0;
     m_Is2DAnimationEditorOpen = false;
     m_Current2DAnimationIndex = 0;
+    m_pAnimPlayerComponent = MyNew ComponentAnimationPlayer2D();
 
     // Log Window
     m_pLogWindow = MyNew EditorLogWindow_ImGui;
@@ -372,6 +373,11 @@ void EditorMainFrame_ImGui::RequestCloseWindow()
         m_ShowCloseEditorWarning = true;
     else
         g_pGameCore->SetGameConfirmedCloseIsOkay();
+}
+
+void EditorMainFrame_ImGui::Update(float deltaTime)
+{
+    m_pAnimPlayerComponent->TickCallback( deltaTime );
 }
 
 void EditorMainFrame_ImGui::AddEverything()
@@ -3224,14 +3230,18 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         MyFileInfo* pFileInfo = g_pComponentSystemManager->GetFileInfoIfUsedByScene( m_FullPathToLast2DAnimInfoBeingEdited, SCENEID_Any );
         if( pFileInfo )
         {
-            My2DAnimInfo* pAnim = pFileInfo->Get2DAnimInfo();
+            My2DAnimInfo* pAnimInfo = pFileInfo->Get2DAnimInfo();
             m_Is2DAnimationEditorOpen = true;
             m_Current2DAnimationIndex = 0;
 
-            if( pAnim->GetSourceFile() && pAnim->GetSourceFile()->IsFinishedLoading() )
+            if( pAnimInfo->GetSourceFile() && pAnimInfo->GetSourceFile()->IsFinishedLoading() )
             {
-                m_p2DAnimInfoBeingEdited = pAnim;
+                m_p2DAnimInfoBeingEdited = pAnimInfo;
                 m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
+
+                m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
+                m_pAnimPlayerComponent->SetAnimationFile( pAnimInfo->GetSourceFile() );
+                m_pAnimPlayerComponent->SetCurrentAnimation( m_Current2DAnimationIndex );
             }
         }
     }
@@ -3276,6 +3286,10 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                 ImGui::SameLine();
                 ImGui::Text( "<- MANUAL SAVE" );
                 ImGui::Separator();
+            }
+
+            {
+                ImGui::Text( "FrameIndex: %d", m_pAnimPlayerComponent->GetCurrentFrameIndex() );
             }
 
             ImGui::Text( "%s Animations:", pAnimInfo->GetSourceFile()->GetFilenameWithoutExtension() );

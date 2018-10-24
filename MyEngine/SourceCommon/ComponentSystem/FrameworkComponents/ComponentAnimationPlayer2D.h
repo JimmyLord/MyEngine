@@ -12,6 +12,7 @@
 
 class ComponentAnimationPlayer2D : public ComponentBase
 {
+    friend class EditorMainFrame_ImGui; // Allows call to TickCallback() for preview in 2D animation editor.
 private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentAnimationPlayer2D );
@@ -45,6 +46,7 @@ public:
     void SetAnimationFile(MyFileObject* pFile);
 
     My2DAnimInfo* Get2DAnimInfoObject() { return m_pAnimInfo; }
+    uint32 GetCurrentFrameIndex() { return m_FrameIndex; }
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();

@@ -25,8 +25,14 @@ ComponentAnimationPlayer2D::ComponentAnimationPlayer2D()
 
     m_BaseType = BaseComponentType_Data;
 
+    m_pSpriteComponent = 0;
+
     m_pAnimationFile = 0;
     m_pAnimInfo = 0;
+
+    m_AnimationIndex = 0;
+    m_AnimationTime = 0;
+    m_FrameIndex = 0;
 
 #if MYFW_USING_WX
     g_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
@@ -299,15 +305,15 @@ void ComponentAnimationPlayer2D::UnregisterCallbacks()
 
 void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
 {
-    if( m_pSpriteComponent == 0 )
+    if( m_pGameObject != 0 && m_pSpriteComponent == 0 )
     {
         ComponentBase* pComponent = m_pGameObject->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
         if( pComponent )
             m_pSpriteComponent = pComponent->IsA( "SpriteComponent" ) ? (ComponentSprite*)pComponent : 0;
     }
 
-    if( m_pSpriteComponent == 0 )
-        return;
+    //if( m_pSpriteComponent == 0 )
+    //    return;
 
     if( m_pAnimInfo == 0 )
         return;
@@ -348,8 +354,11 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
     pFrame = pAnim->GetFrameByIndexClamped( m_FrameIndex );
 
     // Set the material
-    MaterialDefinition* pMaterial = pFrame->GetMaterial();
-    m_pSpriteComponent->SetMaterial( pMaterial, 0 );
+    if( m_pSpriteComponent )
+    {
+        MaterialDefinition* pMaterial = pFrame->GetMaterial();
+        m_pSpriteComponent->SetMaterial( pMaterial, 0 );
+    }
 
     //LOGInfo( LOGTag, "%d, %s\n", m_FrameIndex, (*pMaterial).GetName() );
 }

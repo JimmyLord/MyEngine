@@ -503,6 +503,7 @@ float EngineCore::Tick(float deltaTime)
 #if MYFW_USING_IMGUI
     if( m_pEditorMainFrame )
     {
+        ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->Update( deltaTime );
         ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->AddEverything();
     }
 #endif

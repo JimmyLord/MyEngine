@@ -55,7 +55,7 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
     "TabUnfocused",
     "TabUnfocusedActive",
     "DockingPreview",
-    "DockingBg",
+    "DockingEmptyBg",
     "PlotLines",
     "PlotLinesHovered",
     "PlotHistogram",

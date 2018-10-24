@@ -32,6 +32,7 @@ protected:
     My2DAnimInfo* m_p2DAnimInfoBeingEdited;
     bool m_Is2DAnimationEditorOpen;
     unsigned int m_Current2DAnimationIndex;
+    ComponentAnimationPlayer2D* m_pAnimPlayerComponent;
 
     // Log Window.
     EditorLogWindow_ImGui* m_pLogWindow;
@@ -99,6 +100,8 @@ public:
     bool CheckForHotkeys(int keyaction, int keycode);
 
     void RequestCloseWindow();
+
+    void Update(float deltaTime);
 
     void AddEverything();
 
