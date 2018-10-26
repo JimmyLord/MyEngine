@@ -351,6 +351,8 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
             m_FrameIndex = 0;
     }
 
+    MyClamp( m_FrameIndex, (uint32)0, pAnim->GetFrameCount()-1 );
+    MyAssert( m_FrameIndex < pAnim->GetFrameCount() );
     pFrame = pAnim->GetFrameByIndexClamped( m_FrameIndex );
 
     // Set the material

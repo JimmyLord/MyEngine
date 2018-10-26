@@ -78,6 +78,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_Is2DAnimationEditorOpen = false;
     m_Current2DAnimationIndex = 0;
     m_pAnimPlayerComponent = MyNew ComponentAnimationPlayer2D();
+    m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
 
     // Log Window
     m_pLogWindow = MyNew EditorLogWindow_ImGui;
@@ -136,6 +137,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
 EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
 {
+    m_pAnimPlayerComponent->SetEnabled( false );
+    SAFE_DELETE( m_pAnimPlayerComponent );
+
     SAFE_DELETE( m_pCommandStack );
     SAFE_DELETE( m_pLogWindow );
 
@@ -1231,6 +1235,8 @@ void EditorMainFrame_ImGui::AddObjectList()
             forceOpen = true;
         }
 
+        ImGui::BeginChild( "GameObject List" );
+
         if( ImGui::CollapsingHeader( "All scenes", ImGuiTreeNodeFlags_DefaultOpen ) || forceOpen )
         {
             // Add all active scenes.
@@ -1311,6 +1317,8 @@ void EditorMainFrame_ImGui::AddObjectList()
         }
 
         AddPrefabFiles( forceOpen );
+
+        ImGui::EndChild();
 
         if( m_ObjectListFilter[0] != 0 )
         {
@@ -2176,10 +2184,14 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
         // If a filter is set, show all types.
         if( m_MemoryPanelFilter[0] != 0 )
         {
+            ImGui::BeginChild( "Memory Details" );
+
             AddMemoryPanel_Materials();
             AddMemoryPanel_Textures();
             AddMemoryPanel_ShaderGroups();
             AddMemoryPanel_Files();
+
+            ImGui::EndChild();
         }
         else
         {
@@ -2187,44 +2199,65 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
             {
                 if( ImGui::BeginTabItem( "Materials" ) )
                 {
-                    AddMemoryPanel_Materials();
                     ImGui::EndTabItem();
+
+                    ImGui::BeginChild( "Memory Details" );
+                    AddMemoryPanel_Materials();
+                    ImGui::EndChild();
                 }
 
                 if( ImGui::BeginTabItem( "Textures" ) )
                 {
-                    AddMemoryPanel_Textures();
                     ImGui::EndTabItem();
+
+                    ImGui::BeginChild( "Memory Details" );
+                    AddMemoryPanel_Textures();
+                    ImGui::EndChild();
                 }
 
                 if( ImGui::BeginTabItem( "Shaders" ) )
                 {
-                    AddMemoryPanel_ShaderGroups();
                     ImGui::EndTabItem();
+
+                    ImGui::BeginChild( "Memory Details" );
+                    AddMemoryPanel_ShaderGroups();
+                    ImGui::EndChild();
                 }
 
                 if( ImGui::BeginTabItem( "Sound Cues" ) )
                 {
-                    ImGui::Text( "TODO" );
                     ImGui::EndTabItem();
+
+                    ImGui::BeginChild( "Memory Details" );
+                    ImGui::Text( "TODO" );
+                    ImGui::EndChild();
                 }
 
                 if( ImGui::BeginTabItem( "Files" ) )
                 {
-                    AddMemoryPanel_Files();
                     ImGui::EndTabItem();
+
+                    ImGui::BeginChild( "Memory Details" );
+                    AddMemoryPanel_Files();
+                    ImGui::EndChild();
                 }
 
                 if( ImGui::BeginTabItem( "Buffers" ) )
                 {
-                    ImGui::Text( "TODO" );
                     ImGui::EndTabItem();
+
+                    ImGui::BeginChild( "Memory Details" );
+                    ImGui::Text( "TODO" );
+                    ImGui::EndChild();
                 }
 
                 if( ImGui::BeginTabItem( "Draw Calls" ) )
                 {
-                    AddMemoryPanel_DrawCalls();
                     ImGui::EndTabItem();
+
+                    ImGui::BeginChild( "Memory Details" );
+                    AddMemoryPanel_DrawCalls();
+                    ImGui::EndChild();
                 }
 
                 ImGui::EndTabBar();
@@ -3238,10 +3271,6 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             {
                 m_p2DAnimInfoBeingEdited = pAnimInfo;
                 m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
-
-                m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
-                m_pAnimPlayerComponent->SetAnimationFile( pAnimInfo->GetSourceFile() );
-                m_pAnimPlayerComponent->SetCurrentAnimation( m_Current2DAnimationIndex );
             }
         }
     }
@@ -3277,6 +3306,11 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         }
         else
         {
+            m_pAnimPlayerComponent->SetAnimationFile( pAnimInfo->GetSourceFile() );
+            m_pAnimPlayerComponent->SetCurrentAnimation( m_Current2DAnimationIndex );
+
+            ImGui::Columns( 2, 0, false );
+
             {
                 ImGui::Text( "WORK IN PROGRESS - NO UNDO - MANUAL SAVE" );
                 if( ImGui::Button( "Save" ) )
@@ -3285,12 +3319,28 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                 }
                 ImGui::SameLine();
                 ImGui::Text( "<- MANUAL SAVE" );
-                ImGui::Separator();
             }
 
+            ImGui::NextColumn();
+
             {
-                ImGui::Text( "FrameIndex: %d", m_pAnimPlayerComponent->GetCurrentFrameIndex() );
+                uint32 frameIndex = m_pAnimPlayerComponent->GetCurrentFrameIndex();
+                My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( m_Current2DAnimationIndex );
+                My2DAnimationFrame* pFrame = pAnim->GetFrameByIndex( frameIndex );
+
+                MaterialDefinition* pMat = pFrame->m_pMaterial;
+                AddMaterialColorTexturePreview( false, pMat, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
+
+                ImGui::SameLine();
+
+                ImGui::Text( "FrameIndex: %d", frameIndex );
             }
+
+            ImGui::Columns( 1 );
+
+            ImGui::Separator();
+
+            ImGui::BeginChild( "Animation Details" );
 
             ImGui::Text( "%s Animations:", pAnimInfo->GetSourceFile()->GetFilenameWithoutExtension() );
             ImGui::Columns( 3, 0, false );
@@ -3406,6 +3456,8 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                 ImGui::SameLine();
                 ImGui::Text( "<- MANUAL SAVE" );
             }
+
+            ImGui::EndChild();
         }
     }
 
