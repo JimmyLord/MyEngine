@@ -3331,11 +3331,22 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                     My2DAnimationFrame* pFrame = pAnim->GetFrameByIndex( frameIndex );
 
                     MaterialDefinition* pMat = pFrame->m_pMaterial;
+
                     AddMaterialColorTexturePreview( false, pMat, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
 
                     ImGui::SameLine();
 
                     ImGui::Text( "FrameIndex: %d", frameIndex );
+
+                    ImGui::SameLine();
+                    
+                    if( ImGui::Button( "Remove Animation" ) )
+                    {
+                        pAnimInfo->OnRemoveAnimationPressed( m_Current2DAnimationIndex );
+                        
+                        if( m_Current2DAnimationIndex > pAnimInfo->GetNumberOfAnimations() )
+                            m_Current2DAnimationIndex--;
+                    }
                 }
             }
 
@@ -3372,6 +3383,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             ImGui::NextColumn();
 
             // Second Column: Frame durations of currently selected animation.
+            if( pAnimInfo->GetNumberOfAnimations() > 0 )
             {
                 int animIndex = m_Current2DAnimationIndex;
 
@@ -3415,6 +3427,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             ImGui::NextColumn();
 
             // Third Column: Material texture previews.
+            if( pAnimInfo->GetNumberOfAnimations() > 0 )
             {
                 int animindex = m_Current2DAnimationIndex;
 
@@ -3430,7 +3443,15 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
                     MaterialDefinition* pMat = pFrame->m_pMaterial;
 
-                    ImGui::Text( "%s", pMat->GetName() );
+                    if( pMat != 0 )
+                    {
+                        ImGui::Text( "%s", pMat->GetName() );
+                    }
+                    else
+                    {
+                        ImGui::Text( "No Material Assigned" );
+                    }
+
                     AddMaterialColorTexturePreview( false, pMat, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
 
                     if( ImGui::BeginDragDropTarget() )
@@ -3499,27 +3520,36 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
 
 void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(bool createWindow, MaterialDefinition* pMaterial, ImVec2 requestedSize, ImVec4 tint)
 {
-    ImVec2 startUV( pMaterial->GetUVOffset() );
-    ImVec2 endUV( pMaterial->GetUVOffset() + pMaterial->GetUVScale() );
-    AddTexturePreview( false, pMaterial->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), startUV, endUV );
+    if( pMaterial == 0 )
+    {
+        AddTexturePreview( false, 0, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), ImVec2( 0, 0 ), ImVec2( 0, 0 ) );
+    }
+    else
+    {
+        ImVec2 startUV( pMaterial->GetUVOffset() );
+        ImVec2 endUV( pMaterial->GetUVOffset() + pMaterial->GetUVScale() );
+        AddTexturePreview( false, pMaterial->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), startUV, endUV );
+    }
 }
 
 void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
 {
-    MyAssert( pTexture );
-
     if( createWindow == false || ImGui::Begin( "Texture", 0, ImVec2(150, 150), 1 ) )
     {
-        int texw = pTexture->GetWidth();
-        int texh = pTexture->GetHeight();
-
         ImVec2 size = requestedSize;
         if( size.x == 0 )
             size = ImGui::GetContentRegionAvail();
         if( size.x > size.y ) size.x = size.y;
         if( size.y > size.x ) size.y = size.x;
 
-        ImGui::Image( (void*)pTexture->GetTextureID(), size, startUV, endUV, tint );
+        if( pTexture != 0 )
+        {
+            ImGui::Image( (void*)pTexture->GetTextureID(), size, startUV, endUV, tint );
+        }
+        else
+        {
+            ImGui::Image( 0, size, startUV, endUV, tint );
+        }
     }
 
     if( createWindow == true )
