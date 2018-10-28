@@ -3326,14 +3326,17 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             {
                 uint32 frameIndex = m_pAnimPlayerComponent->GetCurrentFrameIndex();
                 My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( m_Current2DAnimationIndex );
-                My2DAnimationFrame* pFrame = pAnim->GetFrameByIndex( frameIndex );
+                if( pAnim->GetFrameCount() > 0 )
+                {
+                    My2DAnimationFrame* pFrame = pAnim->GetFrameByIndex( frameIndex );
 
-                MaterialDefinition* pMat = pFrame->m_pMaterial;
-                AddMaterialColorTexturePreview( false, pMat, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
+                    MaterialDefinition* pMat = pFrame->m_pMaterial;
+                    AddMaterialColorTexturePreview( false, pMat, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
 
-                ImGui::SameLine();
+                    ImGui::SameLine();
 
-                ImGui::Text( "FrameIndex: %d", frameIndex );
+                    ImGui::Text( "FrameIndex: %d", frameIndex );
+                }
             }
 
             ImGui::Columns( 1 );
@@ -3361,7 +3364,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                 {
                     if( ImGui::Button( "Add Animation" ) )
                     {
-                        //My2DAnimInfo::StaticOnAddAnimationPressed;
+                        pAnimInfo->OnAddAnimationPressed();
                     }
                 }
             }
@@ -3388,7 +3391,8 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
                     if( ImGui::Button( "Remove" ) )
                     {
-                        //My2DAnimInfo::StaticOnRemoveFramePressed
+                        pAnimInfo->OnRemoveFramePressed( animIndex, frameIndex );
+                        numframes = pAnim->GetFrameCount();
                     }
 
                     ImGui::Spacing();
@@ -3403,7 +3407,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                 {
                     if( ImGui::Button( "Add Frame" ) )
                     {
-                        //My2DAnimInfo::StaticOnAddFramePressed
+                        pAnimInfo->OnAddFramePressed( animIndex );
                     }
                 }
             }
