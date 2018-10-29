@@ -20,6 +20,7 @@ private:
 protected:
     ComponentSprite* m_pSpriteComponent;
 
+    bool m_AnimationFileLoaded;
     MyFileObject* m_pAnimationFile;
     My2DAnimInfo* m_pAnimInfo;
 

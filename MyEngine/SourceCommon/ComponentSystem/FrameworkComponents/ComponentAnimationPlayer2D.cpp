@@ -27,6 +27,7 @@ ComponentAnimationPlayer2D::ComponentAnimationPlayer2D()
 
     m_pSpriteComponent = 0;
 
+    m_AnimationFileLoaded = false;
     m_pAnimationFile = 0;
     m_pAnimInfo = 0;
 
@@ -261,6 +262,7 @@ void ComponentAnimationPlayer2D::SetAnimationFile(MyFileObject* pFile)
         pFile->AddRef();
 
     SAFE_RELEASE( m_pAnimationFile );
+    m_AnimationFileLoaded = false;
     m_pAnimationFile = pFile;
 
     MyFileInfo* pFileInfo = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, m_SceneIDLoadedFrom );
@@ -318,12 +320,10 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
     if( m_pAnimInfo == 0 )
         return;
 
-    if( m_pAnimInfo->GetNumberOfAnimations() == 0 )
+    if( m_AnimationFileLoaded == false )
     {
-        if( m_pAnimationFile && m_pAnimationFile->GetFileLoadStatus() == FileLoadStatus_Success )
-        {
-            m_pAnimInfo->LoadAnimationControlFile();
-        }
+        m_pAnimInfo->LoadAnimationControlFile();
+        m_AnimationFileLoaded = true;
     }
 
     if( m_pAnimInfo->GetNumberOfAnimations() == 0 )

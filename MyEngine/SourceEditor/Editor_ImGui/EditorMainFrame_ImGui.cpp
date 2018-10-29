@@ -3267,7 +3267,8 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             m_Is2DAnimationEditorOpen = true;
             m_Current2DAnimationIndex = 0;
 
-            if( pAnimInfo->GetSourceFile() && pAnimInfo->GetSourceFile()->IsFinishedLoading() )
+            MyFileObject* pFile = pAnimInfo->GetSourceFile();
+            if( pFile && pFile->IsFinishedLoading() )
             {
                 m_p2DAnimInfoBeingEdited = pAnimInfo;
                 m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
@@ -3323,6 +3324,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
             ImGui::NextColumn();
 
+            if( pAnimInfo->GetNumberOfAnimations() > 0 )
             {
                 uint32 frameIndex = m_pAnimPlayerComponent->GetCurrentFrameIndex();
                 My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( m_Current2DAnimationIndex );
