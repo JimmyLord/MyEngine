@@ -80,6 +80,7 @@ void ComponentAnimationPlayer2D::LuaRegister(lua_State* luastate)
         .beginClass<ComponentAnimationPlayer2D>( "ComponentAnimationPlayer2D" )
             //.addData( "m_TimeBetweenFrames", &ComponentAnimationPlayer2D::m_TimeBetweenFrames )
             .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer2D::SetCurrentAnimation ) // void ComponentAnimationPlayer2D::SetCurrentAnimation(unsigned int anim)
+            .addFunction( "GetAnimationIndexByName", &ComponentAnimationPlayer2D::GetAnimationIndexByName ) // uint32 ComponentAnimationPlayer2D::GetAnimationIndexByName(const char* name)
             //m_AnimationIndex
             //m_AnimationTime
             //m_FrameIndex
@@ -256,6 +257,17 @@ ComponentAnimationPlayer2D& ComponentAnimationPlayer2D::operator=(const Componen
     return *this;
 }
 
+uint32 ComponentAnimationPlayer2D::GetAnimationIndexByName(const char* name)
+{
+    if( m_pAnimInfo == 0 )
+    {
+        LOGInfo( LOGTag, "Warning: GetAnimationIndexByName: Animation control file not set\n" );
+        return 0;
+    }
+
+    return m_pAnimInfo->GetAnimationIndexByName( name );
+}
+
 void ComponentAnimationPlayer2D::SetAnimationFile(MyFileObject* pFile)
 {
     if( pFile )
@@ -271,6 +283,16 @@ void ComponentAnimationPlayer2D::SetAnimationFile(MyFileObject* pFile)
     pFileInfo->Get2DAnimInfo()->AddRef();
     SAFE_RELEASE( m_pAnimInfo );
     m_pAnimInfo = pFileInfo->Get2DAnimInfo();
+}
+
+void ComponentAnimationPlayer2D::SetCurrentAnimation(uint32 anim)
+{
+    if( anim == m_AnimationIndex )
+        return;
+
+    m_AnimationIndex = anim;
+    m_AnimationTime = 0;
+    m_FrameIndex = 0;
 }
 
 void ComponentAnimationPlayer2D::RegisterCallbacks()
@@ -363,14 +385,4 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
     }
 
     //LOGInfo( LOGTag, "%d, %s\n", m_FrameIndex, (*pMaterial).GetName() );
-}
-
-void ComponentAnimationPlayer2D::SetCurrentAnimation(unsigned int anim)
-{
-    if( anim == m_AnimationIndex )
-        return;
-
-    m_AnimationIndex = anim;
-    m_AnimationTime = 0;
-    m_FrameIndex = 0;
 }

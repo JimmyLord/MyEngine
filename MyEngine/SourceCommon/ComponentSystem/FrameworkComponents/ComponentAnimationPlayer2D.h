@@ -44,15 +44,18 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentAnimationPlayer2D&)*pObject; }
     ComponentAnimationPlayer2D& operator=(const ComponentAnimationPlayer2D& other);
 
-    void SetAnimationFile(MyFileObject* pFile);
-
+    // Getters
     My2DAnimInfo* Get2DAnimInfoObject() { return m_pAnimInfo; }
     uint32 GetCurrentFrameIndex() { return m_FrameIndex; }
+    uint32 GetAnimationIndexByName(const char* name);
 
+    // Setters
+    void SetAnimationFile(MyFileObject* pFile);
+    void SetCurrentAnimation(uint32 anim);
+
+    // Callbacks
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
-
-    void SetCurrentAnimation(unsigned int anim);
 
 protected:
     // Callback functions for various events.

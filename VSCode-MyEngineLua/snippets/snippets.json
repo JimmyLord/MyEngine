@@ -1054,6 +1054,7 @@
     //        .beginClass<ComponentAnimationPlayer>( "ComponentAnimationPlayer" )
     //            //.addData( "localmatrix", &ComponentAnimationPlayer::m_LocalTransform )
     //            .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer::SetCurrentAnimation ) // void ComponentAnimationPlayer::SetCurrentAnimation(unsigned int anim)
+    //            .addFunction( "GetAnimationIndexByName", &ComponentAnimationPlayer2D::GetAnimationIndexByName ) // uint32 ComponentAnimationPlayer2D::GetAnimationIndexByName(const char* name)
     //        .endClass();
 
     "ComponentAnimationPlayer:SetCurrentAnimation": {
@@ -1062,6 +1063,12 @@
         "description": "Change the animation index of this component."
     },
     
+    "ComponentAnimationPlayer:GetAnimationIndexByName": {
+        "prefix": "ComponentAnimationPlayer:GetAnimationIndexByName",
+        "body": "GetAnimationIndexByName( ${1:const char* name} )",
+        "description": "Get the animation index for a given animation name."
+    },
+
     //ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );
     //    .beginClass<ComponentAnimationPlayer2D>( "ComponentAnimationPlayer2D" )
     //        //.addData( "m_TimeBetweenFrames", &ComponentAnimationPlayer2D::m_TimeBetweenFrames )
