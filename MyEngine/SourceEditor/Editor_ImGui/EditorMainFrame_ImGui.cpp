@@ -564,7 +564,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
         }
     }
 
-    if( m_pMaterialToPreview != 0 )
+    if( m_pMaterialToPreview != 0 && m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
     {
         if( m_pMaterialPreviewFBO->GetColorTexture( 0 ) )
         {
@@ -3495,22 +3495,30 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
 {
     if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(150, 150), 1 ) )
     {
-        TextureDefinition* pTexture = m_pMaterialPreviewFBO->GetColorTexture( 0 );
-        int texw = m_pMaterialPreviewFBO->GetTextureWidth();
-        int texh = m_pMaterialPreviewFBO->GetTextureHeight();
-
-        ImVec2 size = requestedSize;
-        if( size.x == 0 )
-            size = ImGui::GetContentRegionAvail();
-        if( size.x > size.y ) size.x = size.y;
-        if( size.y > size.x ) size.y = size.x;
-
-        if( pTexture )
+        if( m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
         {
-            int w = pTexture->GetWidth();
-            int h = pTexture->GetHeight();
-            //ImGui::ImageButton( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), -1, ImVec4(0,0,0,1) );
-            ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
+            TextureDefinition* pTexture = pTexture = m_pMaterialPreviewFBO->GetColorTexture( 0 );
+
+            int texw = m_pMaterialPreviewFBO->GetTextureWidth();
+            int texh = m_pMaterialPreviewFBO->GetTextureHeight();
+
+            ImVec2 size = requestedSize;
+            if( size.x == 0 )
+                size = ImGui::GetContentRegionAvail();
+            if( size.x > size.y ) size.x = size.y;
+            if( size.y > size.x ) size.y = size.x;
+
+            if( pTexture )
+            {
+                int w = pTexture->GetWidth();
+                int h = pTexture->GetHeight();
+                //ImGui::ImageButton( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), -1, ImVec4(0,0,0,1) );
+                ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
+            }
+        }
+        else //if( m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Flat )
+        {
+            AddMaterialColorTexturePreview( false, m_pMaterialToPreview, requestedSize, tint );
         }
     }
 
