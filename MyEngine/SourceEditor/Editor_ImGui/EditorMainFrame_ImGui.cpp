@@ -3235,6 +3235,34 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 }
             }
 
+            // Preview settings.
+            {
+                ImGui::Separator();
+
+                MyAssert( MaterialDefinition::PreviewType_NumTypes == 2 );
+                const char* items[] = { "Sphere", "Flat" };
+
+                int currentItem = pMat->GetPreviewType();
+                const char* currentItemStr = items[currentItem];
+                if( ImGui::BeginCombo( "Preview Type", currentItemStr ) )
+                {
+                    for( int n = 0; n < MaterialDefinition::PreviewType_NumTypes; n++ )
+                    {
+                        bool isSelected = (n == currentItem);
+                        if( ImGui::Selectable( items[n], isSelected ) )
+                        {
+                            pMat->SetPreviewType( (MaterialDefinition::PreviewType)n );
+                        }
+                        if( isSelected )
+                        {
+                            // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            }
+
             {
                 ImGui::Separator();
                 ImGui::Text( "MANUAL SAVE" );
@@ -3493,7 +3521,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
 void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint)
 {
-    if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(150, 150), 1 ) )
+    if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(requestedSize.x+50, requestedSize.y+50), 1 ) )
     {
         if( m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
         {
@@ -3532,13 +3560,13 @@ void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(bool createWindow, Ma
 {
     if( pMaterial == 0 )
     {
-        AddTexturePreview( false, 0, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), ImVec2( 0, 0 ), ImVec2( 0, 0 ) );
+        AddTexturePreview( false, 0, requestedSize, ImVec4( 1, 1, 1, 1 ), ImVec2( 0, 0 ), ImVec2( 0, 0 ) );
     }
     else
     {
         ImVec2 startUV( pMaterial->GetUVOffset() );
         ImVec2 endUV( pMaterial->GetUVOffset() + pMaterial->GetUVScale() );
-        AddTexturePreview( false, pMaterial->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), startUV, endUV );
+        AddTexturePreview( false, pMaterial->GetTextureColor(), requestedSize, ImVec4( 1, 1, 1, 1 ), startUV, endUV );
     }
 }
 
