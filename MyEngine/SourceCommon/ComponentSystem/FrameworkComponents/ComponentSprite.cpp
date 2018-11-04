@@ -39,9 +39,18 @@ ComponentSprite::~ComponentSprite()
 
     SAFE_RELEASE( m_pSprite );
 
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
     m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
 
     RemoveFromSceneGraph();
+
+    MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( Tick );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnSurfaceChanged );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( Draw );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnTouch );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnButtons );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnKeys );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnFileRenamed );
 }
 
 void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pThis) //_VARIABLE_LIST

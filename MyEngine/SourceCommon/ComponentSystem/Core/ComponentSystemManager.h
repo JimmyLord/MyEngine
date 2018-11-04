@@ -78,6 +78,9 @@ struct FileUpdatedCallbackStruct
 #define MYFW_UNREGISTER_COMPONENT_CALLBACK(CallbackType) \
     g_pComponentSystemManager->UnregisterComponentCallback_##CallbackType( &m_CallbackStruct_##CallbackType );
 
+#define MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED(CallbackType) \
+    MyAssert( m_CallbackStruct_##CallbackType.Prev == 0 );
+
 // Declare callback objects/functions - used by components.
 #define MYFW_DECLARE_COMPONENT_CALLBACK_TICK() \
     ComponentCallbackStruct_Tick m_CallbackStruct_Tick; \
