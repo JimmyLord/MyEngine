@@ -672,7 +672,10 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             // In editor builds, fully load spritesheets immediately.
             pFile = g_pEngineFileManager->LoadFileNow( relativepath );
             pFileInfo->SetFile( pFile );
-            pFile->Release(); // Release ref added by LoadFileNow.
+            if( pFile )
+            {
+                pFile->Release(); // Release ref added by LoadFileNow if file was found.
+            }
         }
 #endif
         else
@@ -709,7 +712,13 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             pFileInfo->SetSourceFileFullPath( finalpath );
         }
 
-        // if we're loading a mesh file type, create a mesh.
+        // If not file was loaded (file not found), return now.
+        if( pFile == 0 )
+        {
+            return pFileInfo;
+        }
+
+        // If we're loading a mesh file type, create a mesh.
         {
             if( strcmp( pFile->GetExtensionWithDot(), ".obj" ) == 0 ||
                 strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
@@ -1006,7 +1015,6 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
                     // Find the file object and set it's source path.
                     MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( jPath->valuestring, scenetosearch );
-                    MyAssert( pFileInfo );
                     if( pFileInfo )
                     {
                         if( jSourcePath )
