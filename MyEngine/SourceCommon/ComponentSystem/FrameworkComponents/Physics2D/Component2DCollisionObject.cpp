@@ -46,7 +46,11 @@ Component2DCollisionObject::Component2DCollisionObject()
     m_Offset.Set( 0, 0 );
     m_Scale.Set( 1,1,1 );
 
+    // Body properties.
     m_Static = false;
+    m_FixedRotation = false;
+
+    // Fixture properties.
     m_Density = 1.0f;
     m_IsSensor = false;
     m_Friction = 0.2f;
@@ -78,6 +82,7 @@ void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component
     AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 
     AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "FixedRotation", ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_FixedRotation ),   true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
     AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
     AddVar( pList, "IsSensor",      ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
     pVar = AddVar( pList, "Friction",      ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
@@ -119,6 +124,8 @@ void Component2DCollisionObject::Reset()
     m_Scale.Set( 1,1,1 );
 
     m_Static = false;
+    m_FixedRotation = false;
+
     m_Density = 0;
     m_IsSensor = false;
     m_Friction = 0.2f;
@@ -291,6 +298,11 @@ void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool c
             else
                 m_pBody->SetType( b2_dynamicBody );
         }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_FixedRotation ) )
+        {
+            m_pBody->SetFixedRotation( m_FixedRotation );
+        }        
     }
 
     if( m_pFixture )
@@ -395,7 +407,11 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
     m_Offset = other.m_Offset;
     //m_Scale = other.m_Scale;
 
+    // Body properties.
     m_Static = other.m_Static;
+    m_FixedRotation = other.m_FixedRotation;
+
+    // Fixture properties.
     m_Density = other.m_Density;
     m_IsSensor = other.m_IsSensor;
     m_Friction = other.m_Friction;
@@ -538,6 +554,7 @@ void Component2DCollisionObject::CreateBody()
                 bodydef.type = b2_staticBody;
             else
                 bodydef.type = b2_dynamicBody;
+            bodydef.fixedRotation = m_FixedRotation;
 
             m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
             m_pBody->SetUserData( this );

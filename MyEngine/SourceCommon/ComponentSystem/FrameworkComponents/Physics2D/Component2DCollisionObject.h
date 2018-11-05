@@ -39,7 +39,11 @@ public:
     Vector2 m_Offset;
     Vector3 m_Scale;
 
+    // Body properties.
     bool m_Static;
+    bool m_FixedRotation;
+
+    // Fixture properties.
     float m_Density;
     bool m_IsSensor;
     float m_Friction;
