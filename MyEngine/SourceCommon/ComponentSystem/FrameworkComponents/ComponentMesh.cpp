@@ -77,6 +77,14 @@ ComponentMesh::~ComponentMesh()
         m_pSceneGraphObjects[i] = 0;
         SAFE_RELEASE( m_pMaterials[i] );
     }
+
+    MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( Tick );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnSurfaceChanged );
+    MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( Draw );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnTouch );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnButtons );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnKeys );
+    //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnFileRenamed );
 }
 
 void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) //_VARIABLE_LIST
