@@ -92,6 +92,10 @@ protected:
     std::vector<std::string> m_Lua_RecentScripts;
 
 #if MYFW_USING_IMGUI
+    std::string m_ImGuiWindowLayouts[Perspective_NumPerspectives];
+    DefaultPerspectives m_CurrentPerspective;
+    DefaultPerspectives m_RequestedPerspective;
+    
     ImGuiStylePrefs* m_pImGuiStylePrefs;
 #endif
 
@@ -149,6 +153,12 @@ public:
     void FillGridSettingsWindow();
 
 #if MYFW_USING_IMGUI
+    void RequestPerspectiveChange(DefaultPerspectives perspective);
+    void ApplyPerspectiveChange();
+
+    std::string GetImGuiWindowLayout(DefaultPerspectives i) { return m_ImGuiWindowLayouts[i]; }
+    void SetImGuiWindowLayout(DefaultPerspectives i, std::string value) { m_ImGuiWindowLayouts[i] = value; }
+
     ImGuiStylePrefs* GetImGuiStylePrefs() { return m_pImGuiStylePrefs; }
 #endif
 };

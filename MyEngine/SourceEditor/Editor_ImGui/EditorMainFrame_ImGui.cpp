@@ -861,9 +861,12 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             if( ImGui::BeginMenu( "Editor Perspectives (TODO)" ) )
             {
-                for( int i=0; i<Perspective_NumPerspectives; i++ )
+                for( unsigned int i=0; i<Perspective_NumPerspectives; i++ )
                 {
-                    if( ImGui::MenuItem( g_DefaultPerspectiveMenuLabels[i] ) ) {}
+                    if( ImGui::MenuItem( g_DefaultPerspectiveMenuLabels[i] ) )
+                    {
+                        g_pEditorPrefs->RequestPerspectiveChange( Perspective_CenterEditor );
+                    }
                 }
                 ImGui::EndMenu();
             }

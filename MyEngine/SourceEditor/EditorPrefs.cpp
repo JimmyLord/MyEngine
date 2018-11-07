@@ -49,6 +49,9 @@ EditorPrefs::EditorPrefs()
     m_Debug_DrawPhysicsDebugShapes = true;
 
 #if MYFW_USING_IMGUI
+    m_CurrentPerspective = Perspective_CenterEditor;
+    m_RequestedPerspective = Perspective_CenterEditor;
+
     m_pImGuiStylePrefs = MyNew( ImGuiStylePrefs );
 #endif
 }
@@ -366,3 +369,31 @@ void EditorPrefs::FillGridSettingsWindow()
     ImGui::DragFloat3( "Step Size", &m_GridSettings.stepsize.x );
 #endif
 }
+
+#if MYFW_USING_IMGUI
+void EditorPrefs::RequestPerspectiveChange(DefaultPerspectives perspective)
+{
+    m_RequestedPerspective = perspective;
+}
+
+void EditorPrefs::ApplyPerspectiveChange()
+{
+    if( m_RequestedPerspective != m_CurrentPerspective )
+    {
+        // Save the current layout?
+        const char* newLayout = ImGui::SaveIniSettingsToMemory();
+        SetImGuiWindowLayout( m_CurrentPerspective, newLayout );
+
+        // Reset the imgui context.
+        g_pImGuiManager->Shutdown();
+        g_pImGuiManager->Init( (float)m_WindowWidth, (float)m_WindowHeight );
+
+        // Load the layout requested.
+        const char* requestedLayout = g_pEditorPrefs->GetImGuiWindowLayout( m_RequestedPerspective ).c_str();
+        ImGui::LoadIniSettingsFromMemory( requestedLayout );
+
+        m_CurrentPerspective = m_RequestedPerspective;
+    }
+}
+
+#endif

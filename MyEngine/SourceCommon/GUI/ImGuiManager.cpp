@@ -90,6 +90,7 @@ void ImGuiManager::Shutdown()
     InvalidateDeviceObjects();
 
     ImGui::DestroyContext( m_pImGuiContext );
+    m_pImGuiContext = 0;
 }
 
 void ImGuiManager::ClearInput()
