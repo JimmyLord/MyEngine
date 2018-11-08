@@ -13,6 +13,8 @@
 class EngineCore;
 class EditorLogWindow_ImGui;
 
+extern const char* g_DefaultPerspectives[Perspective_NumPerspectives];
+
 class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:

@@ -49,6 +49,9 @@ EditorPrefs::EditorPrefs()
     m_Debug_DrawPhysicsDebugShapes = true;
 
 #if MYFW_USING_IMGUI
+    for( int i=0; i<Perspective_NumPerspectives; i++ )
+        m_ImGuiWindowLayouts[i] = g_DefaultPerspectives[i];
+
     m_CurrentPerspective = Perspective_CenterEditor;
     m_RequestedPerspective = Perspective_CenterEditor;
 
@@ -381,16 +384,19 @@ void EditorPrefs::ApplyPerspectiveChange()
     if( m_RequestedPerspective != m_CurrentPerspective )
     {
         // Save the current layout?
-        const char* newLayout = ImGui::SaveIniSettingsToMemory();
-        SetImGuiWindowLayout( m_CurrentPerspective, newLayout );
+        //const char* newLayout = ImGui::SaveIniSettingsToMemory();
+        //SetImGuiWindowLayout( m_CurrentPerspective, newLayout );
 
         // Reset the imgui context.
-        g_pImGuiManager->Shutdown();
+        g_pImGuiManager->Shutdown( false );
         g_pImGuiManager->Init( (float)m_WindowWidth, (float)m_WindowHeight );
 
+        // Reapply current imgui color/etc style.
+        m_pImGuiStylePrefs->ReapplyCurrentPreset();
+
         // Load the layout requested.
-        const char* requestedLayout = g_pEditorPrefs->GetImGuiWindowLayout( m_RequestedPerspective ).c_str();
-        ImGui::LoadIniSettingsFromMemory( requestedLayout );
+        std::string requestedLayout = g_pEditorPrefs->GetImGuiWindowLayout( m_RequestedPerspective );
+        ImGui::LoadIniSettingsFromMemory( requestedLayout.c_str() );
 
         m_CurrentPerspective = m_RequestedPerspective;
     }

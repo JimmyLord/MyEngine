@@ -178,6 +178,16 @@ void ImGuiStylePrefs::ResetCurrentPreset()
     }
 }
 
+void ImGuiStylePrefs::ReapplyCurrentPreset()
+{
+    // Apply the current preset for all imgui style colors.
+    for( int i=0; i<StylePref_NumImGuiStyleColors; i++ )
+    {
+        ImVec4 color = m_Styles[m_CurrentPreset][i];
+        ImGuiExt::SetStyleColorVec4( i, color );
+    }
+}
+
 void ImGuiStylePrefs::LoadPrefs(cJSON* jPrefs)
 {
     cJSONExt_GetInt( jPrefs, "CurrentPreset", &m_CurrentPreset );
@@ -201,12 +211,7 @@ void ImGuiStylePrefs::LoadPrefs(cJSON* jPrefs)
         }
     }
 
-    // Apply the current preset for all imgui style colors.
-    for( int i=0; i<StylePref_NumImGuiStyleColors; i++ )
-    {
-        ImVec4 color = m_Styles[m_CurrentPreset][i];
-        ImGuiExt::SetStyleColorVec4( i, color );
-    }
+    ReapplyCurrentPreset();
 }
 
 void ImGuiStylePrefs::SavePrefs(cJSON* jPrefs)

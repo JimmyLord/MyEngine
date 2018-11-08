@@ -96,6 +96,7 @@ public:
     ~ImGuiStylePrefs();
 
     void ResetCurrentPreset();
+    void ReapplyCurrentPreset();
 
     void LoadPrefs(cJSON* jPrefs);
     void SavePrefs(cJSON* jPrefs);

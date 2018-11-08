@@ -20,6 +20,7 @@ protected:
     void ClearInput();
 
     ImGuiContext* m_pImGuiContext;
+    bool m_DeviceObjectsAreValid;
 
     bool m_FrameStarted;
 
@@ -43,7 +44,7 @@ public:
     virtual ~ImGuiManager();
 
     void Init(float width, float height);
-    void Shutdown();
+    void Shutdown(bool invalidateDeviceObjects = true);
 
     void OnFocusLost();
 

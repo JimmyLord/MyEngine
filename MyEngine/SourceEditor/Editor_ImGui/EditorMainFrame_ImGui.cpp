@@ -55,6 +55,22 @@ const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
     "Draw Calls",
 };
 
+const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
+{
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,310\nSize=256,171\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Editor]\nPos=258,19\nSize=661,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Objects]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=256,462 Split=Y SelectedTab=0xCBF1DA15\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=256,289 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=256,171 SelectedTab=0x83199EB2\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=661,462 CentralNode=1 SelectedTab=0xCB5DF48C\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=258,19\nSize=661,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Editor]\nPos=0,320\nSize=256,161\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Objects]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=256,462 Split=Y SelectedTab=0x7DA7F56F\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=256,299 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=256,161 SelectedTab=0xCB5DF48C\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=661,462 CentralNode=1 SelectedTab=0x83199EB2\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,19\nSize=336,423\nCollapsed=0\nDockId=0x00000001,0\n\n[Window][Editor]\nPos=338,19\nSize=340,423\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Objects]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,0\n\n[Window][Watch]\nPos=925,19\nSize=275,423\nCollapsed=0\nDockId=0x00000004,0\n\n[Window][Log]\nPos=0,444\nSize=597,206\nCollapsed=0\nDockId=0x00000007,0\n\n[Window][Resources]\nPos=599,444\nSize=601,206\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Mouse Picker]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,1\n\n[Window][Stuff]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,2\n\n[Window][ImGui Demo]\nPos=0,444\nSize=597,206\nCollapsed=0\nDockId=0x00000007,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=Y\n  DockNode        ID=0x00000005 Parent=0xD01BFD3D SizeRef=1200,423 Split=X\n    DockNode      ID=0x00000003 Parent=0x00000005 SizeRef=923,631 Split=X\n      DockNode    ID=0x0000000B Parent=0x00000003 SizeRef=678,631 Split=X SelectedTab=0xCB5DF48C\n        DockNode  ID=0x00000001 Parent=0x0000000B SizeRef=336,423 SelectedTab=0x83199EB2\n        DockNode  ID=0x00000002 Parent=0x0000000B SizeRef=340,423 CentralNode=1 SelectedTab=0xCB5DF48C\n      DockNode    ID=0x0000000C Parent=0x00000003 SizeRef=243,631 SelectedTab=0x7DA7F56F\n    DockNode      ID=0x00000004 Parent=0x00000005 SizeRef=275,631 SelectedTab=0x91CA6522\n  DockNode        ID=0x00000006 Parent=0xD01BFD3D SizeRef=1200,206 Split=X SelectedTab=0x6D97690D\n    DockNode      ID=0x00000007 Parent=0x00000006 SizeRef=597,313 SelectedTab=0x080FC883\n    DockNode      ID=0x00000008 Parent=0x00000006 SizeRef=601,313 SelectedTab=0x6D97690D\n\n",
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,310\nSize=256,171\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Editor]\nPos=258,19\nSize=661,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Objects]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=256,462 Split=Y SelectedTab=0xCBF1DA15\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=256,289 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=256,171 SelectedTab=0x83199EB2\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=661,462 CentralNode=1 SelectedTab=0xCB5DF48C\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
+};
+
+char* g_SavedPerspectives[Perspective_NumPerspectives] =
+{
+    (char*)g_DefaultPerspectives[0],
+    (char*)g_DefaultPerspectives[1],
+    (char*)g_DefaultPerspectives[2],
+    (char*)g_DefaultPerspectives[3],
+};
+
 //====================================================================================================
 // Public methods
 //====================================================================================================
@@ -366,6 +382,26 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
         if( CS && keycode == 'L'   ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return true; }
         if( CS && keycode == 'K'   ) { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return true; }
+
+#if _DEBUG
+        // Dump current perspective to output window, so it can be cut&pasted to g_DefaultPerspectives above.
+        if( CS && keycode == 'D'   )
+        {
+            std::string newLayout = ImGui::SaveIniSettingsToMemory();
+            
+            // Replace all newlines with "\\n"
+            size_t index = 0;
+            while( ( index = newLayout.find( "\n", index ) ) != std::string::npos )
+            {
+                newLayout.replace( index, 1, "\\n" );
+            }
+
+            LOGInfo( LOGTag, newLayout.c_str() );
+
+            return true;
+        }
+#endif
+
     }
 
     return false;
@@ -865,7 +901,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 {
                     if( ImGui::MenuItem( g_DefaultPerspectiveMenuLabels[i] ) )
                     {
-                        g_pEditorPrefs->RequestPerspectiveChange( Perspective_CenterEditor );
+                        g_pEditorPrefs->RequestPerspectiveChange( (DefaultPerspectives)i );
                     }
                 }
                 ImGui::EndMenu();

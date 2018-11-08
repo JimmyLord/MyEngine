@@ -14,6 +14,7 @@ ImGuiManager* g_pImGuiManager = 0;
 ImGuiManager::ImGuiManager()
 {
     m_pImGuiContext = 0;
+    m_DeviceObjectsAreValid = false;
 
     m_FrameStarted = false;
 
@@ -46,12 +47,27 @@ void ImGuiManager::Init(float width, float height)
     MyAssert( m_pImGuiContext == 0 );
 
     m_pImGuiContext = ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
 
     //ImGui::StyleColorsClassic();
 
-    CreateDeviceObjects();
+    if( m_DeviceObjectsAreValid == false )
+    {
+        // Created a new context, device objects have never been built.
+        CreateDeviceObjects();
+    }
+    else
+    {
+        // Created a new context with a minimal attempt to preserve existing device objects.
 
-    ImGuiIO& io = ImGui::GetIO();
+        // Rebuild ImGui's internal font (just for size setting?), but use the original GL texture object.
+        unsigned char* pixels;
+        int width, height;
+        io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
+
+        io.Fonts->TexID = (void*)(uintptr_t)m_FontTexture;
+    }
+
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_DockingEnable;
     io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.DisplaySize.x = width;
@@ -85,9 +101,13 @@ void ImGuiManager::Init(float width, float height)
     io.KeyMap[ImGuiKey_Z]           = 'Z';
 }
 
-void ImGuiManager::Shutdown()
+void ImGuiManager::Shutdown(bool invalidateDeviceObjects)
 {
-    InvalidateDeviceObjects();
+    if( invalidateDeviceObjects )
+    {
+        InvalidateDeviceObjects();
+        m_DeviceObjectsAreValid = false;
+    }
 
     ImGui::DestroyContext( m_pImGuiContext );
     m_pImGuiContext = 0;
@@ -466,6 +486,8 @@ bool ImGuiManager::CreateDeviceObjects()
     glBindTexture( GL_TEXTURE_2D, last_texture );
     glBindBuffer( GL_ARRAY_BUFFER, last_array_buffer );
     glBindVertexArray( last_vertex_array );
+
+    m_DeviceObjectsAreValid = true;
 
     return true;
 }
