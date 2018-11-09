@@ -60,7 +60,7 @@ const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
     "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,310\nSize=256,171\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Editor]\nPos=258,19\nSize=661,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Objects]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=256,462 Split=Y SelectedTab=0xCBF1DA15\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=256,289 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=256,171 SelectedTab=0x83199EB2\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=661,462 CentralNode=1 SelectedTab=0xCB5DF48C\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
     "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=258,19\nSize=661,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Editor]\nPos=0,320\nSize=256,161\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Objects]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=256,462 Split=Y SelectedTab=0x7DA7F56F\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=256,299 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=256,161 SelectedTab=0xCB5DF48C\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=661,462 CentralNode=1 SelectedTab=0x83199EB2\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
     "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,19\nSize=336,423\nCollapsed=0\nDockId=0x00000001,0\n\n[Window][Editor]\nPos=338,19\nSize=340,423\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Objects]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,0\n\n[Window][Watch]\nPos=925,19\nSize=275,423\nCollapsed=0\nDockId=0x00000004,0\n\n[Window][Log]\nPos=0,444\nSize=597,206\nCollapsed=0\nDockId=0x00000007,0\n\n[Window][Resources]\nPos=599,444\nSize=601,206\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Mouse Picker]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,1\n\n[Window][Stuff]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,2\n\n[Window][ImGui Demo]\nPos=0,444\nSize=597,206\nCollapsed=0\nDockId=0x00000007,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=Y\n  DockNode        ID=0x00000005 Parent=0xD01BFD3D SizeRef=1200,423 Split=X\n    DockNode      ID=0x00000003 Parent=0x00000005 SizeRef=923,631 Split=X\n      DockNode    ID=0x0000000B Parent=0x00000003 SizeRef=678,631 Split=X SelectedTab=0xCB5DF48C\n        DockNode  ID=0x00000001 Parent=0x0000000B SizeRef=336,423 SelectedTab=0x83199EB2\n        DockNode  ID=0x00000002 Parent=0x0000000B SizeRef=340,423 CentralNode=1 SelectedTab=0xCB5DF48C\n      DockNode    ID=0x0000000C Parent=0x00000003 SizeRef=243,631 SelectedTab=0x7DA7F56F\n    DockNode      ID=0x00000004 Parent=0x00000005 SizeRef=275,631 SelectedTab=0x91CA6522\n  DockNode        ID=0x00000006 Parent=0xD01BFD3D SizeRef=1200,206 Split=X SelectedTab=0x6D97690D\n    DockNode      ID=0x00000007 Parent=0x00000006 SizeRef=597,313 SelectedTab=0x080FC883\n    DockNode      ID=0x00000008 Parent=0x00000006 SizeRef=601,313 SelectedTab=0x6D97690D\n\n",
-    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,310\nSize=256,171\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Editor]\nPos=258,19\nSize=661,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Objects]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=256,462 Split=Y SelectedTab=0xCBF1DA15\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=256,289 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=256,171 SelectedTab=0x83199EB2\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=661,462 CentralNode=1 SelectedTab=0xCB5DF48C\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,19\nSize=1200,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Editor]\nPos=263,19\nSize=656,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Objects]\nPos=0,19\nSize=261,281\nCollapsed=0\nDockId=0x00000007,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=1200,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,19\nSize=279,631\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000007,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000007,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Deferred G-Buffer]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace       ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode      ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode    ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode  ID=0x00000007 Parent=0x00000001 SizeRef=261,462 SelectedTab=0xCBF1DA15\n      DockNode  ID=0x00000008 Parent=0x00000001 SizeRef=656,462 CentralNode=1 SelectedTab=0x83199EB2\n    DockNode    ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode      ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode    ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode    ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
 };
 
 char* g_SavedPerspectives[Perspective_NumPerspectives] =
@@ -86,12 +86,26 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialToPreview = 0;
 
     m_pMaterialBeingEdited = 0;
-    m_IsMaterialEditorOpen = false;
+
+    // "Is window open" booleans.
+    m_IsWindowOpen_Game = true;
+    m_IsWindowOpen_Editor = true;
+    m_IsWindowOpen_ObjectList = true;
+    m_IsWindowOpen_Watch = true;
+    m_IsWindowOpen_Resources = true;
+    m_IsWindowOpen_Log = true;
+
+    m_IsWindowOpen_GridSettings = false;
+    m_IsWindowOpen_MaterialEditor = false;
+    m_IsWindowOpen_2DAnimationEditor = false;
+
+    m_IsWindowOpen_Debug_MousePicker = false;
+    m_IsWindowOpen_Debug_Stuff = false;
+    m_IsWindowOpen_Debug_ImGuiDemo = false;
 
     // 2D Animation Editor.
     m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
     m_p2DAnimInfoBeingEdited = 0;
-    m_Is2DAnimationEditorOpen = false;
     m_Current2DAnimationIndex = 0;
     m_pAnimPlayerComponent = MyNew ComponentAnimationPlayer2D();
     m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
@@ -128,7 +142,6 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_EditorWindowHovered = false;
     m_EditorWindowFocused = false;
     m_EditorWindowVisible = false;
-    m_GridSettingsWindowVisible = false;
 
     m_pLastGameObjectInteractedWithInObjectPanel = 0;
 
@@ -372,7 +385,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( A  && keycode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return true; }
         if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return true; }
         if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return true; }
-        if( CS && keycode == 'G' )   { m_GridSettingsWindowVisible = true;                                          return true; }
+        if( CS && keycode == 'G' )   { m_IsWindowOpen_GridSettings = true;                                          return true; }
         if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return true; }
         if( C  && keycode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
         if( C  && keycode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
@@ -449,8 +462,10 @@ void EditorMainFrame_ImGui::AddEverything()
 
     AddDebug_MousePicker();
 
-    if( m_IsMaterialEditorOpen )
+    if( m_IsWindowOpen_MaterialEditor )
+    {
         AddMaterialEditor();
+    }
 
     Add2DAnimationEditor();
 
@@ -460,39 +475,45 @@ void EditorMainFrame_ImGui::AddEverything()
 
 #if _DEBUG
     ImGuiIO& io = ImGui::GetIO();
-    if( ImGui::Begin( "Stuff" ) )
+    if( m_IsWindowOpen_Debug_Stuff )
     {
-        ImGui::Text( "WantCaptureKeyboard %d", io.WantCaptureKeyboard );
-        ImGui::Text( "WantCaptureMouse %d", io.WantCaptureMouse );
-        //ImGui::Text( "WantMoveMouse %d", io.WantMoveMouse );
-        ImGui::Text( "WantTextInput %d", io.WantTextInput );
-        ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
-        ImGui::Text( "m_EditorWindowHovered %d", m_EditorWindowHovered );    
-        ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
-        ImGui::Text( "MouseWheel %0.2f", io.MouseWheel );
-        ImGui::Text( "m_CurrentMouseInEditorWindow_X %d", m_CurrentMouseInEditorWindow_X );
-        ImGui::Text( "m_CurrentMouseInEditorWindow_Y %d", m_CurrentMouseInEditorWindow_Y );
-
-        GameObject* pGO = g_pComponentSystemManager->FindGameObjectByName( "Player" );
-        if( pGO && pGO->GetTransform() )
+        if( ImGui::Begin( "Stuff", &m_IsWindowOpen_Debug_Stuff ) )
         {
-            ImGui::Text( "PlayerX %0.2f", pGO->GetTransform()->GetWorldTransform()->m41 );
-        }
-    }
-    ImGui::End();
+            ImGui::Text( "WantCaptureKeyboard %d", io.WantCaptureKeyboard );
+            ImGui::Text( "WantCaptureMouse %d", io.WantCaptureMouse );
+            //ImGui::Text( "WantMoveMouse %d", io.WantMoveMouse );
+            ImGui::Text( "WantTextInput %d", io.WantTextInput );
+            ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
+            ImGui::Text( "m_EditorWindowHovered %d", m_EditorWindowHovered );    
+            ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
+            ImGui::Text( "MouseWheel %0.2f", io.MouseWheel );
+            ImGui::Text( "m_CurrentMouseInEditorWindow_X %d", m_CurrentMouseInEditorWindow_X );
+            ImGui::Text( "m_CurrentMouseInEditorWindow_Y %d", m_CurrentMouseInEditorWindow_Y );
 
-    ImGui::ShowDemoWindow();
+            GameObject* pGO = g_pComponentSystemManager->FindGameObjectByName( "Player" );
+            if( pGO && pGO->GetTransform() )
+            {
+                ImGui::Text( "PlayerX %0.2f", pGO->GetTransform()->GetWorldTransform()->m41 );
+            }
+        }    
+        ImGui::End();
+    }
+
+    if( m_IsWindowOpen_Debug_ImGuiDemo )
+    {
+        ImGui::ShowDemoWindow( &m_IsWindowOpen_Debug_ImGuiDemo );
+    }
 #endif
 
-    if( m_GridSettingsWindowVisible )
+    if( m_IsWindowOpen_GridSettings )
     {
-        if( ImGui::Begin( "Grid Settings", &m_GridSettingsWindowVisible, ImVec2(308, 60), 1 ) )
+        if( ImGui::Begin( "Grid Settings", &m_IsWindowOpen_GridSettings, ImVec2(308, 60), 1 ) )
         {
             // Create a context menu only available from the title bar.
             if( ImGui::BeginPopupContextItem() )
             {
                 if( ImGui::MenuItem( "Close" ) )
-                    m_GridSettingsWindowVisible = false;
+                    m_IsWindowOpen_GridSettings = false;
 
                 ImGui::EndPopup();
             }
@@ -667,14 +688,14 @@ void EditorMainFrame_ImGui::EditMaterial(MaterialDefinition* pMaterial)
 {
     m_pMaterialBeingEdited = pMaterial;
     ImGui::SetWindowFocus( "Material Editor" );
-    m_IsMaterialEditorOpen = true;
+    m_IsWindowOpen_MaterialEditor = true;
 }
 
 void EditorMainFrame_ImGui::Edit2DAnimInfo(My2DAnimInfo* pAnimInfo)
 {
     m_p2DAnimInfoBeingEdited = pAnimInfo;
     ImGui::SetWindowFocus( "2D Animation Editor" );
-    m_Is2DAnimationEditorOpen = true;
+    m_IsWindowOpen_2DAnimationEditor = true;
     m_Current2DAnimationIndex = 0;
 }
 
@@ -794,7 +815,7 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
 
 My2DAnimInfo* EditorMainFrame_ImGui::Get2DAnimInfoBeingEdited()
 {
-    if( m_Is2DAnimationEditorOpen )
+    if( m_IsWindowOpen_2DAnimationEditor )
     {
         return m_p2DAnimInfoBeingEdited;
     }
@@ -884,7 +905,10 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 for( int i=0; i<EditorWindow_NumTypes; i++ )
                 {
-                    if( ImGui::MenuItem( g_DefaultEditorWindowTypeMenuLabels[i] ) ) {}
+                    if( ImGui::MenuItem( g_DefaultEditorWindowTypeMenuLabels[i] ) )
+                    {
+                        m_IsWindowOpen_Debug_Stuff = true;
+                    }
                 }
 
                 for( int i=0; i<EngineEditorWindow_NumTypes; i++ )
@@ -916,6 +940,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
+            ImGui::Separator();
+
             if( ImGui::BeginMenu( "Selected Objects" ) )
             {
                 if( ImGui::MenuItem( "Show Wireframe", 0, g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() ) ) { EditorMenuCommand( EditorMenuCommand_View_SelectedObjects_ShowWireframe ); }
@@ -924,52 +950,54 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
-            if( ImGui::BeginMenu( "Editor Camera Layers (TODO)" ) )
-            {
-                for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
-                {
-                    char label[100];
-                    char hotkey[100];
-                    sprintf_s( label, 100, "(%d) %s", i, g_pVisibilityLayerStrings[i] );
-                    sprintf_s( hotkey, 100, "Ctrl-Alt-%d", i );
-                    if( i < 9 )
-                    {
-                        if( ImGui::MenuItem( label, hotkey ) ) {}
-                    }
-                    else
-                    {
-                        if( ImGui::MenuItem( label ) ) {}
-                    }
-                }
-                ImGui::EndMenu();
-            }
-            //    {
-            //        m_SubMenu_View_EditorCameraLayers = MyNew wxMenu;
-            //        for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
-            //        {
-            //            wxString label;
-            //            if( i < 9 )
-            //                label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
-            //            else
-            //                label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i];
-            //            m_MenuItem_View_EditorCameraLayerOptions[i] = m_SubMenu_View_EditorCameraLayers->AppendCheckItem( EditorMenuCommand_View_EditorCameraLayer + i, label, wxEmptyString );
-            //            Connect( EditorMenuCommand_View_EditorCameraLayer + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-            //        }
-            //    
-            //        m_MenuItem_View_EditorCameraLayerOptions[0]->Check();
-            //    }
-
-            ImGui::MenuItem( "Fullscreen Editor (TODO)", "F11" );
-            ImGui::MenuItem( "Fullscreen Game (TODO)", "Ctrl-F11" );
-
             if( ImGui::BeginMenu( "Editor Camera" ) )
             {
                 if( ImGui::MenuItem( "Show Icons", "Shift-F7", g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
                 if( ImGui::MenuItem( "Deferred Render", "Ctrl-Shift-F7", g_pEngineCore->GetEditorPrefs()->Get_View_EditorCamDeferred() ) ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred ); }
                 if( ImGui::MenuItem( "Show Deferred G-Buffer", "" ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorCamDeferredGBuffer ); }
 
+                if( ImGui::BeginMenu( "Editor Camera Layers (TODO)" ) )
+                {
+                    for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
+                    {
+                        char label[100];
+                        char hotkey[100];
+                        sprintf_s( label, 100, "(%d) %s", i, g_pVisibilityLayerStrings[i] );
+                        sprintf_s( hotkey, 100, "Ctrl-Alt-%d", i );
+                        if( i < 9 )
+                        {
+                            if( ImGui::MenuItem( label, hotkey ) ) {}
+                        }
+                        else
+                        {
+                            if( ImGui::MenuItem( label ) ) {}
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
+                //    {
+                //        m_SubMenu_View_EditorCameraLayers = MyNew wxMenu;
+                //        for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
+                //        {
+                //            wxString label;
+                //            if( i < 9 )
+                //                label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
+                //            else
+                //                label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i];
+                //            m_MenuItem_View_EditorCameraLayerOptions[i] = m_SubMenu_View_EditorCameraLayers->AppendCheckItem( EditorMenuCommand_View_EditorCameraLayer + i, label, wxEmptyString );
+                //            Connect( EditorMenuCommand_View_EditorCameraLayer + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+                //        }
+                //    
+                //        m_MenuItem_View_EditorCameraLayerOptions[0]->Check();
+                //    }
+
                 ImGui::EndMenu();
             }
+
+            ImGui::Separator();
+
+            ImGui::MenuItem( "Fullscreen Editor (TODO)", "F11" );
+            ImGui::MenuItem( "Fullscreen Game (TODO)", "Ctrl-F11" );
 
             ImGui::EndMenu();
         }
@@ -993,7 +1021,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         {
             if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", g_pEngineCore->GetEditorPrefs()->Get_Grid_Visible() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_Visible ); }
             if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", g_pEngineCore->GetEditorPrefs()->Get_Grid_SnapEnabled() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled ); }
-            if( ImGui::MenuItem( "Grid Settings", "Ctrl-Shift-G" ) ) { m_GridSettingsWindowVisible = true; }
+            if( ImGui::MenuItem( "Grid Settings", "Ctrl-Shift-G" ) ) { m_IsWindowOpen_GridSettings = true; }
 
             ImGui::EndMenu();
         }
@@ -1141,112 +1169,125 @@ void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
 
 void EditorMainFrame_ImGui::AddGameAndEditorWindows()
 {
-    ImGui::SetNextWindowPos( ImVec2(9, 302), ImGuiCond_FirstUseEver );
     m_GameWindowFocused = m_GameWindowVisible = false;
-    if( ImGui::Begin( "Game", 0, ImVec2(256, 171) ) )
+
+    if( m_IsWindowOpen_Game )
     {
-        m_GameWindowFocused = ImGui::IsWindowFocused();
-        m_GameWindowVisible = true;
+        ImGui::SetNextWindowPos( ImVec2(9, 302), ImGuiCond_FirstUseEver );
 
-        ImVec2 min = ImGui::GetWindowContentRegionMin();
-        ImVec2 max = ImGui::GetWindowContentRegionMax();
-        float w = max.x - min.x;
-        float h = max.y - min.y;
-
-        if( w <= 0 || h <= 0 )
+        if( ImGui::Begin( "Game", &m_IsWindowOpen_Game, ImVec2(256, 171) ) )
         {
-            m_GameWindowPos.Set( -1, -1 );
-            m_GameWindowSize.Set( 0, 0 );
-        }
-        else
-        {
-            ImVec2 pos = ImGui::GetWindowPos();
-            m_GameWindowPos.Set( pos.x + min.x, pos.y + min.y );
-            m_GameWindowSize.Set( w, h );
+            m_GameWindowFocused = ImGui::IsWindowFocused();
+            m_GameWindowVisible = true;
 
-            g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+            ImVec2 min = ImGui::GetWindowContentRegionMin();
+            ImVec2 max = ImGui::GetWindowContentRegionMax();
+            float w = max.x - min.x;
+            float h = max.y - min.y;
 
-            //// Resize our FBO if the window is larger than it ever was.
-            //if( w > m_pGameFBO->GetTextureWidth() || h > m_pGameFBO->GetTextureHeight() )
-            //{
-            //    // The FBO will be recreated during the TextureManager tick.
-            //    g_pTextureManager->InvalidateFBO( m_pGameFBO );
-            //    m_pGameFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
-            //}
-
-            if( m_pGameFBO->GetColorTexture( 0 ) )
+            if( w <= 0 || h <= 0 )
             {
-                TextureDefinition* tex = m_pGameFBO->GetColorTexture( 0 );
-                ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->GetTextureHeight()), ImVec2(w/m_pGameFBO->GetTextureWidth(),0), 0 );
+                m_GameWindowPos.Set( -1, -1 );
+                m_GameWindowSize.Set( 0, 0 );
             }
-        }
-    }
-    else
-    {
-        m_GameWindowVisible = false;
-    }
-    ImGui::End();
-
-    ImGui::SetNextWindowPos( ImVec2(269, 24), ImGuiCond_FirstUseEver );
-    m_EditorWindowFocused = m_EditorWindowHovered = m_EditorWindowVisible = false;
-    if( ImGui::Begin( "Editor", 0, ImVec2(579, 397) ) )
-    {
-        m_EditorWindowFocused = ImGui::IsWindowFocused();
-        m_EditorWindowHovered = ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByActiveItem );
-        m_EditorWindowVisible = true;
-
-        ImVec2 min = ImGui::GetWindowContentRegionMin();
-        ImVec2 max = ImGui::GetWindowContentRegionMax();
-        float w = max.x - min.x;
-        float h = max.y - min.y;
-
-        if( w <= 0 || h <= 0 )
-        {
-            m_EditorWindowPos.Set( -1, -1 );
-            m_EditorWindowSize.Set( 0, 0 );
-        }
-        else
-        {
-            ImVec2 pos = ImGui::GetWindowPos();
-            m_EditorWindowPos.Set( pos.x + min.x, pos.y + min.y );
-            m_EditorWindowSize.Set( w, h );
-
-            g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
-
-            //// Resize our FBO if the window is larger than it ever was.
-            //if( w > m_pEditorFBO->GetTextureWidth() || h > m_pEditorFBO->GetTextureHeight() )
-            //{
-            //    // The FBO will be recreated during the TextureManager tick.
-            //    g_pTextureManager->InvalidateFBO( m_pEditorFBO );
-            //    m_pEditorFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
-            //}
-
-            if( m_pEditorFBO->GetColorTexture( 0 ) )
+            else
             {
-                TextureDefinition* tex = m_pEditorFBO->GetColorTexture( 0 );
-                ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->GetTextureHeight()), ImVec2(w/m_pEditorFBO->GetTextureWidth(),0), 0 );
+                ImVec2 pos = ImGui::GetWindowPos();
+                m_GameWindowPos.Set( pos.x + min.x, pos.y + min.y );
+                m_GameWindowSize.Set( w, h );
 
-                if( ImGui::BeginDragDropTarget() )
+                g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+
+                //// Resize our FBO if the window is larger than it ever was.
+                //if( w > m_pGameFBO->GetTextureWidth() || h > m_pGameFBO->GetTextureHeight() )
+                //{
+                //    // The FBO will be recreated during the TextureManager tick.
+                //    g_pTextureManager->InvalidateFBO( m_pGameFBO );
+                //    m_pGameFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
+                //}
+
+                if( m_pGameFBO->GetColorTexture( 0 ) )
                 {
-                    OnDropEditorWindow();
-                    ImGui::EndDragDropTarget();
+                    TextureDefinition* tex = m_pGameFBO->GetColorTexture( 0 );
+                    ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->GetTextureHeight()), ImVec2(w/m_pGameFBO->GetTextureWidth(),0), 0 );
                 }
             }
         }
+        else
+        {
+            m_GameWindowVisible = false;
+        }
+        ImGui::End();
     }
-    else
+
+    m_EditorWindowFocused = m_EditorWindowHovered = m_EditorWindowVisible = false;
+    if( m_IsWindowOpen_Editor )
     {
-        m_EditorWindowVisible = false;
+        ImGui::SetNextWindowPos( ImVec2(269, 24), ImGuiCond_FirstUseEver );
+
+        if( ImGui::Begin( "Editor", &m_IsWindowOpen_Editor, ImVec2(579, 397) ) )
+        {
+            m_EditorWindowFocused = ImGui::IsWindowFocused();
+            m_EditorWindowHovered = ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByActiveItem );
+            m_EditorWindowVisible = true;
+
+            ImVec2 min = ImGui::GetWindowContentRegionMin();
+            ImVec2 max = ImGui::GetWindowContentRegionMax();
+            float w = max.x - min.x;
+            float h = max.y - min.y;
+
+            if( w <= 0 || h <= 0 )
+            {
+                m_EditorWindowPos.Set( -1, -1 );
+                m_EditorWindowSize.Set( 0, 0 );
+            }
+            else
+            {
+                ImVec2 pos = ImGui::GetWindowPos();
+                m_EditorWindowPos.Set( pos.x + min.x, pos.y + min.y );
+                m_EditorWindowSize.Set( w, h );
+
+                g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+
+                //// Resize our FBO if the window is larger than it ever was.
+                //if( w > m_pEditorFBO->GetTextureWidth() || h > m_pEditorFBO->GetTextureHeight() )
+                //{
+                //    // The FBO will be recreated during the TextureManager tick.
+                //    g_pTextureManager->InvalidateFBO( m_pEditorFBO );
+                //    m_pEditorFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
+                //}
+
+                if( m_pEditorFBO->GetColorTexture( 0 ) )
+                {
+                    TextureDefinition* tex = m_pEditorFBO->GetColorTexture( 0 );
+                    ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->GetTextureHeight()), ImVec2(w/m_pEditorFBO->GetTextureWidth(),0), 0 );
+
+                    if( ImGui::BeginDragDropTarget() )
+                    {
+                        OnDropEditorWindow();
+                        ImGui::EndDragDropTarget();
+                    }
+                }
+            }
+        }
+        else
+        {
+            m_EditorWindowVisible = false;
+        }
+        ImGui::End();
     }
-    ImGui::End();
 }
 
 void EditorMainFrame_ImGui::AddObjectList()
 {
+    if( m_IsWindowOpen_ObjectList == false )
+        return;
+
     ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
     ImGui::SetNextWindowPos( ImVec2(4, 28), ImGuiCond_FirstUseEver );
-    if( ImGui::Begin( "Objects", 0, ImVec2(258, 266) ) )
+  
+    if( ImGui::Begin( "Objects", &m_IsWindowOpen_ObjectList, ImVec2(258, 266) ) )
     {
         // Add an input box for object list filter.
         // For now, it will always auto-select the text when given focus.
@@ -1993,8 +2034,12 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
 void EditorMainFrame_ImGui::AddWatchPanel()
 {
+    if( m_IsWindowOpen_Watch == false )
+        return;
+
     ImGui::SetNextWindowPos( ImVec2(852, 25), ImGuiCond_FirstUseEver );
-    if( ImGui::Begin( "Watch", 0, ImVec2(333, 395) ) )
+
+    if( ImGui::Begin( "Watch", &m_IsWindowOpen_Watch, ImVec2(333, 395) ) )
     {
         EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
@@ -2194,13 +2239,18 @@ void EditorMainFrame_ImGui::AddLogWindow()
 {
     ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowPos( ImVec2(6, 476), ImGuiCond_FirstUseEver );
+
     m_pLogWindow->Draw( "Log" );
 }
 
 void EditorMainFrame_ImGui::AddMemoryPanel()
 {
+    if( m_IsWindowOpen_Resources == false )
+        return;
+
     ImGui::SetNextWindowPos( ImVec2(853, 424), ImGuiCond_FirstUseEver );
-    if( ImGui::Begin( "Resources", 0, ImVec2(334, 220) ) )
+
+    if( ImGui::Begin( "Resources", &m_IsWindowOpen_Resources, ImVec2(334, 220) ) )
     {
         // Add an input box for memory panel filter.
         // For now, it will always auto-select the text when given focus.
@@ -2544,7 +2594,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                 {
-                                    if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { EditMaterial( pMat ); ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Edit Material", 0, &m_IsWindowOpen_MaterialEditor ) ) { EditMaterial( pMat ); ImGui::CloseCurrentPopup(); }
                                     if( ImGui::MenuItem( "Unload File" ) )     { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_UnloadFile ); ImGui::CloseCurrentPopup(); pMat = 0; }
                                     if( ImGui::MenuItem( "Find References" ) ) { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_FindAllReferences ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                     if( ImGui::MenuItem( "Rename" ) )
@@ -2970,16 +3020,19 @@ void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
 
 void EditorMainFrame_ImGui::AddMaterialEditor()
 {
+    if( m_IsWindowOpen_MaterialEditor == false )
+        return;
+
     ImGui::SetNextWindowPos( ImVec2(856, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
     
-    if( ImGui::Begin( "Material Editor", &m_IsMaterialEditorOpen ) )
+    if( ImGui::Begin( "Material Editor", &m_IsWindowOpen_MaterialEditor ) )
     {
         // Create a context menu only available from the title bar.
         if( ImGui::BeginPopupContextItem() )
         {
             if( ImGui::MenuItem( "Close" ) )
-                m_IsMaterialEditorOpen = false;
+                m_IsWindowOpen_MaterialEditor = false;
 
             ImGui::EndPopup();
         }
@@ -3331,7 +3384,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         if( pFileInfo )
         {
             My2DAnimInfo* pAnimInfo = pFileInfo->Get2DAnimInfo();
-            m_Is2DAnimationEditorOpen = true;
+            m_IsWindowOpen_2DAnimationEditor = true;
             m_Current2DAnimationIndex = 0;
 
             MyFileObject* pFile = pAnimInfo->GetSourceFile();
@@ -3343,13 +3396,13 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         }
     }
 
-    if( m_Is2DAnimationEditorOpen == false )
+    if( m_IsWindowOpen_2DAnimationEditor == false )
         return;
 
     ImGui::SetNextWindowPos( ImVec2(556, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
     
-    if( ImGui::Begin( "2D Animation Editor", &m_Is2DAnimationEditorOpen ) )
+    if( ImGui::Begin( "2D Animation Editor", &m_IsWindowOpen_2DAnimationEditor ) )
     {
         // Create a context menu only available from the title bar.
         if( ImGui::BeginPopupContextItem() )
@@ -3357,7 +3410,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             if( ImGui::MenuItem( "Close" ) )
             {
                 m_p2DAnimInfoBeingEdited = 0;
-                m_Is2DAnimationEditorOpen = false;
+                m_IsWindowOpen_2DAnimationEditor = false;
             }
 
             ImGui::EndPopup();
@@ -3637,7 +3690,10 @@ void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefiniti
 
 void EditorMainFrame_ImGui::AddDebug_MousePicker()
 {
-    if( ImGui::Begin( "Mouse Picker", 0, ImVec2(150, 150), 1 ) )
+    if( m_IsWindowOpen_Debug_MousePicker == false )
+        return;
+
+    if( ImGui::Begin( "Mouse Picker", &m_IsWindowOpen_Debug_MousePicker, ImVec2(150, 150), 1 ) )
     {
         TextureDefinition* pTexture = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetColorTexture( 0 );
         int texw = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureWidth();
@@ -3665,7 +3721,7 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile)
 
     if( strcmp( extension, ".my2daniminfo" ) == 0 )
     {
-        if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_Is2DAnimationEditorOpen ) )
+        if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_IsWindowOpen_2DAnimationEditor ) )
         {
             My2DAnimInfo* pAnim = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, SCENEID_Any )->Get2DAnimInfo();
             Edit2DAnimInfo( pAnim );

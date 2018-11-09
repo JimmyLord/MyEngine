@@ -401,5 +401,4 @@ void EditorPrefs::ApplyPerspectiveChange()
         m_CurrentPerspective = m_RequestedPerspective;
     }
 }
-
 #endif

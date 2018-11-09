@@ -27,12 +27,26 @@ protected:
     MaterialDefinition* m_pMaterialToPreview;
 
     MaterialDefinition* m_pMaterialBeingEdited;
-    bool m_IsMaterialEditorOpen;
+
+    // "Is window open" booleans.
+    bool m_IsWindowOpen_Game;
+    bool m_IsWindowOpen_Editor;
+    bool m_IsWindowOpen_ObjectList;
+    bool m_IsWindowOpen_Watch;
+    bool m_IsWindowOpen_Resources;
+    bool m_IsWindowOpen_Log;
+    
+    bool m_IsWindowOpen_GridSettings;
+    bool m_IsWindowOpen_MaterialEditor;
+    bool m_IsWindowOpen_2DAnimationEditor;
+    
+    bool m_IsWindowOpen_Debug_MousePicker;
+    bool m_IsWindowOpen_Debug_Stuff;
+    bool m_IsWindowOpen_Debug_ImGuiDemo;
 
     // 2D Animation Editor.
     char m_FullPathToLast2DAnimInfoBeingEdited[MAX_PATH];
     My2DAnimInfo* m_p2DAnimInfoBeingEdited;
-    bool m_Is2DAnimationEditorOpen;
     unsigned int m_Current2DAnimationIndex;
     ComponentAnimationPlayer2D* m_pAnimPlayerComponent;
 
@@ -68,7 +82,6 @@ protected:
     bool m_EditorWindowHovered;
     bool m_EditorWindowFocused;
     bool m_EditorWindowVisible;
-    bool m_GridSettingsWindowVisible;
 
     GameObject* m_pLastGameObjectInteractedWithInObjectPanel;
 
