@@ -15,6 +15,23 @@ class EditorLogWindow_ImGui;
 
 extern const char* g_DefaultPerspectives[Perspective_NumPerspectives];
 
+enum EditorWindowTypes
+{
+    EditorWindow_Game,
+    EditorWindow_Editor,
+    EditorWindow_ObjectList,
+    EditorWindow_Watch,
+    EditorWindow_Resources,
+    EditorWindow_Log,
+    EditorWindow_GridSettings,
+    EditorWindow_MaterialEditor,
+    EditorWindow_2DAnimationEditor,
+    EditorWindow_Debug_MousePicker,
+    EditorWindow_Debug_Stuff,
+    EditorWindow_Debug_ImGuiDemo,
+    EditorWindow_NumTypes,
+};
+
 class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:
@@ -29,20 +46,21 @@ protected:
     MaterialDefinition* m_pMaterialBeingEdited;
 
     // "Is window open" booleans.
-    bool m_IsWindowOpen_Game;
-    bool m_IsWindowOpen_Editor;
-    bool m_IsWindowOpen_ObjectList;
-    bool m_IsWindowOpen_Watch;
-    bool m_IsWindowOpen_Resources;
-    bool m_IsWindowOpen_Log;
-    
-    bool m_IsWindowOpen_GridSettings;
-    bool m_IsWindowOpen_MaterialEditor;
-    bool m_IsWindowOpen_2DAnimationEditor;
-    
-    bool m_IsWindowOpen_Debug_MousePicker;
-    bool m_IsWindowOpen_Debug_Stuff;
-    bool m_IsWindowOpen_Debug_ImGuiDemo;
+    bool m_IsWindowOpen[EditorWindow_NumTypes];
+    //bool m_IsWindowOpen_Game;
+    //bool m_IsWindowOpen_Editor;
+    //bool m_IsWindowOpen_ObjectList;
+    //bool m_IsWindowOpen_Watch;
+    //bool m_IsWindowOpen_Resources;
+    //bool m_IsWindowOpen_Log;
+    //
+    //bool m_IsWindowOpen_GridSettings;
+    //bool m_IsWindowOpen_MaterialEditor;
+    //bool m_IsWindowOpen_2DAnimationEditor;
+    //
+    //bool m_IsWindowOpen_Debug_MousePicker;
+    //bool m_IsWindowOpen_Debug_Stuff;
+    //bool m_IsWindowOpen_Debug_ImGuiDemo;
 
     // 2D Animation Editor.
     char m_FullPathToLast2DAnimInfoBeingEdited[MAX_PATH];

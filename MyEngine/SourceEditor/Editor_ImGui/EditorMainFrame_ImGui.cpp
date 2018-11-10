@@ -15,21 +15,20 @@
 // Various enums and matching strings (some unused)
 //====================================================================================================
 
-enum EditorWindowTypes
-{
-    EditorWindow_Game,
-    EditorWindow_PanelObjectList,
-    EditorWindow_PanelWatch,
-    EditorWindow_PanelMemory,
-    EditorWindow_NumTypes,
-};
-
 const char* g_DefaultEditorWindowTypeMenuLabels[EditorWindow_NumTypes] =
 {
     "Game View",
-    "Object List Panel",
-    "Watch Panel",
-    "Files Panel",
+    "Editor View",
+    "Object List",
+    "Watch",
+    "Resources",
+    "Log",
+    "Grid Settings",
+    "Material Editor",
+    "2D Animation Editor",
+    "Debug Mouse Picker",
+    "Debug Stuff",
+    "Debug ImGui Demo",
 };
 
 enum PanelMemoryPages
@@ -57,10 +56,10 @@ const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
 
 const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
 {
-    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,310\nSize=256,171\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Editor]\nPos=258,19\nSize=661,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Objects]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000009,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=256,462 Split=Y SelectedTab=0xCBF1DA15\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=256,289 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=256,171 SelectedTab=0x83199EB2\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=661,462 CentralNode=1 SelectedTab=0xCB5DF48C\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
-    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=258,19\nSize=661,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Editor]\nPos=0,320\nSize=256,161\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Objects]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,299\nCollapsed=0\nDockId=0x00000009,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=256,462 Split=Y SelectedTab=0x7DA7F56F\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=256,299 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=256,161 SelectedTab=0xCB5DF48C\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=661,462 CentralNode=1 SelectedTab=0x83199EB2\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
-    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,19\nSize=336,423\nCollapsed=0\nDockId=0x00000001,0\n\n[Window][Editor]\nPos=338,19\nSize=340,423\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Objects]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,0\n\n[Window][Watch]\nPos=925,19\nSize=275,423\nCollapsed=0\nDockId=0x00000004,0\n\n[Window][Log]\nPos=0,444\nSize=597,206\nCollapsed=0\nDockId=0x00000007,0\n\n[Window][Resources]\nPos=599,444\nSize=601,206\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Mouse Picker]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,1\n\n[Window][Stuff]\nPos=680,19\nSize=243,423\nCollapsed=0\nDockId=0x0000000C,2\n\n[Window][ImGui Demo]\nPos=0,444\nSize=597,206\nCollapsed=0\nDockId=0x00000007,1\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=Y\n  DockNode        ID=0x00000005 Parent=0xD01BFD3D SizeRef=1200,423 Split=X\n    DockNode      ID=0x00000003 Parent=0x00000005 SizeRef=923,631 Split=X\n      DockNode    ID=0x0000000B Parent=0x00000003 SizeRef=678,631 Split=X SelectedTab=0xCB5DF48C\n        DockNode  ID=0x00000001 Parent=0x0000000B SizeRef=336,423 SelectedTab=0x83199EB2\n        DockNode  ID=0x00000002 Parent=0x0000000B SizeRef=340,423 CentralNode=1 SelectedTab=0xCB5DF48C\n      DockNode    ID=0x0000000C Parent=0x00000003 SizeRef=243,631 SelectedTab=0x7DA7F56F\n    DockNode      ID=0x00000004 Parent=0x00000005 SizeRef=275,631 SelectedTab=0x91CA6522\n  DockNode        ID=0x00000006 Parent=0xD01BFD3D SizeRef=1200,206 Split=X SelectedTab=0x6D97690D\n    DockNode      ID=0x00000007 Parent=0x00000006 SizeRef=597,313 SelectedTab=0x080FC883\n    DockNode      ID=0x00000008 Parent=0x00000006 SizeRef=601,313 SelectedTab=0x6D97690D\n\n",
-    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,19\nSize=1200,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Editor]\nPos=263,19\nSize=656,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Objects]\nPos=0,19\nSize=261,281\nCollapsed=0\nDockId=0x00000007,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=1200,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,19\nSize=279,631\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000007,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000007,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Deferred G-Buffer]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Docking][Data]\nDockSpace       ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode      ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode    ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode  ID=0x00000007 Parent=0x00000001 SizeRef=261,462 SelectedTab=0xCBF1DA15\n      DockNode  ID=0x00000008 Parent=0x00000001 SizeRef=656,462 CentralNode=1 SelectedTab=0x83199EB2\n    DockNode    ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode      ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode    ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode    ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,317\nSize=261,164\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Editor]\nPos=263,19\nSize=656,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Objects]\nPos=0,19\nSize=261,296\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000007,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000007,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Deferred G-Buffer]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Material Editor]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,1\n\n[Window][2D Animation Editor]\nPos=263,19\nSize=656,462\nCollapsed=0\nDockId=0x00000008,1\n\n[Window][Grid Settings]\nPos=442,290\nSize=308,60\nCollapsed=0\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=261,462 Split=Y SelectedTab=0x7DA7F56F\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=261,296 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=261,164 SelectedTab=0x83199EB2\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=656,462 CentralNode=1 SelectedTab=0xCB5DF48C\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=263,19\nSize=656,462\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Editor]\nPos=0,324\nSize=261,157\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Objects]\nPos=0,19\nSize=261,303\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Watch]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,0\n\n[Window][Log]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=921,459\nSize=279,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000007,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000007,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Deferred G-Buffer]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Material Editor]\nPos=921,19\nSize=279,438\nCollapsed=0\nDockId=0x00000005,1\n\n[Window][2D Animation Editor]\nPos=263,19\nSize=656,462\nCollapsed=0\nDockId=0x00000008,1\n\n[Window][Grid Settings]\nPos=442,290\nSize=308,60\nCollapsed=0\n\n[Docking][Data]\nDockSpace         ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode        ID=0x00000003 Parent=0xD01BFD3D SizeRef=919,631 Split=Y\n    DockNode      ID=0x00000001 Parent=0x00000003 SizeRef=1200,462 Split=X\n      DockNode    ID=0x00000007 Parent=0x00000001 SizeRef=261,462 Split=Y SelectedTab=0x7DA7F56F\n        DockNode  ID=0x00000009 Parent=0x00000007 SizeRef=261,303 SelectedTab=0x7DA7F56F\n        DockNode  ID=0x0000000A Parent=0x00000007 SizeRef=261,157 SelectedTab=0xCB5DF48C\n      DockNode    ID=0x00000008 Parent=0x00000001 SizeRef=656,462 CentralNode=1 SelectedTab=0x83199EB2\n    DockNode      ID=0x00000002 Parent=0x00000003 SizeRef=1200,167 SelectedTab=0xB7722E25\n  DockNode        ID=0x00000004 Parent=0xD01BFD3D SizeRef=279,631 Split=Y SelectedTab=0x6D97690D\n    DockNode      ID=0x00000005 Parent=0x00000004 SizeRef=334,438 SelectedTab=0x91CA6522\n    DockNode      ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,650\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,19\nSize=355,359\nCollapsed=0\nDockId=0x00000009,0\n\n[Window][Editor]\nPos=357,19\nSize=400,359\nCollapsed=0\nDockId=0x0000000A,0\n\n[Window][Objects]\nPos=759,19\nSize=225,438\nCollapsed=0\nDockId=0x00000007,0\n\n[Window][Watch]\nPos=986,19\nSize=214,438\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Log]\nPos=0,380\nSize=757,270\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=759,459\nSize=441,191\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000001,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000001,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Deferred G-Buffer]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Material Editor]\nPos=986,19\nSize=214,438\nCollapsed=0\nDockId=0x00000008,1\n\n[Window][2D Animation Editor]\nPos=0,19\nSize=355,359\nCollapsed=0\nDockId=0x00000009,1\n\n[Window][Grid Settings]\nPos=442,290\nSize=308,60\nCollapsed=0\n\n[Docking][Data]\nDockSpace       ID=0xD01BFD3D Pos=0,19 Size=1200,631 Split=X\n  DockNode      ID=0x00000003 Parent=0xD01BFD3D SizeRef=757,631 Split=Y\n    DockNode    ID=0x00000001 Parent=0x00000003 SizeRef=1200,359 Split=X\n      DockNode  ID=0x00000009 Parent=0x00000001 SizeRef=355,462 SelectedTab=0x83199EB2\n      DockNode  ID=0x0000000A Parent=0x00000001 SizeRef=400,462 CentralNode=1 SelectedTab=0xCB5DF48C\n    DockNode    ID=0x00000002 Parent=0x00000003 SizeRef=1200,270 SelectedTab=0xB7722E25\n  DockNode      ID=0x00000004 Parent=0xD01BFD3D SizeRef=441,631 Split=Y SelectedTab=0x6D97690D\n    DockNode    ID=0x00000005 Parent=0x00000004 SizeRef=334,438 Split=X SelectedTab=0x91CA6522\n      DockNode  ID=0x00000007 Parent=0x00000005 SizeRef=225,438 SelectedTab=0x7DA7F56F\n      DockNode  ID=0x00000008 Parent=0x00000005 SizeRef=214,438 SelectedTab=0x91CA6522\n    DockNode    ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
+    "[Window][Main Dock]\nPos=0,0\nSize=1200,649\nCollapsed=0\n\n[Window][Debug##Default]\nPos=60,60\nSize=400,400\nCollapsed=0\n\n[Window][Game]\nPos=0,19\nSize=1200,630\nCollapsed=0\nDockId=0x00000001,0\n\n[Window][Editor]\nPos=357,19\nSize=400,359\nCollapsed=0\nDockId=0x00000001,0\n\n[Window][Objects]\nPos=759,19\nSize=225,438\nCollapsed=0\nDockId=0x00000007,0\n\n[Window][Watch]\nPos=759,19\nSize=441,438\nCollapsed=0\nDockId=0x00000008,0\n\n[Window][Log]\nPos=0,380\nSize=1200,270\nCollapsed=0\nDockId=0x00000002,0\n\n[Window][Resources]\nPos=759,19\nSize=441,631\nCollapsed=0\nDockId=0x00000006,0\n\n[Window][Mouse Picker]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000001,1\n\n[Window][Stuff]\nPos=0,19\nSize=256,289\nCollapsed=0\nDockId=0x00000001,2\n\n[Window][ImGui Demo]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Deferred G-Buffer]\nPos=0,483\nSize=919,167\nCollapsed=0\nDockId=0x00000002,1\n\n[Window][Material Editor]\nPos=986,19\nSize=214,438\nCollapsed=0\nDockId=0x00000008,1\n\n[Window][2D Animation Editor]\nPos=0,19\nSize=355,359\nCollapsed=0\nDockId=0x00000001,1\n\n[Window][Grid Settings]\nPos=442,290\nSize=308,60\nCollapsed=0\n\n[Docking][Data]\nDockSpace       ID=0xD01BFD3D Pos=0,19 Size=1200,630 Split=X\n  DockNode      ID=0x00000003 Parent=0xD01BFD3D SizeRef=757,631 Split=Y\n    DockNode    ID=0x00000001 Parent=0x00000003 SizeRef=1200,359 CentralNode=1 SelectedTab=0x83199EB2\n    DockNode    ID=0x00000002 Parent=0x00000003 SizeRef=1200,270 SelectedTab=0xB7722E25\n  DockNode      ID=0x00000004 Parent=0xD01BFD3D SizeRef=441,631 Split=Y SelectedTab=0x6D97690D\n    DockNode    ID=0x00000005 Parent=0x00000004 SizeRef=334,438 Split=X SelectedTab=0x91CA6522\n      DockNode  ID=0x00000007 Parent=0x00000005 SizeRef=225,438 SelectedTab=0x7DA7F56F\n      DockNode  ID=0x00000008 Parent=0x00000005 SizeRef=214,438 SelectedTab=0x91CA6522\n    DockNode    ID=0x00000006 Parent=0x00000004 SizeRef=334,191 SelectedTab=0x6D97690D\n\n",
 };
 
 char* g_SavedPerspectives[Perspective_NumPerspectives] =
@@ -88,20 +87,20 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialBeingEdited = 0;
 
     // "Is window open" booleans.
-    m_IsWindowOpen_Game = true;
-    m_IsWindowOpen_Editor = true;
-    m_IsWindowOpen_ObjectList = true;
-    m_IsWindowOpen_Watch = true;
-    m_IsWindowOpen_Resources = true;
-    m_IsWindowOpen_Log = true;
+    m_IsWindowOpen[EditorWindow_Game] = true;
+    m_IsWindowOpen[EditorWindow_Editor] = true;
+    m_IsWindowOpen[EditorWindow_ObjectList] = true;
+    m_IsWindowOpen[EditorWindow_Watch] = true;
+    m_IsWindowOpen[EditorWindow_Resources] = true;
+    m_IsWindowOpen[EditorWindow_Log] = true;
 
-    m_IsWindowOpen_GridSettings = false;
-    m_IsWindowOpen_MaterialEditor = false;
-    m_IsWindowOpen_2DAnimationEditor = false;
+    m_IsWindowOpen[EditorWindow_GridSettings] = false;
+    m_IsWindowOpen[EditorWindow_MaterialEditor] = false;
+    m_IsWindowOpen[EditorWindow_2DAnimationEditor] = false;
 
-    m_IsWindowOpen_Debug_MousePicker = false;
-    m_IsWindowOpen_Debug_Stuff = false;
-    m_IsWindowOpen_Debug_ImGuiDemo = false;
+    m_IsWindowOpen[EditorWindow_Debug_MousePicker] = false;
+    m_IsWindowOpen[EditorWindow_Debug_Stuff] = false;
+    m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] = false;
 
     // 2D Animation Editor.
     m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
@@ -385,7 +384,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( A  && keycode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return true; }
         if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return true; }
         if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return true; }
-        if( CS && keycode == 'G' )   { m_IsWindowOpen_GridSettings = true;                                          return true; }
+        if( CS && keycode == 'G' )   { m_IsWindowOpen[EditorWindow_GridSettings] = true;                            return true; }
         if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return true; }
         if( C  && keycode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
         if( C  && keycode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
@@ -462,7 +461,7 @@ void EditorMainFrame_ImGui::AddEverything()
 
     AddDebug_MousePicker();
 
-    if( m_IsWindowOpen_MaterialEditor )
+    if( m_IsWindowOpen[EditorWindow_MaterialEditor] )
     {
         AddMaterialEditor();
     }
@@ -475,9 +474,9 @@ void EditorMainFrame_ImGui::AddEverything()
 
 #if _DEBUG
     ImGuiIO& io = ImGui::GetIO();
-    if( m_IsWindowOpen_Debug_Stuff )
+    if( m_IsWindowOpen[EditorWindow_Debug_Stuff] )
     {
-        if( ImGui::Begin( "Stuff", &m_IsWindowOpen_Debug_Stuff ) )
+        if( ImGui::Begin( "Stuff", &m_IsWindowOpen[EditorWindow_Debug_Stuff] ) )
         {
             ImGui::Text( "WantCaptureKeyboard %d", io.WantCaptureKeyboard );
             ImGui::Text( "WantCaptureMouse %d", io.WantCaptureMouse );
@@ -499,21 +498,21 @@ void EditorMainFrame_ImGui::AddEverything()
         ImGui::End();
     }
 
-    if( m_IsWindowOpen_Debug_ImGuiDemo )
+    if( m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] )
     {
-        ImGui::ShowDemoWindow( &m_IsWindowOpen_Debug_ImGuiDemo );
+        ImGui::ShowDemoWindow( &m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] );
     }
 #endif
 
-    if( m_IsWindowOpen_GridSettings )
+    if( m_IsWindowOpen[EditorWindow_GridSettings] )
     {
-        if( ImGui::Begin( "Grid Settings", &m_IsWindowOpen_GridSettings, ImVec2(308, 60), 1 ) )
+        if( ImGui::Begin( "Grid Settings", &m_IsWindowOpen[EditorWindow_GridSettings], ImVec2(308, 60), 1 ) )
         {
             // Create a context menu only available from the title bar.
             if( ImGui::BeginPopupContextItem() )
             {
                 if( ImGui::MenuItem( "Close" ) )
-                    m_IsWindowOpen_GridSettings = false;
+                    m_IsWindowOpen[EditorWindow_GridSettings] = false;
 
                 ImGui::EndPopup();
             }
@@ -688,14 +687,14 @@ void EditorMainFrame_ImGui::EditMaterial(MaterialDefinition* pMaterial)
 {
     m_pMaterialBeingEdited = pMaterial;
     ImGui::SetWindowFocus( "Material Editor" );
-    m_IsWindowOpen_MaterialEditor = true;
+    m_IsWindowOpen[EditorWindow_MaterialEditor] = true;
 }
 
 void EditorMainFrame_ImGui::Edit2DAnimInfo(My2DAnimInfo* pAnimInfo)
 {
     m_p2DAnimInfoBeingEdited = pAnimInfo;
     ImGui::SetWindowFocus( "2D Animation Editor" );
-    m_IsWindowOpen_2DAnimationEditor = true;
+    m_IsWindowOpen[EditorWindow_2DAnimationEditor] = true;
     m_Current2DAnimationIndex = 0;
 }
 
@@ -815,7 +814,7 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
 
 My2DAnimInfo* EditorMainFrame_ImGui::Get2DAnimInfoBeingEdited()
 {
-    if( m_IsWindowOpen_2DAnimationEditor )
+    if( m_IsWindowOpen[EditorWindow_2DAnimationEditor] )
     {
         return m_p2DAnimInfoBeingEdited;
     }
@@ -901,25 +900,31 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Load window layout (TODO)" ) ) {} // { EditorMenuCommand( myID_View_LoadPerspective ); }
             if( ImGui::MenuItem( "Reset window layout (TODO)" ) ) {} // { EditorMenuCommand( myID_View_ResetPerspective ); }
 
-            if( ImGui::BeginMenu( "Editor Windows (TODO)" ) )
+            if( ImGui::BeginMenu( "Editor Windows" ) )
             {
                 for( int i=0; i<EditorWindow_NumTypes; i++ )
                 {
                     if( ImGui::MenuItem( g_DefaultEditorWindowTypeMenuLabels[i] ) )
                     {
-                        m_IsWindowOpen_Debug_Stuff = true;
+                        m_IsWindowOpen[i] = true;
+                    }
+
+                    // Add a separator between main window, secondary window and debug window groups.
+                    if( i == 5 || i == 8 )
+                    {
+                        ImGui::Separator();
                     }
                 }
 
-                for( int i=0; i<EngineEditorWindow_NumTypes; i++ )
-                {
-                    if( ImGui::MenuItem( g_DefaultEngineEditorWindowTypeMenuLabels[i] ) ) {}
-                }
+                //for( int i=0; i<EngineEditorWindow_NumTypes; i++ )
+                //{
+                //    if( ImGui::MenuItem( g_DefaultEngineEditorWindowTypeMenuLabels[i] ) ) {}
+                //}
 
                 ImGui::EndMenu();
             }
 
-            if( ImGui::BeginMenu( "Editor Perspectives (TODO)" ) )
+            if( ImGui::BeginMenu( "Editor Perspectives" ) )
             {
                 for( unsigned int i=0; i<Perspective_NumPerspectives; i++ )
                 {
@@ -1021,7 +1026,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         {
             if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", g_pEngineCore->GetEditorPrefs()->Get_Grid_Visible() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_Visible ); }
             if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", g_pEngineCore->GetEditorPrefs()->Get_Grid_SnapEnabled() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled ); }
-            if( ImGui::MenuItem( "Grid Settings", "Ctrl-Shift-G" ) ) { m_IsWindowOpen_GridSettings = true; }
+            if( ImGui::MenuItem( "Grid Settings", "Ctrl-Shift-G" ) ) { m_IsWindowOpen[EditorWindow_GridSettings] = true; }
 
             ImGui::EndMenu();
         }
@@ -1171,11 +1176,11 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
 {
     m_GameWindowFocused = m_GameWindowVisible = false;
 
-    if( m_IsWindowOpen_Game )
+    if( m_IsWindowOpen[EditorWindow_Game] )
     {
         ImGui::SetNextWindowPos( ImVec2(9, 302), ImGuiCond_FirstUseEver );
 
-        if( ImGui::Begin( "Game", &m_IsWindowOpen_Game, ImVec2(256, 171) ) )
+        if( ImGui::Begin( "Game", &m_IsWindowOpen[EditorWindow_Game], ImVec2(256, 171) ) )
         {
             m_GameWindowFocused = ImGui::IsWindowFocused();
             m_GameWindowVisible = true;
@@ -1221,11 +1226,11 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
     }
 
     m_EditorWindowFocused = m_EditorWindowHovered = m_EditorWindowVisible = false;
-    if( m_IsWindowOpen_Editor )
+    if( m_IsWindowOpen[EditorWindow_Editor] )
     {
         ImGui::SetNextWindowPos( ImVec2(269, 24), ImGuiCond_FirstUseEver );
 
-        if( ImGui::Begin( "Editor", &m_IsWindowOpen_Editor, ImVec2(579, 397) ) )
+        if( ImGui::Begin( "Editor", &m_IsWindowOpen[EditorWindow_Editor], ImVec2(579, 397) ) )
         {
             m_EditorWindowFocused = ImGui::IsWindowFocused();
             m_EditorWindowHovered = ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByActiveItem );
@@ -1280,14 +1285,14 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
 
 void EditorMainFrame_ImGui::AddObjectList()
 {
-    if( m_IsWindowOpen_ObjectList == false )
+    if( m_IsWindowOpen[EditorWindow_ObjectList] == false )
         return;
 
     ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
     ImGui::SetNextWindowPos( ImVec2(4, 28), ImGuiCond_FirstUseEver );
   
-    if( ImGui::Begin( "Objects", &m_IsWindowOpen_ObjectList, ImVec2(258, 266) ) )
+    if( ImGui::Begin( "Objects", &m_IsWindowOpen[EditorWindow_ObjectList], ImVec2(258, 266) ) )
     {
         // Add an input box for object list filter.
         // For now, it will always auto-select the text when given focus.
@@ -2034,12 +2039,12 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
 void EditorMainFrame_ImGui::AddWatchPanel()
 {
-    if( m_IsWindowOpen_Watch == false )
+    if( m_IsWindowOpen[EditorWindow_Watch] == false )
         return;
 
     ImGui::SetNextWindowPos( ImVec2(852, 25), ImGuiCond_FirstUseEver );
 
-    if( ImGui::Begin( "Watch", &m_IsWindowOpen_Watch, ImVec2(333, 395) ) )
+    if( ImGui::Begin( "Watch", &m_IsWindowOpen[EditorWindow_Watch], ImVec2(333, 395) ) )
     {
         EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
@@ -2240,17 +2245,20 @@ void EditorMainFrame_ImGui::AddLogWindow()
     ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowPos( ImVec2(6, 476), ImGuiCond_FirstUseEver );
 
-    m_pLogWindow->Draw( "Log" );
+    if( m_IsWindowOpen[EditorWindow_Log] )
+    {
+        m_pLogWindow->Draw( "Log", &m_IsWindowOpen[EditorWindow_Log] );
+    }
 }
 
 void EditorMainFrame_ImGui::AddMemoryPanel()
 {
-    if( m_IsWindowOpen_Resources == false )
+    if( m_IsWindowOpen[EditorWindow_Resources] == false )
         return;
 
     ImGui::SetNextWindowPos( ImVec2(853, 424), ImGuiCond_FirstUseEver );
 
-    if( ImGui::Begin( "Resources", &m_IsWindowOpen_Resources, ImVec2(334, 220) ) )
+    if( ImGui::Begin( "Resources", &m_IsWindowOpen[EditorWindow_Resources], ImVec2(334, 220) ) )
     {
         // Add an input box for memory panel filter.
         // For now, it will always auto-select the text when given focus.
@@ -2594,7 +2602,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                 {
-                                    if( ImGui::MenuItem( "Edit Material", 0, &m_IsWindowOpen_MaterialEditor ) ) { EditMaterial( pMat ); ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Edit Material", 0, &m_IsWindowOpen[EditorWindow_MaterialEditor] ) ) { EditMaterial( pMat ); ImGui::CloseCurrentPopup(); }
                                     if( ImGui::MenuItem( "Unload File" ) )     { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_UnloadFile ); ImGui::CloseCurrentPopup(); pMat = 0; }
                                     if( ImGui::MenuItem( "Find References" ) ) { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_FindAllReferences ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                     if( ImGui::MenuItem( "Rename" ) )
@@ -3020,19 +3028,26 @@ void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
 
 void EditorMainFrame_ImGui::AddMaterialEditor()
 {
-    if( m_IsWindowOpen_MaterialEditor == false )
+    if( m_IsWindowOpen[EditorWindow_MaterialEditor] == false )
         return;
 
     ImGui::SetNextWindowPos( ImVec2(856, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
     
-    if( ImGui::Begin( "Material Editor", &m_IsWindowOpen_MaterialEditor ) )
+    if( ImGui::Begin( "Material Editor", &m_IsWindowOpen[EditorWindow_MaterialEditor] ) )
     {
+        if( m_pMaterialBeingEdited == 0 )
+        {
+            ImGui::Text( "No material selected." );
+            ImGui::End();
+            return;
+        }
+            
         // Create a context menu only available from the title bar.
         if( ImGui::BeginPopupContextItem() )
         {
             if( ImGui::MenuItem( "Close" ) )
-                m_IsWindowOpen_MaterialEditor = false;
+                m_IsWindowOpen[EditorWindow_MaterialEditor] = false;
 
             ImGui::EndPopup();
         }
@@ -3384,7 +3399,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         if( pFileInfo )
         {
             My2DAnimInfo* pAnimInfo = pFileInfo->Get2DAnimInfo();
-            m_IsWindowOpen_2DAnimationEditor = true;
+            m_IsWindowOpen[EditorWindow_2DAnimationEditor] = true;
             m_Current2DAnimationIndex = 0;
 
             MyFileObject* pFile = pAnimInfo->GetSourceFile();
@@ -3396,13 +3411,13 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         }
     }
 
-    if( m_IsWindowOpen_2DAnimationEditor == false )
+    if( m_IsWindowOpen[EditorWindow_2DAnimationEditor] == false )
         return;
 
     ImGui::SetNextWindowPos( ImVec2(556, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
     
-    if( ImGui::Begin( "2D Animation Editor", &m_IsWindowOpen_2DAnimationEditor ) )
+    if( ImGui::Begin( "2D Animation Editor", &m_IsWindowOpen[EditorWindow_2DAnimationEditor] ) )
     {
         // Create a context menu only available from the title bar.
         if( ImGui::BeginPopupContextItem() )
@@ -3410,7 +3425,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             if( ImGui::MenuItem( "Close" ) )
             {
                 m_p2DAnimInfoBeingEdited = 0;
-                m_IsWindowOpen_2DAnimationEditor = false;
+                m_IsWindowOpen[EditorWindow_2DAnimationEditor] = false;
             }
 
             ImGui::EndPopup();
@@ -3423,7 +3438,10 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
         if( pAnimInfo == 0 )
         {
-            ImGui::Text( "File still loading: %s", m_FullPathToLast2DAnimInfoBeingEdited );
+            if( m_FullPathToLast2DAnimInfoBeingEdited[0] == 0 )
+                ImGui::Text( "No animation selected" );
+            else
+                ImGui::Text( "File still loading: %s", m_FullPathToLast2DAnimInfoBeingEdited );
         }
         else
         {
@@ -3690,10 +3708,10 @@ void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefiniti
 
 void EditorMainFrame_ImGui::AddDebug_MousePicker()
 {
-    if( m_IsWindowOpen_Debug_MousePicker == false )
+    if( m_IsWindowOpen[EditorWindow_Debug_MousePicker] == false )
         return;
 
-    if( ImGui::Begin( "Mouse Picker", &m_IsWindowOpen_Debug_MousePicker, ImVec2(150, 150), 1 ) )
+    if( ImGui::Begin( "Mouse Picker", &m_IsWindowOpen[EditorWindow_Debug_MousePicker], ImVec2(150, 150), 1 ) )
     {
         TextureDefinition* pTexture = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetColorTexture( 0 );
         int texw = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureWidth();
@@ -3721,7 +3739,7 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile)
 
     if( strcmp( extension, ".my2daniminfo" ) == 0 )
     {
-        if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_IsWindowOpen_2DAnimationEditor ) )
+        if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_IsWindowOpen[EditorWindow_2DAnimationEditor] ) )
         {
             My2DAnimInfo* pAnim = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, SCENEID_Any )->Get2DAnimInfo();
             Edit2DAnimInfo( pAnim );
