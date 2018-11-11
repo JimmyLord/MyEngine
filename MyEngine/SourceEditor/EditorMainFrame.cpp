@@ -10,14 +10,6 @@
 #include "EngineCommonHeader.h"
 #include "EditorMenuCommands.h"
 
-const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives] =
-{
-    "Center &Editor",
-    "Center &Game",
-    "&Side by Side",
-    "&Full Frame Game",
-};
-
 const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumTypes] =
 {
     "&Editor View",

@@ -12,8 +12,8 @@
 
 class EngineCore;
 class EditorLogWindow_ImGui;
-
-extern const char* g_DefaultPerspectives[Perspective_NumPerspectives];
+class EditorLayoutManager_ImGui;
+class EditorLayout;
 
 enum EditorWindowTypes
 {
@@ -35,6 +35,9 @@ enum EditorWindowTypes
 class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:
+    EditorLayoutManager_ImGui* m_pLayoutManager;
+    EditorLayout* m_pCurrentLayout;
+
     bool m_ShowCloseEditorWarning;
 
     FBODefinition* m_pGameFBO;
@@ -44,23 +47,6 @@ protected:
     MaterialDefinition* m_pMaterialToPreview;
 
     MaterialDefinition* m_pMaterialBeingEdited;
-
-    // "Is window open" booleans.
-    bool m_IsWindowOpen[EditorWindow_NumTypes];
-    //bool m_IsWindowOpen_Game;
-    //bool m_IsWindowOpen_Editor;
-    //bool m_IsWindowOpen_ObjectList;
-    //bool m_IsWindowOpen_Watch;
-    //bool m_IsWindowOpen_Resources;
-    //bool m_IsWindowOpen_Log;
-    //
-    //bool m_IsWindowOpen_GridSettings;
-    //bool m_IsWindowOpen_MaterialEditor;
-    //bool m_IsWindowOpen_2DAnimationEditor;
-    //
-    //bool m_IsWindowOpen_Debug_MousePicker;
-    //bool m_IsWindowOpen_Debug_Stuff;
-    //bool m_IsWindowOpen_Debug_ImGuiDemo;
 
     // 2D Animation Editor.
     char m_FullPathToLast2DAnimInfoBeingEdited[MAX_PATH];
@@ -122,6 +108,8 @@ protected:
 public:
     EditorMainFrame_ImGui();
     ~EditorMainFrame_ImGui();
+
+    EditorLayoutManager_ImGui* GetLayoutManager() { return m_pLayoutManager; }
 
     Vector2 GetEditorWindowCenterPosition();
     bool IsGameWindowFocused() { return m_GameWindowFocused; }

@@ -468,6 +468,9 @@
     <ClCompile Include="..\Libraries\imgui\imgui_widgets.cpp">
       <Filter>Libraries\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="SourceEditor\Editor_ImGui\EditorLayoutManager_ImGui.cpp">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -862,6 +865,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\EngineComponents\ComponentObjectPool.h">
       <Filter>Source\ComponentSystem\Engine Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Editor_ImGui\EditorLayoutManager_ImGui.h">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

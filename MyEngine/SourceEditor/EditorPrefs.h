@@ -16,15 +16,6 @@ class ImGuiStylePrefs;
 
 extern EditorPrefs* g_pEditorPrefs;
 
-enum DefaultPerspectives
-{
-    Perspective_CenterEditor,
-    Perspective_CenterGame,
-    Perspective_CenterSideBySide,
-    Perspective_FullFrameGame,
-    Perspective_NumPerspectives,
-};
-
 enum EngineEditorWindowTypes
 {
     EngineEditorWindow_Editor,
@@ -50,7 +41,6 @@ enum LaunchPlatforms
     LaunchPlatform_NumPlatforms,
 };
 
-extern const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives];
 extern const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumTypes];
 extern const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms];
 
@@ -92,10 +82,6 @@ protected:
     std::vector<std::string> m_Lua_RecentScripts;
 
 #if MYFW_USING_IMGUI
-    std::string m_ImGuiWindowLayouts[Perspective_NumPerspectives];
-    DefaultPerspectives m_CurrentPerspective;
-    DefaultPerspectives m_RequestedPerspective;
-    
     ImGuiStylePrefs* m_pImGuiStylePrefs;
 #endif
 
@@ -111,6 +97,12 @@ public:
     void SaveFinish(cJSON* jPrefs);
 
     cJSON* GetEditorPrefsJSONString() { return m_jEditorPrefs; }
+
+    int GetWindowX() { return m_WindowX; }
+    int GetWindowY() { return m_WindowY; }
+    int GetWindowWidth() { return m_WindowWidth; }
+    int GetWindowHeight() { return m_WindowHeight; }
+    bool IsWindowMaximized() { return m_IsWindowMaximized; }
 
     // Preference Setters
     void SetWindowProperties(int x, int y, int w, int h, bool maximized)
@@ -153,12 +145,6 @@ public:
     void FillGridSettingsWindow();
 
 #if MYFW_USING_IMGUI
-    void RequestPerspectiveChange(DefaultPerspectives perspective);
-    void ApplyPerspectiveChange();
-
-    std::string GetImGuiWindowLayout(DefaultPerspectives i) { return m_ImGuiWindowLayouts[i]; }
-    void SetImGuiWindowLayout(DefaultPerspectives i, std::string value) { m_ImGuiWindowLayouts[i] = value; }
-
     ImGuiStylePrefs* GetImGuiStylePrefs() { return m_pImGuiStylePrefs; }
 #endif
 };

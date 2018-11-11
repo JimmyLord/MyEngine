@@ -473,7 +473,7 @@ float EngineCore::Tick(float deltaTime)
 {
 #if MYFW_USING_IMGUI
     // If a change in editor perspective was requested, change it before the start of the frame.
-    m_pEditorPrefs->ApplyPerspectiveChange();
+    ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->GetLayoutManager()->ApplyLayoutChange();
 
     g_pImGuiManager->StartFrame();
 #endif

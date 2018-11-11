@@ -169,6 +169,7 @@ enum SceneID
 
 #if MYFW_USING_IMGUI
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
+#include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorLogWindow_ImGui.h"
 #endif
 
