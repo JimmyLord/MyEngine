@@ -111,6 +111,7 @@ void ImGuiManager::Shutdown(bool invalidateDeviceObjects)
 
     ImGui::DestroyContext( m_pImGuiContext );
     m_pImGuiContext = 0;
+    m_FrameStarted = false;
 }
 
 void ImGuiManager::ClearInput()

@@ -60,17 +60,20 @@ const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
 
 EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
+    // Layouts.
     m_pLayoutManager = MyNew EditorLayoutManager_ImGui();
-    m_pCurrentLayout = m_pLayoutManager->GetCurrentLayout();
+    m_pCurrentLayout = 0;
 
+    // Warnings.
     m_ShowCloseEditorWarning = false;
 
+    // Render surfaces.
     m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
     m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
-
     m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
-    m_pMaterialToPreview = 0;
 
+    // Material Preview and Editor.
+    m_pMaterialToPreview = 0;
     m_pMaterialBeingEdited = 0;
 
     // 2D Animation Editor.
@@ -386,6 +389,18 @@ void EditorMainFrame_ImGui::RequestCloseWindow()
         g_pGameCore->SetGameConfirmedCloseIsOkay();
 }
 
+void EditorMainFrame_ImGui::OnModeTogglePlayStop(bool nowInEditorMode)
+{
+    if( nowInEditorMode )
+    {
+        m_pLayoutManager->RequestEditorLayout();
+    }
+    else
+    {
+        m_pLayoutManager->RequestGameLayout();
+    }
+}
+
 void EditorMainFrame_ImGui::Update(float deltaTime)
 {
     m_pAnimPlayerComponent->TickCallback( deltaTime );
@@ -393,6 +408,8 @@ void EditorMainFrame_ImGui::Update(float deltaTime)
 
 void EditorMainFrame_ImGui::AddEverything()
 {
+    m_pCurrentLayout = m_pLayoutManager->GetCurrentLayout();
+
     ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos( viewport->Pos );
@@ -482,6 +499,8 @@ void EditorMainFrame_ImGui::AddEverything()
     }
 
     m_RenamePressedThisFrame = false;
+
+    m_pLayoutManager->FinishFocusChangeIfNeeded();
 
     // Hacks for temporary window resizing.
     //HACK_HandleWindowResize();
@@ -883,23 +902,36 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
-            if( ImGui::BeginMenu( "Editor Perspectives" ) )
+            if( ImGui::BeginMenu( "Editor Window Layouts" ) )
             {
                 for( unsigned int i=0; i<EditorLayout_NumLayouts; i++ )
                 {
                     if( ImGui::MenuItem( g_EditorLayoutMenuLabels[i] ) )
                     {
-                        m_pLayoutManager->RequestLayoutChange( (EditorLayouts)i );
+                        m_pLayoutManager->SetSelectedLayout_EditorMode( (EditorLayoutTypes)i );
+
+                        if( g_pEngineCore->IsInEditorMode() == true )
+                        {
+                            m_pLayoutManager->RequestEditorLayout();
+                        }
                     }
                 }
                 ImGui::EndMenu();
             }
 
-            if( ImGui::BeginMenu( "Gameplay Perspectives (TODO)" ) )
+            if( ImGui::BeginMenu( "Gameplay Window Layouts" ) )
             {
                 for( int i=0; i<EditorLayout_NumLayouts; i++ )
                 {
-                    if( ImGui::MenuItem( g_EditorLayoutMenuLabels[i] ) ) {}
+                    if( ImGui::MenuItem( g_EditorLayoutMenuLabels[i] ) )
+                    {
+                        m_pLayoutManager->SetSelectedLayout_GameMode( (EditorLayoutTypes)i );
+
+                        if( g_pEngineCore->IsInEditorMode() == false )
+                        {
+                            m_pLayoutManager->RequestGameLayout();
+                        }
+                    }
                 }
                 ImGui::EndMenu();
             }

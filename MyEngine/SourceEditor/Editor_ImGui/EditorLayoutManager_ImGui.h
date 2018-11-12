@@ -13,7 +13,7 @@
 class EngineCore;
 class EditorLogWindow_ImGui;
 
-enum EditorLayouts
+enum EditorLayoutTypes
 {
     EditorLayout_CenterEditor,
     EditorLayout_CenterGame,
@@ -36,23 +36,41 @@ public:
 class EditorLayoutManager_ImGui
 {
 protected:
-    EditorLayouts m_CurrentLayoutIndex;
-    EditorLayouts m_RequestedLayoutIndex;
+    EditorLayoutTypes m_CurrentLayoutIndex;
+    EditorLayoutTypes m_RequestedLayoutIndex;
 
+    EditorLayoutTypes m_SelectedLayout_EditorMode;
+    EditorLayoutTypes m_SelectedLayout_GameMode;
+
+    bool m_SwitchingToEditorLayout;
+    bool m_SwitchingToGameLayout;
+
+    EditorLayout m_DefaultLayouts[EditorLayout_NumLayouts];
     EditorLayout m_CustomLayouts[EditorLayout_NumLayouts];
 
 public:
     EditorLayoutManager_ImGui();
     ~EditorLayoutManager_ImGui();
 
-    EditorLayout* GetCurrentLayout() { return &m_CustomLayouts[m_CurrentLayoutIndex]; }
+    // Getters
+    EditorLayout* GetLayout(EditorLayoutTypes i) { return &m_CustomLayouts[i]; }
+    EditorLayout* GetCurrentLayout();
+    EditorLayoutTypes GetSelectedLayout_EditorMode() { return m_SelectedLayout_EditorMode; }
+    EditorLayoutTypes GetSelectedLayout_GameMode() { return m_SelectedLayout_GameMode; }
 
+    // Setters
+    void SetSelectedLayout_EditorMode(EditorLayoutTypes layout) { m_SelectedLayout_EditorMode = layout; }
+    void SetSelectedLayout_GameMode(EditorLayoutTypes layout) { m_SelectedLayout_GameMode = layout; }
+
+    // Other methods
     void DumpCurrentLayoutToOutputWindow();
 
-    void RequestLayoutChange(EditorLayouts layout);
-    void ApplyLayoutChange();
+    void RequestLayoutChange(EditorLayoutTypes layout);
+    void RequestEditorLayout();
+    void RequestGameLayout();
 
-    EditorLayout* GetLayout(EditorLayouts i) { return &m_CustomLayouts[i]; }
+    void ApplyLayoutChange();
+    void FinishFocusChangeIfNeeded();
 };
 
 #endif //__EditorLayoutManager_ImGui_H__

@@ -1317,7 +1317,7 @@ void EngineCore::OnModeTogglePlayStop()
 
 #if MYFW_USING_IMGUI
             {
-                ImGui::SetWindowFocus( "Game" );
+                ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->OnModeTogglePlayStop( false );
             }
 #endif //MYFW_USING_IMGUI
         }
@@ -1341,7 +1341,7 @@ void EngineCore::OnModeTogglePlayStop()
 #endif //MYFW_USING_WX
 #if MYFW_USING_IMGUI
             {
-                ImGui::SetWindowFocus( "Editor" );
+                ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->OnModeTogglePlayStop( true );
             }
 #endif //MYFW_USING_IMGUI
         }

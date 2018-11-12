@@ -33,40 +33,62 @@ EditorLayoutManager_ImGui::EditorLayoutManager_ImGui()
         // "Is window open" booleans.
         for( int i=0; i<EditorLayout_NumLayouts; i++ )
         {
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_Game] = true;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_Editor] = true;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_ObjectList] = true;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_Watch] = true;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_Resources] = true;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_Log] = true;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Game] = true;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Editor] = true;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_ObjectList] = true;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Watch] = true;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Resources] = true;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Log] = true;
 
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_GridSettings] = false;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_MaterialEditor] = false;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_2DAnimationEditor] = false;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_GridSettings] = false;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_MaterialEditor] = false;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_2DAnimationEditor] = false;
 
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_Debug_MousePicker] = false;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_Debug_Stuff] = false;
-            m_CustomLayouts[i].m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] = false;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Debug_MousePicker] = false;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Debug_Stuff] = false;
+            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] = false;
         }
 
         // "Full Frame Game" layout only shows game window.
-        m_CustomLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_Editor] = false;
-        m_CustomLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_ObjectList] = false;
-        m_CustomLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_Watch] = false;
-        m_CustomLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_Resources] = false;
-        m_CustomLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_Log] = false;
+        m_DefaultLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_Editor] = false;
+        m_DefaultLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_ObjectList] = false;
+        m_DefaultLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_Watch] = false;
+        m_DefaultLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_Resources] = false;
+        m_DefaultLayouts[EditorLayout_FullFrameGame].m_IsWindowOpen[EditorWindow_Log] = false;
 
         // ImGui Ini strings.
         for( int i=0; i<EditorLayout_NumLayouts; i++ )
-            m_CustomLayouts[i].m_ImGuiIniString = g_DefaultEditorLayoutImGuiIniStrings[i];
+        {
+            m_DefaultLayouts[i].m_ImGuiIniString = g_DefaultEditorLayoutImGuiIniStrings[i];
+        }
+
+        // Copy all layouts to m_CustomLayouts so we don't modify default layouts and can reset to them.
+        for( int i=0; i<EditorLayout_NumLayouts; i++ )
+        {
+            m_CustomLayouts[i] = m_DefaultLayouts[i];
+        }
     }
 
-    m_CurrentLayoutIndex = EditorLayout_CenterEditor;
-    m_RequestedLayoutIndex = EditorLayout_CenterEditor;
+    m_SelectedLayout_EditorMode = EditorLayout_CenterEditor;
+    m_SelectedLayout_GameMode = EditorLayout_CenterGame;
+
+    m_SwitchingToEditorLayout = false;
+    m_SwitchingToGameLayout = false;
+
+    // Set intial layout to the selected editor layout.  Set current layout to none to force a reset.
+    m_CurrentLayoutIndex = EditorLayout_NumLayouts;
+    m_RequestedLayoutIndex = m_SelectedLayout_EditorMode;
 }
 
 EditorLayoutManager_ImGui::~EditorLayoutManager_ImGui()
 {
+}
+
+EditorLayout* EditorLayoutManager_ImGui::GetCurrentLayout()
+{
+    MyAssert( m_CurrentLayoutIndex >= 0 && m_CurrentLayoutIndex < EditorLayout_NumLayouts );
+    
+    return &m_CustomLayouts[m_CurrentLayoutIndex];
 }
 
 void EditorLayoutManager_ImGui::DumpCurrentLayoutToOutputWindow()
@@ -83,18 +105,35 @@ void EditorLayoutManager_ImGui::DumpCurrentLayoutToOutputWindow()
     LOGInfo( LOGTag, newLayout.c_str() );
 }
 
-void EditorLayoutManager_ImGui::RequestLayoutChange(EditorLayouts layout)
+void EditorLayoutManager_ImGui::RequestLayoutChange(EditorLayoutTypes layout)
 {
     m_RequestedLayoutIndex = layout;
 }
 
+void EditorLayoutManager_ImGui::RequestEditorLayout()
+{
+    RequestLayoutChange( m_SelectedLayout_EditorMode );
+    m_SwitchingToEditorLayout = true;
+}
+
+void EditorLayoutManager_ImGui::RequestGameLayout()
+{
+    RequestLayoutChange( m_SelectedLayout_GameMode );
+    m_SwitchingToGameLayout = true;
+}
+
 void EditorLayoutManager_ImGui::ApplyLayoutChange()
 {
+    MyAssert( m_RequestedLayoutIndex >= 0 && m_RequestedLayoutIndex < EditorLayout_NumLayouts );
+
     if( m_RequestedLayoutIndex != m_CurrentLayoutIndex )
     {
         // Save the current layout?
-        //const char* newLayout = ImGui::SaveIniSettingsToMemory();
-        //SetImGuiWindowLayout( m_CurrentLayout, newLayout );
+        if( m_CurrentLayoutIndex != EditorLayout_NumLayouts )
+        {
+            const char* newLayout = ImGui::SaveIniSettingsToMemory();
+            m_CustomLayouts[m_CurrentLayoutIndex].m_ImGuiIniString = newLayout;
+        }
 
         // Reset the imgui context.
         g_pImGuiManager->Shutdown( false );
@@ -103,10 +142,29 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
         // Reapply current imgui color/etc style.
         g_pEditorPrefs->GetImGuiStylePrefs()->ReapplyCurrentPreset();
 
-        // Load the layout requested.
-        EditorLayout* pRequestedLayout = GetLayout( m_RequestedLayoutIndex );
-        ImGui::LoadIniSettingsFromMemory( pRequestedLayout->m_ImGuiIniString.c_str() );
-
+        // Store the index to the active layout and have imgui load the ini string.
         m_CurrentLayoutIndex = m_RequestedLayoutIndex;
+        ImGui::LoadIniSettingsFromMemory( m_CustomLayouts[m_CurrentLayoutIndex].m_ImGuiIniString.c_str() );
+    }
+}
+
+void EditorLayoutManager_ImGui::FinishFocusChangeIfNeeded()
+{
+    if( g_pEditorPrefs->Get_Mode_SwitchFocusOnPlayStop() == false )
+        return;
+
+    // Fix focus if we're switching into editor or game mode.
+    // This needs to be done after all windows have been rebuild after switching layouts.
+
+    if( m_SwitchingToEditorLayout )
+    {
+        m_SwitchingToEditorLayout = false;
+        ImGui::SetWindowFocus( "Editor" );
+    }
+
+    if( m_SwitchingToGameLayout )
+    {
+        m_SwitchingToGameLayout = false;
+        ImGui::SetWindowFocus( "Game" );
     }
 }

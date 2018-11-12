@@ -35,17 +35,20 @@ enum EditorWindowTypes
 class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:
+    // Layouts.
     EditorLayoutManager_ImGui* m_pLayoutManager;
     EditorLayout* m_pCurrentLayout;
 
+    // Warnings.
     bool m_ShowCloseEditorWarning;
 
+    // Render surfaces.
     FBODefinition* m_pGameFBO;
     FBODefinition* m_pEditorFBO;
-
-    FBODefinition* m_pMaterialPreviewFBO;
+    FBODefinition* m_pMaterialPreviewFBO; // TODO: allow for more of these, one for material editor and one for rollover preview.
+    
+    // Material Preview and Editor.
     MaterialDefinition* m_pMaterialToPreview;
-
     MaterialDefinition* m_pMaterialBeingEdited;
 
     // 2D Animation Editor.
@@ -122,6 +125,7 @@ public:
 
     void RequestCloseWindow();
 
+    void OnModeTogglePlayStop(bool nowInEditorMode);
     void Update(float deltaTime);
 
     void AddEverything();
