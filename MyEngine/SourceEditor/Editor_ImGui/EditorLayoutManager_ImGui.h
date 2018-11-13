@@ -52,19 +52,23 @@ public:
     EditorLayoutManager_ImGui();
     ~EditorLayoutManager_ImGui();
 
-    // Getters
+    // Getters.
     EditorLayout* GetLayout(EditorLayoutTypes i) { return &m_CustomLayouts[i]; }
     EditorLayout* GetCurrentLayout();
     EditorLayoutTypes GetSelectedLayout_EditorMode() { return m_SelectedLayout_EditorMode; }
     EditorLayoutTypes GetSelectedLayout_GameMode() { return m_SelectedLayout_GameMode; }
 
-    // Setters
+    // Setters.
     void SetSelectedLayout_EditorMode(EditorLayoutTypes layout) { m_SelectedLayout_EditorMode = layout; }
     void SetSelectedLayout_GameMode(EditorLayoutTypes layout) { m_SelectedLayout_GameMode = layout; }
 
-    // Other methods
+    // Load/Save.
+    void LoadPrefs(cJSON* jPrefs);
+    void SavePrefs(cJSON* jPrefs);
     void DumpCurrentLayoutToOutputWindow();
+    void SyncCurrentImGuiIni();
 
+    // Layout Change.
     void RequestLayoutChange(EditorLayoutTypes layout);
     void RequestEditorLayout();
     void RequestGameLayout();

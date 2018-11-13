@@ -170,6 +170,7 @@ void EditorPrefs::LoadPrefs()
 
 #if MYFW_USING_IMGUI
     m_pImGuiStylePrefs->LoadPrefs( m_jEditorPrefs );
+    g_pEngineCore->GetEditorMainFrame_ImGui()->GetLayoutManager()->LoadPrefs( m_jEditorPrefs );
 #endif
 }
 
@@ -306,6 +307,7 @@ cJSON* EditorPrefs::SaveStart()
 
 #if MYFW_USING_IMGUI
         m_pImGuiStylePrefs->SavePrefs( jPrefs );
+        g_pEngineCore->GetEditorMainFrame_ImGui()->GetLayoutManager()->SavePrefs( jPrefs );
 #endif
 
         return jPrefs;

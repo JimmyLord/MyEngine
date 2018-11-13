@@ -70,7 +70,7 @@ EditorLayoutManager_ImGui::EditorLayoutManager_ImGui()
     }
 
     m_SelectedLayout_EditorMode = EditorLayout_CenterEditor;
-    m_SelectedLayout_GameMode = EditorLayout_CenterGame;
+    m_SelectedLayout_GameMode = EditorLayout_CenterEditor;
 
     m_SwitchingToEditorLayout = false;
     m_SwitchingToGameLayout = false;
@@ -91,6 +91,69 @@ EditorLayout* EditorLayoutManager_ImGui::GetCurrentLayout()
     return &m_CustomLayouts[m_CurrentLayoutIndex];
 }
 
+void EditorLayoutManager_ImGui::LoadPrefs(cJSON* jPrefs)
+{
+    cJSON* obj;
+
+    // Load selected layout for each mode.
+    obj = cJSON_GetObjectItem( jPrefs, "SelectedLayout_EditorMode" );
+    if( obj )
+        m_SelectedLayout_EditorMode = (EditorLayoutTypes)obj->valueint;
+    
+    obj = cJSON_GetObjectItem( jPrefs, "SelectedLayout_GameMode" );
+    if( obj )
+        m_SelectedLayout_GameMode = (EditorLayoutTypes)obj->valueint;
+
+    if( m_SelectedLayout_EditorMode < 0 || m_SelectedLayout_EditorMode >= EditorLayout_NumLayouts )
+        m_SelectedLayout_EditorMode = EditorLayout_CenterEditor;
+    if( m_SelectedLayout_GameMode < 0 || m_SelectedLayout_GameMode >= EditorLayout_NumLayouts )
+        m_SelectedLayout_GameMode = EditorLayout_CenterEditor;
+
+    // Load all customized layouts.
+    cJSON* jLayoutsArray = cJSON_GetObjectItem( jPrefs, "Layouts" );
+    int numItems = cJSON_GetArraySize( jLayoutsArray );
+    for( int i=0; i<numItems; i++ )
+    {
+        if( i >= EditorLayout_NumLayouts )
+        {
+            LOGError( LOGTag, "Too many layouts in prefs file\n" );
+            break;
+        }
+
+        cJSON* jLayout = cJSON_GetArrayItem( jLayoutsArray, i );
+
+        cJSONExt_GetBoolArray( jLayout, "IsWindowOpen", m_CustomLayouts[i].m_IsWindowOpen, EditorWindow_NumTypes );
+        obj = cJSON_GetObjectItem( jLayout, "IniString" );
+        if( obj )
+            m_CustomLayouts[i].m_ImGuiIniString = obj->valuestring;
+    }
+
+    // Request the loaded editor layout.
+    RequestEditorLayout();
+}
+
+void EditorLayoutManager_ImGui::SavePrefs(cJSON* jPrefs)
+{
+    // Save the state of the active layout.
+    SyncCurrentImGuiIni();
+
+    // Save selected layout for each mode.
+    cJSON_AddNumberToObject( jPrefs, "SelectedLayout_EditorMode", m_SelectedLayout_EditorMode );
+    cJSON_AddNumberToObject( jPrefs, "SelectedLayout_GameMode", m_SelectedLayout_GameMode );
+
+    // Save all customized layouts.
+    cJSON* jLayoutsArray = cJSON_CreateArray();
+    cJSON_AddItemToObject( jPrefs, "Layouts", jLayoutsArray );
+    for( int i=0; i<EditorLayout_NumLayouts; i++ )
+    {
+        cJSON* jLayout = cJSON_CreateObject();
+        cJSON_AddItemToArray( jLayoutsArray, jLayout );
+
+        cJSONExt_AddBoolArrayToObject( jLayout, "IsWindowOpen", m_CustomLayouts[i].m_IsWindowOpen, EditorWindow_NumTypes );
+        cJSON_AddStringToObject( jLayout, "IniString", m_CustomLayouts[i].m_ImGuiIniString.c_str() );
+    }
+}
+
 void EditorLayoutManager_ImGui::DumpCurrentLayoutToOutputWindow()
 {
     std::string newLayout = ImGui::SaveIniSettingsToMemory();
@@ -103,6 +166,15 @@ void EditorLayoutManager_ImGui::DumpCurrentLayoutToOutputWindow()
     }
 
     LOGInfo( LOGTag, newLayout.c_str() );
+}
+
+void EditorLayoutManager_ImGui::SyncCurrentImGuiIni()
+{
+    if( m_CurrentLayoutIndex != EditorLayout_NumLayouts )
+    {
+        const char* newLayout = ImGui::SaveIniSettingsToMemory();
+        m_CustomLayouts[m_CurrentLayoutIndex].m_ImGuiIniString = newLayout;
+    }
 }
 
 void EditorLayoutManager_ImGui::RequestLayoutChange(EditorLayoutTypes layout)
@@ -129,11 +201,7 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
     if( m_RequestedLayoutIndex != m_CurrentLayoutIndex )
     {
         // Save the current layout?
-        if( m_CurrentLayoutIndex != EditorLayout_NumLayouts )
-        {
-            const char* newLayout = ImGui::SaveIniSettingsToMemory();
-            m_CustomLayouts[m_CurrentLayoutIndex].m_ImGuiIniString = newLayout;
-        }
+        SyncCurrentImGuiIni();
 
         // Reset the imgui context.
         g_pImGuiManager->Shutdown( false );
