@@ -2766,13 +2766,15 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
             {
                 while( pShaderGroup )
                 {
+                    // Store the next shader in case this one gets unloaded.
+                    ShaderGroup* pNextShaderGroup = (ShaderGroup*)pShaderGroup->GetNext();
+
                     MyFileObjectShader* pFile = pShaderGroup->GetFile();
+
                     if( pFile )
                     {
                         if( pFile->m_ShowInMemoryPanel )
                         {
-                            //numShadersShown++;
-
                             bool showThisItem = true;
 
                             if( m_MemoryPanelFilter[0] != 0 )
@@ -2789,9 +2791,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
                                 {
                                     if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                     {
-                                        if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+                                        AddContextMenuItemsForFiles( pFile, pShaderGroup );
                                         ImGui::EndPopup();
                                     }
 
@@ -2808,7 +2808,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
                         }
                     }
 
-                    pShaderGroup = (ShaderGroup*)pShaderGroup->GetNext();
+                    pShaderGroup = pNextShaderGroup;
                 }
 
                 if( showHeaders )
@@ -3724,7 +3724,7 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
     ImGui::End();
 }
 
-void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile)
+void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject)
 {
     const char* extension = pFile->GetExtensionWithDot();
 
@@ -3737,12 +3737,21 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile)
             ImGui::CloseCurrentPopup();
         }
     }
+    else if( pSelectedObject != 0 && strcmp( extension, ".glsl" ) == 0 )
+    {
+        if( ImGui::MenuItem( "Create Material Using Shader" ) )
+        {
+            MaterialDefinition* pMat = g_pMaterialManager->CreateMaterial( pFile->GetFilenameWithoutExtension(), "Data/Materials" );
+            pMat->SetShader( (ShaderGroup*)pSelectedObject );
+            ImGui::CloseCurrentPopup();
+        }
+    }
     else
     {
         if( ImGui::MenuItem( "View in Watch Window (TODO)" ) )   { pFile->OnPopupClick( pFile, MyFileObject::RightClick_ViewInWatchWindow );    ImGui::CloseCurrentPopup(); }
     }
     if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
-    if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
+    if( ImGui::MenuItem( "Open Containing Folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
     if( ImGui::MenuItem( "Unload File" ) )            { pFile->OnPopupClick( pFile, MyFileObject::RightClick_UnloadFile );           ImGui::CloseCurrentPopup(); }
     if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
 }

@@ -168,7 +168,7 @@ protected:
     void AddDebug_MousePicker();
 
 public:
-    void AddContextMenuItemsForFiles(MyFileObject* pFile);
+    void AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject = 0);
 
 protected:
     void OnDropEditorWindow();

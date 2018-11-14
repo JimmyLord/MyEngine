@@ -344,8 +344,10 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
 
     if( m_AnimationFileLoaded == false )
     {
-        m_pAnimInfo->LoadAnimationControlFile();
-        m_AnimationFileLoaded = true;
+        if( m_pAnimInfo->LoadAnimationControlFile() )
+        {
+            m_AnimationFileLoaded = true;
+        }
     }
 
     if( m_pAnimInfo->GetNumberOfAnimations() == 0 )
