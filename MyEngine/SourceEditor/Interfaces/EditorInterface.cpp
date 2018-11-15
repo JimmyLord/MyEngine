@@ -626,8 +626,10 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
     pEditorState->m_pMousePickerFBO->Unbind( true );
 
     // Convert the RGB value to an id.
-    uint64_t id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
-    id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
+    uint64 id = (uint64)pixel[0] | (uint64)pixel[1]<<8 | (uint64)pixel[2]<<16 | (uint64)pixel[3]<<24;
+    if( id != 0 )
+        id = UINT_MAX - id;
+    id = (((uint64)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
     //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
 
     return (unsigned int)id;
@@ -742,8 +744,10 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
     if( controlheld )
     {
         unsigned int offset = (sy*fbowidth + sx)*4;
-        unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
-        id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
+        uint64 id = (uint64)pixels[offset+0] | (uint64)pixels[offset+1]<<8 | (uint64)pixels[offset+2]<<16 | (uint64)pixels[offset+3]<<24;
+        if( id != 0 )
+            id = UINT_MAX - id;
+        id = (((uint64)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
 
         SceneID sceneid = (SceneID)(id / 100000);
         id = id % 100000;
@@ -760,7 +764,9 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
         for( int x=smallerx; x<=biggerx; x++ )
         {
             unsigned int offset = (y*fbowidth + x)*4;
-            unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
+            uint64 id = (uint64)pixels[offset+0] | (uint64)pixels[offset+1]<<8 | (uint64)pixels[offset+2]<<16 | (uint64)pixels[offset+3]<<24;
+            if( id != 0 )
+                id = UINT_MAX - id;
             id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
 
             SceneID sceneid = (SceneID)(id / 100000);

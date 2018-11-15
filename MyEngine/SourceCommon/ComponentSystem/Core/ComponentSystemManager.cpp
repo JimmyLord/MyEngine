@@ -2443,7 +2443,7 @@ void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
     SceneID sceneid = pComponent->m_pGameObject->GetSceneID();
     unsigned int id = pComponent->m_pGameObject->GetID();
                     
-    id = (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
+    id = UINT_MAX - (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
 
     if( 1 )                 tint.r = id%256;
     if( id > 256 )          tint.g = (id>>8)%256;
@@ -2501,7 +2501,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                     SceneID sceneid = pComponent->m_pGameObject->GetSceneID();
                     unsigned int id = pComponent->m_pGameObject->GetID();
                     
-                    id = (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
+                    id = UINT_MAX - (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
 
                     if( 1 )                 tint.r = id%256;
                     if( id > 256 )          tint.g = (id>>8)%256;

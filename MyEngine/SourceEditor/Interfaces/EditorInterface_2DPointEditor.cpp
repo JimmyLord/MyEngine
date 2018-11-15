@@ -388,7 +388,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 
                 ColorByte tint( 0, 0, 0, 0 );
                     
-                unsigned int id = (i+1) * 641; // 1, 641, 6700417, 4294967297, 
+                unsigned int id = UINT_MAX - (i+1) * 641; // 1, 641, 6700417, 4294967297, 
 
                 if( 1 )                 tint.r = id%256;
                 if( id > 256 )          tint.g = (id>>8)%256;
