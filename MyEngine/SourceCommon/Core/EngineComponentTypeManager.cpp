@@ -86,7 +86,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     if( pComponent == 0 )
         return 0;
 
-    pComponent->m_Type = type;
+    pComponent->SetType( type );
     return pComponent;
 }
 

@@ -27,7 +27,7 @@ GameObject::GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastra
     m_pParentGameObject = 0;
 
     m_Properties.SetEnabled( false );
-    m_Properties.m_pGameObject = this;
+    m_Properties.SetGameObject( this );
 
     m_Enabled = true;
     if( pPrefabRef != 0 )
@@ -50,8 +50,9 @@ GameObject::GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastra
     else
     {
         m_pComponentTransform = MyNew ComponentTransform();
+        m_pComponentTransform->SetType( ComponentType_Transform );
         m_pComponentTransform->SetSceneID( sceneid );
-        m_pComponentTransform->m_pGameObject = this;
+        m_pComponentTransform->SetGameObject( this );
         m_pComponentTransform->Reset();
     }
 
@@ -835,14 +836,13 @@ ComponentBase* GameObject::AddNewComponent(int componentType, SceneID sceneID, C
 
     if( componentType == ComponentType_Transform )
     {
-        // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
+        // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform.
         //     m_pComponentTransform will be set in AddExistingComponent() below.
 #if MYFW_EDITOR
 #if MYFW_USING_WX
         // Update the icon
         UpdateObjectListIcon();
 #endif //MYFW_USING_WX
-        pComponent->m_Type = -1; // hack, all transforms have -1 as type, setting this to be consistent.
 #endif //MYFW_EDITOR
     }
     else
@@ -880,7 +880,7 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
         UpdateObjectListIcon();
 #endif //MYFW_USING_WX
 
-        pComponent->m_pGameObject = this;
+        pComponent->SetGameObject( this );
         if( resetcomponent )
             pComponent->Reset();
 
@@ -910,7 +910,7 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
         if( m_Components.Count() >= m_Components.Length() )
             return 0;
 
-        pComponent->m_pGameObject = this;
+        pComponent->SetGameObject( this );
         if( resetcomponent )
             pComponent->Reset();
 
@@ -1076,7 +1076,7 @@ MaterialDefinition* GameObject::GetMaterial()
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
+        if( m_Components[i]->GetBaseType() == BaseComponentType_Renderable )
         {
             MyAssert( m_Components[i]->IsA( "RenderableComponent" ) );
             return ((ComponentRenderable*)m_Components[i])->GetMaterial( 0 );
@@ -1091,7 +1091,7 @@ void GameObject::SetMaterial(MaterialDefinition* pMaterial)
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
+        if( m_Components[i]->GetBaseType() == BaseComponentType_Renderable )
         {
             MyAssert( m_Components[i]->IsA( "RenderableComponent" ) );
             ((ComponentRenderable*)m_Components[i])->SetMaterial( pMaterial, 0 );
@@ -1103,7 +1103,7 @@ void GameObject::SetScriptFile(MyFileObject* pFile)
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Components[i]->m_BaseType == BaseComponentType_Updateable )
+        if( m_Components[i]->GetBaseType() == BaseComponentType_Updateable )
         {
 #if MYFW_USING_LUA
             ComponentLuaScript* pLuaComponent = m_Components[i]->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)m_Components[i] : 0;
@@ -1126,7 +1126,7 @@ ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basety
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Components[i]->m_BaseType == basetype )
+        if( m_Components[i]->GetBaseType() == basetype )
         {
             return m_Components[i];
         }
@@ -1146,7 +1146,7 @@ ComponentBase* GameObject::GetNextComponentOfBaseType(ComponentBase* pLastCompon
         {
             foundlast = true;
         }
-        else if( foundlast && m_Components[i]->m_BaseType == pLastComponent->m_BaseType )
+        else if( foundlast && m_Components[i]->GetBaseType() == pLastComponent->GetBaseType() )
         {
             return m_Components[i];
         }
@@ -1857,7 +1857,7 @@ void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
+        if( m_Components[i]->GetBaseType() == BaseComponentType_Renderable )
         {
             MyAssert( m_Components[i]->IsA( "RenderableComponent" ) );
 

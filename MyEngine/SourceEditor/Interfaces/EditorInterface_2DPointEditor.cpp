@@ -104,7 +104,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         b2Vec2 pos2d = m_pCollisionObject->m_Vertices[i];
         Vector3 pos3d( pos2d.x, pos2d.y, 0 );
 
-        ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
+        ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
         MyMatrix* pParentMatrix = pParentTransformComponent->GetWorldTransform();
         Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
 
@@ -252,7 +252,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                 Vector3 normal = Vector3(0,0,1);
                 Vector3 axisvector = Vector3(1,0,0);
 
-                ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
+                ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
                 MyMatrix* pParentMatrix = pParentTransformComponent->GetWorldTransform();
                 Vector3 worldpos = pParentMatrix->GetTranslation();
 
@@ -288,7 +288,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     //LOGDebug( "2DPointEditor", "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
                     //LOGDebug( "2DPointEditor", "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
-                    ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
+                    ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
                     MyMatrix* pParentMatrix = pParentTransformComponent->GetLocalTransform();
 
                     b2Vec2 newpos;
@@ -373,7 +373,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
                 b2Vec2 pos2d = m_pCollisionObject->m_Vertices[i];
                 Vector3 pos3d( pos2d.x, pos2d.y, 0 );
 
-                ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
+                ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
                 MyMatrix* pParentMatrix = pParentTransformComponent->GetLocalTransform();
                 Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
 

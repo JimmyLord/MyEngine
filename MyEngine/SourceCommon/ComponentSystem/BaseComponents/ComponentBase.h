@@ -47,12 +47,10 @@ protected:
     // an unsigned int of all divorced components variables, only maintained in editor builds.
     unsigned int m_DivorcedVariables; // moved outside USING_WX block to allow load/save in game mode.
 
-public:
     BaseComponentTypes m_BaseType;
     int m_Type;
     GameObject* m_pGameObject;
 
-protected:
     CPPListHead m_pOnDeleteCallbacks;
 
 protected:
@@ -87,20 +85,28 @@ public:
 
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
-    virtual void SetEnabled(bool enabled);
-    void SetSceneID(SceneID sceneid) { m_SceneIDLoadedFrom = sceneid; }
-    void SetID(unsigned int id) { m_ID = id; }
 
+    // Getters.
+    BaseComponentTypes GetBaseType() { return m_BaseType; }
+    int GetType() { return m_Type; }
+    GameObject* GetGameObject() { return m_pGameObject; }
     bool IsEnabled() { return m_Enabled; }
     SceneID GetSceneID() { return m_SceneIDLoadedFrom; }
     SceneInfo* GetSceneInfo();
     unsigned int GetID() { return m_ID; }
 
-    // pre-DrawCallback functions
+    // Setters.
+    void SetType(int type) { m_Type = type; }
+    void SetGameObject(GameObject* object) { m_pGameObject = object; }
+    virtual void SetEnabled(bool enabled);
+    void SetSceneID(SceneID sceneid) { m_SceneIDLoadedFrom = sceneid; }
+    void SetID(unsigned int id) { m_ID = id; }
+
+    // pre-DrawCallback functions.
     virtual bool IsVisible() { return true; }
     virtual bool ExistsOnLayer(unsigned int layerflags) { return true; }
 
-    // Callbacks
+    // Callbacks.
     void RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback);
     void UnregisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback);
 

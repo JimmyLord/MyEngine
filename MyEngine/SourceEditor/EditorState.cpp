@@ -202,12 +202,19 @@ bool EditorState::IsGameObjectSelected(GameObject* pObject)
     return false;
 }
 
-bool EditorState::IsGameObjectAParentOfASelectedObject(GameObject* pObject)
+bool EditorState::IsGameObjectAParentOfASelectedObjectOrComponent(GameObject* pObject)
 {
     for( unsigned i=0; i < m_pSelectedObjects.size(); i++ )
     {
         GameObject* pSelectedGameObject = m_pSelectedObjects[i];
-        if( pSelectedGameObject->IsParentedTo( pObject, false ) )
+        if( pSelectedGameObject == pObject || pSelectedGameObject->IsParentedTo( pObject, false ) )
+            return true;
+    }
+
+    for( unsigned i=0; i < m_pSelectedComponents.size(); i++ )
+    {
+        GameObject* pSelectedGameObject = m_pSelectedComponents[i]->GetGameObject();
+        if( pSelectedGameObject == pObject || pSelectedGameObject->IsParentedTo( pObject, false ) )
             return true;
     }
 

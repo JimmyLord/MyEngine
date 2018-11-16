@@ -271,7 +271,7 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
         if( GizmoVisible )
         {
             ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-            Vector3 campos = pCamera->m_pGameObject->GetTransform()->GetLocalPosition();
+            Vector3 campos = pCamera->GetGameObject()->GetTransform()->GetLocalPosition();
 
             Vector3 pos = ObjectPosition;
 
@@ -447,7 +447,7 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
         if( GizmoVisible )
         {
             ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-            Vector3 campos = pCamera->m_pGameObject->GetTransform()->GetLocalPosition();
+            Vector3 campos = pCamera->GetGameObject()->GetTransform()->GetLocalPosition();
 
             // move camera position into object space for comparisons.
             MyMatrix worldTransform = m_GizmoWorldTransform;
@@ -888,7 +888,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
             Plane plane;
             {
                 ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-                Vector3 camInvAt = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt() * -1;
+                Vector3 camInvAt = pCamera->GetGameObject()->GetTransform()->GetLocalTransform()->GetAt() * -1;
 
                 MyMatrix ObjectRotation;
                 ObjectRotation.CreateRotation( m_GizmoWorldRotation );
@@ -1170,7 +1170,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
             Plane plane;
             {
                 ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-                Vector3 camInvAt = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt() * -1;
+                Vector3 camInvAt = pCamera->GetGameObject()->GetTransform()->GetLocalTransform()->GetAt() * -1;
 
                 Vector3 normal;
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )

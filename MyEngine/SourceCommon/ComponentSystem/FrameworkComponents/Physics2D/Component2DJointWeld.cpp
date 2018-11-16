@@ -126,7 +126,7 @@ void* Component2DJointWeld::OnDrop(ComponentVariable* pVar, int x, int y)
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
         if( m_pSecondCollisionObject )
-            oldPointer = m_pSecondCollisionObject->m_pGameObject;
+            oldPointer = m_pSecondCollisionObject->GetGameObject();
 
         GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
 

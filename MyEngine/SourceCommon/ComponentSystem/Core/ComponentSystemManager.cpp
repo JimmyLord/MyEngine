@@ -394,8 +394,8 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
             for( CPPListNode* pNode = m_Components[i].GetHead(); pNode; pNode = pNode->GetNext() )
             {
                 ComponentBase* pComponent = (ComponentBase*)pNode;
-                if( pComponent->m_pGameObject->IsManaged() &&
-                    ( pComponent->m_pGameObject->GetSceneID() == sceneid || savingallscenes )
+                if( pComponent->GetGameObject()->IsManaged() &&
+                    ( pComponent->GetGameObject()->GetSceneID() == sceneid || savingallscenes )
                   )
                 {
                     cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject( savingallscenes, true ) );
@@ -1190,7 +1190,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
             if( pComponent )
             {
-                if( pComponent->m_pGameObject->IsEnabled() == false )
+                if( pComponent->GetGameObject()->IsEnabled() == false )
                 {
                     pComponent->SetEnabled( false );
                 }
@@ -1301,7 +1301,7 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
 {
     for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode; pNode = pNode->GetNext() )
     {
-        if( ((ComponentBase*)pNode)->m_Type == ComponentType_3DCollisionObject )
+        if( ((ComponentBase*)pNode)->GetType() == ComponentType_3DCollisionObject )
         {
             Component3DCollisionObject* pComponent = (Component3DCollisionObject*)pNode;
 
@@ -1326,7 +1326,7 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
 
                 SceneID sceneid = pComponent->GetSceneID();
 
-                if( (pComponent->m_pGameObject->IsManaged() || clearUnmanagedComponents) &&
+                if( (pComponent->GetGameObject()->IsManaged() || clearUnmanagedComponents) &&
                     (sceneIDToClear == SCENEID_AllScenes || sceneid == sceneIDToClear) )
                 {
                     DeleteComponent( pComponent );
@@ -1843,9 +1843,9 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         ComponentBase* pComponent = 0;
 
         if( g_pEngineCore->IsInEditorMode() )
-            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, pNewObject->GetSceneID() );
+            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->GetType(), pNewObject->GetSceneID() );
         else
-            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, SCENEID_Unmanaged );
+            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->GetType(), SCENEID_Unmanaged );
 
         if( disableNewObject )
         {
@@ -2115,9 +2115,9 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera(bool prefereditorcam)
             ComponentCamera* pCamera = (ComponentCamera*)node;
 
             // skip unmanaged cameras. (editor cam)
-            if( pCamera->m_pGameObject->IsManaged() == true )
+            if( pCamera->GetGameObject()->IsManaged() == true )
             {
-                MyAssert( pCamera->m_Type == ComponentType_Camera );
+                MyAssert( pCamera->GetType() == ComponentType_Camera );
 
                 return pCamera;
             }
@@ -2162,18 +2162,18 @@ ComponentBase* ComponentSystemManager::GetNextComponentOfType(ComponentBase* pLa
 
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 {
-    MyAssert( pComponent->m_BaseType >= 0 && pComponent->m_BaseType < BaseComponentType_NumTypes ); // shouldn't happen.
+    MyAssert( pComponent->GetBaseType() >= 0 && pComponent->GetBaseType() < BaseComponentType_NumTypes ); // shouldn't happen.
 
-    m_Components[pComponent->m_BaseType].AddTail( pComponent );
+    m_Components[pComponent->GetBaseType()].AddTail( pComponent );
 
     return pComponent;
 }
 
 void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
 {
-    if( pComponent->m_pGameObject )
+    if( pComponent->GetGameObject() )
     {
-        pComponent->m_pGameObject->RemoveComponent( pComponent );
+        pComponent->GetGameObject()->RemoveComponent( pComponent );
     }
 
 #if MYFW_USING_WX
@@ -2253,7 +2253,7 @@ void ComponentSystemManager::Tick(float deltaTime)
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Updateable ) //&& pComponent->m_Type != ComponentType_LuaScript )
+        if( pComponent->GetBaseType() == BaseComponentType_Updateable ) //&& pComponent->m_Type != ComponentType_LuaScript )
         {
             pComponent->Tick( deltaTime );
         }
@@ -2275,7 +2275,7 @@ void ComponentSystemManager::Tick(float deltaTime)
     {
         ComponentCamera* pComponent = (ComponentCamera*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Camera )
+        if( pComponent->GetBaseType() == BaseComponentType_Camera )
         {
             pComponent->Tick( deltaTime );
         }
@@ -2288,10 +2288,10 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
     {
         ComponentCamera* pCamera = (ComponentCamera*)node;
 
-        if( pCamera->m_BaseType == BaseComponentType_Camera )
+        if( pCamera->GetBaseType() == BaseComponentType_Camera )
         {
             // TODO: fix this hack, don't resize unmanaged cams (a.k.a. editor camera)
-            if( pCamera->m_pGameObject->IsManaged() == true )
+            if( pCamera->GetGameObject()->IsManaged() == true )
             {
                 pCamera->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
             }
@@ -2321,7 +2321,7 @@ void ComponentSystemManager::OnDrawFrame()
     {
         ComponentCamera* pComponent = (ComponentCamera*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Camera && pComponent->IsEnabled() == true )
+        if( pComponent->GetBaseType() == BaseComponentType_Camera && pComponent->IsEnabled() == true )
         {
             pComponent->OnDrawFrame();
         }
@@ -2440,8 +2440,8 @@ void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
 
     ColorByte tint( 0, 0, 0, 0 );
 
-    SceneID sceneid = pComponent->m_pGameObject->GetSceneID();
-    unsigned int id = pComponent->m_pGameObject->GetID();
+    SceneID sceneid = pComponent->GetGameObject()->GetSceneID();
+    unsigned int id = pComponent->GetGameObject()->GetID();
                     
     id = UINT_MAX - (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
 
@@ -2498,8 +2498,8 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                 {
                     ColorByte tint( 0, 0, 0, 0 );
 
-                    SceneID sceneid = pComponent->m_pGameObject->GetSceneID();
-                    unsigned int id = pComponent->m_pGameObject->GetID();
+                    SceneID sceneid = pComponent->GetGameObject()->GetSceneID();
+                    unsigned int id = pComponent->GetGameObject()->GetID();
                     
                     id = UINT_MAX - (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
 
@@ -2906,13 +2906,13 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, unsigned int layers, SceneGraphObject** pOutputList)
 {
     MyAssert( pComponent != 0 );
-    MyAssert( pComponent->m_pGameObject != 0 );
+    MyAssert( pComponent->GetGameObject() != 0 );
     MyAssert( pMesh != 0 );
     MyAssert( pMaterialList != 0 );
     MyAssert( pOutputList != 0 );
     MyAssert( pMesh->GetSubmeshListCount() > 0 );
 
-    MyMatrix* pMatWorld = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
+    MyMatrix* pMatWorld = pComponent->GetGameObject()->GetTransform()->GetWorldTransform();
 
     for( unsigned int i=0; i<pMesh->GetSubmeshListCount(); i++ )
     {
@@ -2925,10 +2925,10 @@ void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMe
 SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, unsigned int layers)
 {
     MyAssert( pComponent != 0 );
-    MyAssert( pComponent->m_pGameObject != 0 );
+    MyAssert( pComponent->GetGameObject() != 0 );
     MyAssert( pSubmesh != 0 );
 
-    MyMatrix* pMatWorld = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
+    MyMatrix* pMatWorld = pComponent->GetGameObject()->GetTransform()->GetWorldTransform();
 
     return m_pSceneGraph->AddObject( pMatWorld, 0, pSubmesh, pMaterial, primitive, pointsize, layers, pComponent );
 }
@@ -2970,7 +2970,7 @@ void ComponentSystemManager::OnPlay(SceneID sceneid)
             if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
                 continue;
 
-            if( pComponent->m_pGameObject->IsEnabled() == true )
+            if( pComponent->GetGameObject()->IsEnabled() == true )
             {
                 if( pComponent->IsA( "2DJoint-" ) == false )
                     pComponent->OnPlay();
@@ -2990,7 +2990,7 @@ void ComponentSystemManager::OnPlay(SceneID sceneid)
             if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
                 continue;
 
-            if( pComponent->m_pGameObject->IsEnabled() == true )
+            if( pComponent->GetGameObject()->IsEnabled() == true )
             {
                 if( pComponent->IsA( "2DJoint-" ) == true )
                     pComponent->OnPlay();
@@ -3051,7 +3051,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_InputHandler )
+        if( pComponent->GetBaseType() == BaseComponentType_InputHandler )
         {
             if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
                 return true;
@@ -3089,7 +3089,7 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_InputHandler )
+        if( pComponent->GetBaseType() == BaseComponentType_InputHandler )
         {
             if( pComponent->OnButtons( action, id ) == true )
                 return true;
@@ -3127,7 +3127,7 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_InputHandler )
+        if( pComponent->GetBaseType() == BaseComponentType_InputHandler )
         {
             if( pComponent->OnKeys( action, keycode, unicodechar ) == true )
                 return true;

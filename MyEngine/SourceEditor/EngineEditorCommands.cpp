@@ -877,7 +877,7 @@ void EditorCommand_DeleteComponents::Do()
 
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
-        m_ComponentsDeleted[i]->m_pGameObject->RemoveComponent( m_ComponentsDeleted[i] );
+        m_ComponentsDeleted[i]->GetGameObject()->RemoveComponent( m_ComponentsDeleted[i] );
         m_ComponentsDeleted[i]->SetEnabled( false );
     }
     m_DeleteComponentsWhenDestroyed = true;
@@ -889,7 +889,7 @@ void EditorCommand_DeleteComponents::Undo()
 
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
-        m_ComponentsDeleted[i]->m_pGameObject->AddExistingComponent( m_ComponentsDeleted[i], false );
+        m_ComponentsDeleted[i]->GetGameObject()->AddExistingComponent( m_ComponentsDeleted[i], false );
         m_ComponentsDeleted[i]->SetEnabled( m_ComponentWasDisabled[i] );
     }
     m_DeleteComponentsWhenDestroyed = false;

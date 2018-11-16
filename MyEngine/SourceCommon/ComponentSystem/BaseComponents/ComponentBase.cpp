@@ -92,7 +92,8 @@ cJSON* ComponentBase::ExportAsJSONObject(bool saveSceneID, bool saveID)
     if( saveSceneID )
         cJSON_AddNumberToObject( jComponent, "SceneID", m_SceneIDLoadedFrom );
 
-    if( m_Type != -1 )
+    // Transform are saved is a dedicated transforms array, so don't print the Type name for them.
+    if( m_Type != -1 && m_Type != ComponentType_Transform )
     {
         const char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
         MyAssert( componenttypename );

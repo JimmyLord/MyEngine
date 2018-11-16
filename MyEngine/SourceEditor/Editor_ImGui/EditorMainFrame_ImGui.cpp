@@ -81,6 +81,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_p2DAnimInfoBeingEdited = 0;
     m_Current2DAnimationIndex = 0;
     m_pAnimPlayerComponent = MyNew ComponentAnimationPlayer2D();
+    m_pAnimPlayerComponent->SetType( ComponentType_AnimationPlayer2D );
     m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
 
     // Log Window
@@ -1859,7 +1860,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         }
 
         bool forceOpen = false;
-        if( treeNodeIsOpen == false && pEditorState->IsGameObjectAParentOfASelectedObject( pGameObject ) )
+        if( treeNodeIsOpen == false && pEditorState->IsGameObjectAParentOfASelectedObjectOrComponent( pGameObject ) )
         {
             ImGui::Indent();
             forceOpen = true;

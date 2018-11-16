@@ -120,7 +120,7 @@ void ComponentMenuPage::Reset()
     // if we had found a camera component, stop it's gameobject from reporting it's deletion.
     if( m_pGameObjectCamera != 0 ) //m_pComponentCamera != 0 )
     {
-        MyAssert( m_pGameObjectCamera == m_pComponentCamera->m_pGameObject && m_pComponentCamera->m_pGameObject != 0 );
+        MyAssert( m_pGameObjectCamera == m_pComponentCamera->GetGameObject() && m_pComponentCamera->GetGameObject() != 0 );
         m_pGameObjectCamera->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
         m_pGameObjectCamera = 0;
         m_pComponentCamera = 0;
@@ -1975,7 +1975,7 @@ void ComponentMenuPage::FindFirstOrthoCamera()
     // if we had found a camera component, stop it's gameobject from reporting it's deletion.
     if( m_pGameObjectCamera != 0 ) //m_pComponentCamera != 0 )
     {
-        MyAssert( m_pGameObjectCamera == m_pComponentCamera->m_pGameObject && m_pComponentCamera->m_pGameObject != 0 );
+        MyAssert( m_pGameObjectCamera == m_pComponentCamera->GetGameObject() && m_pComponentCamera->GetGameObject() != 0 );
         m_pGameObjectCamera->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
         m_pGameObjectCamera = 0;
         m_pComponentCamera = 0;
@@ -1992,8 +1992,8 @@ void ComponentMenuPage::FindFirstOrthoCamera()
 
     if( m_pComponentCamera )
     {
-        m_pGameObjectCamera = m_pComponentCamera->m_pGameObject;
-        m_pComponentCamera->m_pGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        m_pGameObjectCamera = m_pComponentCamera->GetGameObject();
+        m_pGameObjectCamera->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
 }
 

@@ -76,17 +76,17 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                     if( Component2DJointRevolute* pJoint = dynamic_cast<Component2DJointRevolute*>(pComponent) )
                     {
                         if( pJoint->m_pSecondCollisionObject )
-                            cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->m_pGameObject->GetName() );
+                            cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->GetGameObject()->GetName() );
                     }
                     if( Component2DJointPrismatic* pJoint = dynamic_cast<Component2DJointPrismatic*>(pComponent) )
                     {
                         if( pJoint->m_pSecondCollisionObject )
-                            cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->m_pGameObject->GetName() );
+                            cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->GetGameObject()->GetName() );
                     }
                     if( Component2DJointWeld* pJoint = dynamic_cast<Component2DJointWeld*>(pComponent) )
                     {
                         if( pJoint->m_pSecondCollisionObject )
-                            cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->m_pGameObject->GetName() );
+                            cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->GetGameObject()->GetName() );
                     }
 
                     MaterialDefinition* pMaterial = 0;
