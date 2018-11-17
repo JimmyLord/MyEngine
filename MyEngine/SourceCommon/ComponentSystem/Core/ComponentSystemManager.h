@@ -133,7 +133,7 @@ class ComponentSystemManager
 : public wxEvtHandler
 #endif //MYFW_USING_WX
 {
-public:
+protected:
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
 
     // List of files used including a scene id and the source file (if applicable)
@@ -150,7 +150,6 @@ public:
 
     SceneGraph_Base* m_pSceneGraph;
 
-protected:
 #if MYFW_USING_WX
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
 #endif //MYFW_USING_WX
@@ -163,8 +162,12 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    // Exposed to Lua, change elsewhere if function signature changes.
-    void SetTimeScale(float scale) { m_TimeScale = scale; }
+    // Getters
+    float GetTimeScale() { return m_TimeScale; }
+    SceneGraph_Base* GetSceneGraph() { return m_pSceneGraph; }
+
+    // Setters
+    void SetTimeScale(float scale) { m_TimeScale = scale; } // Exposed to Lua, change elsewhere if function signature changes.
 
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first);
     void AddListOfFilesUsedToJSONObject(SceneID sceneid, cJSON* filearray);
@@ -291,7 +294,6 @@ public:
     SceneInfo m_pSceneInfoMap[MAX_SCENES_CREATED];
 
     // SceneGraph Functions
-    SceneGraph_Base* GetSceneGraph() { return m_pSceneGraph; }
     void AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, unsigned int layers, SceneGraphObject** pOutputList);
     SceneGraphObject* AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, unsigned int layers);
     void RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject);

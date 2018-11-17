@@ -1418,7 +1418,7 @@ void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)
     if( m_pSceneGraphObject != 0 )
         return;
 
-    m_pSceneGraphObject = g_pComponentSystemManager->m_pSceneGraph->AddObject(
+    m_pSceneGraphObject = g_pComponentSystemManager->GetSceneGraph()->AddObject(
         &m_Transform, this, m_SubmeshList[0],
         pMaterial, GL_TRIANGLES, 0, 1, pUserData );
 }
@@ -1437,7 +1437,7 @@ void VoxelChunk::RemoveFromSceneGraph()
     if( m_pSceneGraphObject == 0 )
         return;
 
-    g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObject );
+    g_pComponentSystemManager->GetSceneGraph()->RemoveObject( m_pSceneGraphObject );
     m_pSceneGraphObject = 0;
 }
 

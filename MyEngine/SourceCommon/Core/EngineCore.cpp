@@ -612,7 +612,7 @@ float EngineCore::Tick(float deltaTime)
 
     // change deltaTime if needed
     {
-        float timescale = m_pComponentSystemManager->m_TimeScale;
+        float timescale = m_pComponentSystemManager->GetTimeScale();
 
         deltaTime *= timescale;
 

@@ -1876,122 +1876,126 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 pChildGameObject = (GameObject*)pChildGameObject->GetNext();
             }
 
-            // Add Components.
-            for( unsigned int ci=0; ci<pGameObject->GetComponentCountIncludingCore(); ci++ )
+            // Don't show components, deleted prefab children or deleted prefab components if forced open.
+            if( forceOpen == false )
             {
-                ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( ci );
-                if( pComponent )
+                // Add Components.
+                for( unsigned int ci=0; ci<pGameObject->GetComponentCountIncludingCore(); ci++ )
                 {
-                    if( pComponent->IsA( "GameObjectPropertiesComponent" ) )
-                        continue;
+                    ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( ci );
+                    if( pComponent )
+                    {
+                        if( pComponent->IsA( "GameObjectPropertiesComponent" ) )
+                            continue;
+
+                        ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
+                        if( pEditorState->IsComponentSelected( pComponent ) )
+                        {
+                            nodeFlags |= ImGuiTreeNodeFlags_Selected;
+                        }
+
+                        if( ImGui::TreeNodeEx( pComponent, nodeFlags, pComponent->GetClassname() ) )
+                        {
+                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                            {
+                                // If the right-clicked object isn't selected, then unselect what is and select just this one.
+                                if( pEditorState->IsComponentSelected( pComponent ) == false )
+                                {
+                                    pEditorState->ClearSelectedObjectsAndComponents();
+                                    pEditorState->SelectComponent( pComponent );
+                                }
+
+                                char* label = "Delete Component";
+                                if( pEditorState->m_pSelectedComponents.size() > 1 )
+                                    label = "Delete Selected Components";
+                                if( ImGui::MenuItem( label ) )
+                                {
+                                    pComponent->OnRightClickAction( ComponentBase::RightClick_DeleteComponent );
+                                    ImGui::CloseCurrentPopup();
+                                }
+                                ImGui::EndPopup();
+                            }
+                            ImGui::TreePop();
+                        }
+
+                        if( ImGui::IsItemClicked() )
+                        {
+                            if( ImGui::GetIO().KeyCtrl == false )
+                            {
+                                pEditorState->ClearSelectedObjectsAndComponents();
+                            }
+
+                            if( ImGui::GetIO().KeyShift == false )
+                            {
+                                // TODO: select all Components between last object in list and this one.
+                            }
+
+                            if( pEditorState->IsComponentSelected( pComponent ) )
+                            {
+                                pEditorState->UnselectComponent( pComponent );
+                            }
+                            else
+                            {
+                                pEditorState->SelectComponent( pComponent );
+                            }
+                        }
+                    }
+                }
+
+                // Add List of deleted Prefab Children.
+                for( unsigned int dpci=0; dpci<pGameObject->m_DeletedPrefabChildIDs.size(); dpci++ )
+                {
+                    uint32 deletedPrefabChildID = pGameObject->m_DeletedPrefabChildIDs[dpci];
+                    GameObject* pChildGameObject = pGameObject->GetPrefabRef()->GetPrefab()->FindChildGameObject( deletedPrefabChildID );
 
                     ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
-                    if( pEditorState->IsComponentSelected( pComponent ) )
-                    {
-                        nodeFlags |= ImGuiTreeNodeFlags_Selected;
-                    }
 
-                    if( ImGui::TreeNodeEx( pComponent, nodeFlags, pComponent->GetClassname() ) )
+                    if( ImGui::TreeNodeEx( pChildGameObject, nodeFlags, "Deleted: %s", pChildGameObject->GetName() ) )
+                    {
+                    //    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                    //    {
+                    //        char* label = "Restore Component";
+                    //        if( pEditorState->m_pSelectedComponents.size() > 1 )
+                    //        {
+                    //            label = "Restore Selected Components";
+                    //        }
+                    //        if( ImGui::MenuItem( label ) )
+                    //        {
+                    //            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_RestorePrefabComponent( pGameObject, deletedPrefabComponentID ) );
+                    //            ImGui::CloseCurrentPopup();
+                    //        }
+                    //        ImGui::EndPopup();
+                    //    }
+                        ImGui::TreePop();
+                    }
+                }
+
+                // Add List of deleted Prefab Components.
+                for( unsigned int dpci=0; dpci<pGameObject->m_DeletedPrefabComponentIDs.size(); dpci++ )
+                {
+                    uint32 deletedPrefabComponentID = pGameObject->m_DeletedPrefabComponentIDs[dpci];
+                    ComponentBase* pComponent = pGameObject->GetPrefabRef()->GetGameObject()->FindComponentByPrefabComponentID( deletedPrefabComponentID );
+
+                    ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
+
+                    if( ImGui::TreeNodeEx( pComponent, nodeFlags, "Deleted: %s", pComponent->GetClassname() ) )
                     {
                         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                         {
-                            // If the right-clicked object isn't selected, then unselect what is and select just this one.
-                            if( pEditorState->IsComponentSelected( pComponent ) == false )
-                            {
-                                pEditorState->ClearSelectedObjectsAndComponents();
-                                pEditorState->SelectComponent( pComponent );
-                            }
-
-                            char* label = "Delete Component";
+                            char* label = "Restore Component";
                             if( pEditorState->m_pSelectedComponents.size() > 1 )
-                                label = "Delete Selected Components";
+                            {
+                                label = "Restore Selected Components";
+                            }
                             if( ImGui::MenuItem( label ) )
                             {
-                                pComponent->OnRightClickAction( ComponentBase::RightClick_DeleteComponent );
+                                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_RestorePrefabComponent( pGameObject, deletedPrefabComponentID ) );
                                 ImGui::CloseCurrentPopup();
                             }
                             ImGui::EndPopup();
                         }
                         ImGui::TreePop();
                     }
-
-                    if( ImGui::IsItemClicked() )
-                    {
-                        if( ImGui::GetIO().KeyCtrl == false )
-                        {
-                            pEditorState->ClearSelectedObjectsAndComponents();
-                        }
-
-                        if( ImGui::GetIO().KeyShift == false )
-                        {
-                            // TODO: select all Components between last object in list and this one.
-                        }
-
-                        if( pEditorState->IsComponentSelected( pComponent ) )
-                        {
-                            pEditorState->UnselectComponent( pComponent );
-                        }
-                        else
-                        {
-                            pEditorState->SelectComponent( pComponent );
-                        }
-                    }
-                }
-            }
-
-            // Add List of deleted Prefab Children.
-            for( unsigned int dpci=0; dpci<pGameObject->m_DeletedPrefabChildIDs.size(); dpci++ )
-            {
-                uint32 deletedPrefabChildID = pGameObject->m_DeletedPrefabChildIDs[dpci];
-                GameObject* pChildGameObject = pGameObject->GetPrefabRef()->GetPrefab()->FindChildGameObject( deletedPrefabChildID );
-
-                ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
-
-                if( ImGui::TreeNodeEx( pChildGameObject, nodeFlags, "Deleted: %s", pChildGameObject->GetName() ) )
-                {
-                //    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
-                //    {
-                //        char* label = "Restore Component";
-                //        if( pEditorState->m_pSelectedComponents.size() > 1 )
-                //        {
-                //            label = "Restore Selected Components";
-                //        }
-                //        if( ImGui::MenuItem( label ) )
-                //        {
-                //            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_RestorePrefabComponent( pGameObject, deletedPrefabComponentID ) );
-                //            ImGui::CloseCurrentPopup();
-                //        }
-                //        ImGui::EndPopup();
-                //    }
-                    ImGui::TreePop();
-                }
-            }
-
-            // Add List of deleted Prefab Components.
-            for( unsigned int dpci=0; dpci<pGameObject->m_DeletedPrefabComponentIDs.size(); dpci++ )
-            {
-                uint32 deletedPrefabComponentID = pGameObject->m_DeletedPrefabComponentIDs[dpci];
-                ComponentBase* pComponent = pGameObject->GetPrefabRef()->GetGameObject()->FindComponentByPrefabComponentID( deletedPrefabComponentID );
-
-                ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
-
-                if( ImGui::TreeNodeEx( pComponent, nodeFlags, "Deleted: %s", pComponent->GetClassname() ) )
-                {
-                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
-                    {
-                        char* label = "Restore Component";
-                        if( pEditorState->m_pSelectedComponents.size() > 1 )
-                        {
-                            label = "Restore Selected Components";
-                        }
-                        if( ImGui::MenuItem( label ) )
-                        {
-                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_RestorePrefabComponent( pGameObject, deletedPrefabComponentID ) );
-                            ImGui::CloseCurrentPopup();
-                        }
-                        ImGui::EndPopup();
-                    }
-                    ImGui::TreePop();
                 }
             }
 
