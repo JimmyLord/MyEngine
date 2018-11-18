@@ -869,6 +869,9 @@
     <ClInclude Include="SourceEditor\Editor_ImGui\EditorLayoutManager_ImGui.h">
       <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="SourceCommon\GUI\EditorIcons.h">
+      <Filter>Source\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Libraries\imgui\README.md">

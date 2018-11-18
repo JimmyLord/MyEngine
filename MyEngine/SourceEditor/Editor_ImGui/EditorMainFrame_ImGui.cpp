@@ -10,6 +10,7 @@
 #include "EngineCommonHeader.h"
 #include "../EditorMenuCommands.h"
 #include "ImGuiStylePrefs.h"
+#include "../../SourceCommon/GUI/EditorIcons.h"
 
 //====================================================================================================
 // Various enums and matching strings (some unused)
@@ -1542,7 +1543,13 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         }
 
         // Add the GameObject itself to the tree.
-        bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, nodeFlags, pGameObject->GetName() );
+        char* icon = EditorIcon_GameObject;
+        if( pGameObject->IsFolder() )
+            icon = EditorIcon_Folder;
+        if( pGameObject->IsPrefabInstance() )
+            icon = EditorIcon_Prefab;
+
+        bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, nodeFlags, "%s %s", icon, pGameObject->GetName() );
 
         ImGui::PopStyleColor( pushedColors );
 

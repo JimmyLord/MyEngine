@@ -63,6 +63,15 @@ void ImGuiManager::Init(float width, float height)
         // Rebuild ImGui's internal font (just for size setting?), but use the original GL texture object.
         unsigned char* pixels;
         int width, height;
+
+        ImFont* pFont = io.Fonts->AddFontDefault();
+
+        ImFontConfig config;
+        config.MergeMode = true;
+        config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
+        static const ImWchar icon_ranges[] = { 0xE000, 0xE0FF, 0 };
+        io.Fonts->AddFontFromFileTTF( "Data/DataEngine/Fonts/OpenFontIcons.ttf", 13.0f, &config, icon_ranges );
+
         io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
 
         io.Fonts->TexID = (void*)(uintptr_t)m_FontTexture;
@@ -389,13 +398,23 @@ bool ImGuiManager::CreateFontsTexture()
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int width, height;
+
+    ImFont* pFont = io.Fonts->AddFontDefault();
+
+    ImFontConfig config;
+    config.MergeMode = true;
+    config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
+    static const ImWchar icon_ranges[] = { 0xE000, 0xE0FF, 0 };
+    io.Fonts->AddFontFromFileTTF( "Data/DataEngine/Fonts/OpenFontIcons.ttf", 13.0f, &config, icon_ranges );
+    //io.Fonts->Build();
+
     // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
     io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
 
     // Upload texture to graphics system.
     GLint last_texture;
     glGetIntegerv( GL_TEXTURE_BINDING_2D, &last_texture );
-    glGenTextures( 1, &m_FontTexture);
+    glGenTextures( 1, &m_FontTexture );
     glBindTexture( GL_TEXTURE_2D, m_FontTexture );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
