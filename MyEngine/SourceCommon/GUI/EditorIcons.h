@@ -15,10 +15,13 @@
 //                   1st byte - 2nd byte - 3rd byte
 // U+E000..U+FFFF    EE..EF     80..BF     80..BF
 
-// OpenIconsFont
-#define EditorIcon_GameObject   "\xEE\x80\xA5" // 0xe025 box
-//                              "\xEE\x81\x8b" // 0xe04b cpu
-#define EditorIcon_Folder       "\xEE\x81\xA7" // 0xe067 folder
-#define EditorIcon_Prefab       "\xEE\x82\x9b" // 0xe09b package
+// MyEditorIcons - Created with Inkscape, exported as svgs and ttf built with http://fontello.com/
+#define EditorIconData_Filename "Data/DataEngine/Fonts/MyEditorIcons.ttf"
+#define EditorIconData_First    0xE800
+#define EditorIconData_Last     0xE802
+
+#define EditorIcon_GameObject   "\xEE\xA0\x80" // 0xe800 gameobject
+#define EditorIcon_Folder       "\xEE\xA0\x81" // 0xe801 folder
+#define EditorIcon_Prefab       "\xEE\xA0\x82" // 0xe802 prefab
 
 #endif //__EditorIcons_H__

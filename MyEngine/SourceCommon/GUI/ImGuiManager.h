@@ -57,7 +57,8 @@ public:
 
     void RenderDrawLists(ImDrawData* draw_data);
 
-    bool CreateFontsTexture();
+    void CreateFont();
+    bool CreateFontAndTexture();
     bool CreateDeviceObjects();
     void InvalidateDeviceObjects();
 

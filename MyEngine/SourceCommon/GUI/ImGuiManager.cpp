@@ -8,6 +8,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
+#include "../../SourceCommon/GUI/EditorIcons.h"
 
 ImGuiManager* g_pImGuiManager = 0;
 
@@ -60,19 +61,8 @@ void ImGuiManager::Init(float width, float height)
     {
         // Created a new context with a minimal attempt to preserve existing device objects.
 
-        // Rebuild ImGui's internal font (just for size setting?), but use the original GL texture object.
-        unsigned char* pixels;
-        int width, height;
-
-        ImFont* pFont = io.Fonts->AddFontDefault();
-
-        ImFontConfig config;
-        config.MergeMode = true;
-        config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
-        static const ImWchar icon_ranges[] = { 0xE000, 0xE0FF, 0 };
-        io.Fonts->AddFontFromFileTTF( "Data/DataEngine/Fonts/OpenFontIcons.ttf", 13.0f, &config, icon_ranges );
-
-        io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
+        // Rebuild ImGui's internal font, but use the original GL texture object.
+        CreateFont();
 
         io.Fonts->TexID = (void*)(uintptr_t)m_FontTexture;
     }
@@ -392,23 +382,29 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
     glScissor( last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3] );
 }
 
-bool ImGuiManager::CreateFontsTexture()
+void ImGuiManager::CreateFont()
 {
-    // Build texture atlas.
     ImGuiIO& io = ImGui::GetIO();
-    unsigned char* pixels;
-    int width, height;
 
     ImFont* pFont = io.Fonts->AddFontDefault();
 
     ImFontConfig config;
     config.MergeMode = true;
     config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
-    static const ImWchar icon_ranges[] = { 0xE000, 0xE0FF, 0 };
-    io.Fonts->AddFontFromFileTTF( "Data/DataEngine/Fonts/OpenFontIcons.ttf", 13.0f, &config, icon_ranges );
-    //io.Fonts->Build();
+    static const ImWchar icon_ranges[] = { EditorIconData_First, EditorIconData_Last, 0 };
+    io.Fonts->AddFontFromFileTTF( EditorIconData_Filename, 13.0f, &config, icon_ranges );
+    io.Fonts->Build();
+}
+
+bool ImGuiManager::CreateFontAndTexture()
+{
+    CreateFont();
 
     // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
+    ImGuiIO& io = ImGui::GetIO();
+    unsigned char* pixels;
+    int width, height;
+
     io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
 
     // Upload texture to graphics system.
@@ -500,7 +496,7 @@ bool ImGuiManager::CreateDeviceObjects()
     glVertexAttribPointer( m_AttribLocationUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, uv) );
     glVertexAttribPointer( m_AttribLocationColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)IM_OFFSETOF(ImDrawVert, col) );
 
-    CreateFontsTexture();
+    CreateFontAndTexture();
 
     // Restore modified GL state.
     glBindTexture( GL_TEXTURE_2D, last_texture );
