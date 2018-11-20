@@ -177,20 +177,37 @@ void EditorLayoutManager_ImGui::SyncCurrentImGuiIni()
     }
 }
 
-void EditorLayoutManager_ImGui::RequestLayoutChange(EditorLayoutTypes layout)
+void EditorLayoutManager_ImGui::ResetCurrentLayout()
+{
+    if( m_CurrentLayoutIndex != EditorLayout_NumLayouts )
+    {
+        m_CustomLayouts[m_CurrentLayoutIndex] = m_DefaultLayouts[m_CurrentLayoutIndex];
+
+        // Force a reset to the same layout.
+        RequestLayoutChange( m_CurrentLayoutIndex, true );
+    }
+}
+
+void EditorLayoutManager_ImGui::RequestLayoutChange(EditorLayoutTypes layout, bool discardModificationsAndForceChange)
 {
     m_RequestedLayoutIndex = layout;
+
+    if( discardModificationsAndForceChange )
+    {
+        // Set current layout to none to force a reset.
+        m_CurrentLayoutIndex = EditorLayout_NumLayouts;
+    }
 }
 
 void EditorLayoutManager_ImGui::RequestEditorLayout()
 {
-    RequestLayoutChange( m_SelectedLayout_EditorMode );
+    RequestLayoutChange( m_SelectedLayout_EditorMode, false );
     m_SwitchingToEditorLayout = true;
 }
 
 void EditorLayoutManager_ImGui::RequestGameLayout()
 {
-    RequestLayoutChange( m_SelectedLayout_GameMode );
+    RequestLayoutChange( m_SelectedLayout_GameMode, false );
     m_SwitchingToGameLayout = true;
 }
 
@@ -200,7 +217,7 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
 
     if( m_RequestedLayoutIndex != m_CurrentLayoutIndex )
     {
-        // Save the current layout?
+        // Save the current layout.
         SyncCurrentImGuiIni();
 
         // Reset the imgui context.

@@ -69,7 +69,8 @@ public:
     void SyncCurrentImGuiIni();
 
     // Layout Change.
-    void RequestLayoutChange(EditorLayoutTypes layout);
+    void ResetCurrentLayout();
+    void RequestLayoutChange(EditorLayoutTypes layout, bool discardModificationsAndForceChange);
     void RequestEditorLayout();
     void RequestGameLayout();
 
