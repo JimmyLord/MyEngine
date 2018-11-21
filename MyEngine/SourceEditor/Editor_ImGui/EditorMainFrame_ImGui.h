@@ -156,6 +156,7 @@ protected:
     void AddMemoryPanel_Materials();
     void AddMemoryPanel_Textures();
     void AddMemoryPanel_ShaderGroups();
+    void AddMemoryPanel_SoundCues();
     void AddMemoryPanel_Files();
     void AddMemoryPanel_DrawCalls();
 

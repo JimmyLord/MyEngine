@@ -1735,7 +1735,13 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool managech
     // Add all the gameobject's components back into the component lists.
     for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
-        AddComponent( pObject->GetComponentByIndex( i ) );
+        ComponentBase* pComponent = pObject->GetComponentByIndex( i );
+
+        // GameObject::AddExistingComponent adds components to system manager list even if unmanaged.  So, double check it's not in list.
+        if( pComponent->Prev == 0 )
+        {
+            AddComponent( pComponent );
+        }
     }
 
     pObject->SetManaged( true );
@@ -2163,6 +2169,7 @@ ComponentBase* ComponentSystemManager::GetNextComponentOfType(ComponentBase* pLa
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 {
     MyAssert( pComponent->GetBaseType() >= 0 && pComponent->GetBaseType() < BaseComponentType_NumTypes ); // shouldn't happen.
+    MyAssert( pComponent->Prev == 0 && pComponent->Next == 0 );
 
     m_Components[pComponent->GetBaseType()].AddTail( pComponent );
 

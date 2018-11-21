@@ -19,6 +19,7 @@ class EditorCommand_RotateObjects;
 class EditorCommand_DeleteObjects;
 class EditorCommand_DeleteComponents;
 class EditorCommand_CreateGameObject;
+class EditorCommand_CreateComponent;
 class EditorCommand_CopyGameObject;
 class EditorCommand_ClearParentOfGameObjects;
 class EditorCommand_EnableObject;
@@ -253,6 +254,28 @@ public:
     virtual EditorCommand* Repeat();
 
     GameObject* GetCreatedObject() { return m_ObjectCreated; }
+};
+
+//====================================================================================================
+
+class EditorCommand_CreateComponent : public EditorCommand
+{
+protected:
+    GameObject* m_pGameObject;
+    int m_ComponentType;
+
+    ComponentBase* m_pComponentCreated;
+    bool m_DeleteComponentWhenDestroyed;
+
+public:
+    EditorCommand_CreateComponent(GameObject* pGameObject, int componentType);
+    virtual ~EditorCommand_CreateComponent();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+
+    ComponentBase* GetCreatedObject() { return m_pComponentCreated; }
 };
 
 //====================================================================================================

@@ -1127,8 +1127,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_SoundCuePtr:
             {
-                ImGui::Text( "FilePtr: %s (TODO)", pVar->m_Label );
-                //SoundCue* pCue = *(SoundCue**)((char*)this + pVar->m_Offset);
+                SoundCue* pCue = *(SoundCue**)((char*)this + pVar->m_Offset);
+
+                ImGui::Text( "FilePtr: %s: %s (TODO)", pVar->m_Label, pCue->GetName() );
 
                 //const char* desc = "no sound cue";
                 //if( pCue != 0 )

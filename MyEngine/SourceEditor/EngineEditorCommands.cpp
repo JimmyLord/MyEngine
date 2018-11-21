@@ -949,6 +949,57 @@ EditorCommand* EditorCommand_CreateGameObject::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_CreateComponent
+//====================================================================================================
+
+EditorCommand_CreateComponent::EditorCommand_CreateComponent(GameObject* pGameObject, int componentType)
+{
+    m_Name = "EditorCommand_CreateComponent";
+
+    MyAssert( pGameObject );
+    MyAssert( componentType >= 0 );
+
+    m_pGameObject = pGameObject;
+    m_ComponentType = componentType;
+
+    m_pComponentCreated = 0;
+    m_DeleteComponentWhenDestroyed = false;
+}
+
+EditorCommand_CreateComponent::~EditorCommand_CreateComponent()
+{
+    if( m_DeleteComponentWhenDestroyed )
+    {
+        g_pComponentSystemManager->DeleteComponent( m_pComponentCreated );
+    }
+}
+
+void EditorCommand_CreateComponent::Do()
+{
+    if( m_pComponentCreated == 0 )
+        m_pComponentCreated = m_pGameObject->AddNewComponent( m_ComponentType, m_pGameObject->GetSceneID() );
+    else
+        m_pGameObject->AddExistingComponent( m_pComponentCreated, false );
+
+    m_DeleteComponentWhenDestroyed = false;
+}
+
+void EditorCommand_CreateComponent::Undo()
+{
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+
+    m_pGameObject->RemoveComponent( m_pComponentCreated );
+    m_DeleteComponentWhenDestroyed = true;
+}
+
+EditorCommand* EditorCommand_CreateComponent::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
 // EditorCommand_CopyGameObject
 //====================================================================================================
 

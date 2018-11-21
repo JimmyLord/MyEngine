@@ -1745,6 +1745,24 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reparent );
                 }
             }
+
+            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "SoundCue", 0 ) )
+            {
+                SoundCue* pSoundCue = (SoundCue*)*(void**)payload->Data;
+                MyAssert( pSoundCue != 0 );
+
+                if( pSoundCue )
+                {
+                    // Create an audio player component.
+                    EditorCommand_CreateComponent* pCommand = MyNew EditorCommand_CreateComponent( pGameObject, ComponentType_AudioPlayer );
+                    g_pGameCore->GetCommandStack()->Do( pCommand );
+                    ComponentAudioPlayer* pComponent = (ComponentAudioPlayer*)pCommand->GetCreatedObject();
+
+                    // Attach the correct sound cue.
+                    pComponent->SetSoundCue( pSoundCue );
+                }
+            }
+
             ImGui::EndDragDropTarget();
         }
 
@@ -2329,7 +2347,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
                     ImGui::EndTabItem();
 
                     ImGui::BeginChild( "Memory Details" );
-                    ImGui::Text( "TODO" );
+                    AddMemoryPanel_SoundCues();
                     ImGui::EndChild();
                 }
 
@@ -2402,9 +2420,15 @@ void EditorMainFrame_ImGui::AddMenuOptionsForAddingComponents(GameObject* pGameO
                 {
                     ComponentBase* pComponent = 0;
                     if( g_pEngineCore->IsInEditorMode() )
-                        pComponent = pGameObject->AddNewComponent( i, pGameObject->GetSceneID() );
+                    {
+                        EditorCommand_CreateComponent* pCommand = MyNew EditorCommand_CreateComponent( pGameObject, i );
+                        g_pGameCore->GetCommandStack()->Do( pCommand );
+                        pComponent = pCommand->GetCreatedObject();
+                    }
                     else
+                    {
                         pComponent = pGameObject->AddNewComponent( i, SCENEID_Unmanaged );
+                    }
 
                     ImGui::CloseCurrentPopup();
                 }
@@ -2834,6 +2858,92 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
     if( someShadersAreLoaded == false)
     {
         ImGui::TreeNodeEx( "No shaders loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
+    }
+}
+
+void EditorMainFrame_ImGui::AddMemoryPanel_SoundCues()
+{
+    // Only show the headers if the filter is blank
+    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+
+    bool someSoundCuesAreLoaded = false;
+
+    for( int i=0; i<2; i++ )
+    {
+        SoundCue* pSoundCue = (SoundCue*)g_pGameCore->GetSoundManager()->GetCuesStillLoading();
+        if( i == 1 )
+            pSoundCue = (SoundCue*)g_pGameCore->GetSoundManager()->GetCues();
+
+        if( pSoundCue )
+        {
+            someSoundCuesAreLoaded = true;
+
+            ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+            char* label = "Sound Cues - Loading";
+            if( i == 1 )
+                label = "All Sound Cues";
+
+            if( showHeaders == false || ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
+            {
+                while( pSoundCue )
+                {
+                    // Store the next shader in case this one gets unloaded.
+                    SoundCue* pNextSoundCue = (SoundCue*)pSoundCue->GetNext();
+
+                    MyFileObject* pFile = pSoundCue->GetFile();
+
+                    if( pFile )
+                    {
+                        if( pFile->m_ShowInMemoryPanel )
+                        {
+                            bool showThisItem = true;
+
+                            if( m_MemoryPanelFilter[0] != 0 )
+                            {
+                                if( CheckIfMultipleSubstringsAreInString( pFile->GetFilenameWithoutExtension(), m_MemoryPanelFilter ) == false )
+                                {
+                                    showThisItem = false;
+                                }
+                            }
+
+                            if( showThisItem )
+                            {
+                                if( ImGui::TreeNodeEx( pFile->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                                {
+                                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                                    {
+                                        AddContextMenuItemsForFiles( pFile );
+                                        ImGui::EndPopup();
+                                    }
+
+                                    if( ImGui::BeginDragDropSource() )
+                                    {
+                                        ImGui::SetDragDropPayload( "SoundCue", &pSoundCue, sizeof(pSoundCue), ImGuiCond_Once );
+                                        ImGui::Text( "%s", pFile->GetFullPath() );
+                                        ImGui::EndDragDropSource();
+                                    }
+
+                                    ImGui::TreePop();
+                                }
+                            }
+                        }
+                    }
+
+                    pSoundCue = pNextSoundCue;
+                }
+
+                if( showHeaders )
+                {
+                    ImGui::TreePop();
+                }
+            }
+        }
+    }
+
+    if( someSoundCuesAreLoaded == false)
+    {
+        ImGui::TreeNodeEx( "No sound cues loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
 }
 
@@ -3768,6 +3878,25 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, voi
     if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
 }
 
+void OnDropSoundCueOnEditorWindow(SoundCue* pSoundCue)
+{
+    if( pSoundCue )
+    {
+        // Create a new GameObject with an audio player component.
+        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( false, SCENEID_MainScene );
+        pGameObjectCreated->SetName( pSoundCue->GetName() );
+        ComponentAudioPlayer* pComponent = (ComponentAudioPlayer*)pGameObjectCreated->AddNewComponent( ComponentType_AudioPlayer, SCENEID_MainScene );
+        pComponent->SetSoundCue( pSoundCue );
+
+        // Add it to the undo stack.
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+
+        // Clear the selected objects and select the new one.
+        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+        g_pEngineCore->GetEditorState()->SelectGameObject( pGameObjectCreated );
+    }
+}
+
 void EditorMainFrame_ImGui::OnDropEditorWindow()
 {
     unsigned int x = m_CurrentMouseInEditorWindow_X;
@@ -3824,6 +3953,12 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
         }
     }
 
+    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "SoundCue" ) )
+    {
+        SoundCue* pSoundCue = (SoundCue*)*(void**)payload->Data;
+        OnDropSoundCueOnEditorWindow( pSoundCue );
+    }
+
     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
     {
         //if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
@@ -3846,6 +3981,12 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
                     ShaderGroup* pShader = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
                     g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
                 }
+            }
+
+            if( pFile && strcmp( pFile->GetExtensionWithDot(), ".mycue" ) == 0 )
+            {
+                SoundCue* pSoundCue = g_pGameCore->GetSoundManager()->FindCueByFilename( pFile->GetFullPath() );
+                OnDropSoundCueOnEditorWindow( pSoundCue );
             }
 
             if( pFile &&
