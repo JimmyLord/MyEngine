@@ -1604,17 +1604,19 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             {
                 int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
 
+                // If multiple objects are selected, show these options first.
                 if( numselected > 1 )
                 {
                     if( ImGui::MenuItem( "Duplicate GameObjects (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
                     if( ImGui::MenuItem( "Create Child GameObjects (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
                     if( ImGui::MenuItem( "Delete GameObjects (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
                     if( ImGui::MenuItem( "Clear Parents/Prefabs" ) )           { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
+                    ImGui::Separator();
+                    ImGui::Text( pGameObject->GetName() );
                 }
-                else
-                {
-                    //ImGui::Text( pGameObject->GetName() );
 
+                // Show options for the single item right-clicked.
+                {
                     // Menu options to add new components to a GameObject.
                     if( ImGui::BeginMenu( "Add Component" ) )
                     {
@@ -2069,11 +2071,11 @@ void EditorMainFrame_ImGui::AddWatchPanel()
     {
         EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-        int numselected = pEditorState->m_pSelectedObjects.size();
+        int numSelected = pEditorState->m_pSelectedObjects.size();
 
         // If multiple objects are selected, show their shared components.
         // If only one object is selected, just show it's components (will show nothing for empty folders).
-        if( numselected > 0 )
+        if( numSelected > 0 )
         {
             // Pick the first game object, even it it's a folder.
             GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
@@ -2090,9 +2092,11 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                 }
             }
 
-            if( numselected > 1 )
+            int numShown = numSelected - firstGameObjectIndex;
+
+            if( numShown > 1 )
             {
-                ImGui::Text( "%d objects selected.", numselected );
+                ImGui::Text( "%d objects selected.", numShown );
             }
             else
             {
