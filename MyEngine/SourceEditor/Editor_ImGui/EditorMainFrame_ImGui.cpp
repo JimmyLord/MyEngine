@@ -1617,11 +1617,14 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
                 // Show options for the single item right-clicked.
                 {
-                    // Menu options to add new components to a GameObject.
-                    if( ImGui::BeginMenu( "Add Component" ) )
+                    // Menu options to add new components to a GameObject, don't allow components to be added to a folder.
+                    if( pGameObject->IsFolder() == false )
                     {
-                        AddMenuOptionsForAddingComponents( pGameObject );
-                        ImGui::EndMenu();
+                        if( ImGui::BeginMenu( "Add Component" ) )
+                        {
+                            AddMenuOptionsForAddingComponents( pGameObject );
+                            ImGui::EndMenu();
+                        }
                     }
 
                     // Menu options to add child GameObjects.
@@ -2081,22 +2084,23 @@ void EditorMainFrame_ImGui::AddWatchPanel()
             GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
             int firstGameObjectIndex = 0;
 
-            // Find the first non-folder object if there is one, since folders generally don't have components.
+            // Find the first non-folder object if there is one, since folders shouldn't have components.
+            int numNonFoldersSelected = 0;
             for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
             {
                 if( pEditorState->m_pSelectedObjects[i]->IsFolder() == false )
                 {
+                    numNonFoldersSelected++;
+
                     pFirstGameObject = pEditorState->m_pSelectedObjects[i];
                     firstGameObjectIndex = i;
                     break;
                 }
             }
 
-            int numShown = numSelected - firstGameObjectIndex;
-
-            if( numShown > 1 )
+            if( numNonFoldersSelected > 1 )
             {
-                ImGui::Text( "%d objects selected.", numShown );
+                ImGui::Text( "%d objects selected.", numNonFoldersSelected );
             }
             else
             {
@@ -2144,7 +2148,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             GameObject* pGameObject = pEditorState->m_pSelectedObjects[soi];
                             MyAssert( pGameObject != pFirstGameObject );
 
-                            // Skip folders, since they generally don't have components.
+                            // Skip folders, since they shouldn't have components.
                             if( pGameObject->IsFolder() )
                                 continue;
 
