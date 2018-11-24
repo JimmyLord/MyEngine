@@ -214,11 +214,11 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     // Export lists of deleted prefab children and components.
     if( m_DeletedPrefabChildIDs.size() > 0 )
     {
-        cJSONExt_AddUnsignedIntArrayToObject( jGameObject, "DeletedPrefabChildIDs", &m_DeletedPrefabChildIDs[0], m_DeletedPrefabChildIDs.size() );
+        cJSONExt_AddUnsignedIntArrayToObject( jGameObject, "DeletedPrefabChildIDs", &m_DeletedPrefabChildIDs[0], (int)m_DeletedPrefabChildIDs.size() );
     }    
     if( m_DeletedPrefabComponentIDs.size() > 0 )
     {
-        cJSONExt_AddUnsignedIntArrayToObject( jGameObject, "DeletedPrefabComponents", &m_DeletedPrefabComponentIDs[0], m_DeletedPrefabComponentIDs.size() );
+        cJSONExt_AddUnsignedIntArrayToObject( jGameObject, "DeletedPrefabComponents", &m_DeletedPrefabComponentIDs[0], (int)m_DeletedPrefabComponentIDs.size() );
     }
 #endif
 

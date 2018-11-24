@@ -1583,7 +1583,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
             if( pPrefab != 0 )
             {
-                int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+                int numselected = (int)g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
 
                 if( numselected > 1 )
                 {
@@ -1602,7 +1602,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             }
             else
             {
-                int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+                int numselected = (int)g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
 
                 // If multiple objects are selected, show these options first.
                 if( numselected > 1 )
@@ -2074,7 +2074,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
     {
         EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-        int numSelected = pEditorState->m_pSelectedObjects.size();
+        int numSelected = (int)pEditorState->m_pSelectedObjects.size();
 
         // If multiple objects are selected, show their shared components.
         // If only one object is selected, just show it's components (will show nothing for empty folders).
@@ -2192,7 +2192,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
         else
         {
             // No GameObjects selected, display components.
-            int numselected = g_pEngineCore->GetEditorState()->m_pSelectedComponents.size();
+            int numselected = (int)g_pEngineCore->GetEditorState()->m_pSelectedComponents.size();
 
             if( numselected == 1 )
             {

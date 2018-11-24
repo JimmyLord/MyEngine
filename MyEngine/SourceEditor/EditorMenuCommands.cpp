@@ -267,7 +267,7 @@ void EditorMenuCommand(EditorMenuCommands command)
             const char* filename = FileSaveDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
             if( filename[0] != 0 )
             {
-                int len = strlen( filename );
+                int len = (int)strlen( filename );
 
                 // Append '.scene' to end of filename if it wasn't already there.
                 char path[MAX_PATH];
@@ -303,9 +303,9 @@ void EditorMenuCommand(EditorMenuCommands command)
             {
                 char filenameWithExtension[MAX_PATH];
 
-                int len = strlen( filename );
+                int len = (int)strlen( filename );
                 const char* ext = ".box2dscene";
-                int extlen = strlen( ext );
+                int extlen = (int)strlen( ext );
 
                 if( len > extlen && strcmp( &filename[len-extlen], ext ) == 0 )
                 {
@@ -459,7 +459,7 @@ void EditorMenuCommand(EditorMenuCommands command)
         {
             LOGError( LOGTag, "(TODO) Moving selected objects into folder has no undo!\n" );
 
-            int numSelected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+            int numSelected = (int)g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
 
             if( numSelected > 0 )
             {

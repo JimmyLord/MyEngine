@@ -211,7 +211,7 @@ void ComponentLuaScript::CreateNewScriptFile()
         const char* filename = FileSaveDialog( initialpath, "Lua script files\0*.lua\0All\0*.*\0" );
         if( filename[0] != 0 )
         {
-            int len = strlen( filename );
+            int len = (int)strlen( filename );
 
             // Append '.lua' to end of filename if it wasn't already there.
             char fullpath[MAX_PATH];

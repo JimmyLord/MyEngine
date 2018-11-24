@@ -126,7 +126,7 @@ public:
     bool Get_Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
     LaunchPlatforms Get_Mode_LaunchPlatform() { return m_Mode_CurrentLaunchPlatform; }
     bool Get_Debug_DrawPhysicsDebugShapes() { return m_Debug_DrawPhysicsDebugShapes; }
-    uint32 Get_Lua_NumRecentScripts() { return m_Lua_RecentScripts.size(); }
+    uint32 Get_Lua_NumRecentScripts() { return (uint32)m_Lua_RecentScripts.size(); }
     std::string Get_Lua_RecentScript(int index) { return m_Lua_RecentScripts[index]; }
 
     void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }

@@ -99,7 +99,7 @@ void EditorLogWindow_ImGui::Draw(const char* title, bool* p_open)
     else
     {
         //for( unsigned int i = 0; i < m_LoggedMessages.size(); i++ )
-        ImGuiListClipper clipper( m_LoggedMessages.size() );
+        ImGuiListClipper clipper( (int)m_LoggedMessages.size() );
         while( clipper.Step() )
         {
             for( int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++ )
