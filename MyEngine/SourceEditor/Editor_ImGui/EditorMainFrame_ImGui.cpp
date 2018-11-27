@@ -11,6 +11,7 @@
 #include "../EditorMenuCommands.h"
 #include "ImGuiStylePrefs.h"
 #include "../../SourceCommon/GUI/EditorIcons.h"
+#include "../../SourceCommon/GUI/ImGuiExtensions.h"
 
 //====================================================================================================
 // Various enums and matching strings (some unused)
@@ -188,6 +189,12 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
                 m_pMaterialWhoseNameIsBeingEdited = 0;
                 return true;
             }
+        }
+
+        // Cancel any drag/drop ops when escape is pressed.
+        if( keycode == MYKEYCODE_ESC )
+        {
+            ImGuiExt::ClearDragDrop();
         }
     }
 
@@ -2090,11 +2097,13 @@ void EditorMainFrame_ImGui::AddWatchPanel()
             {
                 if( pEditorState->m_pSelectedObjects[i]->IsFolder() == false )
                 {
-                    numNonFoldersSelected++;
+                    if( numNonFoldersSelected == 0 )
+                    {
+                        pFirstGameObject = pEditorState->m_pSelectedObjects[i];
+                        firstGameObjectIndex = i;
+                    }
 
-                    pFirstGameObject = pEditorState->m_pSelectedObjects[i];
-                    firstGameObjectIndex = i;
-                    break;
+                    numNonFoldersSelected++;
                 }
             }
 

@@ -20,6 +20,8 @@ namespace ImGuiExt
 
     ImVec2 GetWindowSize(const char* name);
     ImVec2 GetWindowPos(const char* name);
+
+    void ClearDragDrop();
 }
 
 #endif //__ImGuiExtensions_H__

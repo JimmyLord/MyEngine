@@ -73,4 +73,9 @@ ImVec2 GetWindowPos(const char* name)
     return ImVec2(-1,-1);
 }
 
+void ClearDragDrop()
+{
+    ImGui::ClearDragDrop();
+}
+
 }
