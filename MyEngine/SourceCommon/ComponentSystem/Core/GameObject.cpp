@@ -1689,6 +1689,10 @@ void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions act
             if( pGameObject == this )
                 continue;
 
+            // Don't allow a parent to be attached to or become a sibling of this object.
+            if( this->IsParentedTo( pGameObject, false ) )
+                continue;
+
             // If we're attempting to set dragged objects as children,
             //   don't allow folders to be children of non-folder gameobjects.
             if( setAsChild )

@@ -1479,6 +1479,110 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
     }
 }
 
+static bool HandleDropOnObjectList(GameObject* pGameObject, PrefabObject* pPrefab)
+{
+    bool dragDropPayloadAcceptedOnRelease = false;
+    bool dragDropOfItemWillResultInAReorder = false;
+
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+    if( ImGui::BeginDragDropTarget() )
+    {
+        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", ImGuiDragDropFlags_AcceptPeekOnly ) )
+        {
+            // If there's a drag/drop payload and it's a gameobject, then:
+            //     if we're hovering over the top half of the item, reparent the dropped item.
+            //     if we're hovering over the bottom half, reorder the dropped item after the hovered item.
+            if( ImGui::GetMousePos().y > ImGui::GetItemRectMin().y + (ImGui::GetItemRectSize().y * 0.5f) )
+            {
+                dragDropOfItemWillResultInAReorder = true;
+            }
+        }
+
+        ImGuiDragDropFlags dropFlags = 0;
+        if( dragDropOfItemWillResultInAReorder )
+            dropFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+
+        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", dropFlags ) )
+        {
+            // Releasing the mouse will drop the payload, but we need prevent this from selecting the item.
+            dragDropPayloadAcceptedOnRelease = true;
+
+            g_DragAndDropStruct.Clear();
+
+            GameObject* pDroppedGO = (GameObject*)*(void**)payload->Data;
+            if( pEditorState->IsGameObjectSelected( pDroppedGO ) == false )
+            {
+                // If this GameObject wasn't selected, then only move this one.
+                g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pDroppedGO );
+            }
+            else
+            {
+                // If it was selected, move all selected objects.
+                for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                {
+                    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pEditorState->m_pSelectedObjects[i] );
+                }
+            }
+
+            if( dragDropOfItemWillResultInAReorder )
+            {
+                pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reorder );
+            }
+            else
+            {
+                pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reparent );
+            }
+        }
+
+        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "SoundCue", 0 ) )
+        {
+            SoundCue* pSoundCue = (SoundCue*)*(void**)payload->Data;
+            MyAssert( pSoundCue != 0 );
+
+            if( pSoundCue )
+            {
+                // Create an audio player component.
+                EditorCommand_CreateComponent* pCommand = MyNew EditorCommand_CreateComponent( pGameObject, ComponentType_AudioPlayer );
+                g_pGameCore->GetCommandStack()->Do( pCommand );
+                ComponentAudioPlayer* pComponent = (ComponentAudioPlayer*)pCommand->GetCreatedObject();
+
+                // Attach the correct sound cue.
+                pComponent->SetSoundCue( pSoundCue );
+            }
+        }
+
+        ImGui::EndDragDropTarget();
+    }
+
+    // Draw a horizontal line to indicate the drag/drop will do a reorder and not a reparent.
+    if( dragDropOfItemWillResultInAReorder )
+    {
+        // TODO: Better.
+        ImVec2 cursorPosStart = ImGui::GetCursorPos();
+
+        ImVec2 cursorPos = cursorPosStart;
+        cursorPos.y -= 3.0f;
+            
+        Vector4 separatorColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_DragDropTarget );
+        ImGui::PushStyleColor( ImGuiCol_Separator, separatorColor );
+
+        int separatorThickness = 2;
+        for( int i=0; i<separatorThickness; i++ )
+        {
+            ImGui::SetCursorPos( cursorPos );
+            ImGui::Separator();
+            cursorPos.y += 1.0f;
+        }
+
+        ImGui::PopStyleColor();
+
+        ImGui::SetCursorPos( cursorPosStart );
+    }
+
+    return dragDropPayloadAcceptedOnRelease;
+}
+
 void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, PrefabObject* pPrefab)
 {
     if( pGameObject->IsManaged() == false && pPrefab == 0 )
@@ -1559,8 +1663,6 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, nodeFlags, "%s %s", icon, pGameObject->GetName() );
 
         ImGui::PopStyleColor( pushedColors );
-
-        bool dragDropOfItemWillResultInAReorder = false;
 
         ImGui::PushID( pGameObject );
 
@@ -1693,6 +1795,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             ImGui::EndPopup();
         }
 
+        // Handle start of dragging either GameObjects or Prefabs.
         if( ImGui::BeginDragDropSource() )
         {
             if( pPrefab != 0 )
@@ -1707,76 +1810,8 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             ImGui::EndDragDropSource();
         }
 
-        bool dragDropPayloadAcceptedOnRelease = false;
-
-        if( ImGui::BeginDragDropTarget() )
-        {
-            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", ImGuiDragDropFlags_AcceptPeekOnly ) )
-            {
-                // If there's a drag/drop payload and it's a gameobject, then:
-                //     if we're hovering over the top half of the item, reparent the dropped item.
-                //     if we're hovering over the bottom half, reorder the dropped item after the hovered item.
-                if( ImGui::GetMousePos().y > ImGui::GetItemRectMin().y + (ImGui::GetItemRectSize().y * 0.5f) )
-                {
-                    dragDropOfItemWillResultInAReorder = true;
-                }
-            }
-
-            ImGuiDragDropFlags dropFlags = 0;
-            if( dragDropOfItemWillResultInAReorder )
-                dropFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
-
-            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", dropFlags ) )
-            {
-                // Releasing the mouse will drop the payload, but we need prevent this from selecting the item.
-                dragDropPayloadAcceptedOnRelease = true;
-
-                g_DragAndDropStruct.Clear();
-
-                GameObject* pDroppedGO = (GameObject*)*(void**)payload->Data;
-                if( pEditorState->IsGameObjectSelected( pDroppedGO ) == false )
-                {
-                    // If this GameObject wasn't selected, then only move this one.
-                    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pDroppedGO );
-                }
-                else
-                {
-                    // If it was selected, move all selected objects.
-                    for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
-                    {
-                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pEditorState->m_pSelectedObjects[i] );
-                    }
-                }
-
-                if( dragDropOfItemWillResultInAReorder )
-                {
-                    pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reorder );
-                }
-                else
-                {
-                    pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reparent );
-                }
-            }
-
-            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "SoundCue", 0 ) )
-            {
-                SoundCue* pSoundCue = (SoundCue*)*(void**)payload->Data;
-                MyAssert( pSoundCue != 0 );
-
-                if( pSoundCue )
-                {
-                    // Create an audio player component.
-                    EditorCommand_CreateComponent* pCommand = MyNew EditorCommand_CreateComponent( pGameObject, ComponentType_AudioPlayer );
-                    g_pGameCore->GetCommandStack()->Do( pCommand );
-                    ComponentAudioPlayer* pComponent = (ComponentAudioPlayer*)pCommand->GetCreatedObject();
-
-                    // Attach the correct sound cue.
-                    pComponent->SetSoundCue( pSoundCue );
-                }
-            }
-
-            ImGui::EndDragDropTarget();
-        }
+        // Handle dropping things on GameObjects or Prefabs.
+        bool dragDropPayloadAcceptedOnRelease = HandleDropOnObjectList( pGameObject, pPrefab );
 
         ImGui::PopID(); // ImGui::PushID( pGameObject );
 
@@ -2041,31 +2076,6 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
             if( forceOpen )
                 ImGui::Unindent();
-        }
-
-        // Draw a horizontal line to indicate the drag/drop will do a reorder and not a reparent.
-        if( dragDropOfItemWillResultInAReorder )
-        {
-            // TODO: Better.
-            ImVec2 cursorPosStart = ImGui::GetCursorPos();
-
-            ImVec2 cursorPos = cursorPosStart;
-            cursorPos.y -= 3.0f;
-            
-            Vector4 separatorColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_DragDropTarget );
-            ImGui::PushStyleColor( ImGuiCol_Separator, separatorColor );
-
-            int separatorThickness = 2;
-            for( int i=0; i<separatorThickness; i++ )
-            {
-                ImGui::SetCursorPos( cursorPos );
-                ImGui::Separator();
-                cursorPos.y += 1.0f;
-            }
-
-            ImGui::PopStyleColor();
-
-            ImGui::SetCursorPos( cursorPosStart );
         }
     }
 }
