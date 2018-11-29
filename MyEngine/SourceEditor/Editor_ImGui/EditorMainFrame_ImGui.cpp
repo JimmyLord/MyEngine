@@ -89,11 +89,13 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     // Log Window
     m_pLogWindow = MyNew EditorLogWindow_ImGui;
 
-    // Object list filter.
+    // Object list.
+    m_pGameObjectToDrawReorderLineAfter = 0;
     m_SetObjectListFilterBoxInFocus = false;
     m_ObjectListFilter[0] = 0;
 
-    // Memory panel filter.
+    // Memory panel.
+    m_CurrentMemoryPanelPage = PanelMemoryPage_Materials;
     m_SetMemoryPanelFilterBoxInFocus = false;
     m_MemoryPanelFilter[0] = 0;
 
@@ -104,10 +106,11 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialWhoseNameIsBeingEdited = 0;
     m_NameBeingEdited[0] = 0;
 
-    // For draw call debugger.
+    // Draw call debugger.
     m_SelectedDrawCallCanvas = -1;
     m_SelectedDrawCallIndex = -1;
 
+    // Game and Editor windows.
     m_GameWindowPos.Set( -1, -1 );
     m_EditorWindowPos.Set( -1, -1 );
     m_GameWindowSize.Set( 0, 0 );
@@ -119,25 +122,22 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_EditorWindowFocused = false;
     m_EditorWindowVisible = false;
 
-    m_pLastGameObjectInteractedWithInObjectPanel = 0;
-
-    m_CurrentMemoryPanelPage = PanelMemoryPage_Materials;
-
-    m_UndoStackDepthAtLastSave = 0;
-
     m_CurrentMouseInEditorWindow_X = -1;
     m_CurrentMouseInEditorWindow_Y = -1;
 
+    // Misc.
+    m_pLastGameObjectInteractedWithInObjectPanel = 0;
+    m_UndoStackDepthAtLastSave = 0;
+
+    // Modifier key states.
     m_KeyDownCtrl = false;
     m_KeyDownAlt = false;
     m_KeyDownShift = false;
     m_KeyDownCommand = false;
 
+    // Master Undo/Redo Stack for ImGui editor builds.
     m_pCommandStack = MyNew EngineCommandStack();
     g_pEngineCore->SetCommandStack( m_pCommandStack );
-
-    // Hacks for temporary window resizing.
-    //m_HACK_WindowSize.Set( -1, -1 );
 }
 
 EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
@@ -510,9 +510,6 @@ void EditorMainFrame_ImGui::AddEverything()
     m_RenamePressedThisFrame = false;
 
     m_pLayoutManager->FinishFocusChangeIfNeeded();
-
-    // Hacks for temporary window resizing.
-    //HACK_HandleWindowResize();
 }
 
 void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
@@ -1479,114 +1476,12 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
     }
 }
 
-static bool HandleDropOnObjectList(GameObject* pGameObject, PrefabObject* pPrefab)
-{
-    bool dragDropPayloadAcceptedOnRelease = false;
-    bool dragDropOfItemWillResultInAReorder = false;
-
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
-
-    if( ImGui::BeginDragDropTarget() )
-    {
-        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", ImGuiDragDropFlags_AcceptPeekOnly ) )
-        {
-            // If there's a drag/drop payload and it's a gameobject, then:
-            //     if we're hovering over the top half of the item, reparent the dropped item.
-            //     if we're hovering over the bottom half, reorder the dropped item after the hovered item.
-            if( ImGui::GetMousePos().y > ImGui::GetItemRectMin().y + (ImGui::GetItemRectSize().y * 0.5f) )
-            {
-                dragDropOfItemWillResultInAReorder = true;
-            }
-        }
-
-        ImGuiDragDropFlags dropFlags = 0;
-        if( dragDropOfItemWillResultInAReorder )
-            dropFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
-
-        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", dropFlags ) )
-        {
-            // Releasing the mouse will drop the payload, but we need prevent this from selecting the item.
-            dragDropPayloadAcceptedOnRelease = true;
-
-            g_DragAndDropStruct.Clear();
-
-            GameObject* pDroppedGO = (GameObject*)*(void**)payload->Data;
-            if( pEditorState->IsGameObjectSelected( pDroppedGO ) == false )
-            {
-                // If this GameObject wasn't selected, then only move this one.
-                g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pDroppedGO );
-            }
-            else
-            {
-                // If it was selected, move all selected objects.
-                for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
-                {
-                    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pEditorState->m_pSelectedObjects[i] );
-                }
-            }
-
-            if( dragDropOfItemWillResultInAReorder )
-            {
-                pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reorder );
-            }
-            else
-            {
-                pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reparent );
-            }
-        }
-
-        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "SoundCue", 0 ) )
-        {
-            SoundCue* pSoundCue = (SoundCue*)*(void**)payload->Data;
-            MyAssert( pSoundCue != 0 );
-
-            if( pSoundCue )
-            {
-                // Create an audio player component.
-                EditorCommand_CreateComponent* pCommand = MyNew EditorCommand_CreateComponent( pGameObject, ComponentType_AudioPlayer );
-                g_pGameCore->GetCommandStack()->Do( pCommand );
-                ComponentAudioPlayer* pComponent = (ComponentAudioPlayer*)pCommand->GetCreatedObject();
-
-                // Attach the correct sound cue.
-                pComponent->SetSoundCue( pSoundCue );
-            }
-        }
-
-        ImGui::EndDragDropTarget();
-    }
-
-    // Draw a horizontal line to indicate the drag/drop will do a reorder and not a reparent.
-    if( dragDropOfItemWillResultInAReorder )
-    {
-        // TODO: Better.
-        ImVec2 cursorPosStart = ImGui::GetCursorPos();
-
-        ImVec2 cursorPos = cursorPosStart;
-        cursorPos.y -= 3.0f;
-            
-        Vector4 separatorColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_DragDropTarget );
-        ImGui::PushStyleColor( ImGuiCol_Separator, separatorColor );
-
-        int separatorThickness = 2;
-        for( int i=0; i<separatorThickness; i++ )
-        {
-            ImGui::SetCursorPos( cursorPos );
-            ImGui::Separator();
-            cursorPos.y += 1.0f;
-        }
-
-        ImGui::PopStyleColor();
-
-        ImGui::SetCursorPos( cursorPosStart );
-    }
-
-    return dragDropPayloadAcceptedOnRelease;
-}
-
 void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, PrefabObject* pPrefab)
 {
     if( pGameObject->IsManaged() == false && pPrefab == 0 )
         return;
+
+    float startCursorPositionX = ImGui::GetCursorPosX();
 
     // If we're renaming the GameObject, show an edit box instead of a tree node.
     if( pGameObject == m_pGameObjectWhoseNameIsBeingEdited )
@@ -1811,7 +1706,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         }
 
         // Handle dropping things on GameObjects or Prefabs.
-        bool dragDropPayloadAcceptedOnRelease = HandleDropOnObjectList( pGameObject, pPrefab );
+        bool dragDropPayloadAcceptedOnRelease = OnDropObjectList( pGameObject );
 
         ImGui::PopID(); // ImGui::PushID( pGameObject );
 
@@ -2077,6 +1972,12 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             if( forceOpen )
                 ImGui::Unindent();
         }
+    }
+
+    // Draw a horizontal line to indicate the drag/drop will do a reorder and not a reparent.
+    if( m_pGameObjectToDrawReorderLineAfter == pGameObject )
+    {
+        ImGuiExt::DrawBlock( startCursorPositionX - 5.0f, -3.0f, 8888.0f, 2.0f, ImGuiCol_DragDropTarget );
     }
 }
 
@@ -3924,6 +3825,90 @@ void OnDropSoundCueOnEditorWindow(SoundCue* pSoundCue)
     }
 }
 
+bool EditorMainFrame_ImGui::OnDropObjectList(GameObject* pGameObject)
+{
+    bool dragDropPayloadAcceptedOnRelease = false;
+    bool dragDropOfItemWillResultInAReorder = false;
+
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+    if( m_pGameObjectToDrawReorderLineAfter == pGameObject )
+        m_pGameObjectToDrawReorderLineAfter = 0;
+
+    if( ImGui::BeginDragDropTarget() )
+    {
+        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", ImGuiDragDropFlags_AcceptPeekOnly ) )
+        {
+            // If there's a drag/drop payload and it's a gameobject, then:
+            //     if we're hovering over the top half of the item, reparent the dropped item.
+            //     if we're hovering over the bottom half, reorder the dropped item after the hovered item.
+            if( ImGui::GetMousePos().y > ImGui::GetItemRectMin().y + (ImGui::GetItemRectSize().y * 0.5f) )
+            {
+                dragDropOfItemWillResultInAReorder = true;
+                m_pGameObjectToDrawReorderLineAfter = pGameObject;
+            }
+        }
+
+        ImGuiDragDropFlags dropFlags = 0;
+        if( dragDropOfItemWillResultInAReorder )
+            dropFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+
+        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", dropFlags ) )
+        {
+            // Releasing the mouse will drop the payload, but we need prevent this from selecting the item.
+            dragDropPayloadAcceptedOnRelease = true;
+
+            g_DragAndDropStruct.Clear();
+
+            GameObject* pDroppedGO = (GameObject*)*(void**)payload->Data;
+            if( pEditorState->IsGameObjectSelected( pDroppedGO ) == false )
+            {
+                // If this GameObject wasn't selected, then only move this one.
+                g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pDroppedGO );
+            }
+            else
+            {
+                // If it was selected, move all selected objects.
+                for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                {
+                    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pEditorState->m_pSelectedObjects[i] );
+                }
+            }
+
+            if( dragDropOfItemWillResultInAReorder )
+            {
+                pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reorder );
+                m_pGameObjectToDrawReorderLineAfter = 0;
+            }
+            else
+            {
+                pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reparent );
+            }
+        }
+
+        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "SoundCue", 0 ) )
+        {
+            SoundCue* pSoundCue = (SoundCue*)*(void**)payload->Data;
+            MyAssert( pSoundCue != 0 );
+
+            if( pSoundCue )
+            {
+                // Create an audio player component.
+                EditorCommand_CreateComponent* pCommand = MyNew EditorCommand_CreateComponent( pGameObject, ComponentType_AudioPlayer );
+                g_pGameCore->GetCommandStack()->Do( pCommand );
+                ComponentAudioPlayer* pComponent = (ComponentAudioPlayer*)pCommand->GetCreatedObject();
+
+                // Attach the correct sound cue.
+                pComponent->SetSoundCue( pSoundCue );
+            }
+        }
+
+        ImGui::EndDragDropTarget();
+    }
+
+    return dragDropPayloadAcceptedOnRelease;
+}
+
 void EditorMainFrame_ImGui::OnDropEditorWindow()
 {
     unsigned int x = m_CurrentMouseInEditorWindow_X;
@@ -4104,79 +4089,3 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
         //}
     }
 }
-
-// Hacks for temporary window resizing.
-#include "../SourceCommon/GUI/ImGuiExtensions.h"
-
-//void EditorMainFrame_ImGui::HACK_HandleWindowResize()
-//{
-//    // Store the initial settings.
-//    if( m_HACK_WindowSize.x == -1 )
-//    {
-//        m_HACK_WindowSize.Set( g_pGameCore->GetWindowWidth(), g_pGameCore->GetWindowHeight() );
-//        return;
-//    }
-//
-//    // If the window changed size, resize all the internal windows
-//    if( m_HACK_WindowSize.x != g_pGameCore->GetWindowWidth() ||
-//        m_HACK_WindowSize.y != g_pGameCore->GetWindowHeight() )
-//    {
-//        m_HACK_WindowSize.Set( g_pGameCore->GetWindowWidth(), g_pGameCore->GetWindowHeight() );
-//
-//        ImVec2 Pos_Objects = ImGuiExt::GetWindowPos( "Objects" );
-//        ImVec2 Size_Objects = ImGuiExt::GetWindowSize( "Objects" );
-//
-//        ImVec2 Pos_Game = ImGuiExt::GetWindowPos( "Game" );
-//        ImVec2 Size_Game = ImGuiExt::GetWindowSize( "Game" );
-//
-//        ImVec2 Pos_Log = ImGuiExt::GetWindowPos( "Log" );
-//        ImVec2 Size_Log = ImGuiExt::GetWindowSize( "Log" );
-//
-//        ImVec2 Pos_Editor = ImGuiExt::GetWindowPos( "Editor" );
-//        ImVec2 Size_Editor = ImGuiExt::GetWindowSize( "Editor" );
-//
-//        ImVec2 Pos_Watch = ImGuiExt::GetWindowPos( "Watch" );
-//        ImVec2 Size_Watch = ImGuiExt::GetWindowSize( "Watch" );
-//
-//        ImVec2 Pos_Resources = ImGuiExt::GetWindowPos( "Resources" );
-//        ImVec2 Size_Resources = ImGuiExt::GetWindowSize( "Resources" );
-//
-//        // "Objects" will stay in place and expand on Y.
-//        Size_Objects.y = m_HACK_WindowSize.y - Size_Game.y - Size_Log.y - Pos_Objects.y - 15;
-//
-//        // "Game" will move down and stay the same size.
-//        Pos_Game.y = Pos_Objects.y + Size_Objects.y + 5;
-//
-//        // "Log" will move down and expand on X.
-//        Pos_Log.y = m_HACK_WindowSize.y - Size_Log.y - 5;
-//        Size_Log.x = m_HACK_WindowSize.x - Size_Resources.x - 10;
-//
-//        // "Editor" will stay in place and expand on XY.
-//        Size_Editor.x = m_HACK_WindowSize.x - Size_Objects.x - Size_Watch.x - 15;
-//        Size_Editor.y = m_HACK_WindowSize.y - Size_Log.y - Pos_Editor.y - 50;
-//
-//        // "Watch" will move to the right and expand on Y.
-//        Pos_Watch.x = m_HACK_WindowSize.x - Size_Watch.x - 5;
-//        Size_Watch.y = m_HACK_WindowSize.y - Size_Resources.y - Pos_Watch.y - 10;
-//
-//        // "Resources" will stick to the corner and stay the same size.
-//        Pos_Resources.x = m_HACK_WindowSize.x - Size_Resources.x - 5;
-//        Pos_Resources.y = m_HACK_WindowSize.y - Size_Resources.y - 5;
-//
-//
-//        // Do the resizing.
-//        ImGui::SetWindowSize( "Objects", Size_Objects, 0 );
-//
-//        ImGui::SetWindowPos( "Game", Pos_Game, 0 );
-//
-//        ImGui::SetWindowPos( "Log", Pos_Log, 0 );
-//        ImGui::SetWindowSize( "Log", Size_Log, 0 );
-//
-//        ImGui::SetWindowSize( "Editor", Size_Editor, 0 );
-//
-//        ImGui::SetWindowPos( "Watch", Pos_Watch, 0 );
-//        ImGui::SetWindowSize( "Watch", Size_Watch, 0 );
-//
-//        ImGui::SetWindowPos( "Resources", Pos_Resources, 0 );
-//    }
-//}

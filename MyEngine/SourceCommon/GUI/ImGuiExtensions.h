@@ -22,6 +22,8 @@ namespace ImGuiExt
     ImVec2 GetWindowPos(const char* name);
 
     void ClearDragDrop();
+
+    void DrawBlock(float offsetX, float offsetY, float sizeX, float sizeY, ImGuiCol colorIndex);
 }
 
 #endif //__ImGuiExtensions_H__

@@ -60,11 +60,13 @@ protected:
     // Log Window.
     EditorLogWindow_ImGui* m_pLogWindow;
 
-    // Object list filter.
+    // Object list.
+    GameObject* m_pGameObjectToDrawReorderLineAfter;
     bool m_SetObjectListFilterBoxInFocus;
     char m_ObjectListFilter[100];
 
-    // Memory panel filter.
+    // Memory panel.
+    int m_CurrentMemoryPanelPage;
     bool m_SetMemoryPanelFilterBoxInFocus;
     char m_MemoryPanelFilter[100];
 
@@ -75,10 +77,11 @@ protected:
     MaterialDefinition* m_pMaterialWhoseNameIsBeingEdited;
     char m_NameBeingEdited[100];
 
-    // For draw call debugger.
+    // Draw call debugger.
     int m_SelectedDrawCallCanvas;
     int m_SelectedDrawCallIndex;
 
+    // Game and Editor windows.
     Vector2 m_GameWindowPos;
     Vector2 m_EditorWindowPos;
     Vector2 m_GameWindowSize;
@@ -90,16 +93,14 @@ protected:
     bool m_EditorWindowFocused;
     bool m_EditorWindowVisible;
 
-    GameObject* m_pLastGameObjectInteractedWithInObjectPanel;
-
-    int m_CurrentMemoryPanelPage;
-
-    unsigned int m_UndoStackDepthAtLastSave;
-
     unsigned int m_CurrentMouseInEditorWindow_X;
     unsigned int m_CurrentMouseInEditorWindow_Y;
 
-    // Modifier key states
+    // Misc.
+    GameObject* m_pLastGameObjectInteractedWithInObjectPanel;
+    unsigned int m_UndoStackDepthAtLastSave;
+
+    // Modifier key states.
     bool m_KeyDownCtrl;
     bool m_KeyDownAlt;
     bool m_KeyDownShift;
@@ -172,11 +173,8 @@ public:
     void AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject = 0);
 
 protected:
+    bool OnDropObjectList(GameObject* pGameObject);
     void OnDropEditorWindow();
-
-    // Hacks for temporary window resizing.
-    //Vector2 m_HACK_WindowSize;
-    //void HACK_HandleWindowResize();
 };
 
 #endif //__EditorMainFrame_ImGui_H__

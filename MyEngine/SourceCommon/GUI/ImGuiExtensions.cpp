@@ -78,4 +78,22 @@ void ClearDragDrop()
     ImGui::ClearDragDrop();
 }
 
+// Copied from ImGui::Separator and modified.
+void DrawBlock(float offsetX, float offsetY, float sizeX, float sizeY, ImGuiCol colorIndex)
+{
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (window->SkipItems)
+        return;
+    ImGuiContext& g = *GImGui;
+
+    float x1 = window->Pos.x + offsetX;
+    float x2 = window->Pos.x + offsetX + sizeX;
+    float y1 = window->DC.CursorPos.y + offsetY;
+    float y2 = window->DC.CursorPos.y + offsetY + sizeY;
+
+    const ImRect bb( ImVec2(x1, y1), ImVec2(x2, y2) );
+
+    window->DrawList->AddLine( bb.Min, ImVec2(bb.Max.x,bb.Min.y), ImGui::GetColorU32(colorIndex), sizeY );
+}
+
 }
