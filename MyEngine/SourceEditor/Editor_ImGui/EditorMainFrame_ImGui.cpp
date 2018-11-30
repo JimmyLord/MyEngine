@@ -1369,7 +1369,7 @@ void EditorMainFrame_ImGui::AddObjectList()
                         ImGui::PushID( scenename );
                         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                         {
-                            AddMenuOptionsForCreatingGameObjects( 0, (SceneID)sceneindex );
+                            AddContextMenuOptionsForCreatingGameObjects( 0, (SceneID)sceneindex );
 
                             if( ImGui::MenuItem( "Unload scene (TODO)" ) )
                             {
@@ -1400,7 +1400,34 @@ void EditorMainFrame_ImGui::AddObjectList()
 
         AddPrefabFiles( forceOpen );
 
+        float cursorScreenPositionY = ImGui::GetCursorScreenPos().y;
+        float mousePositionY = ImGui::GetMousePos().y;
+
         ImGui::EndChild();
+
+        // Clear the "reorder" line each frame.
+        // Done here after all gameobjects and the reorder line were drawn.
+        m_pGameObjectToDrawReorderLineAfter = 0;
+
+        // If GameObject is moved into blank area of object list, move it as last object in last scene.
+        if( mousePositionY > cursorScreenPositionY )
+        {
+            // Find the last scene.
+            int sceneIndex = 0;
+            for( sceneIndex=MAX_SCENES_LOADED-1; sceneIndex>=0; sceneIndex-- )
+            {
+                if( g_pComponentSystemManager->GetSceneInfo( (SceneID)sceneIndex )->m_InUse )
+                    break;
+            }
+
+            // Check for dropped object and pretend we're hovering over last gameobject in that scene.
+            if( sceneIndex >= 0 )
+            {
+                SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( (SceneID)sceneIndex );
+                GameObject* pGameObject = (GameObject*)pSceneInfo->m_GameObjects.GetTail();
+                bool dragDropPayloadAcceptedOnRelease = OnDropObjectList( pGameObject, true );
+            }
+        }
 
         if( m_ObjectListFilter[0] != 0 )
         {
@@ -1626,7 +1653,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     {
                         if( ImGui::BeginMenu( "Add Component" ) )
                         {
-                            AddMenuOptionsForAddingComponents( pGameObject );
+                            AddContextMenuOptionsForAddingComponents( pGameObject );
                             ImGui::EndMenu();
                         }
                     }
@@ -1634,7 +1661,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     // Menu options to add child GameObjects.
                     if( ImGui::BeginMenu( "Add Child" ) )
                     {
-                        AddMenuOptionsForCreatingGameObjects( pGameObject, pGameObject->GetSceneID() );
+                        AddContextMenuOptionsForCreatingGameObjects( pGameObject, pGameObject->GetSceneID() );
                         ImGui::EndMenu();
                     }
 
@@ -1706,7 +1733,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         }
 
         // Handle dropping things on GameObjects or Prefabs.
-        bool dragDropPayloadAcceptedOnRelease = OnDropObjectList( pGameObject );
+        bool dragDropPayloadAcceptedOnRelease = OnDropObjectList( pGameObject, false );
 
         ImGui::PopID(); // ImGui::PushID( pGameObject );
 
@@ -2313,7 +2340,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
     ImGui::End();
 }
 
-void EditorMainFrame_ImGui::AddMenuOptionsForAddingComponents(GameObject* pGameObject)
+void EditorMainFrame_ImGui::AddContextMenuOptionsForAddingComponents(GameObject* pGameObject)
 {
     int first = 0;
     if( pGameObject->GetTransform() != 0 )
@@ -2373,7 +2400,7 @@ void EditorMainFrame_ImGui::AddMenuOptionsForAddingComponents(GameObject* pGameO
 
 }
 
-void EditorMainFrame_ImGui::AddMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID)
+void EditorMainFrame_ImGui::AddContextMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID)
 {
     GameObject* pGameObjectCreated = 0;
                             
@@ -2445,6 +2472,38 @@ void EditorMainFrame_ImGui::AddMenuOptionsForCreatingGameObjects(GameObject* pPa
         }
         g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
     }
+}
+
+void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject)
+{
+    const char* extension = pFile->GetExtensionWithDot();
+
+    if( strcmp( extension, ".my2daniminfo" ) == 0 )
+    {
+        if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_2DAnimationEditor] ) )
+        {
+            My2DAnimInfo* pAnim = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, SCENEID_Any )->Get2DAnimInfo();
+            Edit2DAnimInfo( pAnim );
+            ImGui::CloseCurrentPopup();
+        }
+    }
+    else if( pSelectedObject != 0 && strcmp( extension, ".glsl" ) == 0 )
+    {
+        if( ImGui::MenuItem( "Create Material Using Shader" ) )
+        {
+            MaterialDefinition* pMat = g_pMaterialManager->CreateMaterial( pFile->GetFilenameWithoutExtension(), "Data/Materials" );
+            pMat->SetShader( (ShaderGroup*)pSelectedObject );
+            ImGui::CloseCurrentPopup();
+        }
+    }
+    else
+    {
+        if( ImGui::MenuItem( "View in Watch Window (TODO)" ) )   { pFile->OnPopupClick( pFile, MyFileObject::RightClick_ViewInWatchWindow );    ImGui::CloseCurrentPopup(); }
+    }
+    if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
+    if( ImGui::MenuItem( "Open Containing Folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
+    if( ImGui::MenuItem( "Unload File" ) )            { pFile->OnPopupClick( pFile, MyFileObject::RightClick_UnloadFile );           ImGui::CloseCurrentPopup(); }
+    if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
 }
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
@@ -3774,38 +3833,6 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
     ImGui::End();
 }
 
-void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject)
-{
-    const char* extension = pFile->GetExtensionWithDot();
-
-    if( strcmp( extension, ".my2daniminfo" ) == 0 )
-    {
-        if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_2DAnimationEditor] ) )
-        {
-            My2DAnimInfo* pAnim = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, SCENEID_Any )->Get2DAnimInfo();
-            Edit2DAnimInfo( pAnim );
-            ImGui::CloseCurrentPopup();
-        }
-    }
-    else if( pSelectedObject != 0 && strcmp( extension, ".glsl" ) == 0 )
-    {
-        if( ImGui::MenuItem( "Create Material Using Shader" ) )
-        {
-            MaterialDefinition* pMat = g_pMaterialManager->CreateMaterial( pFile->GetFilenameWithoutExtension(), "Data/Materials" );
-            pMat->SetShader( (ShaderGroup*)pSelectedObject );
-            ImGui::CloseCurrentPopup();
-        }
-    }
-    else
-    {
-        if( ImGui::MenuItem( "View in Watch Window (TODO)" ) )   { pFile->OnPopupClick( pFile, MyFileObject::RightClick_ViewInWatchWindow );    ImGui::CloseCurrentPopup(); }
-    }
-    if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
-    if( ImGui::MenuItem( "Open Containing Folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
-    if( ImGui::MenuItem( "Unload File" ) )            { pFile->OnPopupClick( pFile, MyFileObject::RightClick_UnloadFile );           ImGui::CloseCurrentPopup(); }
-    if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
-}
-
 void OnDropSoundCueOnEditorWindow(SoundCue* pSoundCue)
 {
     if( pSoundCue )
@@ -3825,24 +3852,24 @@ void OnDropSoundCueOnEditorWindow(SoundCue* pSoundCue)
     }
 }
 
-bool EditorMainFrame_ImGui::OnDropObjectList(GameObject* pGameObject)
+bool EditorMainFrame_ImGui::OnDropObjectList(GameObject* pGameObject, bool forceReorder)
 {
     bool dragDropPayloadAcceptedOnRelease = false;
     bool dragDropOfItemWillResultInAReorder = false;
 
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-    if( m_pGameObjectToDrawReorderLineAfter == pGameObject )
-        m_pGameObjectToDrawReorderLineAfter = 0;
-
     if( ImGui::BeginDragDropTarget() )
     {
         if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", ImGuiDragDropFlags_AcceptPeekOnly ) )
         {
+            // Clear the "reorder" line.
+            m_pGameObjectToDrawReorderLineAfter = 0;
+
             // If there's a drag/drop payload and it's a gameobject, then:
             //     if we're hovering over the top half of the item, reparent the dropped item.
             //     if we're hovering over the bottom half, reorder the dropped item after the hovered item.
-            if( ImGui::GetMousePos().y > ImGui::GetItemRectMin().y + (ImGui::GetItemRectSize().y * 0.5f) )
+            if( forceReorder || (ImGui::GetMousePos().y > ImGui::GetItemRectMin().y + (ImGui::GetItemRectSize().y * 0.5f)) )
             {
                 dragDropOfItemWillResultInAReorder = true;
                 m_pGameObjectToDrawReorderLineAfter = pGameObject;

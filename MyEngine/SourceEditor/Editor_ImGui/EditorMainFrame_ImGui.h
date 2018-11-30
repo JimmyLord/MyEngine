@@ -151,9 +151,13 @@ protected:
     void AddLogWindow();
     void AddMemoryPanel();
 
-    void AddMenuOptionsForAddingComponents(GameObject* pGameObject);
-    void AddMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID);
+    void AddContextMenuOptionsForAddingComponents(GameObject* pGameObject);
+    void AddContextMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID);
 
+public:
+    void AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject = 0);
+
+protected:
     void AddMemoryPanel_Materials();
     void AddMemoryPanel_Textures();
     void AddMemoryPanel_ShaderGroups();
@@ -169,11 +173,7 @@ protected:
     void AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV = ImVec2(0,0), ImVec2 endUV = ImVec2(1,1));
     void AddDebug_MousePicker();
 
-public:
-    void AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject = 0);
-
-protected:
-    bool OnDropObjectList(GameObject* pGameObject);
+    bool OnDropObjectList(GameObject* pGameObject, bool forceReorder);
     void OnDropEditorWindow();
 };
 
