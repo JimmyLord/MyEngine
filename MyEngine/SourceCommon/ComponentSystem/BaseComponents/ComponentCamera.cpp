@@ -451,13 +451,13 @@ void ComponentCamera::OnDrawFrame()
     g_GLStats.m_CurrentFramebufferHeight = m_WindowHeight;
 
 #if MYFW_EDITOR
-    // If we resize the window and we're in a wx build, clear the entire backbuffer for 2 frames.
+    // If we resize the window and we're in an editor build, clear the backbuffer.
     // This is required since we're potentially GL_SCISSOR_TEST'ing an uncleared area.
     if( m_ClearColorBuffer && m_FullClearsRequired > 0 )
     {
         glDisable( GL_SCISSOR_TEST );
-        //glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-        //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         m_FullClearsRequired--;
     }
