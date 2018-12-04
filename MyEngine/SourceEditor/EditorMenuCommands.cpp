@@ -221,6 +221,27 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+    case EditorMenuCommand_File_CreateAdditionalScene:
+        {
+            SceneID sceneid = g_pComponentSystemManager->GetNextSceneID();
+            g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", sceneid );
+            g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] = 0;
+        }
+        break;
+
+    case EditorMenuCommand_File_LoadAdditionalScene:
+        {
+            const char* filename = FileOpenDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
+            if( filename[0] != 0 )
+            {
+                char path[MAX_PATH];
+                strcpy_s( path, MAX_PATH, filename );
+                const char* relativepath = GetRelativePath( path );
+                LoadScene( relativepath, false );
+            }
+        }
+        break;
+
     case EditorMenuCommand_File_SaveScene:
         {
             if( g_pEngineCore->IsInEditorMode() == false )

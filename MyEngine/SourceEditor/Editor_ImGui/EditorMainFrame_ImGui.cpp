@@ -846,8 +846,14 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                     EditorMenuCommand( EditorMenuCommand_File_LoadScene );
             }
 
-            if( ImGui::MenuItem( "Create Additional Scene (TODO)" ) ) {}
-            if( ImGui::MenuItem( "Load Additional Scene... (TODO)" ) ) {}
+            if( ImGui::MenuItem( "Create Additional Scene" ) )
+            {
+                EditorMenuCommand( EditorMenuCommand_File_CreateAdditionalScene );
+            }
+            if( ImGui::MenuItem( "Load Additional Scene..." ) )
+            {
+                EditorMenuCommand( EditorMenuCommand_File_LoadAdditionalScene );
+            }
             if( ImGui::MenuItem( "Save Scene", "Ctrl-S" ) )
             {
                 EditorMenuCommand( EditorMenuCommand_File_SaveScene );
@@ -1424,7 +1430,10 @@ void EditorMainFrame_ImGui::AddObjectList()
             {
                 SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( (SceneID)sceneIndex );
                 GameObject* pGameObject = (GameObject*)pSceneInfo->m_GameObjects.GetTail();
-                bool dragDropPayloadAcceptedOnRelease = OnDropObjectList( pGameObject, true );
+                if( pGameObject )
+                {
+                    OnDropObjectList( pGameObject, true );
+                }
             }
         }
 
@@ -3903,6 +3912,8 @@ bool EditorMainFrame_ImGui::OnDropObjectList(GameObject* pGameObject, bool force
 
             if( dragDropOfItemWillResultInAReorder )
             {
+                MyAssert( pGameObject != 0 );
+
                 pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reorder );
                 m_pGameObjectToDrawReorderLineAfter = 0;
             }
