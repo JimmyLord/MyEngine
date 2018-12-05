@@ -146,6 +146,7 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
             .addData( "density", &Component2DCollisionObject::m_Density ) // float
             .addFunction( "ClearVelocity", &Component2DCollisionObject::ClearVelocity ) // void Component2DCollisionObject::ClearVelocity()
             .addFunction( "SetPositionAndAngle", &Component2DCollisionObject::SetPositionAndAngle ) // void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
+            .addFunction( "SetSensor", &Component2DCollisionObject::SetSensor ) // float Component2DCollisionObject::SetSensor(bool isSensor)
             .addFunction( "ApplyForce", &Component2DCollisionObject::ApplyForce ) // void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
             .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
             .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
@@ -774,13 +775,16 @@ void Component2DCollisionObject::SyncRigidBodyToTransform()
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void Component2DCollisionObject::ClearVelocity()
+Vector2 Component2DCollisionObject::GetLinearVelocity()
 {
-    if( m_pBody )
-    {
-        m_pBody->SetLinearVelocity( b2Vec2(0,0) );
-        m_pBody->SetAngularVelocity( 0 );
-    }
+    b2Vec2 b2velocity = m_pBody->GetLinearVelocity();
+    return Vector2( b2velocity.x, b2velocity.y );
+}
+
+// Exposed to Lua, change elsewhere if function signature changes.
+float Component2DCollisionObject::GetMass()
+{
+    return m_pBody->GetMass();
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
@@ -789,6 +793,27 @@ void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float 
     b2Vec2 b2position = b2Vec2( newPosition.x, newPosition.y );
 
     m_pBody->SetTransform( b2position, angle ); 
+}
+
+// Exposed to Lua, change elsewhere if function signature changes.
+void Component2DCollisionObject::SetSensor(bool isSensor)
+{
+    m_IsSensor = isSensor;
+
+    if( m_pFixture )
+    {
+        m_pFixture->SetSensor( m_IsSensor );
+    }
+}
+
+// Exposed to Lua, change elsewhere if function signature changes.
+void Component2DCollisionObject::ClearVelocity()
+{
+    if( m_pBody )
+    {
+        m_pBody->SetLinearVelocity( b2Vec2(0,0) );
+        m_pBody->SetAngularVelocity( 0 );
+    }
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
@@ -815,17 +840,4 @@ void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 loc
     b2Vec2 worldpoint = m_pBody->GetWorldPoint( massData.center + *(b2Vec2*)&localpoint );
     
     m_pBody->ApplyLinearImpulse( b2impulse, worldpoint, true );
-}
-
-// Exposed to Lua, change elsewhere if function signature changes.
-Vector2 Component2DCollisionObject::GetLinearVelocity()
-{
-    b2Vec2 b2velocity = m_pBody->GetLinearVelocity();
-    return Vector2( b2velocity.x, b2velocity.y );
-}
-
-// Exposed to Lua, change elsewhere if function signature changes.
-float Component2DCollisionObject::GetMass()
-{
-    return m_pBody->GetMass();
 }

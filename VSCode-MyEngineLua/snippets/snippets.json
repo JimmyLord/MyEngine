@@ -990,6 +990,7 @@
     //            .addData( "density", &Component2DCollisionObject::m_Density ) // float
     //            .addFunction( "ClearVelocity", &Component2DCollisionObject::ClearVelocity ) // void Component2DCollisionObject::ClearVelocity()
     //            .addFunction( "SetPositionAndAngle", &Component2DCollisionObject::SetPositionAndAngle ) // void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
+    //            .addFunction( "SetSensor", &Component2DCollisionObject::SetSensor ) // float Component2DCollisionObject::SetSensor(bool isSensor)
     //            .addFunction( "ApplyForce", &Component2DCollisionObject::ApplyForce ) // void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
     //            .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
     //            .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
@@ -1003,6 +1004,7 @@
         "description": "Set linear and angular velocity to zero."
     },
     //TODO            .addFunction( "SetPositionAndAngle", &Component2DCollisionObject::SetPositionAndAngle ) // void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
+    //TODO            .addFunction( "SetSensor", &Component2DCollisionObject::SetSensor ) // float Component2DCollisionObject::SetSensor(bool isSensor)
     "Component2DCollisionObject:ApplyForce": {
         "prefix": "Component2DCollisionObject:ApplyForce",
         "body": "${1:Component2DCollisionObject instance}:ApplyForce( ${2:Vector2 force}, ${2:Vector2 localpoint} )",

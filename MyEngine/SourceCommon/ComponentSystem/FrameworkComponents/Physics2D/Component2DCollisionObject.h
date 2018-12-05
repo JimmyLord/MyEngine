@@ -84,12 +84,18 @@ public:
 
     void SyncRigidBodyToTransform();
 
-    void ClearVelocity();
-    void SetPositionAndAngle(Vector2 newPosition, float angle);
-    void ApplyForce(Vector2 force, Vector2 localpoint);
-    void ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint);
+    // Getters.
     Vector2 GetLinearVelocity();
     float GetMass();
+
+    // Setters.
+    void SetPositionAndAngle(Vector2 newPosition, float angle);
+    void SetSensor(bool isSensor);
+
+    // Forces.
+    void ClearVelocity();
+    void ApplyForce(Vector2 force, Vector2 localpoint);
+    void ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint);
 
 protected:
     // Callback functions for various events.
