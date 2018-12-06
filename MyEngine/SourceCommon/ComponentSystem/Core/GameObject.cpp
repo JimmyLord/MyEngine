@@ -280,7 +280,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
 
 #if MYFW_USING_WX
         // Move as last item in parent.
-        GameObject* pLastChild = (GameObject*)pParentGameObject->GetChildList()->GetTail();
+        GameObject* pLastChild = pParentGameObject->GetChildList()->GetTail();
         if( pLastChild != 0 )
             g_pPanelObjectList->Tree_MoveObject( this, pLastChild, false );
         else
@@ -461,10 +461,8 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         cJSON* jChildrenArray = cJSON_CreateArray();
         cJSON_AddItemToObject( jGameObject, "Children", jChildrenArray );
         
-        for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
+        for( GameObject* pChildGameObject = m_ChildList.GetHead(); pChildGameObject; pChildGameObject = pChildGameObject->GetNext() )
         {
-            GameObject* pChildGameObject = (GameObject*)pNode;
-
             cJSON* jChildObject = pChildGameObject->ExportAsJSONPrefab( pPrefab, assignNewChildIDs, assignNewComponentIDs );
             MyAssert( jChildObject );
             cJSON_AddItemToArray( jChildrenArray, jChildObject );
@@ -504,6 +502,14 @@ void GameObject::SetEnabled(bool enabled, bool affectchildren)
     if( m_Enabled == enabled )
         return;
 
+    // If game is running and we want to enable/disable an object, then send a message and do it at the start of the next frame.
+    if( g_pEngineCore->IsInEditorMode() == false )
+    {
+        MyEvent* pEvent = g_pEventManager->CreateNewEvent( (EventTypes)3945 );
+        pEvent->AttachBool( "Enable", enabled );
+        g_pEventManager->SendEventNow( pEvent );
+    }
+
     m_Enabled = enabled;
 
     // Un/register all component callbacks.
@@ -529,7 +535,7 @@ void GameObject::SetEnabled(bool enabled, bool affectchildren)
         while( pChild )
         {
             pChild->SetEnabled( enabled, true );
-            pChild = (GameObject*)pChild->GetNext();
+            pChild = pChild->GetNext();
         }
     }
 }
@@ -725,7 +731,7 @@ void GameObject::SetManaged(bool managed)
             // Place the child under the parent in the object list.
             if( m_pParentGameObject )
             {
-                GameObject* pPrevChild = (GameObject*)GetPrev();
+                GameObject* pPrevChild = GetPrev();
 
                 if( pPrevChild != 0 )
                     gameobjectid = g_pPanelObjectList->Tree_MoveObject( this, pPrevChild, false );
@@ -885,11 +891,9 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
             pComponent->Reset();
 
         // re-parent all child transforms, if they have one
-        for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
+        for( GameObject* pChildGameObject = m_ChildList.GetHead(); pChildGameObject; pChildGameObject = pChildGameObject->GetNext() )
         {
             // TODO: recurse through children
-            GameObject* pChildGameObject = (GameObject*)pNode;
-
             if( pChildGameObject->m_pComponentTransform )
             {
                 pChildGameObject->m_pComponentTransform->SetParentTransform( m_pComponentTransform );
@@ -966,11 +970,9 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
         found = true;
 
         // Unparent all child transforms, if they have one
-        for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
+        for( GameObject* pChildGameObject = m_ChildList.GetHead(); pChildGameObject; pChildGameObject = pChildGameObject->GetNext() )
         {
             // TODO: recurse through children
-            GameObject* pChildGameObject = (GameObject*)pNode;
-
             if( pChildGameObject->m_pComponentTransform )
             {
                 pChildGameObject->m_pComponentTransform->SetParentTransform( 0 );
@@ -1283,7 +1285,7 @@ bool GameObject::IsMissingPrefabChild(uint32 childID)
             break;
         }
 
-        pChild = (GameObject*)pChild->GetNext();
+        pChild = pChild->GetNext();
     }
 
     // If the prefab doesn't expect this child to be attached, the child isn't missing.
@@ -1301,7 +1303,7 @@ bool GameObject::IsMissingPrefabChild(uint32 childID)
             return false;
         }
 
-        pChild = (GameObject*)pChild->GetNext();
+        pChild = pChild->GetNext();
     }
 
     // The prefab expects this child and we don't have one, so it's missing.
@@ -1836,8 +1838,8 @@ void GameObject::Editor_SetGameObjectAndAllChildrenToInheritFromPrefab(PrefabObj
     m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
 
     // Set children.
-    GameObject* pChildGO = (GameObject*)GetChildList()->GetHead();
-    GameObject* pPrefabChildGO = (GameObject*)pPrefab->GetGameObject()->GetChildList()->GetHead();
+    GameObject* pChildGO = GetChildList()->GetHead();
+    GameObject* pPrefabChildGO = pPrefab->GetGameObject()->GetChildList()->GetHead();
     while( pChildGO )
     {
         // Temp assert, test nested prefabs and replace with an 'if'
@@ -1846,8 +1848,8 @@ void GameObject::Editor_SetGameObjectAndAllChildrenToInheritFromPrefab(PrefabObj
         uint32 prefabChildChildID = pPrefabChildGO->GetPrefabRef()->GetChildID();
         pChildGO->Editor_SetGameObjectAndAllChildrenToInheritFromPrefab( pPrefab, prefabChildChildID );
 
-        pChildGO = (GameObject*)pChildGO->GetNext();
-        pPrefabChildGO = (GameObject*)pPrefabChildGO->GetNext();
+        pChildGO = pChildGO->GetNext();
+        pPrefabChildGO = pPrefabChildGO->GetNext();
     }
 }
 
@@ -1898,9 +1900,9 @@ void GameObject::AddToList(std::vector<GameObject*>* pList)
     // If this is a folder, select all objects inside.
     if( IsFolder() )
     {
-        for( CPPListNode* pNode = GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
+        for( GameObject* pGameObject = GetChildList()->GetHead(); pGameObject; pGameObject = pGameObject->GetNext() )
         {
-            ((GameObject*)pNode)->AddToList( pList );
+            pGameObject->AddToList( pList );
         }
     }
 }

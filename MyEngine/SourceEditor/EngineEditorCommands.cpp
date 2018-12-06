@@ -713,7 +713,7 @@ EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameO
         // Don't allow same object to be in the list twice.
         if( std::find( m_ObjectsDeleted.begin(), m_ObjectsDeleted.end(), pObject ) == m_ObjectsDeleted.end() )
         {
-            m_PreviousGameObjectsInObjectList.push_back( (GameObject*)pObject->GetPrev() );
+            m_PreviousGameObjectsInObjectList.push_back( pObject->GetPrev() );
             m_ObjectsDeleted.push_back( pObject );
         }
     }
@@ -1960,7 +1960,7 @@ EditorCommand_ReorderOrReparentGameObjects::EditorCommand_ReorderOrReparentGameO
         m_SelectedObjects.push_back( selectedobjects[i] );
 
         m_OldSceneIDs.push_back( selectedobjects[i]->GetSceneID() );
-        m_OldPreviousObjectInList.push_back( (GameObject*)selectedobjects[i]->GetPrev() );
+        m_OldPreviousObjectInList.push_back( selectedobjects[i]->GetPrev() );
         m_OldParent.push_back( selectedobjects[i]->GetParentGameObject() );
     }
 
@@ -1980,7 +1980,7 @@ void EditorCommand_ReorderOrReparentGameObjects::Do()
     // Move/Reparent all of the selected items.
     for( int i=(int)m_SelectedObjects.size()-1; i>=0; i-- )
     {
-        GameObject* pGameObject = (GameObject*)m_SelectedObjects[i];
+        GameObject* pGameObject = m_SelectedObjects[i];
 
         // Change the selected gameobject's sceneid to match the one dropped on.
         pGameObject->SetSceneID( m_SceneIDDroppedOn );
@@ -2032,7 +2032,7 @@ void EditorCommand_ReorderOrReparentGameObjects::Undo()
     // Move/Reparent all of the selected items.
     for( unsigned int i=0; i<m_SelectedObjects.size(); i++ )
     {
-        GameObject* pGameObject = (GameObject*)m_SelectedObjects[i];
+        GameObject* pGameObject = m_SelectedObjects[i];
 
         // Change the selected gameobject's sceneid back to it's original.
         pGameObject->SetSceneID( m_OldSceneIDs[i] );

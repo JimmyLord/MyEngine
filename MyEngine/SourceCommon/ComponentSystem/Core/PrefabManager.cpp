@@ -204,12 +204,10 @@ GameObject* PrefabObject::FindChildGameObject(uint32 childid, GameObject* pRootO
         return pRootObject;
 
     // Search through children to find the correct gameobject.
-    CPPListNode* pNextNode;
-    for( CPPListNode* pNode = pRootObject->GetChildList()->GetHead(); pNode != 0; pNode = pNextNode )
+    GameObject* pNextGameObject;
+    for( GameObject* pGameObject = pRootObject->GetChildList()->GetHead(); pGameObject != 0; pGameObject = pNextGameObject )
     {
-        pNextNode = pNode->GetNext();
-
-        GameObject* pGameObject = (GameObject*)pNode;
+        pNextGameObject = pGameObject->GetNext();
 
         if( pGameObject->GetPrefabRef()->GetChildID() == childid )
             return pGameObject;
@@ -256,14 +254,14 @@ void PrefabObject::AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObje
 
         // Get the child list from the GameObject, this should line up with the children in the json struct.
         CPPListHead* pChildGameObjectList = pGameObject->GetChildList();
-        GameObject* pChildGameObject = (GameObject*)pChildGameObjectList->GetHead();
+        GameObject* pChildGameObject = pChildGameObjectList->GetHead();
 
         for( int i=0; i<childarraysize; i++ )
         {
             cJSON* jChildGameObject = cJSON_GetArrayItem( jChildrenArray, i );
             AddToObjectList( treeID, jChildGameObject, pChildGameObject );
 
-            pChildGameObject = (GameObject*)pChildGameObject->GetNext();
+            pChildGameObject = pChildGameObject->GetNext();
         }
     }
 }
@@ -489,7 +487,7 @@ uint32 FindHighestPrefabComponentID(GameObject* pGameObject)
         if( ID > highestID )
             highestID = ID;
 
-        pChild = (GameObject*)pChild->GetNext();
+        pChild = pChild->GetNext();
     }
 #endif //MYFW_EDITOR
 

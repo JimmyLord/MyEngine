@@ -17,7 +17,7 @@ struct GameObjectDeletedCallbackStruct : CPPListNode
     GameObjectDeletedCallbackFunc pFunc;
 };
 
-class GameObject : public CPPListNode
+class GameObject : public TCPPListNode<GameObject*>
 #if MYFW_USING_WX
 , public wxEvtHandler
 #endif
@@ -34,7 +34,7 @@ protected:
     GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
 
     GameObject* m_pParentGameObject;
-    CPPListHead m_ChildList; // Child game objects, contains the only copy of pointers to each child.
+    TCPPListHead<GameObject*> m_ChildList; // Child game objects, contains the only copy of pointers to each child.
 
     ComponentGameObjectProperties m_Properties;
 
@@ -65,9 +65,9 @@ public:
 
     bool IsFolder() { return m_IsFolder; }
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
-    CPPListHead* GetChildList() { return &m_ChildList; }
-    GameObject* GetFirstChild() { return (GameObject*)m_ChildList.GetHead(); }
-    GameObject* GetNextGameObjectInList() { return (GameObject*)this->GetNext(); }
+    TCPPListHead<GameObject*>* GetChildList() { return &m_ChildList; }
+    GameObject* GetFirstChild() { return m_ChildList.GetHead(); }
+    GameObject* GetNextGameObjectInList() { return this->GetNext(); }
     void SetGameObjectThisInheritsFrom(GameObject* pObj);
 
     // Parent gameobject, is terms of transform (should also work with folders/gameobject without transforms)

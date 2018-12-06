@@ -2015,21 +2015,19 @@ void ComponentBase::SyncVariableInChildren(ComponentVariable* pVar)
 
         SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
 
-        if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
+        GameObject* pFirstGameObject = pSceneInfo->m_GameObjects.GetHead();
+        if( pFirstGameObject )
         {
-            GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
-            SyncVariableInChildrenInGameObjectListWithNewValue( first, pVar );
+            SyncVariableInChildrenInGameObjectListWithNewValue( pFirstGameObject, pVar );
         }
     }
 }
 
-void ComponentBase::SyncVariableInChildrenInGameObjectListWithNewValue(GameObject* first, ComponentVariable* pVar)
+void ComponentBase::SyncVariableInChildrenInGameObjectListWithNewValue(GameObject* pFirstGameObject, ComponentVariable* pVar)
 {
     // find children of this gameobject and change their values as well, if their value matches the old value.
-    for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
+    for( GameObject* pGameObject = pFirstGameObject; pGameObject; pGameObject = pGameObject->GetNext() )
     {
-        GameObject* pGameObject = (GameObject*)pNode;
-
         MyAssert( this->m_pGameObject != 0 );
         if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {
@@ -3254,21 +3252,19 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
         SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
 #endif //MYFW_USING_WX
 
-        if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
+        if( pSceneInfo->m_GameObjects.GetHead() )
         {
-            GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
-            UpdateChildrenInGameObjectListWithNewValue( first, fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            GameObject* pFirstGameObject = pSceneInfo->m_GameObjects.GetHead();
+            UpdateChildrenInGameObjectListWithNewValue( pFirstGameObject, fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
     }
 }
 
-void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer)
+void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* pFirstGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer)
 {
     // find children of this gameobject and change their values as well, if their value matches the old value.
-    for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
+    for( GameObject* pGameObject = pFirstGameObject; pGameObject; pGameObject = pGameObject->GetNext() )
     {
-        GameObject* pGameObject = (GameObject*)pNode;
-
         MyAssert( this->m_pGameObject != 0 );
         if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {

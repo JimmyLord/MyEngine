@@ -140,7 +140,7 @@ bool ComponentTransform::IsAnyParentInList(std::vector<GameObject*>& gameobjects
     {
         for( unsigned int i=0; i<gameobjects.size(); i++ )
         {
-            GameObject* pGameObject = (GameObject*)gameobjects[i];
+            GameObject* pGameObject = gameobjects[i];
             MyAssert( pGameObject->IsA( "GameObject" ) );
 
             if( pGameObject == pTransform->m_pGameObject )

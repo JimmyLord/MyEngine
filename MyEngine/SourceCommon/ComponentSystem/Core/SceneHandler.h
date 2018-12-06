@@ -19,7 +19,7 @@ public:
     wxTreeItemId m_TreeID;
 #endif
     
-    CPPListHead m_GameObjects; // scene level game objects, children are stored in a list inside the game object.
+    TCPPListHead<GameObject*> m_GameObjects; // scene level game objects, children are stored in a list inside the game object.
     Box2DWorld* m_pBox2DWorld; // each scene has it's own Box2D world, TODO: runtime created physics objects won't work.
 
     char m_FullPath[MAX_PATH];

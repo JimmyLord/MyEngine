@@ -960,9 +960,9 @@ void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, b
                 SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
 #endif //MYFW_USING_WX
 
-                if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
+                if( pSceneInfo->m_GameObjects.GetHead() )
                 {
-                    GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+                    GameObject* first = pSceneInfo->m_GameObjects.GetHead();
                     UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, first, finishedchanging, oldvalue, oldpointer );
                 } 
             }
@@ -972,11 +972,9 @@ void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, b
 
 void ComponentLuaScript::UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedchanging, double oldvalue, void* oldpointer)
 {
-    // find children of this gameobject and change their values as well, if their value matches the old value.
-    for( CPPListNode* pCompNode = first; pCompNode; pCompNode = pCompNode->GetNext() )
+    // Find children of this gameobject and change their values as well, if their value matches the old value.
+    for( GameObject* pGameObject = first; pGameObject; pGameObject = pGameObject->GetNext() )
     {
-        GameObject* pGameObject = (GameObject*)pCompNode;
-
         if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {
             UpdateChildGameObjectWithNewValue( pVar, varindex, pGameObject, finishedchanging, oldvalue, oldpointer );

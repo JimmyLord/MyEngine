@@ -2299,10 +2299,8 @@ void EngineCore::OnObjectListTreeMultipleSelection(bool prepForDraggingCopy) //S
             // If this is a folder, select all objects inside.
             if( selectContentsOfSelectedFolders && pGameObject->IsFolder() )
             {
-                for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
+                for( GameObject* pGameObject = pGameObject->GetChildList()->GetHead(); pGameObject; pGameObject = pGameObject->GetNext() )
                 {
-                    GameObject* pGameObject = (GameObject*)pNode;
-
                     if( pGameObject->IsManaged() )
                     {
                         pGameObject->AddToList( &m_pEditorState->m_pSelectedObjects );

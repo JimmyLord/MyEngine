@@ -25,7 +25,7 @@ void SceneInfo::Reset()
     // Delete any managed objects from the scene.
     while( m_GameObjects.GetHead() )
     {
-        GameObject* pObject = (GameObject*)m_GameObjects.RemHead();
+        GameObject* pObject = m_GameObjects.RemHead();
 
         // Ignore unmanaged object, they should be deleted elsewhere.
         if( pObject->IsManaged() == false )
@@ -216,7 +216,7 @@ void SceneHandler::HandleRightClickCommand(int id, GameObject* pParentGameObject
         {
 #if MYFW_USING_WX
             // Move as last item in parent.
-            GameObject* pLastChild = (GameObject*)pParentGameObject->GetChildList()->GetTail();
+            GameObject* pLastChild = pParentGameObject->GetChildList()->GetTail();
             if( pLastChild != 0 )
                 g_pPanelObjectList->Tree_MoveObject( pGameObjectCreated, pLastChild, false );
             else

@@ -1389,13 +1389,13 @@ void EditorMainFrame_ImGui::AddObjectList()
                     if( treeNodeIsOpen )
                     {
                         // Add GameObjects that are in root
-                        GameObject* pGameObject = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+                        GameObject* pGameObject = pSceneInfo->m_GameObjects.GetHead();
                         while( pGameObject )
                         {
                             // Add GameObjects, their children and their components
                             AddGameObjectToObjectList( pGameObject, 0 );
 
-                            pGameObject = (GameObject*)pGameObject->GetNext();
+                            pGameObject = pGameObject->GetNext();
                         }
                         ImGui::TreePop();
                     }
@@ -1429,7 +1429,7 @@ void EditorMainFrame_ImGui::AddObjectList()
             if( sceneIndex >= 0 )
             {
                 SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( (SceneID)sceneIndex );
-                GameObject* pGameObject = (GameObject*)pSceneInfo->m_GameObjects.GetTail();
+                GameObject* pGameObject = pSceneInfo->m_GameObjects.GetTail();
                 if( pGameObject )
                 {
                     OnDropObjectList( pGameObject, true );
@@ -1546,7 +1546,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 while( pChildGameObject )
                 {
                     AddGameObjectToObjectList( pChildGameObject, pPrefab );
-                    pChildGameObject = (GameObject*)pChildGameObject->GetNext();
+                    pChildGameObject = pChildGameObject->GetNext();
                 }
 
                 // Substrings weren't found, so kick out.
@@ -1768,7 +1768,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 pEditorState->ClearSelectedObjectsAndComponents();
 
                 SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( pGameObject->GetSceneID() );
-                GameObject* pFirstGameObjectInScene = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+                GameObject* pFirstGameObjectInScene = pSceneInfo->m_GameObjects.GetHead();
 
                 // If there was no item previously interacted with, set it to the first object in the scene.
                 if( m_pLastGameObjectInteractedWithInObjectPanel == 0 )
@@ -1792,7 +1792,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                         break;
                     }
 
-                    pCurrentGameObject = (GameObject*)pCurrentGameObject->GetNext();
+                    pCurrentGameObject = pCurrentGameObject->GetNext();
                     if( pCurrentGameObject == 0 )
                         break;
                 }
@@ -1813,7 +1813,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                             break;
                         }
 
-                        pCurrentGameObject = (GameObject*)pCurrentGameObject->GetPrev();
+                        pCurrentGameObject = pCurrentGameObject->GetPrev();
                         if( pCurrentGameObject == 0 )
                             break;
                     }
@@ -1847,13 +1847,11 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     // If this is a folder and it's the only selection, then select all objects inside the folder as well.
                     if( pGameObject->IsFolder() && pEditorState->m_pSelectedObjects.size() == 1 )
                     {
-                        for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
+                        for( GameObject* pChildGameObject = pGameObject->GetChildList()->GetHead(); pChildGameObject; pChildGameObject = pChildGameObject->GetNext() )
                         {
-                            GameObject* pGameObject = (GameObject*)pNode;
-
-                            if( pGameObject->IsManaged() )
+                            if( pChildGameObject->IsManaged() )
                             {
-                                pGameObject->AddToList( &pEditorState->m_pSelectedObjects );
+                                pChildGameObject->AddToList( &pEditorState->m_pSelectedObjects );
                             }
                         }
                     }
@@ -1875,7 +1873,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             while( pChildGameObject )
             {
                 AddGameObjectToObjectList( pChildGameObject, pPrefab );
-                pChildGameObject = (GameObject*)pChildGameObject->GetNext();
+                pChildGameObject = pChildGameObject->GetNext();
             }
 
             // Don't show components, deleted prefab children or deleted prefab components if forced open.

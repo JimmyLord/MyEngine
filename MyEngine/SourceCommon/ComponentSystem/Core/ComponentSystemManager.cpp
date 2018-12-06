@@ -218,10 +218,8 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
     if( first == 0 )
         return;
 
-    for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
+    for( GameObject* pGameObject = first; pGameObject; pGameObject = pGameObject->GetNext() )
     {
-        GameObject* pGameObject = (GameObject*)pNode;
-
         if( strncmp( pGameObject->GetName(), "Load", 4 ) == 0 )
         {
             for( unsigned int i=0; i<pGameObject->GetComponentCount(); i++ )
@@ -352,9 +350,9 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
             SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 #endif //MYFW_USING_WX
 
-            if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
+            if( pSceneInfo->m_GameObjects.GetHead() )
             {
-                MoveAllFilesNeededForLoadingScreenToStartOfFileList( (GameObject*)pSceneInfo->m_GameObjects.GetHead() );
+                MoveAllFilesNeededForLoadingScreenToStartOfFileList( pSceneInfo->m_GameObjects.GetHead() );
             }
         }
     }
@@ -379,7 +377,7 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
             SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 #endif //MYFW_USING_WX
 
-            GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+            GameObject* first = pSceneInfo->m_GameObjects.GetHead();
             if( first && ( first->GetSceneID() == sceneid || savingallscenes ) )
             {
                 SaveGameObjectListToJSONArray( gameobjectarray, transformarray, first, savingallscenes );
@@ -421,10 +419,8 @@ char* ComponentSystemManager::ExportBox2DSceneToJSON(SceneID sceneid)
 
 void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid)
 {
-    for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
+    for( GameObject* pGameObject = first; pGameObject; pGameObject = pGameObject->GetNext() )
     {
-        GameObject* pGameObject = (GameObject*)pNode;
-
         // Only save managed GameObjects, they will be marked as unmanaged if deleted and still in undo list.
         if( pGameObject->IsManaged() )
         {
@@ -1351,11 +1347,10 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
 
         if( sceneIDToClear == SCENEID_AllScenes || (SceneID)i == sceneIDToClear )
         {
-            for( CPPListNode* pNode = pSceneInfo->m_GameObjects.GetHead(); pNode;  )
+            GameObject* pNextGameObject = 0;
+            for( GameObject* pGameObject = pSceneInfo->m_GameObjects.GetHead(); pGameObject; pGameObject = pNextGameObject )
             {
-                GameObject* pGameObject = (GameObject*)pNode;
-
-                pNode = pNode->GetNext();
+                pNextGameObject = pGameObject->GetNext();
 
                 SceneID sceneid = pGameObject->GetSceneID();
                 unsigned int gameObjectID = pGameObject->GetID();
@@ -1638,7 +1633,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
 
 #if MYFW_USING_WX
                     // Move as last item in parent.
-                    GameObject* pLastChild = (GameObject*)pGameObject->GetChildList()->GetTail();
+                    GameObject* pLastChild = pGameObject->GetChildList()->GetTail();
                     if( pLastChild != 0 )
                         g_pPanelObjectList->Tree_MoveObject( pChildGameObject, pLastChild, false );
                     else
@@ -1723,7 +1718,7 @@ void ComponentSystemManager::UnmanageGameObject(GameObject* pObject, bool unmana
         while( pChild )
         {
             UnmanageGameObject( pChild, true );
-            pChild = (GameObject*)pChild->GetNext();
+            pChild = pChild->GetNext();
         }
     }
 }
@@ -1754,7 +1749,7 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool managech
         while( pChild )
         {
             ManageGameObject( pChild, true );
-            pChild = (GameObject*)pChild->GetNext();
+            pChild = pChild->GetNext();
         }
     }
 }
@@ -1908,7 +1903,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         g_pPanelObjectList->Tree_MoveObject( pNewChild, pNewObject, true );
 #endif
 
-        pChild = (GameObject*)pChild->GetNext();
+        pChild = pChild->GetNext();
     }
 
     return pNewObject;
@@ -1944,7 +1939,7 @@ GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(SceneID sceneid)
     if( pSceneInfo == 0 )
         return 0;
 
-    GameObject* pGameObject = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+    GameObject* pGameObject = pSceneInfo->m_GameObjects.GetHead();
     if( pGameObject )
     {
         MyAssert( pGameObject->GetSceneID() == sceneid );
@@ -1961,7 +1956,7 @@ GameObject* ComponentSystemManager::FindGameObjectByID(SceneID sceneid, unsigned
         return 0;
 
     if( pSceneInfo->m_GameObjects.GetHead() )
-        return FindGameObjectByIDFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), goid );
+        return FindGameObjectByIDFromList( pSceneInfo->m_GameObjects.GetHead(), goid );
 
     return 0;
 }
@@ -1972,10 +1967,8 @@ GameObject* ComponentSystemManager::FindGameObjectByIDFromList(GameObject* list,
     if( list == 0 )
         return 0;
 
-    for( CPPListNode* node = list; node != 0; node = node->GetNext() )
+    for( GameObject* pGameObject = list; pGameObject != 0; pGameObject = pGameObject->GetNext() )
     {
-        GameObject* pGameObject = (GameObject*)node;
-
         if( pGameObject->IsManaged() && pGameObject->GetID() == goid )
             return pGameObject;
 
@@ -2011,7 +2004,7 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
 
         if( pSceneInfo->m_GameObjects.GetHead() )
         {
-            GameObject* pGameObjectFound = FindGameObjectByNameFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), name );
+            GameObject* pGameObjectFound = FindGameObjectByNameFromList( pSceneInfo->m_GameObjects.GetHead(), name );
             if( pGameObjectFound )
                 return pGameObjectFound;
         }
@@ -2030,7 +2023,7 @@ GameObject* ComponentSystemManager::FindGameObjectByNameInScene(SceneID sceneid,
 
     if( pSceneInfo->m_GameObjects.GetHead() )
     {
-        GameObject* pGameObjectFound = FindGameObjectByNameFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), name );
+        GameObject* pGameObjectFound = FindGameObjectByNameFromList( pSceneInfo->m_GameObjects.GetHead(), name );
         if( pGameObjectFound )
             return pGameObjectFound;
     }
@@ -2044,10 +2037,8 @@ GameObject* ComponentSystemManager::FindGameObjectByNameFromList(GameObject* lis
     if( list == 0 )
         return 0;
 
-    for( CPPListNode* node = list; node != 0; node = node->GetNext() )
+    for( GameObject* pGameObject = list; pGameObject != 0; pGameObject = pGameObject->GetNext() )
     {
-        GameObject* pGameObject = (GameObject*)node;
-
         if( strcmp( pGameObject->GetName(), name ) == 0 )
             return pGameObject;
 
@@ -2666,17 +2657,15 @@ unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
 
 void EditorInternal_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, CPPListNode* pListToSearch, PrefabObject* pPrefabToFind)
 {
-    for( CPPListNode* pNode = pListToSearch; pNode; pNode = pNode->GetNext() )
+    for( GameObject* pGameObject = (GameObject*)pListToSearch; pGameObject; pGameObject = pGameObject->GetNext() )
     {
-        GameObject* pGameObject = (GameObject*)pNode;
-
         if( pGameObject->GetPrefabRef()->GetPrefab() == pPrefabToFind )
         {
             pGameObjectList->push_back( pGameObject );
         }
 
         // Search children of GameObject.
-        CPPListHead* pChildList = pGameObject->GetChildList();
+        TCPPListHead<GameObject*>* pChildList = pGameObject->GetChildList();
         if( pChildList->GetHead() )
         {
             EditorInternal_GetListOfGameObjectsThatUsePrefab( pGameObjectList, pChildList->GetHead(), pPrefabToFind );
@@ -2708,10 +2697,8 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
         if( m_pSceneInfoMap[sceneindex].m_InUse == false )
             continue;
 
-        for( CPPListNode* pNode = m_pSceneInfoMap[sceneindex].m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
+        for( GameObject* pGameObject = m_pSceneInfoMap[sceneindex].m_GameObjects.GetHead(); pGameObject; pGameObject = pGameObject->GetNext() )
         {
-            GameObject* pGameObject = (GameObject*)pNode;
-
             numrefs += LogAllReferencesForFileInGameObject( pFile, pGameObject );
         }
     }
@@ -2773,7 +2760,7 @@ int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pF
     {
         numrefs += LogAllReferencesForFileInGameObject( pFile, pChild );
 
-        pChild = (GameObject*)pChild->GetNext();
+        pChild = pChild->GetNext();
     }
 
     return numrefs;

@@ -141,9 +141,8 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
     }
 
     // export children
-    for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    for( GameObject* pChildGameObject = pGameObject->GetChildList()->GetHead(); pChildGameObject != 0; pChildGameObject = pChildGameObject->GetNext() )
     {
-        GameObject* pChildGameObject = (GameObject*)pNode;
         cJSON* jChildGameObject = ExportGameObject( jGameObjectArray, pChildGameObject );
         cJSON_AddItemToArray( jGameObjectArray, jChildGameObject );
     }
@@ -169,12 +168,11 @@ char* ExportBox2DSceneToJSON(ComponentSystemManager* pComponentSystemManager, Sc
 
             SceneInfo* pSceneInfo = &pComponentSystemManager->m_pSceneInfoMap[i];
 
-            GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+            GameObject* first = pSceneInfo->m_GameObjects.GetHead();
             if( first && ( first->GetSceneID() == sceneid || savingallscenes ) )
             {
-                for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
+                for( GameObject* pGameObject = first; pGameObject; pGameObject = pGameObject->GetNext() )
                 {
-                    GameObject* pGameObject = (GameObject*)pNode;
                     cJSON* jGameObject = ExportGameObject( jGameObjectArray, pGameObject );
                     cJSON_AddItemToArray( jGameObjectArray, jGameObject );
                 }
