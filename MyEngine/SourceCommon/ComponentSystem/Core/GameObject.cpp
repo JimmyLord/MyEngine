@@ -497,17 +497,21 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void GameObject::SetEnabled(bool enabled, bool affectchildren)
+void GameObject::SetEnabled(bool enabled, bool affectChildren)
 {
+    unsigned short a = -1;
     if( m_Enabled == enabled )
         return;
 
     // If game is running and we want to enable/disable an object, then send a message and do it at the start of the next frame.
     if( g_pEngineCore->IsInEditorMode() == false )
     {
-        MyEvent* pEvent = g_pEventManager->CreateNewEvent( (EventTypes)3945 );
+        MyEvent* pEvent = g_pEventManager->CreateNewEvent( (EventTypes)3945 ); // HACK: Replace with a physics world enable/disable event.
+        pEvent->AttachPointer( "GameObject", this );
+        pEvent->AttachBool( "AffectChildren", affectChildren );
         pEvent->AttachBool( "Enable", enabled );
-        g_pEventManager->SendEventNow( pEvent );
+        g_pEventManager->QueueEvent( pEvent );
+        return;
     }
 
     m_Enabled = enabled;
@@ -528,7 +532,7 @@ void GameObject::SetEnabled(bool enabled, bool affectchildren)
     }
 
     // Recurse through children.
-    if( affectchildren )
+    if( affectChildren )
     {
         GameObject* pChild = GetFirstChild();
 

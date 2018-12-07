@@ -87,7 +87,7 @@ public:
     unsigned int GetFlags() { return m_Properties.GetFlags(); }
     ComponentGameObjectProperties* GetPropertiesComponent() { return &m_Properties; }
 
-    void SetEnabled(bool enabled, bool affectchildren);
+    void SetEnabled(bool enabled, bool affectChildren);
     void RegisterAllComponentCallbacks(bool ignoreenabledflag);
     void UnregisterAllComponentCallbacks(bool ignoreenabledflag);
     void SetSceneID(SceneID sceneid, bool assignnewgoid = true);

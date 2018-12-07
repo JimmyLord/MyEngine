@@ -330,7 +330,10 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
                 float afloat = (float)pVar->valuedouble;
                 bool modified = ImGui::DragFloat( pVar->name.c_str(), &afloat, 0.1f, 0, 0 );
                 pVar->valuedouble = afloat;
-                OnExposedVarValueChanged( pVar, 0, true, 0, 0 );
+                if( modified )
+                {
+                    OnExposedVarValueChanged( pVar, 0, true, 0, 0 );
+                }
                 //id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->valuedouble, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
             }
             break;

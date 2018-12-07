@@ -44,13 +44,17 @@ void EngineBox2DContactListener::BeginContact(b2Contact* contact)
             {
                 b2Manifold* pManifold = contact->GetManifold();
 
+                Component2DCollisionObject* otherComponent = pCollisionComponent[!i];
+                GameObject* otherGameObject = otherComponent->GetGameObject();
+
                 if( pManifold->pointCount > 0 )
                 {
                     b2Vec2 b2normal = pManifold->localNormal;
                     Vector2 normal( b2normal.x, b2normal.y );
                     if( i == 0 )
                         normal *= -1;
-                    pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal );
+
+                    pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal, otherGameObject, otherComponent );
                 }
                 else
                 {
@@ -58,7 +62,7 @@ void EngineBox2DContactListener::BeginContact(b2Contact* contact)
                     if( pFixture[i]->IsSensor() )
                         normal = (Vector2&)pBody[!i]->GetLinearVelocity();
 
-                    pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal );
+                    pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal, otherGameObject, otherComponent );
                 }
             }
         }
