@@ -177,11 +177,6 @@ void ComponentBase::OnLoad()
         UnregisterCallbacks();
 }
 
-bool ComponentBase::OnEvent(MyEvent* pEvent)
-{
-    return false;
-}
-
 void ComponentBase::OnGameObjectEnabled()
 {
     SetEnabled( true );

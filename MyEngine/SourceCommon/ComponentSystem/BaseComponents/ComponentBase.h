@@ -81,8 +81,6 @@ public:
     virtual void OnPlay() {}
     virtual void OnStop() {}
 
-    virtual bool OnEvent(MyEvent* pEvent);
-
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
 

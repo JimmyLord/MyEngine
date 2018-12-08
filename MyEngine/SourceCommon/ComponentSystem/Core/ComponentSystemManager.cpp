@@ -32,6 +32,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_pPrefabManager = MyNew PrefabManager();
 
+    g_pEventManager->RegisterForEvents( (EventTypes)3945, this, &ComponentSystemManager::StaticOnEvent ); // HACK: Replace with a physics world enable/disable event.
+
 #if MYFW_EDITOR
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
     g_pFileManager->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
@@ -3016,14 +3018,13 @@ void ComponentSystemManager::OnStop(SceneID sceneid)
 
 bool ComponentSystemManager::OnEvent(MyEvent* pEvent)
 {
-    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
+    if( pEvent->GetType() == (EventTypes)3945 ) // HACK: Replace with a physics world enable/disable event.
     {
-        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
-        {
-            ComponentBase* pComponent = (ComponentBase*)node;
-            if( pComponent->OnEvent( pEvent ) )
-                return true;
-        }
+        GameObject* pGameObject = (GameObject*)pEvent->GetPointer( "GameObject" );
+        bool enable = pEvent->GetBool( "Enable" );
+        bool affectChildren = pEvent->GetBool( "AffectChildren" );
+
+        pGameObject->SetEnabled( enable, affectChildren );
     }
 
     return false;

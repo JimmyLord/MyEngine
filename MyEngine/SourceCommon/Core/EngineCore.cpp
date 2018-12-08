@@ -1053,12 +1053,6 @@ void EngineCore::OnDropFile(const char* filename)
     g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, SCENEID_MainScene, filename, true );
 }
 
-
-bool EngineCore::OnEvent(MyEvent* pEvent)
-{
-    return g_pComponentSystemManager->OnEvent( pEvent );
-}
-
 void EngineCore::SetMousePosition(float x, float y)
 {
     // TODO: get the camera properly.

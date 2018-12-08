@@ -87,6 +87,7 @@ public:
     unsigned int GetFlags() { return m_Properties.GetFlags(); }
     ComponentGameObjectProperties* GetPropertiesComponent() { return &m_Properties; }
 
+    void SetEnabledViaEvent(bool enabled, bool affectChildren);
     void SetEnabled(bool enabled, bool affectChildren);
     void RegisterAllComponentCallbacks(bool ignoreenabledflag);
     void UnregisterAllComponentCallbacks(bool ignoreenabledflag);

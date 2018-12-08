@@ -124,7 +124,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             //.addData( "name", &GameObject::m_Name ) // char*
             .addData( "id", &GameObject::m_ID ) // unsigned int
             .addFunction( "Editor_AddNewComponent", (ComponentBase* (GameObject::*)(const char* componentName)) &GameObject::AddNewComponent ) // ComponentBase* GameObject::AddNewComponent(const char* componentName)
-            .addFunction( "SetEnabled", &GameObject::SetEnabled ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
+            .addFunction( "SetEnabled", &GameObject::SetEnabledViaEvent ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
             .addFunction( "SetName", &GameObject::SetName ) // void GameObject::SetName(const char* name)
             .addFunction( "SetParentGameObject", &GameObject::SetParentGameObject ) // void SetParentGameObject(GameObject* pNewParentGameObject);
             .addFunction( "GetTransform", &GameObject::GetTransform ) // ComponentTransform* GameObject::GetTransform()
@@ -497,22 +497,23 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void GameObject::SetEnabled(bool enabled, bool affectChildren)
+void GameObject::SetEnabledViaEvent(bool enabled, bool affectChildren)
 {
-    unsigned short a = -1;
     if( m_Enabled == enabled )
         return;
 
     // If game is running and we want to enable/disable an object, then send a message and do it at the start of the next frame.
-    if( g_pEngineCore->IsInEditorMode() == false )
-    {
-        MyEvent* pEvent = g_pEventManager->CreateNewEvent( (EventTypes)3945 ); // HACK: Replace with a physics world enable/disable event.
-        pEvent->AttachPointer( "GameObject", this );
-        pEvent->AttachBool( "AffectChildren", affectChildren );
-        pEvent->AttachBool( "Enable", enabled );
-        g_pEventManager->QueueEvent( pEvent );
+    MyEvent* pEvent = g_pEventManager->CreateNewEvent( (EventTypes)3945 ); // HACK: Replace with a physics world enable/disable event.
+    pEvent->AttachPointer( "GameObject", this );
+    pEvent->AttachBool( "Enable", enabled );
+    pEvent->AttachBool( "AffectChildren", affectChildren );
+    g_pEventManager->QueueEvent( pEvent );
+}
+
+void GameObject::SetEnabled(bool enabled, bool affectChildren)
+{
+    if( m_Enabled == enabled )
         return;
-    }
 
     m_Enabled = enabled;
 

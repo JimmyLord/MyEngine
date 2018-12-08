@@ -60,7 +60,7 @@ public:
     virtual void OnPlay();
 
     static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentMesh*)pObjectPtr)->OnEvent( pEvent ); }
-    virtual bool OnEvent(MyEvent* pEvent);
+    bool OnEvent(MyEvent* pEvent);
 
     //virtual void OnGameObjectEnabled();
     //virtual void OnGameObjectDisabled();

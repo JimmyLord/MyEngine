@@ -247,6 +247,7 @@ public:
     void OnPlay(SceneID sceneid);
     void OnStop(SceneID sceneid);
 
+    static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentSystemManager*)pObjectPtr)->OnEvent( pEvent ); }
     bool OnEvent(MyEvent* pEvent);
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);

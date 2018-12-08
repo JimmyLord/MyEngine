@@ -218,8 +218,6 @@ public:
 
     virtual void OnDropFile(const char* filename);
 
-    virtual bool OnEvent(MyEvent* pEvent);
-
     void SetMousePosition(float x, float y);
     virtual void SetMouseLock(bool lock);
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
