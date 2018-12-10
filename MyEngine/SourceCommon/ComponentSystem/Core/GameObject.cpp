@@ -503,7 +503,7 @@ void GameObject::SetEnabledViaEvent(bool enabled, bool affectChildren)
         return;
 
     // If game is running and we want to enable/disable an object, then send a message and do it at the start of the next frame.
-    MyEvent* pEvent = g_pEventManager->CreateNewEvent( (EventTypes)3945 ); // HACK: Replace with a physics world enable/disable event.
+    MyEvent* pEvent = g_pEventManager->CreateNewEvent( "GameObjectEnable" );
     pEvent->AttachPointer( "GameObject", this );
     pEvent->AttachBool( "Enable", enabled );
     pEvent->AttachBool( "AffectChildren", affectChildren );

@@ -32,7 +32,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_pPrefabManager = MyNew PrefabManager();
 
-    g_pEventManager->RegisterForEvents( (EventTypes)3945, this, &ComponentSystemManager::StaticOnEvent ); // HACK: Replace with a physics world enable/disable event.
+    g_pEventTypeManager->RegisterEventType( "GameObjectEnable", true );
+    g_pEventManager->RegisterForEvents( "GameObjectEnable", this, &ComponentSystemManager::StaticOnEvent );
 
 #if MYFW_EDITOR
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
@@ -3018,7 +3019,7 @@ void ComponentSystemManager::OnStop(SceneID sceneid)
 
 bool ComponentSystemManager::OnEvent(MyEvent* pEvent)
 {
-    if( pEvent->GetType() == (EventTypes)3945 ) // HACK: Replace with a physics world enable/disable event.
+    if( pEvent->IsType( "GameObjectEnable" ) )
     {
         GameObject* pGameObject = (GameObject*)pEvent->GetPointer( "GameObject" );
         bool enable = pEvent->GetBool( "Enable" );
