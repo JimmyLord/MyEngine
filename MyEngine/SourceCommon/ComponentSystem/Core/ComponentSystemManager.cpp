@@ -32,7 +32,6 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_pPrefabManager = MyNew PrefabManager();
 
-    g_pEventTypeManager->RegisterEventType( "GameObjectEnable", true );
     g_pEventManager->RegisterForEvents( "GameObjectEnable", this, &ComponentSystemManager::StaticOnEvent );
 
 #if MYFW_EDITOR
