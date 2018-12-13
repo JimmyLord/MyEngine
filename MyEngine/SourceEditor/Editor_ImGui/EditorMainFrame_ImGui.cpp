@@ -28,9 +28,10 @@ const char* g_DefaultEditorWindowTypeMenuLabels[EditorWindow_NumTypes] =
     "Grid Settings",
     "Material Editor",
     "2D Animation Editor",
-    "Debug Mouse Picker",
-    "Debug Stuff",
-    "Debug ImGui Demo",
+    "Debug: Mouse Picker",
+    "Debug: Stuff",
+    "Debug: Memory Allocations",
+    "Debug: ImGui Demo",
 };
 
 enum PanelMemoryPages
@@ -483,11 +484,27 @@ void EditorMainFrame_ImGui::AddEverything()
         ImGui::End();
     }
 
+#if MYFW_WINDOWS
+    if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] )
+    {
+        if( ImGui::Begin( "Memory Allocations", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] ) )
+        {
+            extern AllocationList* g_pAllocationList;
+            extern unsigned int g_TotalAllocatedRam;
+            extern unsigned int g_AllocatedRamCount;
+
+            ImGui::Text( "Total RAM Allocated: %d", g_TotalAllocatedRam );
+            ImGui::Text( "Num Allocations: %d", g_AllocatedRamCount );
+        }    
+        ImGui::End();
+    }
+#endif //MYFW_WINDOWS
+
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] )
     {
         ImGui::ShowDemoWindow( &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] );
     }
-#endif
+#endif //_DEBUG
 
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] )
     {

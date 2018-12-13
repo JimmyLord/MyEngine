@@ -33,20 +33,17 @@ EditorLayoutManager_ImGui::EditorLayoutManager_ImGui()
         // "Is window open" booleans.
         for( int i=0; i<EditorLayout_NumLayouts; i++ )
         {
+            // Set all windows to be closed by default ...
+            for( int j=0; j<EditorWindow_NumTypes; j++ )
+                m_DefaultLayouts[i].m_IsWindowOpen[j] = false;
+
+            // ... except these.
             m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Game] = true;
             m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Editor] = true;
             m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_ObjectList] = true;
             m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Watch] = true;
             m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Resources] = true;
             m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Log] = true;
-
-            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_GridSettings] = false;
-            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_MaterialEditor] = false;
-            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_2DAnimationEditor] = false;
-
-            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Debug_MousePicker] = false;
-            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Debug_Stuff] = false;
-            m_DefaultLayouts[i].m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] = false;
         }
 
         // "Full Frame Game" layout only shows game window.

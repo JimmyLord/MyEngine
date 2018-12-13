@@ -28,6 +28,7 @@ enum EditorWindowTypes
     EditorWindow_2DAnimationEditor,
     EditorWindow_Debug_MousePicker,
     EditorWindow_Debug_Stuff,
+    EditorWindow_Debug_MemoryAllocations,
     EditorWindow_Debug_ImGuiDemo,
     EditorWindow_NumTypes,
 };
