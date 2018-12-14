@@ -489,12 +489,9 @@ void EditorMainFrame_ImGui::AddEverything()
     {
         if( ImGui::Begin( "Memory Allocations", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] ) )
         {
-            extern AllocationList* g_pAllocationList;
-            extern unsigned int g_TotalAllocatedRam;
-            extern unsigned int g_AllocatedRamCount;
-
-            ImGui::Text( "Total RAM Allocated: %d", g_TotalAllocatedRam );
-            ImGui::Text( "Num Allocations: %d", g_AllocatedRamCount );
+            ImGui::Text( "Total RAM Allocated: %d", MyMemory_GetNumberOfBytesAllocated() );
+            ImGui::Text( "Total Allocations: %d", MyMemory_GetNumberOfMemoryAllocations() );
+            ImGui::Text( "Num Allocations: %d", MyMemory_GetNumberOfActiveMemoryAllocations() );
         }    
         ImGui::End();
     }
