@@ -10,6 +10,7 @@
 #include "EngineCommonHeader.h"
 #include "../EditorMenuCommands.h"
 #include "ImGuiStylePrefs.h"
+#include "EditorMemoryWindow_ImGui.h"
 #include "../../SourceCommon/GUI/EditorIcons.h"
 #include "../../SourceCommon/GUI/ImGuiExtensions.h"
 
@@ -88,7 +89,8 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
 
     // Log Window
-    m_pLogWindow = MyNew EditorLogWindow_ImGui;
+    m_pLogWindow = MyNew EditorLogWindow_ImGui( true );
+    m_pMemoryWindow = MyNew EditorMemoryWindow_ImGui();
 
     // Object list.
     m_pGameObjectToDrawReorderLineAfter = 0;
@@ -148,6 +150,7 @@ EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
 
     SAFE_DELETE( m_pCommandStack );
     SAFE_DELETE( m_pLogWindow );
+    SAFE_DELETE( m_pMemoryWindow );
 
     SAFE_RELEASE( m_pGameFBO );
     SAFE_RELEASE( m_pEditorFBO );
@@ -443,6 +446,7 @@ void EditorMainFrame_ImGui::AddEverything()
     AddObjectList();
     AddWatchPanel();
     AddLogWindow();
+    AddMemoryWindow();
     AddMemoryPanel();
 
     AddDebug_MousePicker();
@@ -485,16 +489,22 @@ void EditorMainFrame_ImGui::AddEverything()
     }
 
 #if MYFW_WINDOWS
-    if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] )
-    {
-        if( ImGui::Begin( "Memory Allocations", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] ) )
-        {
-            ImGui::Text( "Total RAM Allocated: %d", MyMemory_GetNumberOfBytesAllocated() );
-            ImGui::Text( "Total Allocations: %d", MyMemory_GetNumberOfMemoryAllocations() );
-            ImGui::Text( "Num Allocations: %d", MyMemory_GetNumberOfActiveMemoryAllocations() );
-        }    
-        ImGui::End();
-    }
+    //if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] )
+    //{
+    //    if( ImGui::Begin( "Memory Allocations", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] ) )
+    //    {
+    //        ImGui::Text( "Total RAM Allocated: %d", MyMemory_GetNumberOfBytesAllocated() );
+    //        ImGui::Text( "Total Allocations: %d", MyMemory_GetNumberOfMemoryAllocations() );
+    //        ImGui::Text( "Num Allocations: %d", MyMemory_GetNumberOfActiveMemoryAllocations() );
+
+    //        for( CPPListNode* pNode = MyMemory_GetFirstMemObject(); pNode != 0; pNode = pNode->GetNext() )
+    //        {
+    //            MemObject* pMem = (MemObject*)pNode;
+    //            ImGui::Text( "%s: %d", pMem->m_file, pMem->m_size );
+    //        }
+    //    }    
+    //    ImGui::End();
+    //}
 #endif //MYFW_WINDOWS
 
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] )
@@ -2244,6 +2254,33 @@ void EditorMainFrame_ImGui::AddLogWindow()
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Log] )
     {
         m_pLogWindow->Draw( "Log", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Log] );
+    }
+}
+
+void EditorMainFrame_ImGui::AddMemoryWindow()
+{
+    ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowPos( ImVec2(6, 476), ImGuiCond_FirstUseEver );
+
+    if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] )
+    {
+        m_pMemoryWindow->DrawStart( "Memory Allocations", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] );
+        if( ImGui::Button( "Refresh" ) )
+        {
+            m_pMemoryWindow->Clear();
+
+            for( CPPListNode* pNode = MyMemory_GetFirstMemObject(); pNode != 0; pNode = pNode->GetNext() )
+            {
+                MemObject* pMem = (MemObject*)pNode;
+
+                m_pMemoryWindow->AddEntry( pMem->m_file, pMem->m_line, pMem->m_size );
+            }
+        }
+        ImGui::Text( "Total RAM Allocated: %d", MyMemory_GetNumberOfBytesAllocated() );
+        ImGui::Text( "Total Allocations: %d", MyMemory_GetNumberOfMemoryAllocations() );
+        ImGui::Text( "Num Allocations: %d", MyMemory_GetNumberOfActiveMemoryAllocations() );
+        m_pMemoryWindow->DrawMid();
+        m_pMemoryWindow->DrawEnd();
     }
 }
 

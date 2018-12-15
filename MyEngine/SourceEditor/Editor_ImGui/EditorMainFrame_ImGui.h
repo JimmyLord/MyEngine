@@ -12,6 +12,7 @@
 
 class EngineCore;
 class EditorLogWindow_ImGui;
+class EditorMemoryWindow_ImGui;
 class EditorLayoutManager_ImGui;
 class EditorLayout;
 
@@ -60,6 +61,7 @@ protected:
 
     // Log Window.
     EditorLogWindow_ImGui* m_pLogWindow;
+    EditorMemoryWindow_ImGui* m_pMemoryWindow;
 
     // Object list.
     GameObject* m_pGameObjectToDrawReorderLineAfter;
@@ -150,6 +152,7 @@ protected:
     void AddGameObjectToObjectList(GameObject* pGameObject, PrefabObject* pPrefab);
     void AddWatchPanel();
     void AddLogWindow();
+    void AddMemoryWindow();
     void AddMemoryPanel();
 
     void AddContextMenuOptionsForAddingComponents(GameObject* pGameObject);

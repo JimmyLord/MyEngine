@@ -453,9 +453,6 @@
     <ClCompile Include="SourceCommon\GUI\ImGuiExtensions.cpp">
       <Filter>Source\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="SourceEditor\Editor_ImGui\EditorMainFrame_ImGui.cpp">
-      <Filter>Source - Editor\Editor_ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="SourceEditor\Editor_ImGui\EditorLogWindow_ImGui.cpp">
       <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClCompile>
@@ -469,6 +466,12 @@
       <Filter>Libraries\imgui</Filter>
     </ClCompile>
     <ClCompile Include="SourceEditor\Editor_ImGui\EditorLayoutManager_ImGui.cpp">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Editor_ImGui\EditorMemoryWindow_ImGui.cpp">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Editor_ImGui\EditorMainFrame_ImGui.cpp">
       <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClCompile>
   </ItemGroup>
@@ -854,9 +857,6 @@
     <ClInclude Include="SourceEditor\Editor_ImGui\EditorLogWindow_ImGui.h">
       <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="SourceEditor\Editor_ImGui\EditorMainFrame_ImGui.h">
-      <Filter>Source - Editor\Editor_ImGui</Filter>
-    </ClInclude>
     <ClInclude Include="SourceEditor\Editor_ImGui\ImGuiStylePrefs.h">
       <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClInclude>
@@ -871,6 +871,12 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\GUI\EditorIcons.h">
       <Filter>Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Editor_ImGui\EditorMemoryWindow_ImGui.h">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Editor_ImGui\EditorMainFrame_ImGui.h">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

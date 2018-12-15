@@ -7,35 +7,37 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __EditorLogWindow_ImGui_H__
-#define __EditorLogWindow_ImGui_H__
+#ifndef __EditorMemoryWindow_ImGui_H__
+#define __EditorMemoryWindow_ImGui_H__
 
-class EditorLogWindow_ImGui
+class EditorMemoryWindow_ImGui
 {
 public:
-    struct LogEntry
+    struct Entry
     {
-        int logtype;
-        std::string tag;
-        std::string message;
+        char* file;
+        uint32 line;
+        uint32 size;
+        uint32 count;
     };
 
 protected:
-    std::vector<LogEntry> m_LoggedMessages;
-    //ImGuiTextBuffer     m_TextBuffer;
-    //ImGuiTextFilter     m_Filter;
-    //ImVector<int>       m_LineOffsets;        // Index to lines offset
+    static const uint32 MAX_ENTRIES = 100000;
+
+    std::vector<Entry> m_Entries;
+    uint32 m_Count;
+
     bool m_ScrollToBottom;
     char m_Filter[100];
 
-    void DrawSingleLogEntry(unsigned int lineindex);
+    void DrawSingleEntry(unsigned int index);
 
 public:
-    EditorLogWindow_ImGui(bool isGlobalLog);
-    ~EditorLogWindow_ImGui();
+    EditorMemoryWindow_ImGui();
+    ~EditorMemoryWindow_ImGui();
 
     void Clear();
-    void AddLog(LogEntry logentry);
+    void AddEntry(char* file, uint32 line, uint32 size);
     void Draw(const char* title, bool* p_open = 0);
 
     void DrawStart(const char* title, bool* p_open);

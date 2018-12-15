@@ -31,9 +31,10 @@ void EditorLogWindow_ImGui_MessageLog(int logtype, const char* tag, const char* 
     pthread_mutex_unlock( &g_MessageLogMutex );
 }
 
-EditorLogWindow_ImGui::EditorLogWindow_ImGui()
+EditorLogWindow_ImGui::EditorLogWindow_ImGui(bool isGlobalLog)
 {
-    g_pGlobalLog = this;
+    if( isGlobalLog )
+        g_pGlobalLog = this;
 
     m_ScrollToBottom = false;
     m_Filter[0] = 0;
@@ -62,8 +63,18 @@ void EditorLogWindow_ImGui::AddLog(LogEntry logentry)
 
 void EditorLogWindow_ImGui::Draw(const char* title, bool* p_open)
 {
+    DrawStart( title, p_open );
+    DrawMid();
+    DrawEnd();
+}
+
+void EditorLogWindow_ImGui::DrawStart(const char* title, bool* p_open)
+{
     ImGui::Begin( title, p_open );
-    
+}
+
+void EditorLogWindow_ImGui::DrawMid()
+{
     if( ImGui::Button( "Clear" ) )
     {
         Clear();
@@ -116,6 +127,10 @@ void EditorLogWindow_ImGui::Draw(const char* title, bool* p_open)
     }
     
     ImGui::EndChild();
+}
+
+void EditorLogWindow_ImGui::DrawEnd()
+{
     ImGui::End();
 }
 
