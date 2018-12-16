@@ -69,6 +69,8 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pCurrentLayout = 0;
 
     // Warnings.
+    m_ShowNewSceneWarning = false;
+    m_ShowLoadSceneWarning = false;
     m_ShowCloseEditorWarning = false;
 
     // Render surfaces.
@@ -842,9 +844,6 @@ void EditorMainFrame_ImGui::SetFullPathToLast2DAnimInfoBeingEdited(const char* f
 
 void EditorMainFrame_ImGui::AddMainMenuBar()
 {
-    bool ShowNewSceneWarning = false;
-    bool ShowLoadSceneWarning = false;
-
     if( g_pEngineCore->IsInEditorMode() == false )
     {
         Vector4 gameRunningMenuBarColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_GameRunningMenuBarColor );
@@ -858,14 +857,14 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "New Scene" ) )
             {
                 if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
-                    ShowNewSceneWarning = true;
+                    m_ShowNewSceneWarning = true;
                 else
                     EditorMenuCommand( EditorMenuCommand_File_NewScene );
             }
             if( ImGui::MenuItem( "Load Scene..." ) )
             {
                 if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
-                    ShowLoadSceneWarning = true;
+                    m_ShowLoadSceneWarning = true;
                 else
                     EditorMenuCommand( EditorMenuCommand_File_LoadScene );
             }
@@ -1122,20 +1121,15 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
     if( g_pEngineCore->IsInEditorMode() == false )
         ImGui::PopStyleColor();
-
-    if( ShowNewSceneWarning )
-    {
-        ImGui::OpenPopup( "New Scene Warning" );
-    }
-
-    if( ShowLoadSceneWarning )
-    {
-        ImGui::OpenPopup( "Load Scene Warning" );
-    }
 }
 
 void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
 {
+    if( m_ShowNewSceneWarning )
+    {
+        m_ShowNewSceneWarning = false;
+        ImGui::OpenPopup( "New Scene Warning" );
+    }
     if( ImGui::BeginPopupModal( "New Scene Warning" ) )
     {
         ImGui::Text( "Some changes aren't saved." );
@@ -1155,6 +1149,11 @@ void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
         ImGui::EndPopup();
     }
 
+    if( m_ShowLoadSceneWarning )
+    {
+        m_ShowLoadSceneWarning = false;
+        ImGui::OpenPopup( "Load Scene Warning" );
+    }
     if( ImGui::BeginPopupModal( "Load Scene Warning" ) )
     {
         ImGui::Text( "Some changes aren't saved." );

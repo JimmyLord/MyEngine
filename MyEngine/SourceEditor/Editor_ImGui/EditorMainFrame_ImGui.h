@@ -42,6 +42,8 @@ protected:
     EditorLayout* m_pCurrentLayout;
 
     // Warnings.
+    bool m_ShowNewSceneWarning;
+    bool m_ShowLoadSceneWarning;
     bool m_ShowCloseEditorWarning;
 
     // Render surfaces.
