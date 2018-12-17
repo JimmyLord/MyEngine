@@ -490,25 +490,6 @@ void EditorMainFrame_ImGui::AddEverything()
         ImGui::End();
     }
 
-#if MYFW_WINDOWS
-    //if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] )
-    //{
-    //    if( ImGui::Begin( "Memory Allocations", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MemoryAllocations] ) )
-    //    {
-    //        ImGui::Text( "Total RAM Allocated: %d", MyMemory_GetNumberOfBytesAllocated() );
-    //        ImGui::Text( "Total Allocations: %d", MyMemory_GetNumberOfMemoryAllocations() );
-    //        ImGui::Text( "Num Allocations: %d", MyMemory_GetNumberOfActiveMemoryAllocations() );
-
-    //        for( CPPListNode* pNode = MyMemory_GetFirstMemObject(); pNode != 0; pNode = pNode->GetNext() )
-    //        {
-    //            MemObject* pMem = (MemObject*)pNode;
-    //            ImGui::Text( "%s: %d", pMem->m_file, pMem->m_size );
-    //        }
-    //    }    
-    //    ImGui::End();
-    //}
-#endif //MYFW_WINDOWS
-
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] )
     {
         ImGui::ShowDemoWindow( &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_ImGuiDemo] );
@@ -2275,9 +2256,18 @@ void EditorMainFrame_ImGui::AddMemoryWindow()
                 m_pMemoryWindow->AddEntry( pMem->m_file, pMem->m_line, pMem->m_size );
             }
         }
-        ImGui::Text( "Total RAM Allocated: %d", MyMemory_GetNumberOfBytesAllocated() );
-        ImGui::Text( "Total Allocations: %d", MyMemory_GetNumberOfMemoryAllocations() );
-        ImGui::Text( "Num Allocations: %d", MyMemory_GetNumberOfActiveMemoryAllocations() );
+        
+        char temp[32];
+
+        PrintNumberWithCommas( temp, 32, MyMemory_GetNumberOfMemoryAllocations() );
+        ImGui::Text( "Total Allocations: %s", temp );
+
+        PrintNumberWithCommas( temp, 32, MyMemory_GetNumberOfActiveMemoryAllocations() );
+        ImGui::Text( "Active Allocations: %s", temp );
+
+        PrintNumberWithCommas( temp, 32, MyMemory_GetNumberOfBytesAllocated() );
+        ImGui::Text( "Active Bytes Allocated: %s", temp );
+
         m_pMemoryWindow->DrawMid();
         m_pMemoryWindow->DrawEnd();
     }

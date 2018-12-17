@@ -65,20 +65,11 @@ void EditorMemoryWindow_ImGui::DrawStart(const char* title, bool* p_open)
     ImGui::Begin( title, p_open );
 }
 
-bool sortBySize(EditorMemoryWindow_ImGui::Entry& e1, EditorMemoryWindow_ImGui::Entry& e2)
-{
-    return( e1.size < e2.size );
-}
-
-bool sortBySizeFlip(EditorMemoryWindow_ImGui::Entry& e1, EditorMemoryWindow_ImGui::Entry& e2)
-{
-    return( e1.size > e2.size );
-}
-
 void EditorMemoryWindow_ImGui::DrawMid()
 {
-    ImGui::Text( "Unique: %d", m_Count );
+    ImGui::Text( "Unique Entries: %d", m_Count );
 
+    // Add filter and copy to clipboard buttons.
     if( ImGui::Button( "Clear" ) )
     {
         Clear();
@@ -92,32 +83,31 @@ void EditorMemoryWindow_ImGui::DrawMid()
     {
         m_Filter[0] = 0;
     }
-    
-    ImGui::Separator();
-
-    if( ImGui::Button( "Size" ) && m_Count > 1 )
-    {
-        uint32 first = m_Entries[0].size;
-        uint32 last = m_Entries[m_Count-1].size;
-        if( first > last )
-            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count, sortBySize );
-        else
-            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count, sortBySizeFlip );
-    }
 
     ImGui::Separator();
     
+    // Start "scrolling" region... TODO: find way to keep column headers in non-scrolling region.
     ImGui::BeginChild( "scrolling", ImVec2(0,0), false, ImGuiWindowFlags_HorizontalScrollbar );
+
+    // Start logging to clipboard if "Copy" was pressed.
     if( copy )
     {
         ImGui::LogToClipboard();
     }
 
+    // Split to 4 columns.
+    ImGui::Columns( 4, 0, true );
+
+    // Draw headings and handle sorting, hardcoded to 4 columns.
+    DrawColumnHeadings();
+
+    // Add entries to list, either filtered or not.
     if( m_Filter[0] != 0 )
     {
         for( unsigned int i = 0; i < m_Count; i++ )
         {
-            if( CheckIfMultipleSubstringsAreInString( m_Entries[i].file, m_Filter ) )
+            if( (m_Entries[i].file != 0 && CheckIfMultipleSubstringsAreInString( m_Entries[i].file, m_Filter )) ||
+                (m_Entries[i].file == 0 && CheckIfMultipleSubstringsAreInString( "unknown file", m_Filter )) )
             {
                 DrawSingleEntry( i );
             }
@@ -125,7 +115,6 @@ void EditorMemoryWindow_ImGui::DrawMid()
     }
     else
     {
-        //for( unsigned int i = 0; i < m_LoggedMessages.size(); i++ )
         ImGuiListClipper clipper( (int)m_Count );
         while( clipper.Step() )
         {
@@ -136,12 +125,23 @@ void EditorMemoryWindow_ImGui::DrawMid()
         }
     }
 
+    // Reset to 1 column.
+    ImGui::Columns( 1 );
+
+    // Finish writing to log if "Copy" was pressed.
+    if( copy )
+    {
+        ImGui::LogFinish();
+    }
+
+    // Not used, but force scroll to bottom if flag is set.
     if( m_ScrollToBottom )
     {
         ImGui::SetScrollHere();
         m_ScrollToBottom = false;
     }
     
+    // End "scrolling" region.
     ImGui::EndChild();
 }
 
@@ -154,55 +154,171 @@ void EditorMemoryWindow_ImGui::DrawEnd()
 // Internal methods
 //====================================================================================================
 
+void EditorMemoryWindow_ImGui::DrawColumnHeadings()
+{
+    if( m_Count == 0 )
+        return;
+
+    if( ImGui::MenuItem( "Count" ) )
+    {
+        int order = m_Entries[0].count - m_Entries[m_Count-1].count;
+        if( order > 0 )
+        {
+            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count,
+                        [](const Entry &e1, const Entry &e2) -> bool { return e1.count < e2.count; } );
+        }
+        else
+        {
+            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count,
+                        [](const Entry &e1, const Entry &e2) -> bool { return e1.count > e2.count; } );
+        }
+    }
+
+    ImGui::NextColumn();
+
+    if( ImGui::MenuItem( "Bytes" ) )
+    {
+        int order = m_Entries[0].size - m_Entries[m_Count-1].size;
+        if( order > 0 )
+        {
+            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count,
+                       [](const Entry &e1, const Entry &e2) -> bool { return e1.size < e2.size; } );
+        }
+        else
+        {
+            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count,
+                       [](const Entry &e1, const Entry &e2) -> bool { return e1.size > e2.size; } );
+        }
+    }
+
+    ImGui::NextColumn();
+
+    if( ImGui::MenuItem( "Filename" ) )
+    {
+        int order;
+
+        if( m_Entries[0].file == 0 )
+            order = -1;
+        else if( m_Entries[m_Count-1].file == 0 )
+            order = 1;
+        else
+            order = strcmp( m_Entries[0].file, m_Entries[m_Count-1].file );
+
+        if( order > 0 )
+        {
+            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count,
+                       [](const Entry &e1, const Entry &e2) -> bool
+                       {
+                           if( e2.file == 0 ) return false;
+                           if( e1.file == 0 ) return true;
+                           return strcmp( e2.file, e1.file ) > 0 ? true : false;
+                       } );
+        }
+        else
+        {
+            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count,
+                       [](const Entry &e1, const Entry &e2) -> bool
+                       {
+                           if( e1.file == 0 ) return false;
+                           if( e2.file == 0 ) return true;
+                           return strcmp( e1.file, e2.file ) > 0 ? true : false;
+                       } );
+        }
+    }
+
+    ImGui::NextColumn();
+
+    if( ImGui::MenuItem( "Line" ) )
+    {
+        int order = m_Entries[0].line - m_Entries[m_Count-1].line;
+        if( order > 0 )
+        {
+            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count,
+                       [](const Entry &e1, const Entry &e2) -> bool { return e1.line < e2.line; } );
+        }
+        else
+        {
+            std::sort( m_Entries.begin(), m_Entries.begin()+m_Count,
+                       [](const Entry &e1, const Entry &e2) -> bool { return e1.line > e2.line; } );
+        }
+    }
+
+    ImGui::NextColumn();
+
+    // Separator spans all 4 columns.
+    ImGui::Separator();
+}
+
 void EditorMemoryWindow_ImGui::DrawSingleEntry(unsigned int lineindex)
 {
     Entry* pEntry = &m_Entries[lineindex];
 
-    //ImGui::TextUnformatted( m_Entries[i].message.c_str() );
+    char string[32];
+    bool selected = false;
 
-    //if( pEntry->logtype == 0 )
-    //{
-    //    ImGui::PushStyleColor( ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f) );
-    //    ImGui::Text( "Info  - " );
-    //}
-    //else if( pEntry->logtype == 1 )
-    //{
-    //    ImGui::PushStyleColor( ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f) );
-    //    ImGui::Text( "Error - " );
-    //}
-    //else if( pEntry->logtype == 2 )
-    //{
-    //    ImGui::PushStyleColor( ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f) );
-    //    ImGui::Text( "Debug - " );
-    //}
-
-    //ImGui::SameLine();
-    //ImGui::Text( pLogEntry->tag.c_str() );
-    //ImGui::SameLine();
-    if( pEntry->file )
+    // Add "Count" column.
     {
-        char string[400];
-        sprintf_s( string, 400, "%d - %d - %s(%d)", pEntry->count, pEntry->size, pEntry->file, pEntry->line );
-        if( ImGui::MenuItem( string ) )
-        {
-        }
-    }
-    else
-    {
-        char string[400];
-        sprintf_s( string, 400, "%d - %d - %s(%d)", pEntry->count, pEntry->size, "no file", pEntry->line );
-        if( ImGui::MenuItem( string ) )
-        {
-        }
+        sprintf_s( string, 32, "%d", pEntry->count );
+        if( ImGui::MenuItem( string ) ) { selected = true; }
     }
 
-    if( ImGui::IsItemHovered() )
+    ImGui::NextColumn();
+
+    // Add "Bytes" column.
     {
-        if( ImGui::IsMouseDoubleClicked( 0 ) )
+        sprintf_s( string, 32, "%d", pEntry->size );
+        if( ImGui::MenuItem( string ) ) { selected = true; }
+    }
+
+    ImGui::NextColumn();
+
+    // Add "Filename" column.
+    {
+        const char* filename = pEntry->file;
+        if( filename == 0 )
         {
-            //g_pEngineCore->GetEditorMainFrame()->ParseMessage( pLogEntry->message.c_str() );
+            filename = "unknown file";
+        }
+        else
+        {
+            int len = strlen( filename );
+            for( ; len >= 0; len-- )
+                if( filename[len] == '\\' || filename[len] == '/' )
+                    break;
+        
+            if( len > 0 )
+                filename = &filename[len + 1];
+        }
+        
+        if( ImGui::MenuItem( filename ) ) { selected = true; }
+        
+        if( ImGui::IsItemHovered() )
+        {
+            if( pEntry->file )
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text( pEntry->file );
+                ImGui::EndTooltip();
+            }
+
+            if( ImGui::IsMouseDoubleClicked( 0 ) )
+            {
+                //g_pEngineCore->GetEditorMainFrame()->ParseMessage( pLogEntry->message.c_str() );
+            }
         }
     }
 
-    //ImGui::PopStyleColor();
+    ImGui::NextColumn();
+
+    // Add "Line" column.
+    {
+        sprintf_s( string, 32, "%d", pEntry->line );
+        if( ImGui::MenuItem( string ) ) { selected = true; }
+        ImGui::NextColumn();
+    }
+
+    //if( selected )
+    //{
+    //    int bp = 1;
+    //}
 }

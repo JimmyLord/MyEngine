@@ -120,6 +120,11 @@ void EditorLogWindow_ImGui::DrawMid()
         }
     }
 
+    if( copy )
+    {
+        ImGui::LogFinish();
+    }
+
     if( m_ScrollToBottom )
     {
         ImGui::SetScrollHere();

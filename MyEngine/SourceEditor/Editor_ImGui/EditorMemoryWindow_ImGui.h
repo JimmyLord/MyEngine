@@ -30,6 +30,7 @@ protected:
     bool m_ScrollToBottom;
     char m_Filter[100];
 
+    void DrawColumnHeadings();
     void DrawSingleEntry(unsigned int index);
 
 public:
