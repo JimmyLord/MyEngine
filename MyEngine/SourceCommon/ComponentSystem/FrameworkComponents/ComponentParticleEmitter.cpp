@@ -263,7 +263,7 @@ void ComponentParticleEmitter::AddToSceneGraph()
     MyAssert( m_pParticleRenderer );
 
     // Add the particle renderer (submesh) to the main scene graph
-    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pParticleRenderer, m_pMaterial, GL_TRIANGLES, 1, m_LayersThisExistsOn );
+    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pParticleRenderer, m_pMaterial, MyRE::PrimitiveType_Triangles, 1, m_LayersThisExistsOn );
 
     // Force particle submesh to be rendered during transparent pass for now.
     m_pSceneGraphObject->SetFlags( SceneGraphFlag_Transparent );

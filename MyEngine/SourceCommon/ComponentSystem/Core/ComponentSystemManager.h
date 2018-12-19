@@ -295,8 +295,8 @@ public:
     SceneInfo m_pSceneInfoMap[MAX_SCENES_CREATED];
 
     // SceneGraph Functions
-    void AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, unsigned int layers, SceneGraphObject** pOutputList);
-    SceneGraphObject* AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, unsigned int layers);
+    void AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers, SceneGraphObject** pOutputList);
+    SceneGraphObject* AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers);
     void RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject);
 
 public:

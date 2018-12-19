@@ -8,6 +8,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
 
 EngineCore* g_pEngineCore = 0;
 
@@ -396,7 +397,7 @@ void EngineCore::OneTimeInit()
     {
 #if MYFW_EDITOR
 #if MYFW_USING_IMGUI
-        g_pImGuiManager->Init( m_WindowWidth, m_WindowHeight );
+        g_pImGuiManager->Init( (float)GetWindowWidth(), (float)GetWindowHeight() );
         m_pEditorMainFrame = MyNew EditorMainFrame_ImGui();
 #elif MYFW_USING_WX
         m_pEditorMainFrame = g_pEngineMainFrame;
@@ -784,16 +785,16 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     if( m_pEditorMainFrame )
     {
         // Backup the window width/height.
-        float windowWidth = GetWindowWidth();
-        float windowHeight = GetWindowHeight();
+        uint32 windowWidth = GetWindowWidth();
+        uint32 windowHeight = GetWindowHeight();
 
         // Draw the game and editor contents into textures.
         ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->DrawGameAndEditorWindows( this );
 
         // Reset to full window size.
-        m_WindowWidth = windowWidth;
-        m_WindowHeight = windowHeight;
-        glViewport( 0, 0, (unsigned int)windowWidth, (unsigned int)windowHeight );
+        m_pRenderer->SetWindowWidth( windowWidth );
+        m_pRenderer->SetWindowHeight( windowHeight );
+        glViewport( 0, 0, windowWidth, windowHeight );
 
         // Render out the ImGui command list to the full window.
         glClearColor( 0.0f, 0.1f, 0.2f, 1.0f );
@@ -801,7 +802,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         if( g_pImGuiManager )
         {
-            g_pImGuiManager->EndFrame( windowWidth, windowHeight, true );
+            g_pImGuiManager->EndFrame( (float)windowWidth, (float)windowHeight, true );
             
 #if MYFW_USING_WX
             // For wxwidgets build, start the next frame immediately, so imgui calls can be made in tick callbacks.
@@ -829,7 +830,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     {
         // Draw all components.
         m_pComponentSystemManager->OnDrawFrame();
-        windowrect.Set( (int)m_WindowStartX, (int)m_WindowStartY, (int)m_WindowWidth, (int)m_WindowHeight );
+        windowrect.Set( (int)m_pRenderer->GetWindowStartX(), (int)m_pRenderer->GetWindowStartY(), (int)m_pRenderer->GetWindowWidth(), (int)m_pRenderer->GetWindowHeight() );
     }
 
 #if !MYFW_OPENGLES2
@@ -1975,7 +1976,7 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, S
     g_pComponentSystemManager->LoadSceneFromJSON( scenename, jsonstr, sceneid );
 
     // Tell all the cameras loaded in the scene the dimensions of the window. // TODO: move this into camera's onload.
-    OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+    OnSurfaceChanged( m_pRenderer->GetWindowStartX(), m_pRenderer->GetWindowStartY(), m_pRenderer->GetWindowWidth(), m_pRenderer->GetWindowHeight() );
 
     // FinishLoading calls OnLoad and OnPlay for all components in scene.
     g_pComponentSystemManager->FinishLoading( false, sceneid, playWhenFinishedLoading );

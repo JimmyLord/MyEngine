@@ -8,6 +8,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Enums.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
 
 #if MYFW_USING_WX
 bool Component2DCollisionObject::m_PanelWatchBlockVisible = true;
@@ -756,7 +758,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         //glDisable( GL_CULL_FACE );
         //glDisable( GL_DEPTH_TEST );
 
-        MyDrawArrays( GL_LINE_STRIP, 0, (int)m_Vertices.size(), false );
+        g_pRenderer->DrawArrays( MyRE::PrimitiveType_LineStrip, 0, (int)m_Vertices.size(), false );
 
         glLineWidth( 1 );
 

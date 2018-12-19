@@ -39,9 +39,6 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-    float windowwidth = g_pEngineCore->GetWindowWidth();
-    float windowheight = g_pEngineCore->GetWindowHeight();
-
     // EditorInterface class will draw the main editor view.
     EditorInterface::OnDrawFrame( canvasid );
 
@@ -93,75 +90,6 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             }
         }
     }
-
-#if MYFW_USING_WX
-    // Old code to draw material ball in corner of editor view.  Still used by WX editor build.
-    if( /*m_Debug_DrawSelectedMaterial &&*/ g_GLCanvasIDActive == 1 )
-    {
-        MaterialDefinition* pMaterial = g_pPanelMemory->GetSelectedMaterial();
-
-        if( pMaterial )
-        {
-            MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
-
-            if( pMeshBall )
-            {
-                pEditorState->m_pDebugViewFBO->Bind( true );
-
-                glDisable( GL_SCISSOR_TEST );
-                glViewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
-
-                glClearColor( 0.2f, 0.2f, 0.2f, 1.0f );
-                glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-                pMeshBall->SetMaterial( pMaterial, 0 );
-
-                MyMatrix matview;
-                matview.SetIdentity();
-#if MYFW_RIGHTHANDED
-                matview.Translate( 0, 0, -4 );
-#else
-                matview.Translate( 0, 0, 4 );
-#endif
-
-                float aspect = windowwidth / windowheight;
-                MyMatrix matproj;
-                matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
-
-                //MyMatrix matviewproj = matproj * matview;
-                Vector3 campos = matview.GetTranslation() * -1;
-                Vector3 camrot( 0, 0, 0 );
-
-                float time = (float)MyTime_GetRunningTime();
-
-                // Create 2 rotating lights for material render.
-                MyLight light1;
-                light1.m_Attenuation.Set( 1, 0.1f, 0.01f );
-                light1.m_Color.Set( 1, 1, 1, 1 );
-                light1.m_LightType = LightType_Point;
-                light1.m_Position.Set( 2*cos(time), 1, 2*sin(time) );
-
-                MyLight light2;
-                light2.m_Attenuation.Set( 1, 0.1f, 0.01f );
-                light2.m_Color.Set( 1, 1, 1, 1 );
-                light2.m_LightType = LightType_Point;
-                light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
-
-                MyLight* lights[] = { &light1, &light2 };
-                pMeshBall->Draw( &matproj, &matview, 0, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
-
-                pEditorState->m_pDebugViewFBO->Unbind( true );
-            }
-
-            float u = (float)pEditorState->m_pMousePickerFBO->GetWidth() / pEditorState->m_pMousePickerFBO->GetTextureWidth();
-            float v = (float)pEditorState->m_pMousePickerFBO->GetHeight() / pEditorState->m_pMousePickerFBO->GetTextureHeight();
-            debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
-            g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->GetColorTexture( 0 ) );
-            debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
-            debugQuad->Draw( 0, 0, 0 );
-        }
-    }
-#endif //MYFW_USING_WX
 
     // Draw group select rectangle.
     if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )

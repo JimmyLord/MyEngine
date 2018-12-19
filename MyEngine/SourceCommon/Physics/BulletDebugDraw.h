@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2017-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -23,7 +23,7 @@ public:
     BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView);
     ~BulletDebugDraw();
 
-    virtual void Draw(const Vector3* vertices, uint32 vertexCount, ColorByte color, int primitivetype, float pointorlinesize);
+    virtual void Draw(const Vector3* vertices, uint32 vertexCount, ColorByte color, MyRE::PrimitiveTypes primitiveType, float pointOrLineSize);
 
     virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
     virtual void drawLine(const btVector3& from,const btVector3& to, const btVector3& fromColor, const btVector3& toColor);

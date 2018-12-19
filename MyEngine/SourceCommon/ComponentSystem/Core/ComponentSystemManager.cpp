@@ -2899,7 +2899,7 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 
 //void ComponentSystemManager::m_pGameObjectTemplateManager
 
-void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, unsigned int layers, SceneGraphObject** pOutputList)
+void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers, SceneGraphObject** pOutputList)
 {
     MyAssert( pComponent != 0 );
     MyAssert( pComponent->GetGameObject() != 0 );
@@ -2914,11 +2914,11 @@ void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMe
     {
         MyAssert( pOutputList[i] == 0 );
         
-        pOutputList[i] = m_pSceneGraph->AddObject( pMatWorld, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitive, pointsize, layers, pComponent );
+        pOutputList[i] = m_pSceneGraph->AddObject( pMatWorld, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitiveType, pointsize, layers, pComponent );
     }
 }
 
-SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, unsigned int layers)
+SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers)
 {
     MyAssert( pComponent != 0 );
     MyAssert( pComponent->GetGameObject() != 0 );
@@ -2926,7 +2926,7 @@ SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* 
 
     MyMatrix* pMatWorld = pComponent->GetGameObject()->GetTransform()->GetWorldTransform();
 
-    return m_pSceneGraph->AddObject( pMatWorld, 0, pSubmesh, pMaterial, primitive, pointsize, layers, pComponent );
+    return m_pSceneGraph->AddObject( pMatWorld, 0, pSubmesh, pMaterial, primitiveType, pointsize, layers, pComponent );
 }
 
 void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject)

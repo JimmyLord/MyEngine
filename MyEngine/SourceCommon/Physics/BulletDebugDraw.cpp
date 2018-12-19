@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2017-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -8,6 +8,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Enums.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
 
 #include "BulletDebugDraw.h"
 
@@ -28,7 +30,7 @@ BulletDebugDraw::~BulletDebugDraw()
     SAFE_RELEASE( m_pMaterial );
 }
 
-void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByte color, int primitivetype, float pointorlinesize)
+void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByte color, MyRE::PrimitiveTypes primitiveType, float pointOrLineSize)
 {
     // Set the material to the correct color and draw the shape.
     Shader_Base* pShader = (Shader_Base*)m_pMaterial->GetShader()->GlobalPass( 0, 0 );
@@ -45,9 +47,9 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
     pShader->ProgramMaterialProperties( 0, m_pMaterial->m_ColorDiffuse, m_pMaterial->m_ColorSpecular, m_pMaterial->m_Shininess );
     pShader->ProgramTransforms( m_pMatProj, m_pMatView, 0 );
 
-    glLineWidth( pointorlinesize );
+    glLineWidth( pointOrLineSize );
 #ifndef MYFW_OPENGLES2
-    glPointSize( pointorlinesize );
+    glPointSize( pointOrLineSize );
 #endif
 
     glEnable( GL_BLEND );
@@ -56,7 +58,7 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
     glDisable( GL_CULL_FACE );
     glDisable( GL_DEPTH_TEST );
 
-    MyDrawArrays( primitivetype, 0, vertexCount, false );
+    g_pRenderer->DrawArrays( primitiveType, 0, vertexCount, false );
 
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
@@ -71,7 +73,7 @@ void BulletDebugDraw::drawLine(const btVector3& from, const btVector3& to, const
     points[1].Set( to.getX(), to.getY(), to.getZ() );
     
     ColorByte colorbyte( (unsigned char)color.getX()*255, (unsigned char)color.getY()*255, (unsigned char)color.getZ()*255, 255 );
-    Draw( points, 2, colorbyte, GL_LINES, 2 );
+    Draw( points, 2, colorbyte, MyRE::PrimitiveType_Lines, 2 );
 }
 
 void BulletDebugDraw::drawLine(const btVector3& from,const btVector3& to, const btVector3& fromColor, const btVector3& toColor)

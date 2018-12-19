@@ -313,7 +313,7 @@ void ComponentSprite::AddToSceneGraph()
     // TODO: Either register with a material finished loading callback or use events instead of this tick callback.
     if( pMaterial->IsFullyLoaded() )
     {
-        m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pSprite, pMaterial, GL_TRIANGLES, 1, m_LayersThisExistsOn );
+        m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pSprite, pMaterial, MyRE::PrimitiveType_Triangles, 1, m_LayersThisExistsOn );
 
         m_WaitingToAddToSceneGraph = false;
     }

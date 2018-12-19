@@ -53,7 +53,7 @@ ComponentMesh::ComponentMesh()
 #endif
     }
 
-    m_GLPrimitiveType = GL_TRIANGLES;
+    m_GLPrimitiveType = MyRE::PrimitiveType_Triangles;
     m_PointSize = 1;
 
     m_pComponentLuaScript = 0;
