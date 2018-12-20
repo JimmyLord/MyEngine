@@ -210,7 +210,7 @@ public:
     virtual float Tick(float deltaTime);
     virtual void OnFocusGained();
     virtual void OnFocusLost();
-    virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
+    virtual void OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height);
     virtual void OnDrawFrameStart(unsigned int canvasid);
     virtual void OnDrawFrame(unsigned int canvasid);
     virtual void OnDrawFrameDone();
@@ -279,7 +279,7 @@ public:
     void Editor_QuickLoadScene(const char* fullpath);
     void Editor_DeleteQuickScene(const char* fullpath);
 
-    void Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
+    void Editor_OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height);
 
     void RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUse = 0);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);

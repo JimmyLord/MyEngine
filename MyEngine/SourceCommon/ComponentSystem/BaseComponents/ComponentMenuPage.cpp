@@ -1413,7 +1413,7 @@ void ComponentMenuPage::TickCallback(float deltaTime)
     }
 }
 
-void ComponentMenuPage::OnSurfaceChangedCallback(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+void ComponentMenuPage::OnSurfaceChangedCallback(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
     //ComponentRenderable::OnSurfaceChangedCallback( deltaTime );
     if( m_pComponentCamera == 0 )
@@ -1422,9 +1422,11 @@ void ComponentMenuPage::OnSurfaceChangedCallback(unsigned int startx, unsigned i
     if( m_pComponentCamera == 0 )
         return;
 
+    MyViewport* pViewport = &m_pComponentCamera->m_Viewport;
+
     // if the aspect ratio didn't change, return;
-    if( m_CurrentWidth == m_pComponentCamera->m_WindowWidth &&
-        m_CurrentHeight == m_pComponentCamera->m_WindowHeight )
+    if( m_CurrentWidth == pViewport->GetWidth() &&
+        m_CurrentHeight == pViewport->GetHeight() )
     {
         return;
     }
@@ -1455,8 +1457,10 @@ void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
     if( m_MenuLayouts == 0 )
         return;
 
-    m_CurrentWidth = m_pComponentCamera->m_WindowWidth;
-    m_CurrentHeight = m_pComponentCamera->m_WindowHeight;
+    MyViewport* pViewport = &m_pComponentCamera->m_Viewport;
+
+    m_CurrentWidth = pViewport->GetWidth();
+    m_CurrentHeight = pViewport->GetHeight();
 
     MyAssert( m_CurrentWidth != 0 && m_CurrentHeight != 0 );
 
@@ -1916,13 +1920,15 @@ void ComponentMenuPage::ShowPage()
     if( m_pComponentCamera == 0 )
         return;
 
+    MyViewport* pViewport = &m_pComponentCamera->m_Viewport;
+
     bool layoutchanged = false;
 
-    if( m_CurrentWidth != m_pComponentCamera->m_WindowWidth ||
-        m_CurrentHeight != m_pComponentCamera->m_WindowHeight )
+    if( m_CurrentWidth != pViewport->GetWidth() ||
+        m_CurrentHeight != pViewport->GetHeight() )
     {
-        m_CurrentWidth = m_pComponentCamera->m_WindowWidth;
-        m_CurrentHeight = m_pComponentCamera->m_WindowHeight;
+        m_CurrentWidth = pViewport->GetWidth();
+        m_CurrentHeight = pViewport->GetHeight();
         layoutchanged = true;
     }
 

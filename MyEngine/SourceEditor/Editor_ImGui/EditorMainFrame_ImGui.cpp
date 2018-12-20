@@ -530,60 +530,60 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             // Draw game view.
             m_pGameFBO->Bind( false );
 
-            unsigned int w = (unsigned int)m_GameWindowSize.x;
-            unsigned int h = (unsigned int)m_GameWindowSize.y;
+            uint32 x = 0;
+            uint32 y = 0;
+            uint32 w = (uint32)m_GameWindowSize.x;
+            uint32 h = (uint32)m_GameWindowSize.y;
 
             EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
 
             if( pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Full )
             {
-                //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-                pEngineCore->OnSurfaceChanged( 0, 0, w, h );
             }
             else if( pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Tall )
             {
-                //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
                 if( w - h/1.5f >= 0 )
                 {
-                    g_pGameCore->OnSurfaceChanged( (unsigned int)( (w - h/1.5f) / 2.0f ), 0,
-                        (unsigned int)( h/1.5f ), (unsigned int)( h ) );
+                    x = (uint32)( (w - h/1.5f) / 2.0f );
+                    w = (uint32)( h/1.5f );
                 }
                 else
                 {
-                    g_pGameCore->OnSurfaceChanged( 0, 0, w, h );
                 }
             }
             else if( pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Square )
             {
-                //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
                 if( w < h )
                 {
-                    g_pGameCore->OnSurfaceChanged( 0, (h-w)/2, w, w );
+                    y = (h-w)/2;
+                    h = w;
                 }
                 else
                 {
-                    g_pGameCore->OnSurfaceChanged( (w-h)/2, 0, h, h );
+                    x = (w-h)/2;
+                    w = h;
                 }
             }
             else if( pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Wide )
             {
-                //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
                 if( h - w/1.5f >= 0 )
                 {
-                    g_pGameCore->OnSurfaceChanged( 0, (unsigned int)( ( h - w/1.5f ) / 2.0f ),
-                        (unsigned int)( w ), (unsigned int)( w/1.5f ) );
+                    y = (uint32)( ( h - w/1.5f ) / 2.0f );
+                    h = (uint32)( w/1.5f );
                 }
                 else
                 {
-                    g_pGameCore->OnSurfaceChanged( 0, 0, w, h );
                 }
             }
 
-            pEngineCore->GetComponentSystemManager()->OnDrawFrame();
+            // Reset the viewport sizes of the game or editor cameras.
+            ComponentSystemManager* pComponentSystemManager = pEngineCore->GetComponentSystemManager();
+            if( pComponentSystemManager )
+            {
+                pComponentSystemManager->OnSurfaceChanged( x, y, w, h, (uint32)g_pEngineCore->m_GameWidth, (uint32)g_pEngineCore->m_GameHeight );
+                pComponentSystemManager->OnDrawFrame();
+            }
+
             MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
 
             g_GLStats.EndCanvasFrame();
@@ -624,8 +624,8 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             {
                 m_pMaterialPreviewFBO->Bind( true );
 
-                glDisable( GL_SCISSOR_TEST );
-                glViewport( 0, 0, m_pMaterialPreviewFBO->GetWidth(), m_pMaterialPreviewFBO->GetHeight() );
+                MyViewport viewport( 0, 0, m_pMaterialPreviewFBO->GetWidth(), m_pMaterialPreviewFBO->GetHeight() );
+                g_pRenderer->EnableViewport( &viewport, true );
 
                 glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
                 glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

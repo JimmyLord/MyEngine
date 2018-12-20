@@ -558,8 +558,8 @@ void EditorInterface::RenderObjectIDsToFBO()
 
     pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
 
-    glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
+    MyViewport viewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
+    g_pRenderer->EnableViewport( &viewport, true );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -620,7 +620,7 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
 
     // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
     unsigned char pixel[4];
-    glReadPixels( x - (unsigned int)pCamera->m_WindowStartX, y - (unsigned int)pCamera->m_WindowStartY,
+    glReadPixels( x - (unsigned int)pCamera->m_Viewport.GetX(), y - (unsigned int)pCamera->m_Viewport.GetY(),
                   1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
 
     pEditorState->m_pMousePickerFBO->Unbind( true );

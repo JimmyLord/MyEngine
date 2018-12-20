@@ -10,6 +10,8 @@
 #ifndef __ComponentCamera_H__
 #define __ComponentCamera_H__
 
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
+
 #include "../../Camera/Camera2D.h"
 #include "../../Camera/Camera3D.h"
 
@@ -66,10 +68,7 @@ public:
     unsigned int m_LayersToRender;
 
     // Don't need saving.
-    unsigned int m_WindowStartX;
-    unsigned int m_WindowStartY;
-    unsigned int m_WindowWidth;
-    unsigned int m_WindowHeight;
+    MyViewport m_Viewport;
 
     Camera2D m_Camera2D;
     Camera3D m_Camera3D;
@@ -102,7 +101,7 @@ public:
     void ComputeProjectionMatrices();
 
     virtual void Tick(float deltaTime);
-    virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+    virtual void OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     virtual void OnDrawFrame();
 
     void SetDeferred(bool isdeferred) { m_Deferred = isdeferred; }

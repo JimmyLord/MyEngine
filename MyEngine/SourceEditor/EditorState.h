@@ -100,7 +100,7 @@ public:
     void ClearEditorState(bool clearselectedobjectandcomponents = true);
 
     void OnFocusLost();
-    void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
+    void OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height);
 
     void ClearConstraint();
 

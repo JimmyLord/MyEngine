@@ -227,41 +227,35 @@ void ComponentCameraShadow::Tick(float deltaTime)
     ComponentCamera::Tick( deltaTime );
 }
 
-void ComponentCameraShadow::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+void ComponentCameraShadow::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
     // TODO: this gets called if the window is resized, we might want to upres the fbo here.
 
-    //ComponentCamera::OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+    //ComponentCamera::OnSurfaceChanged( x, y, width, height, desiredaspectwidth, desiredaspectheight );
 }
 
 void ComponentCameraShadow::OnDrawFrame()
 {
     checkGlError( "start of ComponentCameraShadow::OnDrawFrame()" );
 
-    //ComponentCamera::OnDrawFrame();
-
     //glCullFace( GL_FRONT );
 
-    glDisable( GL_SCISSOR_TEST );
     g_ActiveShaderPass = ShaderPass_ShadowCastRGBA;
 
-    checkGlError( "glDisable( GL_SCISSOR_TEST )" );
-
     m_pDepthFBO->Bind( false );
-    glViewport( 0, 0, m_pDepthFBO->GetWidth(), m_pDepthFBO->GetHeight() );
-
     checkGlError( "m_pDepthFBO->Bind()" );
 
-#if MYFW_OPENGLES2
-    glClearColor( 1, 1, 1, 1 );
-    glClear( GL_COLOR_BUFFER_BIT ); // | GL_DEPTH_BUFFER_BIT );
-#else
-    glClearColor( 1, 1, 1, 1 );
-    glClearDepth( 1 );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-#endif
+    MyViewport viewport( 0, 0, m_pDepthFBO->GetWidth(), m_pDepthFBO->GetHeight() );
+    g_pRenderer->EnableViewport( &viewport, true );
 
-    checkGlError( "ComponentCameraShadow::OnDrawFrame glClear()" );
+#if MYFW_OPENGLES2
+    g_pRenderer->SetClearColor( ColorFloat( 1, 1, 1, 1 ) );
+    g_pRenderer->ClearBuffers( true, false, false );
+#else
+    g_pRenderer->SetClearColor( ColorFloat( 1, 1, 1, 1 ) );
+    g_pRenderer->SetClearDepth( 1 );
+    g_pRenderer->ClearBuffers( true, true, false );
+#endif
 
     if( m_Orthographic )
     {

@@ -391,8 +391,6 @@ void EngineCore::OneTimeInit()
 
 //    CreateDefaultSceneObjects();
 
-    //OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
-
     if( g_pImGuiManager )
     {
 #if MYFW_EDITOR
@@ -792,9 +790,8 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->DrawGameAndEditorWindows( this );
 
         // Reset to full window size.
-        m_pRenderer->SetWindowWidth( windowWidth );
-        m_pRenderer->SetWindowHeight( windowHeight );
-        glViewport( 0, 0, windowWidth, windowHeight );
+        MyViewport viewport( 0, 0, windowWidth, windowHeight );
+        g_pRenderer->EnableViewport( &viewport, true );
 
         // Render out the ImGui command list to the full window.
         glClearColor( 0.0f, 0.1f, 0.2f, 1.0f );
@@ -830,7 +827,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     {
         // Draw all components.
         m_pComponentSystemManager->OnDrawFrame();
-        windowrect.Set( (int)m_pRenderer->GetWindowStartX(), (int)m_pRenderer->GetWindowStartY(), (int)m_pRenderer->GetWindowWidth(), (int)m_pRenderer->GetWindowHeight() );
+        windowrect.Set( (int)m_MainViewport.GetX(), (int)m_MainViewport.GetY(), (int)m_MainViewport.GetWidth(), (int)m_MainViewport.GetHeight() );
     }
 
 #if !MYFW_OPENGLES2
@@ -1061,14 +1058,16 @@ void EngineCore::SetMousePosition(float x, float y)
     if( pCamera == 0 )
         return;
 
+    MyViewport* pViewport = &pCamera->m_Viewport;
+
     // convert mouse to x/y in window space. TODO: put this in camera component.
-    x = (x / m_GameWidth) * pCamera->m_Camera2D.m_ScreenWidth + pCamera->m_Camera2D.m_ScreenOffsetX + pCamera->m_WindowStartX;
-    y = (y / m_GameHeight) * pCamera->m_Camera2D.m_ScreenHeight + pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY;
+    x = (x / m_GameWidth) * pCamera->m_Camera2D.m_ScreenWidth + pCamera->m_Camera2D.m_ScreenOffsetX + pViewport->GetX();
+    y = (y / m_GameHeight) * pCamera->m_Camera2D.m_ScreenHeight + pCamera->m_Camera2D.m_ScreenOffsetY + pViewport->GetY();
     //x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
     //y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
 
     // window space wants mouse at top left.
-    y = pCamera->m_WindowHeight - y;
+    y = pViewport->GetHeight() - y;
 
     PlatformSpecific_SetMousePosition( x, y );
 }
@@ -1196,12 +1195,14 @@ bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float p
     }
     else
     {
+        MyViewport* pViewport = &pCamera->m_Viewport;
+
         // prefer 0,0 at bottom left.
-        y = pCamera->m_WindowHeight - y;
+        y = pViewport->GetHeight() - y;
 
         // convert mouse to x/y in Camera2D space. TODO: put this in camera component.
-        x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
-        y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
+        x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pViewport->GetX()) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
+        y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pViewport->GetY()) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
     }
 
     m_LastMousePos.Set( x, y );
@@ -1976,7 +1977,7 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, S
     g_pComponentSystemManager->LoadSceneFromJSON( scenename, jsonstr, sceneid );
 
     // Tell all the cameras loaded in the scene the dimensions of the window. // TODO: move this into camera's onload.
-    OnSurfaceChanged( m_pRenderer->GetWindowStartX(), m_pRenderer->GetWindowStartY(), m_pRenderer->GetWindowWidth(), m_pRenderer->GetWindowHeight() );
+    OnSurfaceChanged( m_MainViewport.GetX(), m_MainViewport.GetY(), m_MainViewport.GetWidth(), m_MainViewport.GetHeight() );
 
     // FinishLoading calls OnLoad and OnPlay for all components in scene.
     g_pComponentSystemManager->FinishLoading( false, sceneid, playWhenFinishedLoading );
@@ -1987,7 +1988,7 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, S
 }
 
 #if MYFW_EDITOR
-void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
+void EngineCore::Editor_OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height)
 {
     MyAssert( g_GLCanvasIDActive != 0 );
 
@@ -2000,26 +2001,26 @@ void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int start
                 ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
                 MyAssert( pCamera != 0 );
                 if( pCamera )
-                    pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+                    pCamera->OnSurfaceChanged( x, y, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
             }
 
-            m_pEditorState->OnSurfaceChanged( startx, starty, width, height );
+            m_pEditorState->OnSurfaceChanged( x, y, width, height );
         }
     }
 }
 #endif //MYFW_EDITOR
 
-void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
+void EngineCore::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height)
 {
 #if MYFW_EDITOR
     if( g_GLCanvasIDActive == 1 )
     {
-        Editor_OnSurfaceChanged( startx, starty, width, height );
+        Editor_OnSurfaceChanged( x, y, width, height );
         return;
     }
 #endif //MYFW_EDITOR
 
-    GameCore::OnSurfaceChanged( startx, starty, width, height );
+    GameCore::OnSurfaceChanged( x, y, width, height );
 
     glEnable( GL_CULL_FACE );
 #if !MYFW_RIGHTHANDED
@@ -2030,10 +2031,10 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
     if( height == 0 || width == 0 )
         return;
 
-    // reset the viewport sizes of the game or editor cameras.
+    // Reset the viewport sizes of the game or editor cameras.
     if( m_pComponentSystemManager )
     {
-        m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+        m_pComponentSystemManager->OnSurfaceChanged( x, y, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
     }
 }
 
@@ -2047,8 +2048,8 @@ void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUs
     // render the scene to an FBO.
     pFBO->Bind( true );
 
-    glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, pFBO->GetWidth(), pFBO->GetHeight() );
+    MyViewport viewport( 0, 0, pFBO->GetWidth(), pFBO->GetHeight() );
+    g_pRenderer->EnableViewport( &viewport, true );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -2093,11 +2094,12 @@ void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUs
 void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 {
     ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+    MyViewport* pViewport = &pCamera->m_Viewport;
 
     // Convert mouse coord into clip space.
     Vector2 mouseClip;
-    mouseClip.x = (mousepos.x / pCamera->m_WindowWidth) * 2.0f - 1.0f;
-    mouseClip.y = (mousepos.y / pCamera->m_WindowHeight) * 2.0f - 1.0f;
+    mouseClip.x = (mousepos.x / pViewport->GetWidth()) * 2.0f - 1.0f;
+    mouseClip.y = (mousepos.y / pViewport->GetHeight()) * 2.0f - 1.0f;
 
     // Compute the inverse view projection matrix.
     MyMatrix invVP = ( pCamera->m_Camera3D.m_matProj * pCamera->m_Camera3D.m_matView ).GetInverse();

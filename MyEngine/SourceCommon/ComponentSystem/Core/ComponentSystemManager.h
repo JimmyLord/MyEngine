@@ -88,7 +88,7 @@ struct FileUpdatedCallbackStruct
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED() \
     ComponentCallbackStruct_OnSurfaceChanged m_CallbackStruct_OnSurfaceChanged; \
-    void OnSurfaceChangedCallback(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+    void OnSurfaceChangedCallback(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_DRAW() \
     ComponentCallbackStruct_Draw m_CallbackStruct_Draw; \
@@ -113,7 +113,7 @@ struct FileUpdatedCallbackStruct
 
 // Callback function prototypes and structs.
 typedef void (ComponentBase::*ComponentCallbackFunc_Tick)(float deltaTime);
-typedef void (ComponentBase::*ComponentCallbackFunc_OnSurfaceChanged)(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+typedef void (ComponentBase::*ComponentCallbackFunc_OnSurfaceChanged)(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
 typedef void (ComponentBase::*ComponentCallbackFunc_Draw)(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnTouch)(int action, int id, float x, float y, float pressure, float size);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnButtons)(GameCoreButtonActions action, GameCoreButtonIDs id);
@@ -237,7 +237,7 @@ public:
 
     // Main events, most should call component callbacks.
     void Tick(float deltaTime);
-    void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+    void OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
     void DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays);
     void DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);

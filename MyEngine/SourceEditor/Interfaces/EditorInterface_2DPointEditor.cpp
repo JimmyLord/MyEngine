@@ -352,8 +352,8 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
     // Bind our FBO so we can render stuff to it.
     pEditorState->m_pMousePickerFBO->Bind( true );
 
-    glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
+    MyViewport viewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
+    g_pRenderer->EnableViewport( &viewport, true );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

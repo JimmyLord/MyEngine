@@ -148,9 +148,9 @@ void EditorState::OnFocusLost()
     m_EditorActionState = EDITORACTIONSTATE_None;
 }
 
-void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
+void EditorState::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height)
 {
-    m_EditorWindowRect.Set( startx, starty, width, height );
+    m_EditorWindowRect.Set( x, y, width, height );
 
     if( m_pDebugViewFBO )
     {

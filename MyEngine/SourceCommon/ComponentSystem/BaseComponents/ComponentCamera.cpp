@@ -8,6 +8,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
 
 #if MYFW_USING_WX
 bool ComponentCamera::m_PanelWatchBlockVisible = true;
@@ -260,10 +261,7 @@ void ComponentCamera::Reset()
     
     m_LayersToRender = 0x00FF;
 
-    m_WindowStartX = 0;
-    m_WindowStartY = 0;
-    m_WindowWidth = 0;
-    m_WindowHeight = 0;
+    m_Viewport.Set( 0, 0, 0, 0 );
 
     m_pPostEffectFBOs[0] = 0;
     m_pPostEffectFBOs[1] = 0;
@@ -351,7 +349,7 @@ void ComponentCamera::SetDesiredAspectRatio(float width, float height)
 
 void ComponentCamera::ComputeProjectionMatrices()
 {
-    if( m_WindowHeight == 0 )
+    if( m_Viewport.GetHeight() == 0 )
     {
         float ratio = m_DesiredWidth / m_DesiredHeight;
 
@@ -362,13 +360,13 @@ void ComponentCamera::ComputeProjectionMatrices()
     }
     else
     {
-        float deviceratio = (float)m_WindowWidth / (float)m_WindowHeight;
+        float deviceratio = (float)m_Viewport.GetWidth() / (float)m_Viewport.GetHeight();
         float gameratio = m_DesiredWidth / m_DesiredHeight;
 
         MyClamp( m_FieldOfView, 1.0f, 179.0f );
 
         m_Camera3D.SetupProjection( deviceratio, gameratio, m_FieldOfView, m_PerspectiveNearZ, m_PerspectiveFarZ );
-        m_Camera2D.Setup( (float)m_WindowWidth, (float)m_WindowHeight, m_DesiredWidth, m_DesiredHeight, m_OrthoNearZ, m_OrthoFarZ );
+        m_Camera2D.Setup( (float)m_Viewport.GetWidth(), (float)m_Viewport.GetHeight(), m_DesiredWidth, m_DesiredHeight, m_OrthoNearZ, m_OrthoFarZ );
     }
 }
 
@@ -390,18 +388,15 @@ void ComponentCamera::Tick(float deltaTime)
     }
 }
 
-void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+void ComponentCamera::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
-    if( m_WindowStartX == startx && m_WindowStartY == starty && m_WindowWidth == width && m_WindowHeight == height )
+    if( m_Viewport.GetX() == x && m_Viewport.GetY() == y && m_Viewport.GetWidth() == width && m_Viewport.GetHeight() == height )
         return;
 
     //m_DesiredWidth = (float)desiredaspectwidth;
     //m_DesiredHeight = (float)desiredaspectheight;
 
-    m_WindowStartX = startx;
-    m_WindowStartY = starty;
-    m_WindowWidth = width;
-    m_WindowHeight = height;
+    m_Viewport.Set( x, y, width, height );
 
     ComputeProjectionMatrices();
 
@@ -447,8 +442,8 @@ void ComponentCamera::OnDrawFrame()
     // Update camera view/proj before drawing.
     Tick( 0 );
 
-    g_GLStats.m_CurrentFramebufferWidth = m_WindowWidth;
-    g_GLStats.m_CurrentFramebufferHeight = m_WindowHeight;
+    g_GLStats.m_CurrentFramebufferWidth = m_Viewport.GetWidth();
+    g_GLStats.m_CurrentFramebufferHeight = m_Viewport.GetHeight();
 
 #if MYFW_EDITOR
     // If we resize the window and we're in an editor build, clear the backbuffer.
@@ -475,32 +470,22 @@ void ComponentCamera::OnDrawFrame()
             // If a post effect was found, render to an FBO.
             if( m_pPostEffectFBOs[0] == 0 )
             {
-                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
 
             m_pPostEffectFBOs[0]->Bind( false );
-            glDisable( GL_SCISSOR_TEST );
-            glViewport( 0, 0, m_WindowWidth, m_WindowHeight );
+
+            MyViewport viewport( 0, 0, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
+            g_pRenderer->EnableViewport( &viewport, true );
         }
         else
         {
-            // Set up scissor test and glViewport if not drawing to the whole window.
-            if( m_WindowStartX != 0 || m_WindowStartY != 0 )
-            {
-                // Scissor test is really only needed for the glClear call.
-                glEnable( GL_SCISSOR_TEST );
-                glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
-            }
-            else
-            {
-                glDisable( GL_SCISSOR_TEST );
-            }
-
-            glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+            // Enable viewport and enable/disable scissor region if needed.
+            g_pRenderer->EnableViewport( &m_Viewport, true );
         }
 
         DrawScene();
@@ -517,35 +502,24 @@ void ComponentCamera::OnDrawFrame()
             // If there is a next effect, render into the next unused FBO.
             if( m_pPostEffectFBOs[!fboindex] == 0 )
             {
-                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             m_pPostEffectFBOs[!fboindex]->Bind( false );
 
-            glDisable( GL_SCISSOR_TEST );
-            glViewport( 0, 0, m_WindowWidth, m_WindowHeight );
+            MyViewport viewport( 0, 0, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
+            g_pRenderer->EnableViewport( &viewport, true );
         }
         else
         {
             // If there isn't another post effect, render back to the FBO that was set before this function.
-            MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
+            MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
 
-            // Set up scissor test and glViewport if not drawing to the whole window.
-            if( m_WindowStartX != 0 || m_WindowStartY != 0 )
-            {
-                // Scissor test is really only needed for the glClear call.
-                glEnable( GL_SCISSOR_TEST );
-                glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
-            }
-            else
-            {
-                glDisable( GL_SCISSOR_TEST );
-            }
-
-            glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+            // Enable viewport and enable/disable scissor region if needed.
+            g_pRenderer->EnableViewport( &m_Viewport, true );
         }
 
         glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
@@ -562,7 +536,7 @@ void ComponentCamera::OnDrawFrame()
     {
         // The FBO should already be set, either we didn't change it, or the final pass was sent to this FBO.
         MyAssert( false );
-        MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
+        MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
     }
 }
 
@@ -600,7 +574,7 @@ void ComponentCamera::DrawScene()
             colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
             colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
-            m_pGBuffer = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, true );
+            m_pGBuffer = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, true );
 
             MyAssert( m_pDeferredShaderFile_AmbientDirectional == 0 );
             MyAssert( m_pDeferredShaderFile_PointLight == 0 );
@@ -709,7 +683,7 @@ void ComponentCamera::DrawScene()
     {
         // The FBO should already be set, either we didn't change it, or the final pass was sent to this FBO.
         //MyAssert( false );
-        MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
+        MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
     }
 
     // Finish our deferred render if we started it.

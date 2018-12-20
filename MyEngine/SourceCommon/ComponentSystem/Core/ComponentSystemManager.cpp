@@ -2282,7 +2282,7 @@ void ComponentSystemManager::Tick(float deltaTime)
     }
 }
 
-void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+void ComponentSystemManager::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
     for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
     {
@@ -2293,7 +2293,7 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
             // TODO: fix this hack, don't resize unmanaged cams (a.k.a. editor camera)
             if( pCamera->GetGameObject()->IsManaged() == true )
             {
-                pCamera->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+                pCamera->OnSurfaceChanged( x, y, width, height, desiredaspectwidth, desiredaspectheight );
             }
         }
     }
@@ -2303,7 +2303,7 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
     //{
     //    ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
-    //    pComponent->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+    //    pComponent->OnSurfaceChanged( x, y, width, height, desiredaspectwidth, desiredaspectheight );
     //}
 
     // notify all components that registered a callback of a change to the surfaces/aspect ratio.
@@ -2311,7 +2311,7 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
     {
         ComponentCallbackStruct_OnSurfaceChanged* pCallbackStruct = (ComponentCallbackStruct_OnSurfaceChanged*)pNode;
 
-        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( x, y, width, height, desiredaspectwidth, desiredaspectheight );
     }
 }
 
