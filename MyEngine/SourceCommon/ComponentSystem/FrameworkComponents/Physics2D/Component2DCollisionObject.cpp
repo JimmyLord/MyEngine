@@ -756,14 +756,14 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
         //glDisable( GL_CULL_FACE );
-        //glDisable( GL_DEPTH_TEST );
+        //g_pRenderer->SetDepthTestEnabled( false );
 
         g_pRenderer->DrawArrays( MyRE::PrimitiveType_LineStrip, 0, (int)m_Vertices.size(), false );
 
         glLineWidth( 1 );
 
         //glEnable( GL_CULL_FACE );
-        //glEnable( GL_DEPTH_TEST );
+        //g_pRenderer->SetDepthTestEnabled( true );
 
         glDisable( GL_BLEND );
     }

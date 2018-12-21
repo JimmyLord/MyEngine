@@ -922,9 +922,9 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         MyMatrix matProj;
         matProj.CreateOrtho( (float)windowrect.x, (float)windowrect.x+windowrect.w, (float)windowrect.y, (float)windowrect.y+windowrect.h, -1, 1 );
-        glDisable( GL_DEPTH_TEST );
+        g_pRenderer->SetDepthTestEnabled( false );
         m_pDebugTextMesh->Draw( &matProj, 0, 0, 0,0,0,0,0,0,0,0 );
-        glEnable( GL_DEPTH_TEST );
+        g_pRenderer->SetDepthTestEnabled( true );
     }
 #endif
 
@@ -2026,7 +2026,7 @@ void EngineCore::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 heigh
 #if !MYFW_RIGHTHANDED
     glFrontFace( GL_CW );
 #endif
-    glEnable( GL_DEPTH_TEST );
+    g_pRenderer->SetDepthTestEnabled( true );
 
     if( height == 0 || width == 0 )
         return;

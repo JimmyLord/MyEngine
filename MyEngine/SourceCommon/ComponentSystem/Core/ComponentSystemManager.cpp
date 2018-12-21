@@ -2319,11 +2319,11 @@ void ComponentSystemManager::OnDrawFrame()
 {
     for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
     {
-        ComponentCamera* pComponent = (ComponentCamera*)node;
+        ComponentCamera* pCamera = (ComponentCamera*)node;
 
-        if( pComponent->GetBaseType() == BaseComponentType_Camera && pComponent->IsEnabled() == true )
+        if( pCamera->GetBaseType() == BaseComponentType_Camera && pCamera->IsEnabled() == true )
         {
-            pComponent->OnDrawFrame();
+            pCamera->OnDrawFrame();
         }
     }
 }

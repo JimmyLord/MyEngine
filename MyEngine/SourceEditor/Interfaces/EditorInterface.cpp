@@ -114,7 +114,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
 
                 if( pCamera->m_LayersToRender & Layer_MainScene ) // only draw selected objects over "main" layer
                 {
-                    //glDisable( GL_DEPTH_TEST );
+                    //g_pRenderer->SetDepthTestEnabled( false );
                     glDisable( GL_CULL_FACE );
                     glDepthFunc( GL_LEQUAL );
 
@@ -170,7 +170,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                     glDisable( GL_BLEND );
 
                     glEnable( GL_CULL_FACE );
-                    glEnable( GL_DEPTH_TEST );
+                    g_pRenderer->SetDepthTestEnabled( true );
                 }
             }
         }

@@ -1639,7 +1639,7 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatPro
         }
     }
 
-    glDisable( GL_DEPTH_TEST );
+    g_pRenderer->SetDepthTestEnabled( false );
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
         if( m_pMenuItems[i] )
@@ -1647,7 +1647,7 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatPro
             m_pMenuItems[i]->Draw( &m_pComponentCamera->m_Camera2D.m_matProj, &m_pComponentCamera->m_Camera2D.m_matView );
         }
     }
-    glEnable( GL_DEPTH_TEST );
+    g_pRenderer->SetDepthTestEnabled( true );
 
     if( m_MenuPageDrawCallbackStruct.pFunc )
     {

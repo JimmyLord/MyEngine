@@ -400,6 +400,18 @@ void ComponentCamera::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 
 
     ComputeProjectionMatrices();
 
+    // Check if viewport is bigger than the FBO and resize if it is.
+    if( m_pGBuffer != 0 )
+    {
+        const int numcolorformats = 3;
+        FBODefinition::FBOColorFormat colorformats[numcolorformats];
+        colorformats[0] = FBODefinition::FBOColorFormat_RGBA_UByte;  // Albedo (RGB)
+        colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
+        colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
+
+        g_pTextureManager->ReSetupFBO( m_pGBuffer, m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, true );
+    }
+
 #if MYFW_EDITOR
     m_FullClearsRequired = 1;
 #endif //MYFW_EDITOR
@@ -450,9 +462,9 @@ void ComponentCamera::OnDrawFrame()
     // This is required since we're potentially GL_SCISSOR_TEST'ing an uncleared area.
     if( m_ClearColorBuffer && m_FullClearsRequired > 0 )
     {
-        glDisable( GL_SCISSOR_TEST );
-        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        g_pRenderer->ClearScissorRegion();
+        g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.0f, 0.0f, 1.0f ) );
+        g_pRenderer->ClearBuffers( true, true, false );
 
         m_FullClearsRequired--;
     }
@@ -522,8 +534,8 @@ void ComponentCamera::OnDrawFrame()
             g_pRenderer->EnableViewport( &m_Viewport, true );
         }
 
-        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.0f, 0.2f, 1.0f ) );
+        g_pRenderer->ClearBuffers( true, true, false );
 
         pPostEffect->Render( m_pPostEffectFBOs[fboindex] );
 
@@ -626,17 +638,14 @@ void ComponentCamera::DrawScene()
     // Clear the buffer and render the scene.
     {
         if( renderedADeferredPass )
-            glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+            g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.0f, 0.0f, 1.0f ) );
         else
-            glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+            g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.0f, 0.2f, 1.0f ) );
 
-        if( m_ClearColorBuffer && m_ClearDepthBuffer )
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        else if( m_ClearColorBuffer )
-            glClear( GL_COLOR_BUFFER_BIT );
-        else if( m_ClearDepthBuffer )
-            glClear( GL_DEPTH_BUFFER_BIT );
+        g_pRenderer->ClearBuffers( m_ClearColorBuffer, m_ClearDepthBuffer, false );
 
+        // Generally, draw everything in one pass, deferred renderer will break it into multiple passes below.
+        // Internally, g_pComponentSystemManager->DrawFrame will separate Opaques from Transparents.
         bool drawOpaques = true;
         bool drawTransparents = true;
         EmissiveDrawOptions emissiveDrawOption = EmissiveDrawOption_EitherEmissiveOrNot;
@@ -650,6 +659,7 @@ void ComponentCamera::DrawScene()
             drawOverlays = false;
         }
 
+        // Draw the selected objects.
         g_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
 
 #if MYFW_EDITOR
@@ -666,7 +676,6 @@ void ComponentCamera::DrawScene()
                     ImGui::EndPopup();
                 }
 
-                //ImGui::Text( this->m_pGameObject->GetName() );
                 ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(0)->GetTextureID(), ImVec2(128,128), ImVec2(0,1), ImVec2(1,0) );
                 ImGui::SameLine();
                 ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(1)->GetTextureID(), ImVec2(128,128), ImVec2(0,1), ImVec2(1,0) );
@@ -694,8 +703,8 @@ void ComponentCamera::DrawScene()
         g_ActiveShaderPass = ShaderPass_Main;
 
         // Clear the buffer.
-        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.0f, 0.0f, 1.0f ) );
+        g_pRenderer->ClearBuffers( true, true, false );
 
         // Find nearest shadow casting light. TODO: handle this better.
         MyMatrix* pShadowVP = 0;
@@ -747,8 +756,8 @@ void ComponentCamera::DrawScene()
             }
 
             // Disable depth write and depth test for point light spheres.
-            glDepthMask( GL_FALSE );
-            glDisable( GL_DEPTH_TEST );
+            g_pRenderer->SetDepthWriteEnabled( false );
+            g_pRenderer->SetDepthTestEnabled( false );
 
             // Draw all the point lights in the scene, using a sphere for each.
             {
@@ -782,8 +791,8 @@ void ComponentCamera::DrawScene()
             }
 
             // Restore the old gl state.
-            glDepthMask( GL_TRUE );
-            glEnable( GL_DEPTH_TEST );
+            g_pRenderer->SetDepthWriteEnabled( true );
+            g_pRenderer->SetDepthTestEnabled( true );
             glCullFace( GL_BACK );
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         }

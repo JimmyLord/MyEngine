@@ -336,7 +336,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
 
             //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
             //glDisable( GL_CULL_FACE );
-            glDepthMask( false );
+            g_pRenderer->SetDepthWriteEnabled( false );
             pMeshBall->SetMaterial( pMaterial, 0 );
 
             MyMatrix matWorld;
@@ -346,7 +346,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
             pMeshBall->Draw( pMatProj, pMatView, &matWorld, &camPos, &camRot, 0, 0, 0, 0, 0, 0 );
 
             pMeshBall->SetMaterial( 0, 0 );
-            glDepthMask( true );
+            g_pRenderer->SetDepthWriteEnabled( true );
             //glPolygonMode( GL_FRONT, GL_FILL );
             //glEnable( GL_CULL_FACE );
         }

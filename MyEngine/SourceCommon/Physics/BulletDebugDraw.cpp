@@ -56,12 +56,12 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
     glDisable( GL_CULL_FACE );
-    glDisable( GL_DEPTH_TEST );
+    g_pRenderer->SetDepthTestEnabled( false );
 
     g_pRenderer->DrawArrays( primitiveType, 0, vertexCount, false );
 
     glEnable( GL_CULL_FACE );
-    glEnable( GL_DEPTH_TEST );
+    g_pRenderer->SetDepthTestEnabled( true );
 
     glDisable( GL_BLEND );
 }
