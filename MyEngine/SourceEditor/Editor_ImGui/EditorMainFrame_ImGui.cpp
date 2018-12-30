@@ -74,9 +74,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_ShowCloseEditorWarning = false;
 
     // Render surfaces.
-    m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
-    m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
-    m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+    m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+    m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+    m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
 
     // Material Preview and Editor.
     m_pMaterialToPreview = 0;
@@ -1207,7 +1207,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 m_GameWindowPos.Set( pos.x + min.x, pos.y + min.y );
                 m_GameWindowSize.Set( w, h );
 
-                g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
 
                 //// Resize our FBO if the window is larger than it ever was.
                 //if( w > m_pGameFBO->GetTextureWidth() || h > m_pGameFBO->GetTextureHeight() )
@@ -1258,7 +1258,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 m_EditorWindowPos.Set( pos.x + min.x, pos.y + min.y );
                 m_EditorWindowSize.Set( w, h );
 
-                g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
 
                 //// Resize our FBO if the window is larger than it ever was.
                 //if( w > m_pEditorFBO->GetTextureWidth() || h > m_pEditorFBO->GetTextureHeight() )
@@ -2253,7 +2253,7 @@ void EditorMainFrame_ImGui::AddMemoryWindow()
             {
                 MemObject* pMem = (MemObject*)pNode;
 
-                m_pMemoryWindow->AddEntry( pMem->m_file, pMem->m_line, pMem->m_size );
+                m_pMemoryWindow->AddEntry( pMem->m_File, pMem->m_Line, pMem->m_Size );
             }
         }
         
@@ -3223,13 +3223,13 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
             if( showbuiltinuniforms )
             {
-                //g_pPanelWatch->AddEnum( "Blend", (int*)&m_BlendType, MaterialBlendType_NumTypes, MaterialBlendTypeStrings );
-                const char** items = MaterialBlendTypeStrings;
+                //g_pPanelWatch->AddEnum( "Blend", (int*)&m_BlendType, MyRE::MaterialBlendType_NumTypes, MyRE::MaterialBlendTypeStrings );
+                const char** items = MyRE::MaterialBlendTypeStrings;
                 int currentItem = pMat->GetBlendType();
-                const char* currentItemStr = MaterialBlendTypeStrings[currentItem];
+                const char* currentItemStr = MyRE::MaterialBlendTypeStrings[currentItem];
                 if( ImGui::BeginCombo( "Blend", currentItemStr ) )
                 {
-                    for( int n = 0; n < MaterialBlendType_NumTypes; n++ )
+                    for( int n = 0; n < MyRE::MaterialBlendType_NumTypes; n++ )
                     {
                         bool is_selected = (n == currentItem);
                         if( ImGui::Selectable( items[n], is_selected ) )
@@ -3238,7 +3238,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                             //ComponentVariableValue oldvalue( this, pVar );
 
                             //// Change the value.
-                            pMat->SetBlendType( (MaterialBlendType)n );
+                            pMat->SetBlendType( (MyRE::MaterialBlendTypes)n );
 
                             //// Store the new value.
                             //ComponentVariableValue newvalue( this, pVar );

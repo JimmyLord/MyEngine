@@ -15,7 +15,7 @@ class EditorMemoryWindow_ImGui
 public:
     struct Entry
     {
-        char* file;
+        const char* file;
         uint32 line;
         uint32 size;
         uint32 count;
@@ -38,7 +38,7 @@ public:
     ~EditorMemoryWindow_ImGui();
 
     void Clear();
-    void AddEntry(char* file, uint32 line, uint32 size);
+    void AddEntry(const char* file, uint32 line, uint32 size);
     void Draw(const char* title, bool* p_open = 0);
 
     void DrawStart(const char* title, bool* p_open);

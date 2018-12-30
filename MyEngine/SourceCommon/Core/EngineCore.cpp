@@ -318,14 +318,14 @@ void EngineCore::OneTimeInit()
 
 #if MYFW_EDITOR
     m_pEditorState = MyNew EditorState;
-    m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_None, 0, false, true );
-    m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_None, 0, false, true );
+    m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_None, 0, false, true );
+    m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_None, 0, false, true );
 
     if( m_pDebugFont == 0 )
     {
         m_pDebugFont = g_pFontManager->CreateFont( "Data/DataEngine/Fonts/Nevis60.fnt" );
 #if MYFW_EDITOR
-        m_pDebugFont->m_pFile->MemoryPanel_Hide();
+        m_pDebugFont->GetFile()->MemoryPanel_Hide();
 #endif
     }
 

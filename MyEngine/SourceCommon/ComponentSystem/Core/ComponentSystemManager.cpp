@@ -781,7 +781,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             ShaderGroup* pShaderGroup = pFileInfo->GetShaderGroup();
 
             SpriteSheet* pSpriteSheet = MyNew SpriteSheet();
-            pSpriteSheet->Create( pFile->GetFullPath(), pShaderGroup, GL_LINEAR, GL_LINEAR, false, true );
+            pSpriteSheet->Create( pFile->GetFullPath(), pShaderGroup, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, false, true );
 
             pFileInfo->SetSpriteSheet( pSpriteSheet );
 

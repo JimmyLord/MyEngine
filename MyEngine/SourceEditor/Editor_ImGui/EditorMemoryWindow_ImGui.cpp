@@ -32,7 +32,7 @@ void EditorMemoryWindow_ImGui::Clear()
     m_Count = 0;
 }
 
-void EditorMemoryWindow_ImGui::AddEntry(char* file, uint32 line, uint32 size)
+void EditorMemoryWindow_ImGui::AddEntry(const char* file, uint32 line, uint32 size)
 {
     for( uint32 i = 0; i < m_Count; i++ )
     {

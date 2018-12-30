@@ -409,7 +409,7 @@ void ComponentCamera::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 
         colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
         colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
-        g_pTextureManager->ReSetupFBO( m_pGBuffer, m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, true );
+        g_pTextureManager->ReSetupFBO( m_pGBuffer, m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, colorformats, numcolorformats, 32, true );
     }
 
 #if MYFW_EDITOR
@@ -482,11 +482,11 @@ void ComponentCamera::OnDrawFrame()
             // If a post effect was found, render to an FBO.
             if( m_pPostEffectFBOs[0] == 0 )
             {
-                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
 
             m_pPostEffectFBOs[0]->Bind( false );
@@ -514,11 +514,11 @@ void ComponentCamera::OnDrawFrame()
             // If there is a next effect, render into the next unused FBO.
             if( m_pPostEffectFBOs[!fboindex] == 0 )
             {
-                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             m_pPostEffectFBOs[!fboindex]->Bind( false );
 
@@ -586,7 +586,7 @@ void ComponentCamera::DrawScene()
             colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
             colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
-            m_pGBuffer = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, true );
+            m_pGBuffer = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, colorformats, numcolorformats, 32, true );
 
             MyAssert( m_pDeferredShaderFile_AmbientDirectional == 0 );
             MyAssert( m_pDeferredShaderFile_PointLight == 0 );

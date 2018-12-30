@@ -60,7 +60,7 @@ EditorState::EditorState()
         MaterialDefinition* pMaterial = m_pEditorIcons[i]->GetMaterial();
 
         // Icons can't have tranparency, shader will 'discard' fragments if alpha is less than 1.
-        pMaterial->SetBlendType( MaterialBlendType_Off );
+        pMaterial->SetBlendType( MyRE::MaterialBlendType_Off );
 
         // Load the icon png file, create a texture, set it to the material.  
         MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( EditorIconFilenames[i] );
@@ -154,12 +154,12 @@ void EditorState::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 heig
 
     if( m_pDebugViewFBO )
     {
-        g_pTextureManager->ReSetupFBO( m_pDebugViewFBO, width, height, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+        g_pTextureManager->ReSetupFBO( m_pDebugViewFBO, width, height, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
     }
 
     if( m_pMousePickerFBO )
     {
-        g_pTextureManager->ReSetupFBO( m_pMousePickerFBO, width, height, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+        g_pTextureManager->ReSetupFBO( m_pMousePickerFBO, width, height, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
     }
 }
 

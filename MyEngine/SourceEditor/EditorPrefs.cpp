@@ -79,8 +79,9 @@ void EditorPrefs::Init()
 
     if( file )
     {
-        char* string = MyNew char[10000];
-        size_t len = fread( string, 1, 10000, file );
+        // TODO: Fix this, no need to hard-code.  Also, use frame stack allocator.
+        char* string = MyNew char[100000];
+        size_t len = fread( string, 1, 100000, file );
         string[len] = 0;
         fclose( file );
 

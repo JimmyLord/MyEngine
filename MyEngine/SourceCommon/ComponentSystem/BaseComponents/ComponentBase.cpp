@@ -1124,12 +1124,11 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             {
                 SoundCue* pCue = *(SoundCue**)((char*)this + pVar->m_Offset);
 
-                ImGui::Text( "FilePtr: %s: %s (TODO)", pVar->m_Label, pCue->GetName() );
+                const char* desc = "no sound cue";
+                if( pCue != 0 )
+                    desc = pCue->GetName();
 
-                //const char* desc = "no sound cue";
-                //if( pCue != 0 )
-                //    desc = pCue->GetName();
-
+                ImGui::Text( "FilePtr: %s: %s (TODO)", pVar->m_Label, desc );
                 //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pCue, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
             break;

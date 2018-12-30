@@ -640,7 +640,7 @@
 
     //luabridge::getGlobalNamespace( m_pLuaState )
     //    .beginClass<TextureManager>( "TextureManager" )
-    // (TODO) .addFunction( "CreateTexture", (TextureDefinition* (TextureManager::*)(const char* texturefilename, int minfilter, int magfilter, int wraps, int wrapt)) &TextureManager::CreateTexture ) // TextureDefinition* TextureManager::CreateTexture(const char* texturefilename, int minfilter, int magfilter, int wraps, int wrapt)
+    // (TODO) .addFunction( "CreateTexture", (TextureDefinition* (TextureManager::*)(const char* textureFilename, MyRE::MinFilters minFilter, MyRE::MinFilters magFilter, MyRE::WrapModes wraps, MyRE::WrapModes wrapt)) &TextureManager::CreateTexture ) // TextureDefinition* TextureManager::CreateTexture(const char* textureFilename, MyRE::MinFilters minFilter, MyRE::MinFilters magFilter, MyRE::WrapModes wraps, MyRE::WrapModes wrapt)
     //    .endClass();
 
     //luabridge::getGlobalNamespace( m_pLuaState )

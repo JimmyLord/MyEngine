@@ -896,7 +896,7 @@ GL_REPEAT                     = 0x2901;\
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<TextureManager>( "TextureManager" )
-            .addFunction( "CreateTexture", (TextureDefinition* (TextureManager::*)(const char* texturefilename, int minfilter, int magfilter, int wraps, int wrapt)) &TextureManager::CreateTexture ) // TextureDefinition* TextureManager::CreateTexture(const char* texturefilename, int minfilter, int magfilter, int wraps, int wrapt)
+            .addFunction( "CreateTexture", (TextureDefinition* (TextureManager::*)(const char* textureFilename, MyRE::MinFilters minFilter, MyRE::MagFilters magFilter, MyRE::WrapModes wrapS, MyRE::WrapModes wrapT)) &TextureManager::CreateTexture ) // TextureDefinition* TextureManager::CreateTexture(const char* textureFilename, MyRE::MinFilters minFilter, MyRE::MinFilters magFilter, MyRE::WrapModes wrapS, MyRE::WrapModes wrapT)
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
