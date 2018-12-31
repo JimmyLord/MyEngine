@@ -18,6 +18,11 @@
 #include "../SourceEditor/Exporters/ExportBox2DScene.h"
 #endif //MYFW_EDITOR
 
+// TODO: Fix GL Includes.
+#include <gl/GL.h>
+#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+
 ComponentSystemManager* g_pComponentSystemManager = 0;
 
 ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager)

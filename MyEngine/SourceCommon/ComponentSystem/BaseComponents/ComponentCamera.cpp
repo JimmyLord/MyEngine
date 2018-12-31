@@ -10,6 +10,11 @@
 #include "EngineCommonHeader.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
 
+// TODO: Fix GL Includes.
+#include <gl/GL.h>
+#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+
 #if MYFW_USING_WX
 bool ComponentCamera::m_PanelWatchBlockVisible = true;
 #endif

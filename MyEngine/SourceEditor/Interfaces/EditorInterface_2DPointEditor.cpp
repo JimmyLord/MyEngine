@@ -9,6 +9,10 @@
 
 #include "EngineCommonHeader.h"
 
+// TODO: Fix GL Includes.
+#include <gl/GL.h>
+#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+
 EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
 {
     m_pCollisionObject = 0;

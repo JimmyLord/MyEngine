@@ -10,6 +10,11 @@
 #include "EngineCommonHeader.h"
 #include "../../SourceCommon/GUI/EditorIcons.h"
 
+// TODO: Fix GL Includes.
+#include <gl/GL.h>
+#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+
 ImGuiManager* g_pImGuiManager = 0;
 
 ImGuiManager::ImGuiManager()

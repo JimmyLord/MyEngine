@@ -12,6 +12,11 @@
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
 
+// TODO: Fix GL Includes.
+#include <gl/GL.h>
+#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+
 #if MYFW_USING_WX
 bool ComponentMesh::m_PanelWatchBlockVisible = true;
 #endif

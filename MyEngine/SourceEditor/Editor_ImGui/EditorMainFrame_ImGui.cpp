@@ -14,6 +14,11 @@
 #include "../../SourceCommon/GUI/EditorIcons.h"
 #include "../../SourceCommon/GUI/ImGuiExtensions.h"
 
+// TODO: Fix GL Includes.
+#include <gl/GL.h>
+#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+
 //====================================================================================================
 // Various enums and matching strings (some unused)
 //====================================================================================================
