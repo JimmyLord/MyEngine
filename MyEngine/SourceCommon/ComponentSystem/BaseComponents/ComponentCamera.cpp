@@ -799,7 +799,7 @@ void ComponentCamera::DrawScene()
             g_pRenderer->SetDepthWriteEnabled( true );
             g_pRenderer->SetDepthTestEnabled( true );
             glCullFace( GL_BACK );
-            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
         }
 
         // Render opaque/emissive objects with normal forward render pass.

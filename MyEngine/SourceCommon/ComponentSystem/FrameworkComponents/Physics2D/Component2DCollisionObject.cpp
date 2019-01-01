@@ -757,8 +757,8 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
 
         glLineWidth( 3 );
 
-        glEnable( GL_BLEND );
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        g_pRenderer->SetBlendEnabled( true );
+        g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
         //glDisable( GL_CULL_FACE );
         //g_pRenderer->SetDepthTestEnabled( false );
@@ -770,7 +770,8 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         //glEnable( GL_CULL_FACE );
         //g_pRenderer->SetDepthTestEnabled( true );
 
-        glDisable( GL_BLEND );
+        // Always disable blending.
+        g_pRenderer->SetBlendEnabled( false );
     }
 }
 #endif //MYFW_EDITOR

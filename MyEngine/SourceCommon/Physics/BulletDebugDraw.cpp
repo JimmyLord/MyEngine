@@ -57,8 +57,8 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
     glPointSize( pointOrLineSize );
 #endif
 
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    g_pRenderer->SetBlendEnabled( true );
+    g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
     glDisable( GL_CULL_FACE );
     g_pRenderer->SetDepthTestEnabled( false );
@@ -68,7 +68,8 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
     glEnable( GL_CULL_FACE );
     g_pRenderer->SetDepthTestEnabled( true );
 
-    glDisable( GL_BLEND );
+    // Always disable blending.
+    g_pRenderer->SetBlendEnabled( false );
 }
 
 void BulletDebugDraw::drawLine(const btVector3& from, const btVector3& to, const btVector3& color)

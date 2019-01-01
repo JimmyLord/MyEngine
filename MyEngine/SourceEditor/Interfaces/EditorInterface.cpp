@@ -133,8 +133,8 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                             // draw an outline around the selected object
                             if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() )
                             {
-                                glEnable( GL_BLEND );
-                                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                                g_pRenderer->SetBlendEnabled( true );
+                                g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
                                 glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
                                 glEnable( GL_POLYGON_OFFSET_LINE );
@@ -154,8 +154,8 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                             // draw the entire selected shape with the shader
                             if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowEffect() )
                             {
-                                glEnable( GL_BLEND );
-                                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                                g_pRenderer->SetBlendEnabled( true );
+                                g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
                                 pShader->ProgramMaterialProperties( 0, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
                                 pShader->ProgramTransforms( 0, 0, 0 );
@@ -170,8 +170,8 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
 
                     pShader->DeactivateShader( 0, true );
 
-                    // always disable blending
-                    glDisable( GL_BLEND );
+                    // Always disable blending.
+                    g_pRenderer->SetBlendEnabled( false );
 
                     glEnable( GL_CULL_FACE );
                     g_pRenderer->SetDepthTestEnabled( true );

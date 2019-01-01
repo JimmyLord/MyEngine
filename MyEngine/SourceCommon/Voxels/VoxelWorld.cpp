@@ -160,7 +160,7 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
     MyAssert( m_NumChunkPointersAllocated == 0 );
 
     m_pSharedIndexBuffer = g_pBufferManager->CreateBuffer();
-    m_pSharedIndexBuffer->InitializeBuffer( 0, 0, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, false, 1, (VertexFormats)2, 0, "IBO", "VoxelWorld" );
+    m_pSharedIndexBuffer->InitializeBuffer( 0, 0, MyRE::BufferType_Index, MyRE::BufferUsage_StaticDraw, false, 1, (VertexFormats)2, 0, "IBO", "VoxelWorld" );
     BuildSharedIndexBuffer();
     
     SetWorldSize( visibleworldsize );
