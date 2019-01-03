@@ -15,7 +15,7 @@
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 #if MYFW_USING_WX
 bool ComponentMesh::m_PanelWatchBlockVisible = true;
@@ -496,14 +496,14 @@ void ComponentMesh::OnPlay()
 {
     ComponentBase::OnPlay();
 
-    m_pMesh->RegisterSetupCustomUniformCallback( 0, 0 );
+    m_pMesh->RegisterSetupCustomUniformsCallback( 0, 0 );
 
     m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
 
     if( m_pComponentLuaScript )
     {
         m_pComponentLuaScript->RegisterOnDeleteCallback( this, StaticOnLuaScriptDeleted );
-        m_pMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
+        m_pMesh->RegisterSetupCustomUniformsCallback( this, StaticSetupCustomUniformsCallback );
     }
 }
 
@@ -721,7 +721,7 @@ void ComponentMesh::OnLuaScriptDeleted(ComponentBase* pComponent) // StaticOnLua
     if( m_pComponentLuaScript == pComponent )
     {
         m_pComponentLuaScript = 0;
-        m_pMesh->RegisterSetupCustomUniformCallback( 0, 0 );
+        m_pMesh->RegisterSetupCustomUniformsCallback( 0, 0 );
     }
 }
 

@@ -17,7 +17,7 @@
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 //====================================================================================================
 // Various enums and matching strings (some unused)

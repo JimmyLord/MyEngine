@@ -13,7 +13,7 @@
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 #if MYFW_USING_WX
 bool ComponentCamera::m_PanelWatchBlockVisible = true;
@@ -615,7 +615,7 @@ void ComponentCamera::DrawScene()
             m_pDeferredQuadMesh = new MyMesh();
             m_pDeferredQuadMesh->CreateClipSpaceQuad( Vector2( m_pGBuffer->GetWidth()/(float)m_pGBuffer->GetTextureWidth(), m_pGBuffer->GetHeight()/(float)m_pGBuffer->GetTextureHeight() ) );
             m_pDeferredQuadMesh->SetMaterial( m_pDeferredMaterial_AmbientDirectional, 0 );
-            m_pDeferredQuadMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
+            m_pDeferredQuadMesh->RegisterSetupCustomUniformsCallback( this, StaticSetupCustomUniformsCallback );
 
             MyAssert( m_pDeferredSphereMesh == 0 );
             MyAssert( m_pDeferredSphereMeshFile == 0 );
@@ -626,7 +626,7 @@ void ComponentCamera::DrawScene()
 #endif
 
             m_pDeferredSphereMesh->SetSourceFile( m_pDeferredSphereMeshFile );
-            m_pDeferredSphereMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
+            m_pDeferredSphereMesh->RegisterSetupCustomUniformsCallback( this, StaticSetupCustomUniformsCallback );
         }
 
         if( m_pGBuffer->IsFullyLoaded() )
@@ -937,10 +937,10 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj,
     if( pSprite == 0 )
         return;
 
-    // Set the sprite color
+    // Set the sprite color.
     pSprite->GetMaterial()->m_ColorDiffuse = ColorByte( 255, 255, 255, 255 );
 
-    // make the sprite face the same direction as the camera.
+    // Make the sprite face the same direction as the camera.
     MyMatrix rot90;
     rot90.SetIdentity();
     rot90.Rotate( -90, 0, 1, 0 );
@@ -948,12 +948,12 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj,
     MyMatrix transform = *m_pComponentTransform->GetWorldTransform() * rot90;
     //pSprite->SetPosition( &transform );
     
-    // disable culling, so we see the camera from both sides.
-    glPolygonMode( GL_FRONT, GL_FILL );
-    glDisable( GL_CULL_FACE );
+    // Disable culling, so we see the camera from both sides.
+    g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
+    g_pRenderer->SetCullingEnabled( false );
     pSprite->Draw( pMatProj, pMatView, &transform, pShaderOverride, true );
-    glEnable( GL_CULL_FACE );
+    g_pRenderer->SetCullingEnabled( true );
     if( g_pEngineCore->GetDebug_DrawWireframe() )
-        glPolygonMode( GL_FRONT, GL_LINE );
+        g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
 }
 #endif //MYFW_EDITOR

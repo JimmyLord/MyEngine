@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,35 +9,10 @@
 
 #include "EngineCommonHeader.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
-
-#if MYFW_USING_WX
-void EditorInterfaceWxEventHandler::OnPopupClick(wxEvent &evt)
-{
-    EditorInterfaceWxEventHandler* pEvtHandler = (EditorInterfaceWxEventHandler*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
-    void* pPointer = pEvtHandler->m_pPointer;
-    int value = pEvtHandler->m_ValueInt;
-
-    int id = evt.GetId();
-
-    GameObject* m_pGameObjectRightClicked = (GameObject*)pPointer;
-
-    if( m_pGameObjectRightClicked )
-    {
-        for( unsigned int i=0; i<m_pGameObjectRightClicked->GetComponentCount(); i++ )
-        {
-            m_pGameObjectRightClicked->GetComponentByIndex( i )->OnRightClickOptionClicked( evt, RightClick_ComponentOps + 1000 * i );
-        }
-    }
-}
-#endif
-
 EditorInterface::EditorInterface()
 {
     m_ShowRightClickMenu = false;
-    m_pGameObjectRightClicked = 0;
+    m_pGameObjectRightClicked = nullptr;
 }
 
 EditorInterface::~EditorInterface()
@@ -76,24 +51,6 @@ void EditorInterface::Tick(float deltaTime)
 
         if( m_pGameObjectRightClicked )
         {
-#if MYFW_USING_WX
-            wxMenu menu;
-            menu.SetClientData( &m_EditorInterfaceWxEventHandler );
-
-            m_EditorInterfaceWxEventHandler.m_pPointer = m_pGameObjectRightClicked;
-            m_EditorInterfaceWxEventHandler.m_ValueInt = 0;
-
-            // Loop through components, each will add their menu items to the menu object.
-            for( unsigned int i=0; i<m_pGameObjectRightClicked->GetComponentCount(); i++ )
-            {
-                m_pGameObjectRightClicked->GetComponentByIndex( i )->AddRightClickOptionsToMenu( &menu, EditorInterfaceWxEventHandler::RightClick_ComponentOps + 1000 * i );
-            }
-
- 	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&EditorInterfaceWxEventHandler::OnPopupClick );
-
-            // blocking call.
-            g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
-#endif
         }
     }
 }
@@ -107,7 +64,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
     MyAssert( pEditorState->m_pEditorCamera );
     if( pEditorState->m_pEditorCamera )
     {
-        // draw scene from editor camera and editorFG camera
+        // Draw scene from editor camera and editorFG camera.
         for( unsigned int i=0; i<pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
         {
             ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
@@ -116,11 +73,11 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
             {
                 pCamera->OnDrawFrame();
 
-                if( pCamera->m_LayersToRender & Layer_MainScene ) // only draw selected objects over "main" layer
+                if( pCamera->m_LayersToRender & Layer_MainScene ) // Only draw selected objects over "main" layer.
                 {
                     //g_pRenderer->SetDepthTestEnabled( false );
-                    glDisable( GL_CULL_FACE );
-                    glDepthFunc( GL_LEQUAL );
+                    g_pRenderer->SetCullingEnabled( false );
+                    g_pRenderer->SetDepthFunction( MyRE::DepthFunc_LEqual );
 
                     // Draw selected objects in editor view.
                     ShaderGroup* pShaderOverride = g_pEngineCore->GetShader_SelectedObjects();
@@ -130,35 +87,32 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                     {
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
-                            // draw an outline around the selected object
+                            // Draw an outline around the selected object.
                             if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() )
                             {
                                 g_pRenderer->SetBlendEnabled( true );
                                 g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
-                                glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-                                glEnable( GL_POLYGON_OFFSET_LINE );
-                                glEnable( GL_POLYGON_OFFSET_FILL ); // enabling GL_POLYGON_OFFSET_LINE doesn't work on my intel 4000
-                                glPolygonOffset( -0.5, -0.5 );
+                                g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
+                                g_pRenderer->SetPolygonOffset( true, -0.5f, -0.5f );
                                 pShader->ProgramTint( ColorByte(255,255,255,50) );
                                 g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matProj,
                                                                              &pCamera->m_Camera3D.m_matView,
                                                                              pEditorState->m_pSelectedObjects[i],
                                                                              pShaderOverride );
-                                glPolygonOffset( 0, 0 );
-                                glDisable( GL_POLYGON_OFFSET_FILL );
-                                glDisable( GL_POLYGON_OFFSET_LINE );
-                                glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+
+                                g_pRenderer->SetPolygonOffset( false, 0, 0 );
+                                g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
                             }
                             
-                            // draw the entire selected shape with the shader
+                            // Draw the entire selected shape with the shader.
                             if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowEffect() )
                             {
                                 g_pRenderer->SetBlendEnabled( true );
                                 g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
-                                pShader->ProgramMaterialProperties( 0, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
-                                pShader->ProgramTransforms( 0, 0, 0 );
+                                pShader->ProgramMaterialProperties( nullptr, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
+                                pShader->ProgramTransforms( nullptr, nullptr, nullptr );
                                 pShader->ProgramTint( ColorByte(0,0,0,0) );
                                 g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matProj,
                                                                              &pCamera->m_Camera3D.m_matView,
@@ -168,19 +122,19 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                         }
                     }
 
-                    pShader->DeactivateShader( 0, true );
+                    pShader->DeactivateShader( nullptr, true );
 
                     // Always disable blending.
                     g_pRenderer->SetBlendEnabled( false );
 
-                    glEnable( GL_CULL_FACE );
+                    g_pRenderer->SetCullingEnabled( true );
                     g_pRenderer->SetDepthTestEnabled( true );
                 }
             }
         }
     }
 
-    // Draw our mouse picker frame over the screen
+    // Draw our mouse picker frame over the screen.
     if( g_pEngineCore->GetDebug_DrawMousePickerFBO() && g_GLCanvasIDActive == 1 )
     {
         MySprite* pDebugQuad = g_pEngineCore->GetSprite_DebugQuad();
@@ -190,35 +144,35 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
             pDebugQuad->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
             g_pEngineCore->GetMaterial_MousePicker()->SetTextureColor( pEditorState->m_pMousePickerFBO->GetColorTexture( 0 ) );
             pDebugQuad->SetMaterial( g_pEngineCore->GetMaterial_MousePicker() );
-            pDebugQuad->Draw( 0, 0, 0 );
+            pDebugQuad->Draw( nullptr, nullptr, nullptr );
         }
     }
 }
 
-void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+void EditorInterface::SetModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-    if( keyaction == GCBA_Down )
+    if( keyAction == GCBA_Down )
     {
-        if( keycode == MYKEYCODE_LCTRL )    pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Control;
-        if( keycode == MYKEYCODE_LALT )     pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
-        if( keycode == MYKEYCODE_LSHIFT )   pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Shift;
-        if( keycode == ' ' )                pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Space;
+        if( keyCode == MYKEYCODE_LCTRL )    pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Control;
+        if( keyCode == MYKEYCODE_LALT )     pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
+        if( keyCode == MYKEYCODE_LSHIFT )   pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Shift;
+        if( keyCode == ' ' )                pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Space;
     }
 
-    // since keys can be pressed while a different window frame has focus, let's just manually query the modifiers.
+    // Since keys can be pressed while a different window frame has focus, let's just manually query the modifiers.
     if( PlatformSpecific_CheckKeyState( MYKEYCODE_LCTRL ) )  pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Control;
     if( PlatformSpecific_CheckKeyState( MYKEYCODE_LALT ) )   pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
     if( PlatformSpecific_CheckKeyState( MYKEYCODE_LSHIFT ) ) pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Shift;
     if( PlatformSpecific_CheckKeyState( ' ' ) )              pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Space;
 
-    if( mouseaction != -1 )
+    if( mouseAction != -1 )
     {
         pEditorState->m_CurrentMousePosition.Set( x, y );
         //pEditorState->m_LastMousePosition.Set( x, y );
 
-        if( mouseaction == GCBA_Down )
+        if( mouseAction == GCBA_Down )
         {
             if( id == 0 )
             {
@@ -237,7 +191,7 @@ void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouse
             }
         }
 
-        if( mouseaction == GCBA_Held || mouseaction == GCBA_RelativeMovement )
+        if( mouseAction == GCBA_Held || mouseAction == GCBA_RelativeMovement )
         {
             if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
             {
@@ -258,28 +212,28 @@ void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouse
     }
 }
 
-void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+void EditorInterface::ClearModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-    if( keyaction == GCBA_Up )
+    if( keyAction == GCBA_Up )
     {
-        if( keycode == MYKEYCODE_LCTRL )    pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Control;
-        if( keycode == MYKEYCODE_LALT )     pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
-        if( keycode == MYKEYCODE_LSHIFT )   pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
-        if( keycode == ' ' )                pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Space;
+        if( keyCode == MYKEYCODE_LCTRL )    pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Control;
+        if( keyCode == MYKEYCODE_LALT )     pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
+        if( keyCode == MYKEYCODE_LSHIFT )   pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
+        if( keyCode == ' ' )                pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Space;
     }
 
-    // since keys can be pressed while a different window frame has focus, let's just manually query the modifiers.
-    // this shouldn't be necessary since mouse down will have given us focus if we care about keys
+    // Since keys can be pressed while a different window frame has focus, let's just manually query the modifiers.
+    // This shouldn't be necessary since mouse down will have given us focus if we care about keys.
     if( PlatformSpecific_CheckKeyState( MYKEYCODE_LCTRL ) == false )  pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Control;
     if( PlatformSpecific_CheckKeyState( MYKEYCODE_LALT ) == false )   pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
     if( PlatformSpecific_CheckKeyState( MYKEYCODE_LSHIFT ) == false ) pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
     if( PlatformSpecific_CheckKeyState( ' ' ) == false )              pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Space;
 
-    if( mouseaction != -1 )
+    if( mouseAction != -1 )
     {
-        if( mouseaction == GCBA_Up )
+        if( mouseAction == GCBA_Up )
         {
             pEditorState->m_MouseDownLocation[id] = Vector2( -1, -1 );
 
@@ -297,14 +251,10 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
             }
 
             // Unlock the mouse, even if it wasn't locked.
-#if !(MYFW_OSX && MYFW_USING_WX)
-#if MYFW_USING_WX
-            g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( false );
-#elif MYFW_USING_IMGUI
+#if !MYFW_OSX
             //LOGInfo( LOGTag, "Request mouse unlock\n" );
             SetMouseLock( false );
-#endif //MYFW_USING_WX
-#endif //!(MYFW_OSX && MYFW_USING_WX)
+#endif //!MYFW_OSX
 
             pEditorState->m_HasMouseMovedSinceButtonPressed[id] = false;
         }
@@ -313,25 +263,25 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
     pEditorState->m_LastMousePosition = pEditorState->m_CurrentMousePosition;
 }
 
-bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-    MyMatrix StartCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
+    MyMatrix startCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
 
-    // if mouse message. down, up, dragging or wheel.
-    if( mouseaction != -1 )
+    // If mouse message. down, up, dragging or wheel.
+    if( mouseAction != -1 )
     {
         unsigned int mods = pEditorState->m_ModifierKeyStates;
 
-        // get the editor camera's local transform.
+        // Get the editor camera's local transform.
         MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
-        // move camera in/out if mousewheel spinning
-        if( mouseaction == GCBA_Wheel )
+        // Move camera in/out if mousewheel spinning.
+        if( mouseAction == GCBA_Wheel )
         {
-            // pressure is also mouse wheel movement rate in wx configurations.
+            // Pressure is also mouse wheel movement rate in editor configurations.
 #if MYFW_RIGHTHANDED
             Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/fabs(pressure));
 #else
@@ -345,8 +295,8 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                 matCamera->TranslatePreRotScale( dir * speed * 1/60.0f); //* g_pEngineCore->GetTimePassedUnpausedLastFrame() );
         }
 
-        // if left mouse down, reset the transform gizmo tool.
-        if( mouseaction == GCBA_Down && id == 0 )
+        // If left mouse down, reset the transform gizmo tool.
+        if( mouseAction == GCBA_Down && id == 0 )
         {
             pEditorState->m_pTransformGizmo->m_LastIntersectResultIsValid = false;
         }
@@ -354,110 +304,79 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
         // Enter/Exit RotatingEditorCamera camera state on right-click.
         {
             // If the right mouse button was clicked, switch to rotating editor camera state.
-            if( mouseaction == GCBA_Down && id == 1 )
+            if( mouseAction == GCBA_Down && id == 1 )
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotatingEditorCamera;
             }
 
             // If we're in EDITORACTIONSTATE_RotatingEditorCamera and the right mouse goes up.
             if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotatingEditorCamera &&
-                mouseaction == GCBA_Up && id == 1 )
+                mouseAction == GCBA_Up && id == 1 )
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
             }
         }
 
-        // if space is held, left button will pan the camera around.  or just middle button
+        // If space is held, left button will pan the camera around.  or just middle button.
         if( ( (mods & MODIFIERKEY_LeftMouse) && (mods & MODIFIERKEY_Space) ) || (mods & MODIFIERKEY_MiddleMouse) )
         {
-#if MYFW_OSX && MYFW_USING_WX
-            // TODO: fix OSX to support locked mouse cursor.
+#if MYFW_OSX
+            // TODO: Fix OSX to support locked mouse cursor.
             Vector3 dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;
-#else //MYFW_OSX && MYFW_USING_WX
+#else //MYFW_OSX
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
-#if MYFW_USING_WX // TODO_FIX_EDITOR
-            if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
-            {
-                g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
-            }
-#elif MYFW_USING_IMGUI
             if( IsMouseLocked() == false )
             {
                 //LOGInfo( LOGTag, "Request mouse lock\n" );
                 SetMouseLock( true );
             }
-#endif //MYFW_USING_WX
+
             Vector2 dir( 0, 0 );
-            if( mouseaction == GCBA_RelativeMovement )
+            if( mouseAction == GCBA_RelativeMovement )
             {
                 //LOGInfo( LOGTag, "relative movement.\n" );
                 dir.Set( -x, -y );
             }
-#endif //MYFW_OSX && MYFW_USING_WX
+#endif //MYFW_OSX
 
             //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
             if( dir.LengthSquared() > 0 )
                 matCamera->TranslatePreRotScale( dir * 0.05f );
         }
-        else if( mouseaction == GCBA_Held &&
+        else if( mouseAction == GCBA_Held &&
                  pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects &&
                  (mods & MODIFIERKEY_LeftMouse) )
         {
-            // TODO: draw a box in the foreground.
-            //int smallerx = pEditorState->m_CurrentMousePosition.x > pEditorState->m_MouseLeftDownLocation.x ? pEditorState->m_MouseLeftDownLocation.x : pEditorState->m_CurrentMousePosition.x;
-            //int biggerx = pEditorState->m_CurrentMousePosition.x < pEditorState->m_MouseLeftDownLocation.x ? pEditorState->m_MouseLeftDownLocation.x : pEditorState->m_CurrentMousePosition.x;
-
-            //int smallery = pEditorState->m_CurrentMousePosition.y > pEditorState->m_MouseLeftDownLocation.y ? pEditorState->m_MouseLeftDownLocation.y : pEditorState->m_CurrentMousePosition.y;
-            //int biggery = pEditorState->m_CurrentMousePosition.y < pEditorState->m_MouseLeftDownLocation.y ? pEditorState->m_MouseLeftDownLocation.y : pEditorState->m_CurrentMousePosition.y;
-
-            //LOGInfo( LOGTag, "group selecting: %d,%d  %d,%d\n", smallerx, smallery, biggerx, biggery );
-
-            //pEditorState->ClearSelectedObjectsAndComponents();
-            //for( int y=smallery; y<biggery; y++ )
-            //{
-            //    for( int x=smallerx; x<biggerx; x++ )
-            //    {
-            //        GameObject* pObject = GetObjectAtPixel( x, y, false );
-            //        if( pObject )
-            //            g_pPanelObjectList->SelectObject( pObject ); // passing in 0 will unselect all items.
-            //    }
-            //}
         }
-        // if right mouse is down, rotate the camera around selected object or around it's current position
+        // If right mouse is down, rotate the camera around selected object or around it's current position.
         else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotatingEditorCamera &&
                  (mods & MODIFIERKEY_RightMouse) )
         {
-#if MYFW_USING_WX && MYFW_OSX
+#if MYFW_OSX
             // TODO: fix OSX to support locked mouse cursor.
             Vector3 dir = (pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition) * -1;
-#else //MYFW_USING_WX && MYFW_OSX
+#else //MYFW_OSX
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
-#if MYFW_USING_WX
-            if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
-            {
-                g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
-            }
-#elif MYFW_USING_IMGUI
             if( IsMouseLocked() == false )
             {
                 //LOGInfo( LOGTag, "Request mouse lock\n" );
                 SetMouseLock( true );
             }
-#endif //MYFW_USING_WX
+
             Vector2 dir( 0, 0 );
-            if( mouseaction == GCBA_RelativeMovement )
+            if( mouseAction == GCBA_RelativeMovement )
             {
                 //LOGInfo( LOGTag, "Relative Movement\n" );
                 dir.Set( x, y );
             }
-#endif //MYFW_USING_WX && MYFW_OSX
+#endif //MYFW_OSX
 
             if( dir.LengthSquared() > 0 )
             {
                 Vector3 pivot;
                 float distancefrompivot;
 
-                // different pivot and distance from pivot depending if Alt is held.
+                // Different pivot and distance from pivot depending if Alt is held.
                 if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
                 {
                     // pivot around the transform gizmo
@@ -466,7 +385,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                 }
                 else
                 {
-                    // pivot on the camera, just change rotation.
+                    // Pivot on the camera, just change rotation.
                     pivot = matCamera->GetTranslation();
                     distancefrompivot = 0;
                 }
@@ -475,7 +394,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
 
                 Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
 
-                // TODO: make this degrees per inch
+                // TODO: Make this degrees per inch.
                 float degreesperpixel = 0.125f;
 
 #if MYFW_RIGHTHANDED
@@ -487,7 +406,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
 #endif
                 MyClamp( angle.x, -90.0f, 90.0f );
 
-                // Create a new local transform
+                // Create a new local transform.
                 matCamera->SetIdentity();
 #if MYFW_RIGHTHANDED
                 matCamera->Translate( 0, 0, distancefrompivot );
@@ -498,30 +417,30 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                 matCamera->Rotate( angle.y, 0, 1, 0 );
                 matCamera->Translate( pivot );
 
-                // Update the local scale/rotation/translation from the local transform
+                // Update the local scale/rotation/translation from the local transform.
                 pCamera->m_pComponentTransform->UpdateLocalSRT();
             }
         }
 
-        // pull the scale/pos/rot from the local matrix and update the values in the watch window.
+        // Pull the scale/pos/rot from the local matrix and update the values in the watch window.
         pCamera->m_pComponentTransform->UpdateLocalSRT();
         pCamera->m_pComponentTransform->UpdateTransform();
     }
 
-    // handle editor keys
-    if( keyaction == GCBA_Held )
+    // Handle editor keys.
+    if( keyAction == GCBA_Held )
     {
-        // get the editor camera's local transform.
+        // Get the editor camera's local transform.
         MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
-        // WASD to move camera
+        // WASD to move camera.
         Vector3 dir( 0, 0, 0 );
-        if( keycode == 'W' ) dir.z +=  1;
-        if( keycode == 'A' ) dir.x += -1;
-        if( keycode == 'S' ) dir.z += -1;
-        if( keycode == 'D' ) dir.x +=  1;
-        if( keycode == 'Q' ) dir.y +=  1;
-        if( keycode == 'Z' ) dir.y -=  1;
+        if( keyCode == 'W' ) dir.z +=  1;
+        if( keyCode == 'A' ) dir.x += -1;
+        if( keyCode == 'S' ) dir.z += -1;
+        if( keyCode == 'D' ) dir.x +=  1;
+        if( keyCode == 'Q' ) dir.y +=  1;
+        if( keyCode == 'Z' ) dir.y -=  1;
 
         float speed = 7.0f;
         if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
@@ -538,13 +457,13 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
     //     apply any changes we made to the editor camera to the offset from the locked object.
     if( pEditorState->m_CameraState == EditorCameraState_LockedToObject )
     {
-        MyMatrix EndCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
-        MyMatrix StartCamInverseTransform = StartCamTransform.GetInverse();
+        MyMatrix endCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
+        MyMatrix startCamInverseTransform = startCamTransform.GetInverse();
 
-        MyMatrix ChangeInCamTransform = StartCamInverseTransform * EndCamTransform;
-        MyMatrix newtransform = pEditorState->m_OffsetFromObject * ChangeInCamTransform;
+        MyMatrix changeInCamTransform = startCamInverseTransform * endCamTransform;
+        MyMatrix newTransform = pEditorState->m_OffsetFromObject * changeInCamTransform;
 
-        pEditorState->m_OffsetFromObject = newtransform;
+        pEditorState->m_OffsetFromObject = newTransform;
     }
 
     return false;
@@ -557,7 +476,7 @@ void EditorInterface::RenderObjectIDsToFBO()
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return;
 
-    // bind our FBO so we can render the scene to it.
+    // Bind our FBO so we can render the scene to it.
     pEditorState->m_pMousePickerFBO->Bind( true );
 
     pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
@@ -565,18 +484,18 @@ void EditorInterface::RenderObjectIDsToFBO()
     MyViewport viewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
     g_pRenderer->EnableViewport( &viewport, true );
 
-    glClearColor( 0, 0, 0, 0 );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    g_pRenderer->SetClearColor( ColorFloat( 0, 0, 0, 0 ) );
+    g_pRenderer->ClearBuffers( true, true, false );
 
-    // draw all editor camera components.
-    ComponentCamera* pCamera = 0;
+    // Draw all editor camera components.
+    ComponentCamera* pCamera = nullptr;
     for( unsigned int i=0; i<pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
     {
         pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
         if( pCamera )
         {
             g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, g_pEngineCore->GetShader_TintColor() );
-            glClear( GL_DEPTH_BUFFER_BIT );
+            g_pRenderer->ClearBuffers( false, true, false );
         }
     }
 
@@ -585,7 +504,7 @@ void EditorInterface::RenderObjectIDsToFBO()
     pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 }
 
-unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool createnewbitmap, bool includetransformgizmo)
+unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool createNewBitmap, bool includeTransformGizmo)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
@@ -596,22 +515,22 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
         y >= pEditorState->m_pMousePickerFBO->GetHeight() )
         return 0;
 
-    if( createnewbitmap )
+    if( createNewBitmap )
     {
-        if( includetransformgizmo == false )
+        if( includeTransformGizmo == false )
         {
-            // Hide the transform gizmo
+            // Hide the transform gizmo.
             pEditorState->m_pTransformGizmo->Hide();
         }
 
         RenderObjectIDsToFBO();
     }
 
-    // bind our FBO so we can render sample from it.
+    // Bind our FBO so we can render sample from it.
     pEditorState->m_pMousePickerFBO->Bind( true );
 
     // Find the first camera again.
-    ComponentCamera* pCamera = 0;
+    ComponentCamera* pCamera = nullptr;
     for( unsigned int i=0; i<pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
     {
         pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
@@ -619,13 +538,13 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
     }
 
     MyAssert( pCamera );
-    if( pCamera == 0 )
+    if( pCamera == nullptr )
         return 0;
 
-    // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
+    // Get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
     unsigned char pixel[4];
-    glReadPixels( x - (unsigned int)pCamera->m_Viewport.GetX(), y - (unsigned int)pCamera->m_Viewport.GetY(),
-                  1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
+    g_pRenderer->ReadPixels( x - (unsigned int)pCamera->m_Viewport.GetX(), y - (unsigned int)pCamera->m_Viewport.GetY(),
+                             1, 1, MyRE::PixelFormat_RGBA, MyRE::PixelDataType_UByte, pixel );
 
     pEditorState->m_pMousePickerFBO->Unbind( true );
 
@@ -639,21 +558,21 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
     return (unsigned int)id;
 }
 
-GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap, bool includetransformgizmo)
+GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bool createNewBitmap, bool includeTransformGizmo)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-    unsigned int id = GetIDAtPixel( x, y, createnewbitmap, includetransformgizmo );
+    unsigned int id = GetIDAtPixel( x, y, createNewBitmap, includeTransformGizmo );
 
-    SceneID sceneid = (SceneID)(id / 100000);
+    SceneID sceneID = (SceneID)(id / 100000);
     id = id % 100000;
 
-    // find the object clicked on.
-    GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
+    // Find the object clicked on.
+    GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneID, (unsigned int)id );
 
-    // if we didn't click on something, check if it's the transform gizmo.
-    //   has to be checked manually since they are unmanaged.
-    if( pGameObject == 0 )
+    // If we didn't click on something, check if it's the transform gizmo.
+    //   Has to be checked manually since they are unmanaged.
+    if( pGameObject == nullptr )
     {
         for( int i=0; i<3; i++ )
         {
@@ -690,10 +609,10 @@ GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bo
 void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
-    unsigned int fbowidth = pEditorState->m_pMousePickerFBO->GetWidth();
-    unsigned int fboheight = pEditorState->m_pMousePickerFBO->GetHeight();
+    unsigned int fboWidth = pEditorState->m_pMousePickerFBO->GetWidth();
+    unsigned int fboHeight = pEditorState->m_pMousePickerFBO->GetHeight();
 
-    if( sx >= fbowidth || ex >= fbowidth || sy >= fboheight || ey >= fboheight )
+    if( sx >= fboWidth || ex >= fboWidth || sy >= fboHeight || ey >= fboHeight )
         return;
 
     int smallerx = sx > ex ? ex : sx;
@@ -704,17 +623,17 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
 
     //LOGInfo( LOGTag, "group selecting: %d,%d  %d,%d\n", smallerx, smallery, biggerx, biggery );
 
-    // render to the FBO.
+    // Render to the FBO.
     RenderObjectIDsToFBO();
 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return;
 
-    // bind our FBO so we can sample from it.
+    // Bind our FBO so we can sample from it.
     pEditorState->m_pMousePickerFBO->Bind( true );
 
     // Find the first camera again.
-    ComponentCamera* pCamera = 0;
+    ComponentCamera* pCamera = nullptr;
     for( unsigned int i=0; i<pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
     {
         pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
@@ -722,32 +641,27 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
     }
 
     MyAssert( pCamera );
-    if( pCamera == 0 )
+    if( pCamera == nullptr )
         return;
 
-    // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
-    unsigned char* pixels = MyNew unsigned char[fbowidth * fboheight * 4];
-    glReadPixels( 0, 0, fbowidth, fboheight, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
+    // Get pixels from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
+    unsigned char* pixels = MyNew unsigned char[fboWidth * fboHeight * 4];
+    g_pRenderer->ReadPixels( 0, 0, fboWidth, fboHeight, MyRE::PixelFormat_RGBA, MyRE::PixelDataType_UByte, pixels );
     pEditorState->m_pMousePickerFBO->Unbind( true );
 
-    bool controlheld = pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control ? true : false;
+    bool controlHeld = pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control ? true : false;
 
-    // if user isn't holding control, then clear objects and items selected in tree.
-    if( controlheld == false )
+    // If user isn't holding control, then clear objects and items selected in tree.
+    if( controlHeld == false )
         pEditorState->ClearSelectedObjectsAndComponents();
-
-    // potentially about to multi-select, so disable tree callbacks.
-#if MYFW_USING_WX
-    g_pPanelObjectList->m_UpdatePanelWatchOnSelection = false;
-#endif
 
     //unsigned int pixelsbeingtested = (biggerx - smallerx) * (biggery - smallery);
 
-    // check whether or not the first object clicked on was selected, we only care if control is held.
-    bool firstobjectwasselected = false;
-    if( controlheld )
+    // Check whether or not the first object clicked on was selected, we only care if control is held.
+    bool firstObjectWasSelected = false;
+    if( controlHeld )
     {
-        unsigned int offset = (sy*fbowidth + sx)*4;
+        unsigned int offset = (sy*fboWidth + sx)*4;
         uint64 id = (uint64)pixels[offset+0] | (uint64)pixels[offset+1]<<8 | (uint64)pixels[offset+2]<<16 | (uint64)pixels[offset+3]<<24;
         if( id != 0 )
             id = UINT_MAX - id;
@@ -760,14 +674,14 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
         GameObject* pObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
 
         if( pObject && pEditorState->IsGameObjectSelected( pObject ) )
-            firstobjectwasselected = true;
+            firstObjectWasSelected = true;
     }
 
     for( int y=smallery; y<=biggery; y++ )
     {
         for( int x=smallerx; x<=biggerx; x++ )
         {
-            unsigned int offset = (y*fbowidth + x)*4;
+            unsigned int offset = (y*fboWidth + x)*4;
             uint64 id = (uint64)pixels[offset+0] | (uint64)pixels[offset+1]<<8 | (uint64)pixels[offset+2]<<16 | (uint64)pixels[offset+3]<<24;
             if( id != 0 )
                 id = UINT_MAX - id;
@@ -776,51 +690,38 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
             SceneID sceneid = (SceneID)(id / 100000);
             id = id % 100000;
 
-            // if the object's not already selected, select it.
+            // If the object's not already selected, select it.
             GameObject* pObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
 
             if( pObject )
             {
                 // When selecting with mouse, don't allow selection of subobjects of a prefab, always pick the root of the prefab instance.
-                if( pObject->GetPrefabRef()->GetPrefab() != 0 )
+                if( pObject->GetPrefabRef()->GetPrefab() != nullptr )
                 {
                     pObject = pObject->FindRootGameObjectOfPrefabInstance();
                 }
 
                 bool objectselected = pEditorState->IsGameObjectSelected( pObject );
 
-                // if we're selecting objects, then select the unselected objects.
-                if( firstobjectwasselected == false )
+                // If we're selecting objects, then select the unselected objects.
+                if( firstObjectWasSelected == false )
                 {
                     if( objectselected == false )
                     {
-                        // select the object
+                        // Select the object.
                         pEditorState->SelectGameObject( pObject );
-
-                        // select the object in the object tree.
-#if MYFW_USING_WX
-                        g_pPanelObjectList->SelectObject( pObject );
-#endif //MYFW_USING_WX
                     }
                 }
-                else if( controlheld ) // if the first object was already selected, deselect all dragged if control is held.
+                else if( controlHeld ) // If the first object was already selected, deselect all dragged if control is held.
                 {
                     if( objectselected == true )
                     {
                         pEditorState->UnselectGameObject( pObject );
-#if MYFW_USING_WX
-                        g_pPanelObjectList->UnselectObject( pObject );
-#endif //MYFW_USING_WX
                     }
                 }
             }
         }
     }
-
-#if MYFW_USING_WX
-    g_pPanelObjectList->m_UpdatePanelWatchOnSelection = true;
-    UpdatePanelWatchWithSelectedItems(); // will reset and update pEditorState->m_pSelectedObjects
-#endif //MYFW_USING_WX
 
     //LOGInfo( LOGTag, "Done selecting objects.\n" );
 

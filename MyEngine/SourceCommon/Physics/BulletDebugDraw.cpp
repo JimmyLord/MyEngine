@@ -16,7 +16,7 @@
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 BulletDebugDraw::BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView)
 {
@@ -60,12 +60,12 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
     g_pRenderer->SetBlendEnabled( true );
     g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
-    glDisable( GL_CULL_FACE );
+    g_pRenderer->SetCullingEnabled( false );
     g_pRenderer->SetDepthTestEnabled( false );
 
     g_pRenderer->DrawArrays( primitiveType, 0, vertexCount, false );
 
-    glEnable( GL_CULL_FACE );
+    g_pRenderer->SetCullingEnabled( true );
     g_pRenderer->SetDepthTestEnabled( true );
 
     // Always disable blending.

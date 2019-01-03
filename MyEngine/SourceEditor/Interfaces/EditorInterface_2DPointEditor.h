@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -15,7 +15,7 @@ class EditorInterface_2DPointEditor : public EditorInterface
 public:
     enum MaterialTypes
     {
-        Mat_Lines, // drawn by box2d debug draw code.
+        Mat_Lines, // Drawn by box2d debug draw code.
         Mat_Points,
         Mat_SelectedPoint,
         Mat_NumMaterials,
@@ -40,9 +40,9 @@ public:
 
     virtual void OnActivated();
     virtual void OnDeactivated();
-    virtual void OnDrawFrame(unsigned int canvasid);
+    virtual void OnDrawFrame(unsigned int canvasID);
 
-    virtual bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
+    virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
 
     virtual void RenderObjectIDsToFBO();
 

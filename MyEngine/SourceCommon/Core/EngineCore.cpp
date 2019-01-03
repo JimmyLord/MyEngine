@@ -13,7 +13,7 @@
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 EngineCore* g_pEngineCore = 0;
 
@@ -780,7 +780,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #if !MYFW_OPENGLES2
     if( m_Debug_DrawWireframe )
     {
-        glPolygonMode( GL_FRONT, GL_LINE );
+        g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
     }
 #endif
 
@@ -837,7 +837,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
 #if !MYFW_OPENGLES2
     if( m_Debug_DrawWireframe )
-        glPolygonMode( GL_FRONT, GL_FILL );
+        g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
 #endif
 
 #if MYFW_EDITOR
@@ -2027,7 +2027,7 @@ void EngineCore::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 heigh
 
     GameCore::OnSurfaceChanged( x, y, width, height );
 
-    glEnable( GL_CULL_FACE );
+    g_pRenderer->SetCullingEnabled( true );
 #if !MYFW_RIGHTHANDED
     glFrontFace( GL_CW );
 #endif

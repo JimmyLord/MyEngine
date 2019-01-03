@@ -12,7 +12,7 @@
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 #if MYFW_USING_WX
 bool ComponentLight::m_PanelWatchBlockVisible = true;
@@ -324,7 +324,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
     pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
     pSprite->GetMaterial()->m_ColorDiffuse.a = 255;
     
-    glPolygonMode( GL_FRONT, GL_FILL );
+    g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
 
     pSprite->Draw( pMatProj, pMatView, &transform, pShaderOverride, true );
 
@@ -339,8 +339,8 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
             lightColor.a = (unsigned char)MyClamp_Return( m_LightSphereRenderTimeRemaining * 255.0f, 0.0f, 255.0f );
             pMaterial->SetColorDiffuse( lightColor );
 
-            //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-            //glDisable( GL_CULL_FACE );
+            //g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
+            //g_pRenderer->SetCullingEnabled( false );
             g_pRenderer->SetDepthWriteEnabled( false );
             pMeshBall->SetMaterial( pMaterial, 0 );
 
@@ -352,14 +352,14 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
 
             pMeshBall->SetMaterial( 0, 0 );
             g_pRenderer->SetDepthWriteEnabled( true );
-            //glPolygonMode( GL_FRONT, GL_FILL );
-            //glEnable( GL_CULL_FACE );
+            //g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
+            //g_pRenderer->SetCullingEnabled( true );
         }
     }
 
     if( g_pEngineCore->GetDebug_DrawWireframe() )
     {
-        glPolygonMode( GL_FRONT, GL_LINE );
+        g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
     }
 }
 #endif //MYFW_EDITOR

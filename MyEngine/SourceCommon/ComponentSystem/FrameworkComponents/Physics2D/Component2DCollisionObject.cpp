@@ -14,7 +14,7 @@
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 #if MYFW_USING_WX
 bool Component2DCollisionObject::m_PanelWatchBlockVisible = true;
@@ -760,14 +760,14 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         g_pRenderer->SetBlendEnabled( true );
         g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
-        //glDisable( GL_CULL_FACE );
+        //g_pRenderer->SetCullingEnabled( false );
         //g_pRenderer->SetDepthTestEnabled( false );
 
         g_pRenderer->DrawArrays( MyRE::PrimitiveType_LineStrip, 0, (int)m_Vertices.size(), false );
 
         glLineWidth( 1 );
 
-        //glEnable( GL_CULL_FACE );
+        //g_pRenderer->SetCullingEnabled( true );
         //g_pRenderer->SetDepthTestEnabled( true );
 
         // Always disable blending.

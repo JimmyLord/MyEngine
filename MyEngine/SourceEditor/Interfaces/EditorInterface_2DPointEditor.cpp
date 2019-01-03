@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,15 +9,11 @@
 
 #include "EngineCommonHeader.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceCommon/Shaders/GLHelpers.h"
-
 EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
 {
-    m_pCollisionObject = 0;
+    m_pCollisionObject = nullptr;
 
-    m_pPoint = 0;
+    m_pPoint = nullptr;
 
     m_PositionMouseWentDown.SetZero();
 
@@ -27,7 +23,7 @@ EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
 
     for( int i=0; i<Mat_NumMaterials; i++ )
     {
-        m_pMaterials[i] = 0;
+        m_pMaterials[i] = nullptr;
     }
 }
 
@@ -43,23 +39,23 @@ EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
 
 void EditorInterface_2DPointEditor::Initialize()
 {
-    if( m_pMaterials[Mat_Lines] == 0 )
+    if( m_pMaterials[Mat_Lines] == nullptr )
         m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
-    if( m_pMaterials[Mat_Points] == 0 )
+    if( m_pMaterials[Mat_Points] == nullptr )
         m_pMaterials[Mat_Points] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
-    if( m_pMaterials[Mat_SelectedPoint] == 0 )
+    if( m_pMaterials[Mat_SelectedPoint] == nullptr )
         m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
 }
 
 void EditorInterface_2DPointEditor::OnActivated()
 {
-    // create a gameobject for the points that we'll draw.
-    if( m_pPoint == 0 )
+    // Create a gameobject for the points that we'll draw.
+    if( m_pPoint == nullptr )
     {
         GameObject* pGameObject;
         ComponentMesh* pComponentMesh;
 
-        pGameObject = g_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // not managed.
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
         pGameObject->SetName( "2D point editor - point" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects );
@@ -72,7 +68,7 @@ void EditorInterface_2DPointEditor::OnActivated()
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
-            // remove this from the main list of renderable components.
+            // Remove this from the main list of renderable components.
             pComponentMesh->UnregisterCallbacks();
         }
         
@@ -86,23 +82,23 @@ void EditorInterface_2DPointEditor::OnDeactivated()
     pRenderable->SetVisible( false );
 }
 
-void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
+void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasID)
 {
-    // EditorInterface class will draw the main editor view
-    EditorInterface::OnDrawFrame( canvasid );
+    // EditorInterface class will draw the main editor view.
+    EditorInterface::OnDrawFrame( canvasID );
 
-    MyAssert( m_pCollisionObject != 0 );
-    if( m_pCollisionObject == 0 )
+    MyAssert( m_pCollisionObject != nullptr );
+    if( m_pCollisionObject == nullptr )
         return;
 
-    MyAssert( m_pPoint != 0 );
-    if( m_pPoint == 0 )
+    MyAssert( m_pPoint != nullptr );
+    if( m_pPoint == nullptr )
         return;
 
     ComponentRenderable* pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
     pRenderable->SetVisible( true );
 
-    // Draw a circle at each vertex position. // lines are drawn by m_pCollisionObject's render callback
+    // Draw a circle at each vertex position. // Lines are drawn by m_pCollisionObject's render callback.
     for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
     {
         b2Vec2 pos2d = m_pCollisionObject->m_Vertices[i];
@@ -110,28 +106,28 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
 
         ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
         MyMatrix* pParentMatrix = pParentTransformComponent->GetWorldTransform();
-        Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
+        Vector3 worldPos = pParentMatrix->GetTranslation() + pos3d;
 
-        m_pPoint->GetTransform()->SetLocalPosition( worldpos );
+        m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
         ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
-        float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldpos).Length();
+        float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldPos).Length();
         m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
 
-        // change the material color if this is the selected dot.
+        // Change the material color if this is the selected dot.
         if( i == (unsigned int)m_IndexOfPointBeingDragged )
             m_pPoint->SetMaterial( m_pMaterials[Mat_SelectedPoint] );
 
-        g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, 0 );
+        g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
 
         if( i == (unsigned int)m_IndexOfPointBeingDragged )
             m_pPoint->SetMaterial( m_pMaterials[Mat_Points] );
     }
 
-    // Draw Box2D debug data
+    // Draw Box2D debug data.
     if( g_pEngineCore->GetEditorPrefs()->Get_Debug_DrawPhysicsDebugShapes() && g_GLCanvasIDActive == 1 )
     {
         for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
@@ -158,13 +154,13 @@ void EditorInterface_2DPointEditor::CancelCurrentOperation()
     }
 }
 
-bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+bool EditorInterface_2DPointEditor::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
-    bool inputhandled = false;
+    bool inputHandled = false;
 
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-    if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
+    if( keyAction == GCBA_Up && keyCode == MYKEYCODE_ESC )
     {
         if( m_IndexOfPointBeingDragged != -1 )
             CancelCurrentOperation();
@@ -172,13 +168,13 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
             g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
     }
 
-    // TODO: store last used vertex and handle delete key
-    if( keyaction == GCBA_Up && keycode == MYKEYCODE_DELETE )
+    // TODO: Store last used vertex and handle delete key.
+    if( keyAction == GCBA_Up && keyCode == MYKEYCODE_DELETE )
     {
         if( m_IndexOfPointBeingDragged != -1 && m_pCollisionObject->m_Vertices.size() > 2 )
         {
-            // if the mouse is still down, undo will use the position of the vertex when the mouse went down
-            //     otherwise it will use the saved position of the vertex
+            // If the mouse is still down, undo will use the position of the vertex when the mouse went down,
+            //     otherwise it will use the saved position of the vertex.
             b2Vec2 position = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
             if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
                 position = m_PositionMouseWentDown;
@@ -188,31 +184,31 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
         }
     }
 
-    EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
+    EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
 
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
-        if( mouseaction == GCBA_Down )
+        if( mouseAction == GCBA_Down )
         {
-            if( id == 1 ) // right mouse button to cancel current operation
+            if( id == 1 ) // Right mouse button to cancel current operation.
             {
                 LOGDebug( "2DPointEditor", "Cancelled operation on point %d\n", m_IndexOfPointBeingDragged );
                 CancelCurrentOperation();
-                inputhandled = true;
+                inputHandled = true;
             }
         }
 
-        if( mouseaction == GCBA_Down && id == 0 ) // left mouse button down
+        if( mouseAction == GCBA_Down && id == 0 ) // Left mouse button down.
         {
             m_NewMousePress = true;
 
-            // find the object we clicked on.
-            unsigned int pixelid = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true, true );
+            // Find the object we clicked on.
+            unsigned int pixelID = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true, true );
 
-            m_IndexOfPointBeingDragged = pixelid - 1;
+            m_IndexOfPointBeingDragged = pixelID - 1;
             m_AddedVertexWhenMouseWasDragged = false;
 
-            // reset mouse movement, so we can undo to this state after mouse goes up.
+            // Reset mouse movement, so we can undo to this state after mouse goes up.
             if( m_IndexOfPointBeingDragged != -1 )
             {
                 m_PositionMouseWentDown = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
@@ -221,29 +217,29 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
             LOGDebug( "2DPointEditor", "Grabbed point %d\n", m_IndexOfPointBeingDragged );
         }
 
-        if( mouseaction == GCBA_Up && id == 0 ) // left mouse button up
+        if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
         {
             if( m_IndexOfPointBeingDragged != -1 )
             {
                 LOGDebug( "2DPointEditor", "Released point %d\n", m_IndexOfPointBeingDragged );
 
-                // add command to stack for undo/redo.                    
-                b2Vec2 distmoved = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged] - m_PositionMouseWentDown;
-                if( distmoved.LengthSquared() != 0 )
+                // Add command to stack for undo/redo.                    
+                b2Vec2 distMoved = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged] - m_PositionMouseWentDown;
+                if( distMoved.LengthSquared() != 0 )
                 {
-                    g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_Move2DPoint( distmoved, m_pCollisionObject, m_IndexOfPointBeingDragged ), m_AddedVertexWhenMouseWasDragged );
+                    g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_Move2DPoint( distMoved, m_pCollisionObject, m_IndexOfPointBeingDragged ), m_AddedVertexWhenMouseWasDragged );
                 }
 
                 m_IndexOfPointBeingDragged = -1;
             }
         }
 
-        if( mouseaction == GCBA_Held && id == 0 ) //id & 1 << 0 ) // left mouse button moved
+        if( mouseAction == GCBA_Held && id == 0 ) //id & 1 << 0 ) // Left mouse button moved.
         {
-            bool createnewvertex = false;
+            bool createNewVertex = false;
             if( m_NewMousePress && pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
-                createnewvertex = true;
+                createNewVertex = true;
             }
 
             m_NewMousePress = false;
@@ -252,68 +248,68 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
             {
                 //LOGDebug( "2DPointEditor", "Moved point %d\n", m_IndexOfPointBeingDragged );
 
-                // create a plane based on the axis we want.
+                // Create a plane based on the axis we want.
                 Vector3 normal = Vector3(0,0,1);
-                Vector3 axisvector = Vector3(1,0,0);
+                Vector3 axisVector = Vector3(1,0,0);
 
                 ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
                 MyMatrix* pParentMatrix = pParentTransformComponent->GetWorldTransform();
-                Vector3 worldpos = pParentMatrix->GetTranslation();
+                Vector3 worldPos = pParentMatrix->GetTranslation();
 
-                // create a plane on Z = worldpos.z // TODO: if the Box2D world is on a rotated plane, fix this.
+                // Create a plane on Z = worldPos.z // TODO: If the Box2D world is on a rotated plane, fix this.
                 Plane plane;
-                plane.Set( normal, Vector3( 0, 0, worldpos.z ) );
+                plane.Set( normal, Vector3( 0, 0, worldPos.z ) );
 
                 // Get the mouse click ray... current and last frame.
-                Vector3 currentraystart, currentrayend;
-                g_pEngineCore->GetMouseRay( pEditorState->m_CurrentMousePosition, &currentraystart, &currentrayend );
+                Vector3 currentRayStart, currentRayEnd;
+                g_pEngineCore->GetMouseRay( pEditorState->m_CurrentMousePosition, &currentRayStart, &currentRayEnd );
 
-                Vector3 lastraystart, lastrayend;
-                g_pEngineCore->GetMouseRay( pEditorState->m_LastMousePosition, &lastraystart, &lastrayend );
+                Vector3 lastRayStart, lastRayEnd;
+                g_pEngineCore->GetMouseRay( pEditorState->m_LastMousePosition, &lastRayStart, &lastRayEnd );
 
                 //LOGDebug( "2DPointEditor", "current->(%0.0f,%0.0f) (%0.2f,%0.2f,%0.2f) (%0.2f,%0.2f,%0.2f)\n",
                 //        pEditorState->m_CurrentMousePosition.x,
                 //        pEditorState->m_CurrentMousePosition.y,
-                //        currentraystart.x,
-                //        currentraystart.y,
-                //        currentraystart.z,
-                //        currentrayend.x,
-                //        currentrayend.y,
-                //        currentrayend.z
+                //        currentRayStart.x,
+                //        currentRayStart.y,
+                //        currentRayStart.z,
+                //        currentRayEnd.x,
+                //        currentRayEnd.y,
+                //        currentRayEnd.z
                 //    );
 
-                // find the intersection point of the plane.
-                Vector3 currentresult;
-                Vector3 lastresult;
-                if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
-                    plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
+                // Find the intersection point of the plane.
+                Vector3 currentResult;
+                Vector3 lastResult;
+                if( plane.IntersectRay( currentRayStart, currentRayEnd, &currentResult ) &&
+                    plane.IntersectRay( lastRayStart, lastRayEnd, &lastResult ) )
                 {
-                    //LOGDebug( "2DPointEditor", "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
-                    //LOGDebug( "2DPointEditor", "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
-                    //LOGDebug( "2DPointEditor", "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
+                    //LOGDebug( "2DPointEditor", "currentResult( %f, %f, %f );", currentResult.x, currentResult.y, currentResult.z );
+                    //LOGDebug( "2DPointEditor", "lastResult( %f, %f, %f );", lastResult.x, lastResult.y, lastResult.z );
+                    //LOGDebug( "2DPointEditor", "axisVector( %f, %f, %f );\n", axisVector.x, axisVector.y, axisVector.z );
 
                     ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
                     MyMatrix* pParentMatrix = pParentTransformComponent->GetLocalTransform();
 
-                    b2Vec2 newpos;
-                    newpos.x = currentresult.x - pParentMatrix->GetTranslation().x;
-                    newpos.y = currentresult.y - pParentMatrix->GetTranslation().y;
+                    b2Vec2 newPos;
+                    newPos.x = currentResult.x - pParentMatrix->GetTranslation().x;
+                    newPos.y = currentResult.y - pParentMatrix->GetTranslation().y;
 
                     if( g_pEngineCore->GetEditorPrefs()->Get_Grid_SnapEnabled() )
                     {
-                        // snap point to grid.
-                        newpos.x = MyRoundToMultipleOf( newpos.x, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.x );
-                        newpos.y = MyRoundToMultipleOf( newpos.y, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.y );
+                        // Snap point to grid.
+                        newPos.x = MyRoundToMultipleOf( newPos.x, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.x );
+                        newPos.y = MyRoundToMultipleOf( newPos.y, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.y );
                     }
 
-                    if( createnewvertex )
+                    if( createNewVertex )
                     {
                         g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_Insert2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged ) );
                         m_AddedVertexWhenMouseWasDragged = true;
                     }
                     else
                     {
-                        m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged].Set( newpos.x, newpos.y );
+                        m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged].Set( newPos.x, newPos.y );
                     }
                 }
             }
@@ -322,10 +318,10 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
         }
     }
 
-    // handle camera movement, with both mouse and keyboard.
-    if( inputhandled == false )
+    // Handle camera movement, with both mouse and keyboard.
+    if( inputHandled == false )
     {
-        EditorInterface::HandleInputForEditorCamera( keyaction, keycode, mouseaction, id, x, y, pressure );
+        EditorInterface::HandleInputForEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure );
     }
 
     return false;
@@ -359,8 +355,8 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
     MyViewport viewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
     g_pRenderer->EnableViewport( &viewport, true );
 
-    glClearColor( 0, 0, 0, 0 );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    g_pRenderer->SetClearColor( ColorFloat( 0, 0, 0, 0 ) );
+    g_pRenderer->ClearBuffers( true, true, false );
 
     // Draw a circle at each vertex position.
     {
@@ -379,9 +375,9 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 
                 ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
                 MyMatrix* pParentMatrix = pParentTransformComponent->GetLocalTransform();
-                Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
+                Vector3 worldPos = pParentMatrix->GetTranslation() + pos3d;
 
-                m_pPoint->GetTransform()->SetLocalPosition( worldpos );
+                m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
                 ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
                 MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
