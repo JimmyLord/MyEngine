@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -49,8 +49,8 @@ enum EditorInterfaceTypes
 
 struct RequestedSceneInfo
 {
-    MyFileObject* m_pFile; // acts as a flag whether or not scene was requested.
-    SceneID m_SceneID; // generally -1, unless scene requested for specific slot.
+    MyFileObject* m_pFile; // Acts as a flag whether or not scene was requested.
+    SceneID m_SceneID; // Generally -1, unless scene requested for specific slot.
 };
 
 struct FrameTimingInfo
@@ -71,7 +71,7 @@ class EngineCore : public GameCore
 
 public:
     static const int MAX_SCENES_QUEUED_TO_LOAD = 5;
-    static const int MAX_FRAMES_TO_STORE = 60*30; // 30 seconds @ 60fps
+    static const int MAX_FRAMES_TO_STORE = 60*30; // 30 seconds @ 60fps.
 
 protected:
     ComponentSystemManager* m_pComponentSystemManager;
@@ -86,7 +86,7 @@ protected:
     bool m_EditorMode;
     bool m_AllowGameToRunInEditorMode;
     bool m_Paused;
-    float m_PauseTimeToAdvance; // advance clock by this much on next tick.
+    float m_PauseTimeToAdvance; // Advance clock by this much on next tick.
 
     Vector2 m_LastMousePos;
 
@@ -131,7 +131,7 @@ protected:
     bool m_UnloadAllScenesNextTick;
     bool m_SceneReloadRequested;
     
-    // TODO: replace this monstrosity with an ordered list.
+    // TODO: Replace this monstrosity with an ordered list.
     RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENES_QUEUED_TO_LOAD];
 
 #if MYFW_PROFILING_ENABLED
@@ -165,7 +165,7 @@ public:
     EngineCore();
     virtual ~EngineCore();
 
-    // EngineCore Getters/Setters
+    // EngineCore Getters/Setters.
     ComponentSystemManager* GetComponentSystemManager() { return m_pComponentSystemManager; }
     MyStackAllocator GetSingleFrameMemoryStack() { return m_SingleFrameMemoryStack; }
 
@@ -189,7 +189,7 @@ public:
     MaterialDefinition* GetMaterial_ClipSpaceColor()   { return m_pMaterial_ClipSpaceColor; }
     MaterialDefinition* GetMaterial_FresnelTint()      { return m_pMaterial_FresnelTint; }
 
-    // EngineCore Methods
+    // EngineCore Methods.
     void SaveEditorPrefs();
 
 #if MYFW_USING_LUA
@@ -248,7 +248,7 @@ public:
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playWhenFinishedLoading);
 
 #if MYFW_EDITOR
-    // Editor Getters/Setters
+    // Editor Getters/Setters.
     EditorPrefs* GetEditorPrefs() { return m_pEditorPrefs; }
     EditorState* GetEditorState() { return m_pEditorState; }
 
@@ -267,10 +267,10 @@ public:
     void ToggleDebug_ShowProfilingInfo()        { m_Debug_ShowProfilingInfo = !m_Debug_ShowProfilingInfo; }
     void ToggleDebug_DrawGLStats()              { m_Debug_DrawGLStats = !m_Debug_DrawGLStats; }
 
-    MySprite* GetSprite_DebugQuad(); // Will create the sprite if it doesn't exist
-    MyMesh* GetMesh_MaterialBall(); // Will create the mesh if it doesn't exist
+    MySprite* GetSprite_DebugQuad(); // Will create the sprite if it doesn't exist.
+    MyMesh* GetMesh_MaterialBall(); // Will create the mesh if it doesn't exist.
 
-    // Editor Methods
+    // Editor Methods.
     bool HandleImGuiInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     bool HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
@@ -281,7 +281,7 @@ public:
 
     void Editor_OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height);
 
-    void RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUse = 0);
+    void RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUse = nullptr);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 
     void SetGridVisible(bool visible);
@@ -290,13 +290,6 @@ public:
     EditorInterface* GetEditorInterface(EditorInterfaceTypes type);
     EditorInterface* GetCurrentEditorInterface();
     EditorInterfaceTypes GetCurrentEditorInterfaceType() { return m_CurrentEditorInterfaceType; }
-
-    static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }
-    void OnObjectListTreeSelectionChanged();
-    static void StaticOnObjectListTreeMultipleSelection(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeMultipleSelection( false ); }
-    void OnObjectListTreeMultipleSelection(bool prepForDraggingCopy);
-    static void StaticOnObjectListTreeDeleteSelection(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeDeleteSelection(); }
-    void OnObjectListTreeDeleteSelection();
 #endif //MYFW_EDITOR
 };
 

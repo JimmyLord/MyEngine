@@ -822,8 +822,6 @@ void ComponentCamera::DrawScene()
             g_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
         }
     }
-
-    checkGlError( "ComponentCamera::DrawScene end" );
 }
 
 void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticSetupCustomUniformsCallback

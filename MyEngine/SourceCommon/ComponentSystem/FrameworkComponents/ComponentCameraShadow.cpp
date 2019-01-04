@@ -9,11 +9,6 @@
 
 #include "EngineCommonHeader.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-
 #if MYFW_USING_WX
 bool ComponentCameraShadow::m_PanelWatchBlockVisible = true;
 #endif
@@ -241,14 +236,11 @@ void ComponentCameraShadow::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, u
 
 void ComponentCameraShadow::OnDrawFrame()
 {
-    checkGlError( "start of ComponentCameraShadow::OnDrawFrame()" );
-
     //glCullFace( GL_FRONT );
 
     g_ActiveShaderPass = ShaderPass_ShadowCastRGBA;
 
     m_pDepthFBO->Bind( false );
-    checkGlError( "m_pDepthFBO->Bind()" );
 
     MyViewport viewport( 0, 0, m_pDepthFBO->GetWidth(), m_pDepthFBO->GetHeight() );
     g_pRenderer->EnableViewport( &viewport, true );
@@ -274,8 +266,6 @@ void ComponentCameraShadow::OnDrawFrame()
     m_pDepthFBO->Unbind( false );
     g_ActiveShaderPass = ShaderPass_Main;
     //glCullFace( GL_BACK );
-
-    checkGlError( "end of ComponentCameraShadow::OnDrawFrame()" );
 }
 
 MyMatrix* ComponentCameraShadow::GetViewProjMatrix()

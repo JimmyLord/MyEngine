@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -10,12 +10,12 @@
 #ifndef __ComponentTemplate_H__
 #define __ComponentTemplate_H__
 
-// search for ADDING_NEW_ComponentType to find some changes needed for engine.
+// Search for ADDING_NEW_ComponentType to find some changes needed for engine.
 
 class ComponentTemplate : public ComponentBase
 {
 private:
-    // Component Variable List
+    // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentTemplate );
 
 public:
@@ -24,14 +24,14 @@ public:
 public:
     ComponentTemplate();
     virtual ~ComponentTemplate();
-    SetClassnameBase( "TemplateComponent" ); // only first 8 character count.
+    SetClassnameBase( "TemplateComponent" ); // Only first 8 characters count.
 
 #if MYFW_USING_LUA
-    static void LuaRegister(lua_State* luastate);
+    static void LuaRegister(lua_State* luaState);
 #endif //MYFW_USING_LUA
 
-    //virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    //virtual void ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid);
+    //virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID);
+    //virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentTemplate&)*pObject; }
@@ -52,20 +52,10 @@ protected:
 
 public:
 #if MYFW_EDITOR
-#if MYFW_USING_WX
-    static bool m_PanelWatchBlockVisible;
-
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-
-    // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentTemplate*)pObjectPtr)->OnLeftClick( count, true ); }
-    void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
-#endif //MYFW_USING_WX
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, int x, int y);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };
 

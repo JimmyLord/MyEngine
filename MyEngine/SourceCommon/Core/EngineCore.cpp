@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -10,18 +10,13 @@
 #include "EngineCommonHeader.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-
-EngineCore* g_pEngineCore = 0;
+EngineCore* g_pEngineCore = nullptr;
 
 EngineCore::EngineCore()
 {
     g_pEngineCore = this;
 
-    m_pComponentSystemManager = 0;
+    m_pComponentSystemManager = nullptr;
 
 #if MYFW_EDITOR
     m_EditorMode = true;
@@ -34,24 +29,24 @@ EngineCore::EngineCore()
 
     m_TimeSinceLastPhysicsStep = 0;
 
-    m_pShaderFile_TintColor = 0;
-    m_pShaderFile_TintColorWithAlpha = 0;
-    m_pShaderFile_SelectedObjects = 0;
-    m_pShaderFile_ClipSpaceTexture = 0;
-    m_pShaderFile_ClipSpaceColor = 0;
-    m_pShaderFile_FresnelTint = 0;
-    m_pShader_TintColor = 0;
-    m_pShader_TintColorWithAlpha = 0;
-    m_pShader_SelectedObjects = 0;
-    m_pShader_ClipSpaceTexture = 0;
-    m_pShader_ClipSpaceColor = 0;
-    m_pShader_FresnelTint = 0;
-    m_pMaterial_Box2DDebugDraw = 0;
-    m_pMaterial_3DGrid = 0;
-    m_pMaterial_MousePicker = 0;
-    m_pMaterial_ClipSpaceTexture = 0;
-    m_pMaterial_ClipSpaceColor = 0;
-    m_pMaterial_FresnelTint = 0;
+    m_pShaderFile_TintColor = nullptr;
+    m_pShaderFile_TintColorWithAlpha = nullptr;
+    m_pShaderFile_SelectedObjects = nullptr;
+    m_pShaderFile_ClipSpaceTexture = nullptr;
+    m_pShaderFile_ClipSpaceColor = nullptr;
+    m_pShaderFile_FresnelTint = nullptr;
+    m_pShader_TintColor = nullptr;
+    m_pShader_TintColorWithAlpha = nullptr;
+    m_pShader_SelectedObjects = nullptr;
+    m_pShader_ClipSpaceTexture = nullptr;
+    m_pShader_ClipSpaceColor = nullptr;
+    m_pShader_FresnelTint = nullptr;
+    m_pMaterial_Box2DDebugDraw = nullptr;
+    m_pMaterial_3DGrid = nullptr;
+    m_pMaterial_MousePicker = nullptr;
+    m_pMaterial_ClipSpaceTexture = nullptr;
+    m_pMaterial_ClipSpaceColor = nullptr;
+    m_pMaterial_FresnelTint = nullptr;
 
     m_GameWidth = 0;
     m_GameHeight = 0;
@@ -60,14 +55,14 @@ EngineCore::EngineCore()
     m_SceneReloadRequested = false;
     for( int i=0; i<MAX_SCENES_QUEUED_TO_LOAD; i++ )
     {
-        m_pSceneFilesLoading[i].m_pFile = 0;
+        m_pSceneFilesLoading[i].m_pFile = nullptr;
         m_pSceneFilesLoading[i].m_SceneID = SCENEID_NotSet;
     }
 
-    m_pBulletWorld = 0;
+    m_pBulletWorld = nullptr;
 
 #if MYFW_USING_LUA
-    m_pLuaGameState = 0;
+    m_pLuaGameState = nullptr;
 #endif //MYFW_USING_LUA
 
     m_PauseTimeToAdvance = 0;
@@ -77,34 +72,27 @@ EngineCore::EngineCore()
     m_Debug_DrawWireframe = false;
 
 #if MYFW_EDITOR
-    m_pEditorPrefs = 0;
-    m_pEditorState = 0;
-    m_pEditorMainFrame = 0;
+    m_pEditorPrefs = nullptr;
+    m_pEditorState = nullptr;
+    m_pEditorMainFrame = nullptr;
 
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_Debug_DrawSelectedMaterial = false;
     m_Debug_ShowProfilingInfo = true;
     m_Debug_DrawGLStats = false;
-    m_pSphereMeshFile = 0;
-    m_pSprite_DebugQuad = 0;
-    m_pMesh_MaterialBall = 0;
+    m_pSphereMeshFile = nullptr;
+    m_pSprite_DebugQuad = nullptr;
+    m_pMesh_MaterialBall = nullptr;
     m_FreeAllMaterialsAndTexturesWhenUnloadingScene = false;
-    m_pDebugFont = 0;
-    m_pDebugTextMesh = 0;
-
-#if MYFW_USING_WX
-    g_pPanelObjectList->m_pCallbackFunctionObject = this;
-    g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
-    g_pPanelObjectList->m_pOnTreeMultipleSelectionFunction = StaticOnObjectListTreeMultipleSelection;
-    g_pPanelObjectList->m_pOnTreeDeleteSelectionFunction = StaticOnObjectListTreeDeleteSelection;
-#endif
+    m_pDebugFont = nullptr;
+    m_pDebugTextMesh = nullptr;
 
     m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
     m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
     m_pEditorInterfaces[EditorInterfaceType_VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor();
     m_CurrentEditorInterfaceType = EditorInterfaceType_NumInterfaces;
-    m_pCurrentEditorInterface = 0;
+    m_pCurrentEditorInterface = nullptr;
 #endif //MYFW_EDITOR
 
 #if MYFW_PROFILING_ENABLED
@@ -163,9 +151,7 @@ EngineCore::~EngineCore()
 #if MYFW_EDITOR
     SAFE_DELETE( m_pEditorPrefs );
     SAFE_DELETE( m_pEditorState );
-#if MYFW_USING_IMGUI
     SAFE_DELETE( m_pEditorMainFrame );
-#endif //MYFW_USING_IMGUI
 
     SAFE_RELEASE( m_pSphereMeshFile );
     SAFE_RELEASE( m_pSprite_DebugQuad );
@@ -187,7 +173,6 @@ EngineCore::~EngineCore()
 
 void EngineCore::SaveEditorPrefs()
 {
-#if MYFW_USING_IMGUI
     cJSON* jPrefs = m_pEditorPrefs->SaveStart();
 
     //// Save Layout strings.
@@ -201,7 +186,7 @@ void EngineCore::SaveEditorPrefs()
     //    }
     //}
 
-    // General options
+    // General options.
     //const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
     //if( relativepath )
     //    cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", relativepath );
@@ -213,17 +198,16 @@ void EngineCore::SaveEditorPrefs()
     //cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
     //cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
 
-    //// View menu options
+    //// View menu options.
     //cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
     //cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
     //extern GLViewTypes g_CurrentGLViewType;
     //cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
-    //// Mode menu options
+    //// Mode menu options.
     //cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
 
     m_pEditorPrefs->SaveFinish( jPrefs );
-#endif //MYFW_USING_IMGUI
 }
 
 // Helper functions for some global namespace lua binding.
@@ -257,21 +241,21 @@ void EngineCore::LuaRegister(lua_State* luastate)
 
 void EngineCore::InitializeManagers()
 {
-    if( g_pFileManager == 0 )
+    if( g_pFileManager == nullptr )
         g_pFileManager = MyNew EngineFileManager;
 
     GameCore::InitializeManagers();
 
-    if( g_pRTQGlobals == 0 )
+    if( g_pRTQGlobals == nullptr )
         g_pRTQGlobals = MyNew RenderTextQuickGlobals;
 
-    if( g_pImGuiManager == 0 )
+    if( g_pImGuiManager == nullptr )
         g_pImGuiManager = MyNew ImGuiManager;
 }
 
 void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
 {
-    if( jStringsArray == 0 )
+    if( jStringsArray == nullptr )
     {
         const char* strings[32] =
         {
@@ -313,12 +297,8 @@ void EngineCore::OneTimeInit()
 {
     GameCore::OneTimeInit();
 
-#if MYFW_USING_WX
-    m_pEditorPrefs = g_pEditorPrefs;
-#endif
-
-    // allocate one meg of ram for now, this stack gets wiped each frame in OnDrawFrameDone()
-    //  TODO: expose size, hardcoded to 5meg for now... used by editor mode scene load and voxel world creation
+    // Allocate one meg of ram for now, this stack gets wiped each frame in OnDrawFrameDone().
+    //  TODO: Expose size, hardcoded to 5meg for now... used by editor mode scene load and voxel world creation.
     m_SingleFrameMemoryStack.Initialize( 5000000 );
 
 #if MYFW_EDITOR
@@ -326,7 +306,7 @@ void EngineCore::OneTimeInit()
     m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_None, 0, false, true );
     m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_None, 0, false, true );
 
-    if( m_pDebugFont == 0 )
+    if( m_pDebugFont == nullptr )
     {
         m_pDebugFont = g_pFontManager->CreateFont( "Data/DataEngine/Fonts/Nevis60.fnt" );
 #if MYFW_EDITOR
@@ -334,7 +314,7 @@ void EngineCore::OneTimeInit()
 #endif
     }
 
-    if( m_pDebugTextMesh == 0 )
+    if( m_pDebugTextMesh == nullptr )
     {
         m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont );
     }
@@ -373,24 +353,24 @@ void EngineCore::OneTimeInit()
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager() );
 
-    // initialize lua state and register any variables needed.
+    // Initialize lua state and register any variables needed.
 #if MYFW_USING_LUA
     m_pLuaGameState = CreateLuaGameState();
-    m_pLuaGameState->Rebuild(); // reset the lua state.
+    m_pLuaGameState->Rebuild(); // Reset the lua state.
 #endif //MYFW_USING_LUA
 
 #if MYFW_EDITOR
 //    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
     CreateDefaultEditorSceneObjects();
 
-    // Initialize our editor interfaces (load materials, etc)
+    // Initialize our editor interfaces (load materials, etc).
     for( int i=0; i<EditorInterfaceType_NumInterfaces; i++ )
     {
         m_pEditorInterfaces[i]->Initialize();
     }
 #endif //MYFW_EDITOR
 
-    // create the box2d world, pass in a material for the debug renderer.
+    // Create the box2d world, pass in a material for the debug renderer.
     //ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
     //m_pBox2DWorld = MyNew Box2DWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
 
@@ -399,25 +379,18 @@ void EngineCore::OneTimeInit()
     if( g_pImGuiManager )
     {
 #if MYFW_EDITOR
-#if MYFW_USING_IMGUI
         g_pImGuiManager->Init( (float)GetWindowWidth(), (float)GetWindowHeight() );
         m_pEditorMainFrame = MyNew EditorMainFrame_ImGui();
-#elif MYFW_USING_WX
-        m_pEditorMainFrame = g_pEngineMainFrame;
-        g_pImGuiManager->Init( 1000, 1000 );
-#endif
 
         // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
         // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
         g_pImGuiManager->StartFrame();
-#else
-        g_pImGuiManager->Init( m_WindowWidth, m_WindowHeight );
 #endif //MYFW_EDITOR
     }
 
     // Create one bullet world shared between all scenes.
 #if !MYFW_EDITOR
-    // disable debug draw in non-editor builds
+    // Disable debug draw in non-editor builds.
     m_pBulletWorld = MyNew BulletWorld( 0, 0, 0 );
 #else
     ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
@@ -426,10 +399,9 @@ void EngineCore::OneTimeInit()
 
 #if MYFW_EDITOR
     m_pEditorPrefs = g_pEditorPrefs;
-    if( m_pEditorPrefs == 0 )
+    if( m_pEditorPrefs == nullptr )
     {
         // This should be the editor pref load point for ImGui Editor builds.
-        // wx builds should load prefs in EngineMainFrame.cpp
         m_pEditorPrefs = MyNew EditorPrefs;
         m_pEditorPrefs->Init();
         m_pEditorPrefs->LoadWindowSizePrefs();
@@ -446,16 +418,13 @@ void EngineCore::OneTimeInit()
     }
     else
     {
-        g_pEngineCore->InitializeGameObjectFlagStrings( 0 );
+        g_pEngineCore->InitializeGameObjectFlagStrings( nullptr );
     }
 
-#if MYFW_USING_IMGUI
     m_pEditorPrefs->LoadLastSceneLoaded();
-#endif //MYFW_USING_WX
-
 #else
-    // TODO: fix! this won't work if flags were customized and saved into editorprefs.ini
-    InitializeGameObjectFlagStrings( 0 );
+    // TODO: Fix! This won't work if flags were customized and saved into editorprefs.ini.
+    InitializeGameObjectFlagStrings( nullptr );
 #endif
 }
 
@@ -466,7 +435,7 @@ bool EngineCore::IsReadyToRender()
 
 void EngineCore::RequestClose()
 {
-#if MYFW_USING_IMGUI
+#if MYFW_EDITOR
     ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->RequestCloseWindow();
 #else
     GameCore::RequestClose();
@@ -475,7 +444,7 @@ void EngineCore::RequestClose()
 
 float EngineCore::Tick(float deltaTime)
 {
-#if MYFW_USING_IMGUI
+#if MYFW_EDITOR
     // If a change in editor perspective was requested, change it before the start of the frame.
     ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->GetLayoutManager()->ApplyLayoutChange();
 
@@ -492,8 +461,6 @@ float EngineCore::Tick(float deltaTime)
     //ImGui::End();
     //g_pImGuiManager->OnFocusLost();
 
-    checkGlError( "EngineCore::Tick" );
-
 #if MYFW_PROFILING_ENABLED
     static double Timing_LastFrameTime = 0;
 
@@ -507,7 +474,7 @@ float EngineCore::Tick(float deltaTime)
         g_pImGuiManager->StartTick( deltaTime );
     }
 
-#if MYFW_USING_IMGUI
+#if MYFW_EDITOR
     if( m_pEditorMainFrame )
     {
         ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->Update( deltaTime );
@@ -535,10 +502,6 @@ float EngineCore::Tick(float deltaTime)
 
 #if MYFW_EDITOR
     m_pCurrentEditorInterface->Tick( deltaTime );
-
-#if MYFW_USING_WX
-    EngineMainFrame_DumpCachedMessagesToLogPane();
-#endif
 #endif
 
     {
@@ -566,7 +529,7 @@ float EngineCore::Tick(float deltaTime)
 
     GameCore::Tick( deltaTime );
 
-    // if the next scene requested is ready load the scene.
+    // If the next scene requested is ready load the scene.
     MyFileObject* pFile = m_pSceneFilesLoading[0].m_pFile;
     if( pFile && pFile->GetFileLoadStatus() == FileLoadStatus_Success )
     {
@@ -577,7 +540,7 @@ float EngineCore::Tick(float deltaTime)
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( pFile->GetFullPath() );
 
         // Loading an additional scene, or a lua script requested a scene.
-        //     so if we're in editor mode, don't call "play" when loading is finished.
+        //     So, if we're in editor mode, don't call "play" when loading is finished.
         bool playWhenFinishedLoading = false;
 
 #if MYFW_EDITOR
@@ -601,7 +564,7 @@ float EngineCore::Tick(float deltaTime)
         {
             m_pSceneFilesLoading[i] = m_pSceneFilesLoading[i+1];
         }
-        m_pSceneFilesLoading[MAX_SCENES_QUEUED_TO_LOAD-1].m_pFile = 0;
+        m_pSceneFilesLoading[MAX_SCENES_QUEUED_TO_LOAD-1].m_pFile = nullptr;
         m_pSceneFilesLoading[MAX_SCENES_QUEUED_TO_LOAD-1].m_SceneID = SCENEID_NotSet;
 
 #if !MYFW_EDITOR
@@ -614,7 +577,7 @@ float EngineCore::Tick(float deltaTime)
     m_pEditorState->UpdateCamera( deltaTime );
 #endif
 
-    // change deltaTime if needed
+    // Change deltaTime if needed.
     {
         float timescale = m_pComponentSystemManager->GetTimeScale();
 
@@ -633,7 +596,7 @@ float EngineCore::Tick(float deltaTime)
     {
 #if MYFW_PROFILING_ENABLED && MYFW_EDITOR
         double Physics_Timing_Start = MyTime_GetSystemTime();
-#endif // MYFW_PROFILING_ENABLED && MYFW_EDITOR
+#endif //MYFW_PROFILING_ENABLED && MYFW_EDITOR
 
         m_pBulletWorld->PhysicsUpdate( deltaTime );
 
@@ -658,10 +621,10 @@ float EngineCore::Tick(float deltaTime)
 
         if( g_GLCanvasIDActive == 0 )
             m_FrameTimingInfo[m_FrameTimingNextEntry].Update_Physics = (float)((Physics_Timing_End - Physics_Timing_Start)*1000);
-#endif // MYFW_PROFILING_ENABLED && MYFW_EDITOR
+#endif //MYFW_PROFILING_ENABLED && MYFW_EDITOR
     }
 
-    // tick all components.
+    // Tick all components.
     m_pComponentSystemManager->Tick( deltaTime );
 
 #if MYFW_USING_LUA
@@ -685,7 +648,7 @@ float EngineCore::Tick(float deltaTime)
     Timing_LastFrameTime = Timing_Start;
 #endif
 
-    // update the global unpaused time.
+    // Update the global unpaused time.
     if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
         return TimeUnpaused;
     else
@@ -710,12 +673,12 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
     if( strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
     {
         MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
-        // clear out the old mesh and load in the new one.
+        // Clear out the old mesh and load in the new one.
         pMesh->Clear();
     }
 #endif
 
-    // TODO: entitycomponentmanager-> tell all script components file is updated.
+    // TODO: EntityComponentManager-> Tell all script components file is updated.
 }
 
 void EngineCore::OnFocusGained()
@@ -729,13 +692,13 @@ void EngineCore::OnFocusGained()
     m_pEditorState->ClearKeyAndActionStates();
 
 #if MYFW_USING_WX
-    // check if any of the "source" files, like .fbx's were updated, they aren't loaded by FileManager so wouldn't be detected there.
+    // Check if any of the "source" files, like .fbx's were updated, they aren't loaded by FileManager so wouldn't be detected there.
     g_pComponentSystemManager->CheckForUpdatedDataSourceFiles( false );
 #endif
 #endif
 
-    // reload any files that changed while we were out of focus.
-    if( g_pFileManager == 0 )
+    // Reload any files that changed while we were out of focus.
+    if( g_pFileManager == nullptr )
         return;
 
     int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
@@ -784,7 +747,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     }
 #endif
 
-#if MYFW_USING_IMGUI
+#if MYFW_EDITOR
     if( m_pEditorMainFrame )
     {
         // Backup the window width/height.
@@ -799,23 +762,17 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         g_pRenderer->EnableViewport( &viewport, true );
 
         // Render out the ImGui command list to the full window.
-        glClearColor( 0.0f, 0.1f, 0.2f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.1f, 0.2f, 1.0f ) );
+        g_pRenderer->ClearBuffers( true, true, false );
 
         if( g_pImGuiManager )
         {
             g_pImGuiManager->EndFrame( (float)windowWidth, (float)windowHeight, true );
-            
-#if MYFW_USING_WX
-            // For wxwidgets build, start the next frame immediately, so imgui calls can be made in tick callbacks.
-            // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
-            g_pImGuiManager->StartFrame();
-#endif
         }
 
         return;
     }
-#endif //MYFW_USING_IMGUI
+#endif //MYFW_EDITOR
 
     GameCore::OnDrawFrame( canvasid );
 
@@ -843,7 +800,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #if MYFW_EDITOR
     if( m_Debug_DrawGLStats && m_pDebugTextMesh )// && g_GLCanvasIDActive == 1 )
     {
-        if( m_pDebugTextMesh->GetMaterial( 0 ) == 0 )
+        if( m_pDebugTextMesh->GetMaterial( 0 ) == nullptr )
         {
             MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( "Data/DataEngine/Materials/Nevis60.mymaterial" );
             MyAssert( pMaterial );
@@ -928,10 +885,10 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         MyMatrix matProj;
         matProj.CreateOrtho( (float)windowrect.x, (float)windowrect.x+windowrect.w, (float)windowrect.y, (float)windowrect.y+windowrect.h, -1, 1 );
         g_pRenderer->SetDepthTestEnabled( false );
-        m_pDebugTextMesh->Draw( &matProj, 0, 0, 0,0,0,0,0,0,0,0 );
+        m_pDebugTextMesh->Draw( &matProj, nullptr, nullptr, nullptr,nullptr,nullptr,0,nullptr,nullptr,nullptr,nullptr );
         g_pRenderer->SetDepthTestEnabled( true );
     }
-#endif
+#endif //MYFW_EDITOR
 
     //glFinish();
 
@@ -958,7 +915,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         //ImGui::Text( "Hello world!" );
         //ImGui::SliderFloat( "", &m_AnimationTime, 0, 1, "Time: %.3f" );
     
-        int numsamplestoshow = 60*5; // 5 seconds worth @ 60fps
+        int numsamplestoshow = 60*5; // 5 seconds worth @ 60fps.
         MyAssert( numsamplestoshow < MAX_FRAMES_TO_STORE );
 
         int numentries = m_FrameTimingNextEntry + 1;
@@ -970,10 +927,10 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         m_FrameTimingNextEntry++;
 
-        // sort of circular buffer the frame timings.
+        // Sort of circular buffer the frame timings.
         if( m_FrameTimingNextEntry >= MAX_FRAMES_TO_STORE )
         {
-            // copy the last "numsamples" entries back to the start and reset where we insert records.
+            // Copy the last "numsamples" entries back to the start and reset where we insert records.
             for( int i=0; i<numsamplestoshow; i++ )
                 m_FrameTimingInfo[0+i] = m_FrameTimingInfo[MAX_FRAMES_TO_STORE-numsamplestoshow+i];
 
@@ -998,19 +955,13 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
     if( g_pImGuiManager )
     {
-#if MYFW_USING_WX
-        // In wx editor builds, only draw imgui interface over editor window.
-        if( canvasid == 1 )
-#endif
-        {
-            g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
+        g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
 
 #if MYFW_EDITOR
-            // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
-            // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
-            g_pImGuiManager->StartFrame();
+        // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
+        // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
+        g_pImGuiManager->StartFrame();
 #endif
-        }
     }
 }
 
@@ -1044,10 +995,10 @@ void EngineCore::OnDropFile(const char* filename)
 
     // If the datafile is in our working directory, then load it... otherwise TODO: copy it in?
     const char* relativepath = GetRelativePath( fullpath );
-    if( relativepath == 0 )
+    if( relativepath == nullptr )
     {
         // File is not in our working directory.
-        // TODO: copy the file into our data folder?
+        // TODO: Copy the file into our data folder?
         LOGError( LOGTag, "File must be in working directory\n" );
         //MyAssert( false );
         return;
@@ -1058,20 +1009,20 @@ void EngineCore::OnDropFile(const char* filename)
 
 void EngineCore::SetMousePosition(float x, float y)
 {
-    // TODO: get the camera properly.
+    // TODO: Get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
-    if( pCamera == 0 )
+    if( pCamera == nullptr )
         return;
 
     MyViewport* pViewport = &pCamera->m_Viewport;
 
-    // convert mouse to x/y in window space. TODO: put this in camera component.
+    // Convert mouse to x/y in window space. TODO: put this in camera component.
     x = (x / m_GameWidth) * pCamera->m_Camera2D.m_ScreenWidth + pCamera->m_Camera2D.m_ScreenOffsetX + pViewport->GetX();
     y = (y / m_GameHeight) * pCamera->m_Camera2D.m_ScreenHeight + pCamera->m_Camera2D.m_ScreenOffsetY + pViewport->GetY();
     //x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
     //y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
 
-    // window space wants mouse at top left.
+    // Window space wants mouse at top left.
     y = pViewport->GetHeight() - y;
 
     PlatformSpecific_SetMousePosition( x, y );
@@ -1081,7 +1032,7 @@ void EngineCore::SetMouseLock(bool lock)
 {
     GameCore::SetMouseLock( lock );
 
-#if MYFW_USING_IMGUI
+#if MYFW_EDITOR
     // Don't lock the mouse if the game window isn't in focus.
     if( ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->IsGameWindowFocused() )
         LockSystemMouse();
@@ -1096,36 +1047,27 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
 #if MYFW_EDITOR
     //if( m_EditorMode )
     {
-#if MYFW_USING_WX
-        if( g_GLCanvasIDActive == 1 )
-#endif
+        if( m_pEditorState->m_pEditorCamera )
         {
-            if( m_pEditorState->m_pEditorCamera )
+            ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+
+            if( action == GCBA_RelativeMovement )
             {
-                ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
-
-                if( action == GCBA_RelativeMovement )
-                {
-                    // Mouse held messages while the mouse is locked are relative.
-                    // Flip the y direction, up should be positive, down negative.
-                    y *= -1;
-                }
-                else
-                {
-                    // prefer 0,0 at bottom left.
-#if MYFW_USING_WX
-                    y = pCamera->m_WindowHeight - y;
-#else
-                    y = y;//m_WindowHeight - y;
-#endif
-                }
-
-                if( HandleEditorInput( g_GLCanvasIDActive, -1, -1, action, id, x, y, pressure ) )
-                    return true;
+                // Mouse held messages while the mouse is locked are relative.
+                // Flip the y direction, up should be positive, down negative.
+                y *= -1;
+            }
+            else
+            {
+                // Prefer 0,0 at bottom left.
+                y = y;
             }
 
-            //return false;
+            if( HandleEditorInput( g_GLCanvasIDActive, -1, -1, action, id, x, y, pressure ) )
+                return true;
         }
+
+        //return false;
     }
 
     if( g_GLCanvasIDActive != 0 )
@@ -1144,13 +1086,13 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     else
     {
         // In standalone game, if the mouse is locked, imgui needs to reset inputs.
-        // TODO: this should be done once when the mouse is locked, not each frame.
+        // TODO: This should be done once when the mouse is locked, not each frame.
         g_pImGuiManager->OnFocusLost();
     }
 #endif
 
 #if !MYFW_EDITOR && MYFW_WINDOWS
-    // Good 'ol hack to include this global function from MYFWWinMain.h
+    // Good ol' hack to include this global function from MYFWWinMain.h
     bool LockSystemMouse();
     
     // For non ImGui editor builds, if the game wants the mouse locked, finish the locking process here after imgui manager uses the mouse.
@@ -1169,7 +1111,7 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
 
 bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float pressure, float size)
 {
-    // if mouse lock was requested, don't let mouse held messages go further.
+    // If mouse lock was requested, don't let mouse held messages go further.
     if( g_pGameCore->WasMouseLockRequested() && g_pGameCore->IsMouseLocked() == false && action == GCBA_Held )
     {
         return false;
@@ -1178,22 +1120,20 @@ bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float p
 #if MYFW_EDITOR
     if( g_pGameCore->WasMouseLockRequested() && action == GCBA_Down )
     {
-#if MYFW_USING_IMGUI
         // If this call to lock the mouse actually did lock it, don't send the click to the game.
         // TODO: Also ignore the movements and the mouse up.
         if( LockSystemMouse() )
             return true;
-#endif
     }
 #endif
 
-    // TODO: get the camera properly.
+    // TODO: Get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
-    if( pCamera == 0 )
+    if( pCamera == nullptr )
         return false;
 
-    // if the mouse is locked and it's a mouse held message, leave the x/y as is
-    //     otherwise, convert to camera space.
+    // If the mouse is locked and it's a mouse held message, leave the x/y as is.
+    //     Otherwise, convert to camera space.
     if( action == GCBA_RelativeMovement )
     {
         // x/y should be showing diffs in position, so leave them as is.
@@ -1202,17 +1142,17 @@ bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float p
     {
         MyViewport* pViewport = &pCamera->m_Viewport;
 
-        // prefer 0,0 at bottom left.
+        // Prefer 0,0 at bottom left.
         y = pViewport->GetHeight() - y;
 
-        // convert mouse to x/y in Camera2D space. TODO: put this in camera component.
+        // Convert mouse to x/y in Camera2D space. TODO: put this in camera component.
         x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pViewport->GetX()) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
         y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pViewport->GetY()) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
     }
 
     m_LastMousePos.Set( x, y );
 
-    // mouse moving without button down.
+    // Mouse moving without button down.
     //if( id == -1 )
     //    return false;
 
@@ -1229,37 +1169,32 @@ bool EngineCore::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
 {
 #if MYFW_EDITOR
-#if MYFW_USING_WX
-    if( g_GLCanvasIDActive == 1 )
-#endif
+    // Not calling GameCore::OnKeys( action, keycode, unicodechar ) which translates keypresses to joystick input.
+
+    if( action == GCBA_Down && keycode == 344 ) // F5 )
     {
-        // not calling GameCore::OnKeys( action, keycode, unicodechar ) which translates keypresses to joystick input
+        int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
 
-        if( action == GCBA_Down && keycode == 344 ) // F5 )
+        if( filesupdated )
         {
-            int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
-
-            if( filesupdated )
-            {
-                g_pShaderManager->InvalidateAllShaders( true );
-                //g_pTextureManager->InvalidateAllTextures( true );
-                //g_pBufferManager->InvalidateAllBuffers( true );
-                return true;
-            }
-        }
-
-        if( action == GCBA_Down )
-        {
-            if( keycode >= 0 && keycode < 255 )
-            {
-                m_KeysHeld[keycode] = true;
-            }
-        }
-
-        if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
-        {
+            g_pShaderManager->InvalidateAllShaders( true );
+            //g_pTextureManager->InvalidateAllTextures( true );
+            //g_pBufferManager->InvalidateAllBuffers( true );
             return true;
         }
+    }
+
+    if( action == GCBA_Down )
+    {
+        if( keycode >= 0 && keycode < 255 )
+        {
+            m_KeysHeld[keycode] = true;
+        }
+    }
+
+    if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
+    {
+        return true;
     }
 #endif
 
@@ -1272,7 +1207,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
             return true;
 #endif
 
-        // GameCore::OnKeys translates keypresses to joystick input
+        // GameCore::OnKeys translates keypresses to joystick input.
         if( GameCore::OnKeys( action, keycode, unicodechar ) )
             return true;
 
@@ -1285,12 +1220,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 
 bool EngineCore::OnChar(unsigned int c)
 {
-#if MYFW_USING_WX
-    if( g_GLCanvasIDActive == 1 )
-#endif
-    {
-        g_pImGuiManager->OnChar( c );
-    }
+    g_pImGuiManager->OnChar( c );
 
     return false;
 }
@@ -1305,22 +1235,7 @@ void EngineCore::OnModeTogglePlayStop()
         // Set focus to gameplay window.
         if( g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() )
         {
-#if MYFW_USING_WX
-            if( g_pEngineMainFrame->GetGLCanvasEditor()->GetParent() == g_pEngineMainFrame->GetFullScreenFrame() )
-            {
-                g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->GetGLCanvas(), true );
-            }
-            else
-            {
-                g_pEngineMainFrame->m_pGLCanvas->SetFocus();
-            }
-#endif //MYFW_USING_WX
-
-#if MYFW_USING_IMGUI
-            {
-                ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->OnModeTogglePlayStop( false );
-            }
-#endif //MYFW_USING_IMGUI
+            ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->OnModeTogglePlayStop( false );
         }
     }
     else
@@ -1330,21 +1245,7 @@ void EngineCore::OnModeTogglePlayStop()
         // Set focus to editor window.
         if( g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() )
         {
-#if MYFW_USING_WX
-            if( g_pEngineMainFrame->m_pGLCanvas->GetParent() == g_pEngineMainFrame->GetFullScreenFrame() )
-            {
-                g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->GetGLCanvasEditor(), true );
-            }
-            else
-            {
-                g_pEngineMainFrame->GetGLCanvasEditor()->SetFocus();
-            }
-#endif //MYFW_USING_WX
-#if MYFW_USING_IMGUI
-            {
-                ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->OnModeTogglePlayStop( true );
-            }
-#endif //MYFW_USING_IMGUI
+            ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->OnModeTogglePlayStop( true );
         }
     }
 #endif //MYFW_EDITOR
@@ -1362,9 +1263,6 @@ void EngineCore::OnModePlay()
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
-#if MYFW_USING_WX
-        g_pEngineMainFrame->SetWindowPerspectiveToDefault();
-#endif
         m_pComponentSystemManager->OnPlay( SCENEID_AllScenes );
 
         RegisterGameplayButtons();
@@ -1394,9 +1292,6 @@ void EngineCore::OnModeStop()
         // Set to true after quick load, so any actions (e.g. changing material when loaded) won't be added to undo stack.
         m_EditorMode = true;
 
-#if MYFW_USING_WX
-        g_pEngineMainFrame->SetWindowPerspectiveToDefault();
-#endif
         m_pEditorState->ClearKeyAndActionStates();
         //m_pEditorState->ClearSelectedObjectsAndComponents();
 
@@ -1404,13 +1299,11 @@ void EngineCore::OnModeStop()
 
         UnregisterGameplayButtons();
 
-#if !MYFW_USING_WX
         UnlockSystemMouse();
-#endif
 
         return;
     }
-#endif
+#endif //MYFW_EDITOR
 }
 
 void EngineCore::OnModePause()
@@ -1478,7 +1371,7 @@ void EngineCore::UnregisterGameplayButtons()
 #if MYFW_EDITOR
 MySprite* EngineCore::GetSprite_DebugQuad()
 {
-    if( m_pSprite_DebugQuad == 0 )
+    if( m_pSprite_DebugQuad == nullptr )
     {
         m_pSprite_DebugQuad = MyNew MySprite( false );
     }
@@ -1488,15 +1381,15 @@ MySprite* EngineCore::GetSprite_DebugQuad()
 
 MyMesh* EngineCore::GetMesh_MaterialBall()
 {
-    if( m_pMesh_MaterialBall == 0 )
+    if( m_pMesh_MaterialBall == nullptr )
     {
         m_pMesh_MaterialBall = MyNew MyMesh();
         m_pMesh_MaterialBall->SetLoadDefaultMaterials( false );
-        MyAssert( m_pSphereMeshFile == 0 );
+        MyAssert( m_pSphereMeshFile == nullptr );
         m_pSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
         m_pSphereMeshFile->m_ShowInMemoryPanel = false;
 
-        return 0;
+        return nullptr;
     }
 
     if( m_pMesh_MaterialBall && m_pMesh_MaterialBall->IsReady() == false )
@@ -1506,7 +1399,7 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
             m_pMesh_MaterialBall->SetSourceFile( g_pEngineCore->m_pSphereMeshFile );
         }
 
-        return 0;
+        return nullptr;
     }
 
     return m_pMesh_MaterialBall;
@@ -1514,36 +1407,14 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
 
 bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-#if MYFW_USING_IMGUI
     // Fill the imgui io structure.
     g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     // Pass all inputs to our imgui frame, which will deliver it to the correct window (game, editor or widget).
-    bool inputused = ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+    bool inputUsed = ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 
-    // inputused will be false if the game window was in focus and the input event wasn't a hotkey.
-    return inputused;
-#endif
-
-#if MYFW_USING_WX
-    float toplefty = m_pEditorState->m_EditorWindowRect.h - y;
-
-    if( g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, toplefty, pressure ) )
-    {
-        return true;
-    }
-
-    if( m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure ) )
-        return true;
-
-    if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, mouseaction, id, x, y, pressure ) )
-        return true;
-
-    // clear modifier key and mouse button states.
-    m_pCurrentEditorInterface->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
-#endif
-
-    return false;
+    // inputUsed will be false if the game window was in focus and the input event wasn't a hotkey.
+    return inputUsed;
 }
 #endif //MYFW_EDITOR
 
@@ -1554,9 +1425,9 @@ void EngineCore::CreateDefaultEditorSceneObjects()
     ComponentCamera* pComponentCamera;
     ComponentMesh* pComponentMesh;
 
-    // create a 3D X/Z plane grid
+    // Create a 3D X/Z plane grid.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // not managed.
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
         pGameObject->SetName( "3D Grid Plane" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects );
@@ -1579,16 +1450,16 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-        MyAssert( m_pEditorState->m_p3DGridPlane == 0 );
+        MyAssert( m_pEditorState->m_p3DGridPlane == nullptr );
         m_pEditorState->m_p3DGridPlane = pGameObject;
     }
 
-    // create a 3d transform gizmo for each axis.
+    // Create a 3d transform gizmo for each axis.
     m_pEditorState->m_pTransformGizmo->CreateAxisObjects( SCENEID_EngineObjects, 0.03f, m_pEditorState );
 
-    // create a 3D editor camera, renders editor view.
+    // Create a 3D editor camera, renders editor view.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // not managed.
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
         pGameObject->SetName( "Editor Camera" );
 #if MYFW_RIGHTHANDED
         pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, 10 ) );
@@ -1596,7 +1467,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, -10 ) );
 #endif
 
-        // add an editor scene camera
+        // Add an editor scene camera.
         {
             pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
@@ -1605,12 +1476,12 @@ void EngineCore::CreateDefaultEditorSceneObjects()
             pComponentCamera->m_ClearColorBuffer = true;
             pComponentCamera->m_ClearDepthBuffer = true;
 
-            // add the camera component to the list, but disabled, so it won't render.
+            // Add the camera component to the list, but disabled, so it won't render.
             pComponentCamera->SetEnabled( false );
             //m_pComponentSystemManager->AddComponent( pComponentCamera );
         }
 
-        // add a foreground camera for the transform gizmo only ATM.
+        // Add a foreground camera for the transform gizmo only ATM.
         {
             pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
@@ -1619,12 +1490,12 @@ void EngineCore::CreateDefaultEditorSceneObjects()
             pComponentCamera->m_ClearColorBuffer = false;
             pComponentCamera->m_ClearDepthBuffer = true;
 
-            // add the camera component to the list, but disabled, so it won't render.
+            // Add the camera component to the list, but disabled, so it won't render.
             pComponentCamera->SetEnabled( false );
             //m_pComponentSystemManager->AddComponent( pComponentCamera );
         }
 
-        MyAssert( m_pEditorState->m_pEditorCamera == 0 );
+        MyAssert( m_pEditorState->m_pEditorCamera == nullptr );
         m_pEditorState->m_pEditorCamera = pGameObject;
     }
 #endif
@@ -1635,7 +1506,7 @@ void EngineCore::CreateDefaultSceneObjects()
     GameObject* pGameObject;
     ComponentCamera* pComponentCamera;
 
-    // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
+    // Create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
         pGameObject->SetName( "Main Camera" );
@@ -1652,7 +1523,7 @@ void EngineCore::CreateDefaultSceneObjects()
         pComponentCamera->m_LayersToRender = Layer_MainScene;
     }
 
-    // create a 2D camera, renders after 3d, for hud.
+    // Create a 2D camera, renders after 3d, for hud.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
         pGameObject->SetName( "Hud Camera" );
@@ -1675,8 +1546,6 @@ void EngineCore::ReloadScene(SceneID sceneid)
 
 void EngineCore::ReloadSceneInternal(SceneID sceneid)
 {
-    checkGlError( "start of ReloadSceneInternal" );
-
     m_SceneReloadRequested = false;
 
     OnModeStop();
@@ -1689,8 +1558,6 @@ void EngineCore::ReloadSceneInternal(SceneID sceneid)
     {
         pRequestedSceneInfo->m_SceneID = sceneid;
     }
-
-    checkGlError( "end of ReloadSceneInternal" );
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
@@ -1701,30 +1568,30 @@ void EngineCore::RequestScene(const char* fullpath)
 
 RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
 {
-    // if the scene is already loaded, don't request it again
+    // If the scene is already loaded, don't request it again.
     if( g_pComponentSystemManager->IsSceneLoaded( fullpath ) )
-        return 0;
+        return nullptr;
 
-    // check if scene is already queued up
+    // Check if scene is already queued up.
     {
         for( int i=0; i<MAX_SCENES_QUEUED_TO_LOAD; i++ )
         {
             MyFileObject* pFile = m_pSceneFilesLoading[i].m_pFile;
             if( pFile && strcmp( pFile->GetFullPath(), fullpath ) == 0 )
-                return 0;
+                return nullptr;
         }
     }
 
     int i;
     for( i=0; i<MAX_SCENES_QUEUED_TO_LOAD; i++ )
     {
-        if( m_pSceneFilesLoading[i].m_pFile == 0 )
+        if( m_pSceneFilesLoading[i].m_pFile == nullptr )
             break;
     }
     
     MyAssert( i != MAX_SCENES_QUEUED_TO_LOAD ); // Too many scenes queued up.
     if( i == MAX_SCENES_QUEUED_TO_LOAD )
-        return 0;
+        return nullptr;
 
     m_pSceneFilesLoading[i].m_pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( fullpath );
     m_pSceneFilesLoading[i].m_SceneID = SCENEID_NotSet;
@@ -1735,22 +1602,8 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
 // Exposed to Lua, change elsewhere if function signature changes.
 void EngineCore::SwitchScene(const char* fullpath)
 {
-#if MYFW_USING_WX
-    int answer = wxID_YES;
-
-    if( m_pCommandStack->GetUndoStackSize() != g_pEngineMainFrame->GetUndoStackDepthAtLastSave() )
-    {
-        wxMessageDialog dlg( g_pEngineMainFrame, "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO | wxNO_DEFAULT );
-        dlg.SetYesNoLabels( "Load/Lose changes", "Return to editor" );
-        answer = dlg.ShowModal();
-    }
-
-    if( answer == wxID_YES )
-#endif
-    {
-        m_UnloadAllScenesNextTick = true;
-        RequestSceneInternal( fullpath );
-    }
+    m_UnloadAllScenesNextTick = true;
+    RequestSceneInternal( fullpath );
 }
 
 void EngineCore::SaveScene(const char* fullpath, SceneID sceneid)
@@ -1809,20 +1662,14 @@ void EngineCore::UnloadScene(SceneID sceneid, bool clearEditorObjects)
         SAFE_RELEASE( g_pRTQGlobals->m_pMaterial );
     }
 
-    // reset the editorstate structure.
+    // Reset the editorstate structure.
 #if MYFW_EDITOR
     if( sceneid != SCENEID_Unmanaged )
     {
-#if MYFW_USING_IMGUI
         ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->StoreCurrentUndoStackSize();
-#endif
-#if MYFW_USING_WX
-        g_pGameCore->GetCommandStack()->ClearStacks();
-        g_pEngineMainFrame->StoreCurrentUndoStackSize();
-#endif
     }
     
-    // TODO: only unselect objects from the scene being unloaded.
+    // TODO: Only unselect objects from the scene being unloaded.
     m_pEditorState->ClearEditorState( clearEditorObjects );
 #endif //MYFW_EDITOR
 }
@@ -1852,7 +1699,7 @@ SceneID EngineCore::LoadSceneFromFile(const char* fullpath)
             MyStackAllocator::MyStackPointer stackpointer;
             jsonstr = (char*)m_SingleFrameMemoryStack.AllocateBlock( length+1, &stackpointer );
             fread( jsonstr, length, 1, filehandle );
-            jsonstr[length] = 0;
+            jsonstr[length] = '\0';
 
             const char* filenamestart;
             int i;
@@ -1889,7 +1736,7 @@ SceneID EngineCore::LoadSceneFromFile(const char* fullpath)
             g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( fullpath );
 
             // Probably shouldn't bother with a rewind,
-            //   might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around
+            //     might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around.
             m_SingleFrameMemoryStack.RewindStack( stackpointer );
         }
 
@@ -1941,7 +1788,7 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
             MyStackAllocator::MyStackPointer stackpointer;
             jsonstr = (char*)m_SingleFrameMemoryStack.AllocateBlock( length+1, &stackpointer );
             fread( jsonstr, length, 1, filehandle );
-            jsonstr[length] = 0;
+            jsonstr[length] = '\0';
 
             // We're quickloading a temp scene, so don't call "play" in editor builds.
             bool playWhenFinishedLoading = false;
@@ -1953,7 +1800,7 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
             LoadSceneFromJSON( fullpath, jsonstr, SCENEID_TempPlayStop, playWhenFinishedLoading );
 
             // Probably shouldn't bother with a rewind,
-            //   might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around
+            //     might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around.
             m_SingleFrameMemoryStack.RewindStack( stackpointer );
         }
 
@@ -1974,7 +1821,7 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, S
         LOGInfo( LOGTag, "Loading scene file(%d): %s\n", sceneid, scenename );
     }
 
-    // reset the editorstate structure.
+    // Reset the editorstate structure.
 #if MYFW_EDITOR
     m_pEditorState->ClearEditorState( false );
 #endif //MYFW_EDITOR
@@ -1986,10 +1833,6 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, S
 
     // FinishLoading calls OnLoad and OnPlay for all components in scene.
     g_pComponentSystemManager->FinishLoading( false, sceneid, playWhenFinishedLoading );
-
-#if MYFW_USING_WX
-    g_pEngineMainFrame->ResizeViewport();
-#endif
 }
 
 #if MYFW_EDITOR
@@ -2004,7 +1847,7 @@ void EngineCore::Editor_OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint3
             for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
             {
                 ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
-                MyAssert( pCamera != 0 );
+                MyAssert( pCamera != nullptr );
                 if( pCamera )
                     pCamera->OnSurfaceChanged( x, y, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
             }
@@ -2029,7 +1872,7 @@ void EngineCore::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 heigh
 
     g_pRenderer->SetCullingEnabled( true );
 #if !MYFW_RIGHTHANDED
-    glFrontFace( GL_CW );
+    g_pRenderer->SetFrontFaceWinding( MyRE::FrontFaceWinding_Clockwise );
 #endif
     g_pRenderer->SetDepthTestEnabled( true );
 
@@ -2047,20 +1890,20 @@ void EngineCore::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 heigh
 void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUse)
 {
     FBODefinition* pFBO = pFBOToUse;
-    if( pFBO == 0 )
+    if( pFBO == nullptr )
         pFBO = m_pEditorState->m_pDebugViewFBO;
 
-    // render the scene to an FBO.
+    // Render the scene to an FBO.
     pFBO->Bind( true );
 
     MyViewport viewport( 0, 0, pFBO->GetWidth(), pFBO->GetHeight() );
     g_pRenderer->EnableViewport( &viewport, true );
 
-    glClearColor( 0, 0, 0, 0 );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    g_pRenderer->SetClearColor( ColorFloat( 0, 0, 0, 0 ) );
+    g_pRenderer->ClearBuffers( true, true, false );
 
-    // draw all editor camera components.
-    ComponentCamera* pCamera = 0;
+    // Draw all editor camera components.
+    ComponentCamera* pCamera = nullptr;
     for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
     {
         pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
@@ -2085,11 +1928,9 @@ void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUs
 
             //MyMatrix matViewProj = matProj * matView;
 
-#if MYFW_USING_WX
-            m_pComponentSystemManager->DrawSingleObject( &matProj, &matView, pObject, 0 );
-#endif
+            m_pComponentSystemManager->DrawSingleObject( &matProj, &matView, pObject, nullptr );
 
-            glClear( GL_DEPTH_BUFFER_BIT );
+            g_pRenderer->ClearBuffers( false, true, false );
         }
     }
 
@@ -2162,252 +2003,5 @@ EditorInterface* EngineCore::GetEditorInterface(EditorInterfaceTypes type)
 EditorInterface* EngineCore::GetCurrentEditorInterface()
 {
     return m_pCurrentEditorInterface;
-}
-#endif //MYFW_EDITOR
-
-#if MYFW_EDITOR
-void EngineCore::OnObjectListTreeSelectionChanged() //StaticOnObjectListTreeSelectionChanged
-{
-    if( m_pEditorState )
-    {
-        //LOGInfo( LOGTag, "Clearing Selected Objects\n" );
-        m_pEditorState->m_pSelectedObjects.clear();
-        m_pEditorState->m_pSelectedComponents.clear();
-    }
-}
-
-void EngineCore::OnObjectListTreeMultipleSelection(bool prepForDraggingCopy) //StaticOnObjectListTreeMultipleSelection
-{
-#if MYFW_USING_WX
-    bool allowFolderSelection = false;
-    bool selectContentsOfSelectedFolders = true;
-    bool allowPrefabSelection = true;
-    bool updateWatchWindowWithNewSelection = true;
-    bool allowChildrenToBeSelectedIfParentIsSelected = true;
-    
-    if( prepForDraggingCopy == true )
-    {
-        allowFolderSelection = true;
-        selectContentsOfSelectedFolders = false;
-        allowPrefabSelection = false;
-        updateWatchWindowWithNewSelection = false;
-        allowChildrenToBeSelectedIfParentIsSelected = false;
-    }
-
-    if( m_pEditorState == 0 )
-        return;
-
-    g_pPanelWatch->ClearAllVariables();
-    OnObjectListTreeSelectionChanged();
-
-    wxArrayTreeItemIds selecteditems;
-    unsigned int numselected = (unsigned int)g_pPanelObjectList->m_pTree_Objects->GetSelections( selecteditems );
-
-    if( numselected == 0 )
-        return;
-
-    // If only 1 item is selected and it's a GameObject(not a folder), show just this one GameObject.
-    if( numselected == 1 )
-    {
-        wxTreeItemId id = selecteditems[0].GetID();
-        TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
-
-        MyAssert( pData && pData->m_pObject );
-
-        GameObject* pGameObject = 0;
-        bool isprefab = false;
-        
-        if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
-        {
-            pGameObject = (GameObject*)pData->m_pObject;
-        }
-        else if( pData->m_pLeftClickFunction == PrefabObject::StaticOnLeftClick )
-        {
-            // Allow prefabs in watch panel.
-            isprefab = true;
-            pGameObject = (GameObject*)pData->m_pUserData;
-        }
-
-        // Show this GameObject in the watch panel, if it's not a folder
-        if( updateWatchWindowWithNewSelection )
-        {
-            if( pGameObject && pGameObject->IsFolder() == false )
-            {
-                pGameObject->ShowInWatchPanel( isprefab );
-                return;
-            }
-        }
-    }
-
-    // Add all selected GameObjects to editor selection list.
-    for( unsigned int i=0; i<numselected; i++ )
-    {
-        wxTreeItemId id = selecteditems[i].GetID();
-        TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
-
-        MyAssert( pData && pData->m_pObject );
-
-        GameObject* pGameObject = 0;
-        
-        if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
-        {
-            pGameObject = (GameObject*)pData->m_pObject;
-        }
-        else if( pData->m_pLeftClickFunction == PrefabObject::StaticOnLeftClick )
-        {
-            // Don't allow multi-selection of prefabs in watch panel.
-            // TODO: revisit this...
-            //pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
-            continue;
-        }
-
-        if( pGameObject )
-        {
-            // Skip children if their parents are selected.
-            if( allowChildrenToBeSelectedIfParentIsSelected == false )
-            {
-                bool parentfound = false;
-
-                for( unsigned int i=0; i<numselected; i++ )
-                {
-                    wxTreeItemId id = selecteditems[i].GetID();
-                    TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
-                    MyAssert( pData && pData->m_pObject );
-
-                    // Only check gameobjects, not prefabs.
-                    if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
-                    {
-                        if( pGameObject->IsParentedTo( (GameObject*)pData->m_pObject, false ) )
-                        {
-                            parentfound = true;
-                        }
-                    }
-                }
-
-                if( parentfound )
-                {
-                    // Skip this child.
-                    continue;
-                }
-            }
-
-            // Select the GameObject (also select folders if allowed).
-            if( allowFolderSelection || pGameObject->IsFolder() == false )
-            {
-                if( m_pEditorState->IsGameObjectSelected( pGameObject ) == false )
-                    m_pEditorState->m_pSelectedObjects.push_back( pGameObject );
-            }
-
-            // If this is a folder, select all objects inside.
-            if( selectContentsOfSelectedFolders && pGameObject->IsFolder() )
-            {
-                for( GameObject* pGameObject = pGameObject->GetChildList()->GetHead(); pGameObject; pGameObject = pGameObject->GetNext() )
-                {
-                    if( pGameObject->IsManaged() )
-                    {
-                        pGameObject->AddToList( &m_pEditorState->m_pSelectedObjects );
-                    }
-                }
-            }
-        }
-    }
-
-    // Update watch panel with multiple selections.
-    if( updateWatchWindowWithNewSelection )
-    {
-        // Add a spacer saying how many objects were selected.
-        char temp[30];
-        sprintf_s( temp, 30, "%d objects selected", m_pEditorState->m_pSelectedObjects.size() );
-        g_pPanelWatch->AddSpace( temp, 0, 0, 0 );
-
-        // Show common components of all selected Gameobjects:
-        if( m_pEditorState->m_pSelectedObjects.size() > 0 )
-        {
-            GameObject* pFirstGameObject = m_pEditorState->m_pSelectedObjects[0];
-
-            // Search all components including GameObject properties and transform.
-            for( unsigned int i=0; i<pFirstGameObject->GetComponentCountIncludingCore(); i++ )
-            {
-                ComponentBase* pComponentToLookFor = pFirstGameObject->GetComponentByIndexIncludingCore( i );
-
-                MyAssert( pComponentToLookFor );
-
-                pComponentToLookFor->m_MultiSelectedComponents.clear();
-
-                // Loop through selected gameobjects and check if they all have to least one of this component type on them.
-                bool allgameobjectshavecomponent = true;
-                for( unsigned int i=1; i<m_pEditorState->m_pSelectedObjects.size(); i++ )
-                {
-                    GameObject* pGameObject = m_pEditorState->m_pSelectedObjects[i];
-
-                    bool hascomponent = false;
-                    for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
-                    {
-                        ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( i );
-
-                        if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
-                        {
-                            pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
-                            hascomponent = true;
-                            break;
-                        }
-                    }
-
-                    if( hascomponent == false )
-                    {
-                        allgameobjectshavecomponent = false;
-                        break;
-                    }
-                }
-
-                if( allgameobjectshavecomponent == true )
-                {
-                    pComponentToLookFor->OnLeftClick( (unsigned int)m_pEditorState->m_pSelectedObjects.size(), false );
-                }
-            }
-        }
-    }
-#endif
-}
-
-void EngineCore::OnObjectListTreeDeleteSelection() //StaticOnObjectListTreeDeleteSelection
-{
-#if MYFW_USING_WX
-    if( m_pEditorState == 0 )
-        return;
-
-    g_pPanelWatch->ClearAllVariables();
-    OnObjectListTreeSelectionChanged();
-
-    wxArrayTreeItemIds selecteditems;
-    unsigned int numselected = (unsigned int)g_pPanelObjectList->m_pTree_Objects->GetSelections( selecteditems );
-
-    if( numselected == 0 )
-        return;
-
-    // Add all selected GameObjects to editor selection list.
-    for( unsigned int i=0; i<numselected; i++ )
-    {
-        wxTreeItemId id = selecteditems[i].GetID();
-        TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
-
-        MyAssert( pData && pData->m_pObject );
-
-        GameObject* pGameObject = 0;
-        
-        if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
-            pGameObject = (GameObject*)pData->m_pObject;
-        else if( pData->m_pLeftClickFunction == PrefabObject::StaticOnLeftClick )
-            pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
-
-        if( pGameObject )
-        {
-            pGameObject->AddToList( &m_pEditorState->m_pSelectedObjects );
-        }
-    }
-
-    // Delete the current selected gameobjects.
-    m_pEditorState->DeleteSelectedObjects();
-#endif
 }
 #endif //MYFW_EDITOR

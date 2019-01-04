@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,16 +9,11 @@
 
 #include "EngineCommonHeader.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-
 #if MYFW_USING_WX
 bool ComponentPostEffect::m_PanelWatchBlockVisible = true;
 #endif
 
-// Component Variable List
+// Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentPostEffect ); //_VARIABLE_LIST
 
 ComponentPostEffect::ComponentPostEffect()
@@ -30,8 +25,8 @@ ComponentPostEffect::ComponentPostEffect()
 
     m_BaseType = BaseComponentType_Data;
 
-    m_pFullScreenQuad = 0;
-    m_pMaterial = 0;
+    m_pFullScreenQuad = nullptr;
+    m_pMaterial = nullptr;
 }
 
 ComponentPostEffect::~ComponentPostEffect()
@@ -44,17 +39,17 @@ ComponentPostEffect::~ComponentPostEffect()
 
 void ComponentPostEffect::RegisterVariables(CPPListHead* pList, ComponentPostEffect* pThis) //_VARIABLE_LIST
 {
-    AddVar( pList, "Enabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, 0,
+    AddVar( pList, "Enabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, nullptr,
             (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged,
-            0, 0 );
+            nullptr, nullptr );
     AddVar( pList, "Material", ComponentVariableType_MaterialPtr,
             MyOffsetOf( pThis, &pThis->m_pMaterial ), false, true, 
-            0, (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged, (CVarFunc_DropTarget)&ComponentPostEffect::OnDropMaterial, 0 );
+            nullptr, (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged, (CVarFunc_DropTarget)&ComponentPostEffect::OnDropMaterial, nullptr );
 }
 
-cJSON* ComponentPostEffect::ExportAsJSONObject(bool savesceneid, bool saveid)
+cJSON* ComponentPostEffect::ExportAsJSONObject(bool saveSceneID, bool saveID)
 {
-    cJSON* component = ComponentData::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* component = ComponentData::ExportAsJSONObject( saveSceneID, saveID );
 
     if( m_pMaterial )
         cJSON_AddStringToObject( component, "Material", m_pMaterial->GetMaterialDescription() );
@@ -62,11 +57,11 @@ cJSON* ComponentPostEffect::ExportAsJSONObject(bool savesceneid, bool saveid)
     return component;
 }
 
-void ComponentPostEffect::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
+void ComponentPostEffect::ImportFromJSONObject(cJSON* jObject, SceneID sceneID)
 {
-    ComponentData::ImportFromJSONObject( jsonobj, sceneid );
+    ComponentData::ImportFromJSONObject( jObject, sceneID );
 
-    cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
+    cJSON* materialstringobj = cJSON_GetObjectItem( jObject, "Material" );
     if( materialstringobj )
     {
         MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
@@ -82,13 +77,13 @@ void ComponentPostEffect::Reset()
 {
     ComponentData::Reset();
 
-    // free old quad and material if needed.
+    // Free old quad and material if needed.
     SAFE_RELEASE( m_pFullScreenQuad );
     SAFE_RELEASE( m_pMaterial );
 
     m_pFullScreenQuad = MyNew MySprite( false );
     m_pFullScreenQuad->Create( 2, 2, 0, 1, 1, 0, Justify_Center, false );
-    m_pMaterial = 0;
+    m_pMaterial = nullptr;
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -121,12 +116,10 @@ void ComponentPostEffect::SetMaterial(MaterialDefinition* pMaterial)
 
 void ComponentPostEffect::Render(FBODefinition* pFBO)
 {
-    checkGlError( "start of ComponentPostEffect::Render()" );
-
     MyAssert( m_pFullScreenQuad );
     MyAssert( m_pMaterial );
 
-    if( m_pFullScreenQuad == 0 || m_pMaterial == 0 )
+    if( m_pFullScreenQuad == nullptr || m_pMaterial == nullptr )
         return;
 
     m_pMaterial->SetTextureColor( pFBO->GetColorTexture( 0 ) );
@@ -134,7 +127,7 @@ void ComponentPostEffect::Render(FBODefinition* pFBO)
     m_pFullScreenQuad->SetMaterial( m_pMaterial );
     m_pFullScreenQuad->Create( 2, 2, 0, (float)pFBO->GetWidth()/pFBO->GetTextureWidth(), (float)pFBO->GetHeight()/pFBO->GetTextureHeight(), 0, Justify_Center, false );
 
-    if( m_pFullScreenQuad->Setup( 0, 0, 0 ) )
+    if( m_pFullScreenQuad->Setup( nullptr, nullptr, nullptr ) )
     {
         Shader_Base* pShader = (Shader_Base*)m_pMaterial->GetShader()->GlobalPass();
         pShader->ProgramDepthmap( pFBO->GetDepthTexture() );
@@ -142,65 +135,17 @@ void ComponentPostEffect::Render(FBODefinition* pFBO)
         m_pFullScreenQuad->DrawNoSetup();
         m_pFullScreenQuad->DeactivateShader();
     }
-
-    checkGlError( "end of ComponentPostEffect::Render()" );
 }
 
 #if MYFW_EDITOR
-ComponentVariable* ComponentPostEffect::GetComponentVariableForMaterial(int submeshindex)
+ComponentVariable* ComponentPostEffect::GetComponentVariableForMaterial(int submeshIndex)
 {
-    return 0; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentPostEffect, "Material" );
+    return nullptr; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentPostEffect, "Material" );
 }
-
-#if MYFW_USING_WX
-void ComponentPostEffect::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    g_pPanelObjectList->AddObject( this, ComponentPostEffect::StaticOnLeftClick, ComponentData::StaticOnRightClick, gameobjectid, "Post Effect", ObjectListIcon_Component );
-}
-
-void ComponentPostEffect::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentData::OnLeftClick( count, clear );
-}
-
-void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Post Effect", this, ComponentData::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentData::FillPropertiesWindow( clear );
-
-        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-
-        const char* desc = "no material";
-        if( m_pMaterial && m_pMaterial->GetFile() )
-            desc = m_pMaterial->GetMaterialShortDescription();
-        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentPostEffect::StaticOnDropMaterial );
-    }
-}
-
-void ComponentPostEffect::OnDropMaterial(int controlid, int x, int y)
-{
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
-    {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
-        MyAssert( pMaterial );
-
-        SetMaterial( pMaterial );
-
-        // update the panel so new Material name shows up.
-        if( pMaterial->GetFile() )
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetMaterialShortDescription();
-    }
-}
-#endif //MYFW_USING_WX
 
 void* ComponentPostEffect::OnDropMaterial(ComponentVariable* pVar, int x, int y)
 {
-    void* oldPointer = 0;
+    void* oldPointer = nullptr;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -211,26 +156,15 @@ void* ComponentPostEffect::OnDropMaterial(ComponentVariable* pVar, int x, int y)
         oldPointer = GetMaterial();
         SetMaterial( pMaterial );
         //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
-
-//#if MYFW_USING_WX
-//        // update the panel so new Material name shows up.
-//        if( g_DragAndDropStruct.GetControlID() != -1 )
-//        {
-//            if( pMaterial != 0 )
-//                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
-//            else
-//                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = 0;
-//        }
-//#endif //MYFW_USING_WX
     }
 
     return oldPointer;
 }
 
-void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
-    void* oldpointer = 0;
+    void* oldPointer = nullptr;
 
-    return oldpointer;
+    return oldPointer;
 }
 #endif //MYFW_EDITOR

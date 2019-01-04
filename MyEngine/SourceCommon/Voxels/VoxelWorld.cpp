@@ -13,11 +13,6 @@
 #include "VoxelJobs.h"
 #include "VoxelWorld.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-
 VoxelWorld::VoxelWorld()
 {
     m_NumChunkPointersAllocated = 0;

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2018-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -126,8 +126,8 @@ public:
     void StoreCurrentUndoStackSize();
     unsigned int GetUndoStackDepthAtLastSave() { return m_UndoStackDepthAtLastSave; }
 
-    bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
-    bool CheckForHotkeys(int keyaction, int keycode);
+    bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+    bool CheckForHotkeys(int keyAction, int keyCode);
 
     void RequestCloseWindow();
 
@@ -161,7 +161,7 @@ protected:
     void AddContextMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID);
 
 public:
-    void AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject = 0);
+    void AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject = nullptr);
 
 protected:
     void AddMemoryPanel_Materials();

@@ -18,11 +18,6 @@
 #include "../SourceEditor/Exporters/ExportBox2DScene.h"
 #endif //MYFW_EDITOR
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-
 ComponentSystemManager* g_pComponentSystemManager = 0;
 
 ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager)
@@ -964,8 +959,6 @@ void ComponentSystemManager::FreeAllDataFiles(SceneID sceneIDToClear)
 
 void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid)
 {
-    checkGlError( "ComponentSystemManager::LoadSceneFromJSON" );
-
     cJSON* root = cJSON_Parse( jsonstr );
 
     if( root == 0 )
@@ -1315,8 +1308,6 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
 
 void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnmanagedComponents)
 {
-    checkGlError( "start of ComponentSystemManager::UnloadScene" );
-
     // Remove all components, except ones attached to unmanaged game objects (if wanted).
     {
         for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
@@ -1424,8 +1415,6 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
         MyAssert( m_pSceneInfoMap[sceneIDToClear].m_InUse == true );
         m_pSceneInfoMap[sceneIDToClear].Reset();
     }
-
-    checkGlError( "end of ComponentSystemManager::UnloadScene" );
 }
 
 bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
@@ -2335,8 +2324,6 @@ void ComponentSystemManager::OnDrawFrame()
 
 void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays)
 {
-    checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
-
     // Draw all objects in the scene graph
     {
         Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
@@ -2389,8 +2376,6 @@ void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatP
     {
         DrawOverlays( pCamera, pMatProj, pMatView, pShaderOverride );
     }
-
-    checkGlError( "end of ComponentSystemManager::OnDrawFrame()" );
 }
 
 void ComponentSystemManager::DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
@@ -2455,13 +2440,9 @@ void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
     if( id > 256*256 )      tint.b = (id>>16)%256;
     if( id > 256*256*256 )  tint.a = (id>>24)%256;
 
-    checkGlError( "ComponentSystemManager::DrawMousePickerFrame - ProgramSceneIDs before setting tint" );
-
     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     MyAssert( MyGLDebug_IsProgramActive( pShader->m_ProgramHandle ) == true );
     pShader->ProgramTint( tint );
-
-    checkGlError( "ComponentSystemManager::DrawMousePickerFrame - ProgramSceneIDs after setting tint" );
 }
 
 void ProgramSceneIDs(SceneGraphObject* pObject, ShaderGroup* pShaderOverride)
@@ -2513,15 +2494,9 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                     if( id > 256*256 )      tint.b = (id>>16)%256;
                     if( id > 256*256*256 )  tint.a = (id>>24)%256;
 
-                    checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
-
                     pShader->ProgramTint( tint );
 
-                    checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
-
                     (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatProj, pMatView, pShaderOverride );
-
-                    checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
                 }
             }
         }

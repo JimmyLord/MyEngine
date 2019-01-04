@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2018-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -13,11 +13,6 @@
 #include "EditorMemoryWindow_ImGui.h"
 #include "../../SourceCommon/GUI/EditorIcons.h"
 #include "../../SourceCommon/GUI/ImGuiExtensions.h"
-
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 //====================================================================================================
 // Various enums and matching strings (some unused)
@@ -71,7 +66,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
     // Layouts.
     m_pLayoutManager = MyNew EditorLayoutManager_ImGui();
-    m_pCurrentLayout = 0;
+    m_pCurrentLayout = nullptr;
 
     // Warnings.
     m_ShowNewSceneWarning = false;
@@ -84,37 +79,37 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
 
     // Material Preview and Editor.
-    m_pMaterialToPreview = 0;
-    m_pMaterialBeingEdited = 0;
+    m_pMaterialToPreview = nullptr;
+    m_pMaterialBeingEdited = nullptr;
 
     // 2D Animation Editor.
-    m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
-    m_p2DAnimInfoBeingEdited = 0;
+    m_FullPathToLast2DAnimInfoBeingEdited[0] = '\0';
+    m_p2DAnimInfoBeingEdited = nullptr;
     m_Current2DAnimationIndex = 0;
     m_pAnimPlayerComponent = MyNew ComponentAnimationPlayer2D();
     m_pAnimPlayerComponent->SetType( ComponentType_AnimationPlayer2D );
     m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
 
-    // Log Window
+    // Log Window.
     m_pLogWindow = MyNew EditorLogWindow_ImGui( true );
     m_pMemoryWindow = MyNew EditorMemoryWindow_ImGui();
 
     // Object list.
-    m_pGameObjectToDrawReorderLineAfter = 0;
+    m_pGameObjectToDrawReorderLineAfter = nullptr;
     m_SetObjectListFilterBoxInFocus = false;
-    m_ObjectListFilter[0] = 0;
+    m_ObjectListFilter[0] = '\0';
 
     // Memory panel.
     m_CurrentMemoryPanelPage = PanelMemoryPage_Materials;
     m_SetMemoryPanelFilterBoxInFocus = false;
-    m_MemoryPanelFilter[0] = 0;
+    m_MemoryPanelFilter[0] = '\0';
 
     // For renaming things.
     m_RenamePressedThisFrame = false;
     m_ConfirmCurrentRenameOp = false;
-    m_pGameObjectWhoseNameIsBeingEdited = 0;
-    m_pMaterialWhoseNameIsBeingEdited = 0;
-    m_NameBeingEdited[0] = 0;
+    m_pGameObjectWhoseNameIsBeingEdited = nullptr;
+    m_pMaterialWhoseNameIsBeingEdited = nullptr;
+    m_NameBeingEdited[0] = '\0';
 
     // Draw call debugger.
     m_SelectedDrawCallCanvas = -1;
@@ -136,7 +131,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_CurrentMouseInEditorWindow_Y = -1;
 
     // Misc.
-    m_pLastGameObjectInteractedWithInObjectPanel = 0;
+    m_pLastGameObjectInteractedWithInObjectPanel = nullptr;
     m_UndoStackDepthAtLastSave = 0;
 
     // Modifier key states.
@@ -176,40 +171,40 @@ void EditorMainFrame_ImGui::StoreCurrentUndoStackSize()
     m_UndoStackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
 }
 
-bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    if( keyaction != -1 )
+    if( keyAction != -1 )
     {
         if( io.WantTextInput == false )
         {
-            if( CheckForHotkeys( keyaction, keycode ) )
+            if( CheckForHotkeys( keyAction, keyCode ) )
             {
                 // If a hotkey was pressed, unset that key so 'held' and 'up' messages won't get sent.
-                g_pEngineCore->ForceKeyRelease( keycode );
+                g_pEngineCore->ForceKeyRelease( keyCode );
                 return true;
             }
         }
         else
         {
             // Cancel rename operation if an ImGui input box has focus and escape is pressed.
-            if( keycode == MYKEYCODE_ESC )
+            if( keyCode == MYKEYCODE_ESC )
             {
-                m_pGameObjectWhoseNameIsBeingEdited = 0;
-                m_pMaterialWhoseNameIsBeingEdited = 0;
+                m_pGameObjectWhoseNameIsBeingEdited = nullptr;
+                m_pMaterialWhoseNameIsBeingEdited = nullptr;
                 return true;
             }
         }
 
         // Cancel any drag/drop ops when escape is pressed.
-        if( keycode == MYKEYCODE_ESC )
+        if( keyCode == MYKEYCODE_ESC )
         {
             ImGuiExt::ClearDragDrop();
         }
     }
 
-    if( mouseaction == GCBA_Down && id == 0 )
+    if( mouseAction == GCBA_Down && id == 0 )
     {
         // For renaming, if the mouse is clicked anywhere, end/confirm the current rename operation.
         if( m_pGameObjectWhoseNameIsBeingEdited || m_pMaterialWhoseNameIsBeingEdited )
@@ -222,7 +217,7 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
     float localx = -1;
     float localy = -1;
 
-    if( mouseaction == GCBA_RelativeMovement )
+    if( mouseAction == GCBA_RelativeMovement )
     {
         // localx/y will hold relative movement in this case.
         localx = x;
@@ -235,14 +230,14 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
 
     // Deal with sending input events to the game window.
     {
-        // If this is a keyaction and the game window is in focus.
-        if( keyaction != -1 && m_GameWindowFocused )
+        // If this is a keyAction and the game window is in focus.
+        if( keyAction != -1 && m_GameWindowFocused )
         {
             return false; // Let event continue to the game window.
         }
 
         // If this is an absolute mouse input over the game window.
-        if( ( mouseaction != -1 && mouseaction != GCBA_RelativeMovement &&
+        if( ( mouseAction != -1 && mouseAction != GCBA_RelativeMovement &&
               mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
               mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y ) )
         {
@@ -250,19 +245,19 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
             localx = x - m_GameWindowPos.x;
             localy = y - m_GameWindowPos.y;
 
-            if( mouseaction == GCBA_Down )
+            if( mouseAction == GCBA_Down )
                 m_GameWindowFocused = true;
 
-            g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
+            g_pEngineCore->OnTouchGameWindow( mouseAction, id, localx, localy, pressure, 1 );
 
             // Input was used.
             return true;
         }
 
         // Pass relative x/y to the game window if it's in focus.
-        if( mouseaction == GCBA_RelativeMovement && m_GameWindowFocused )
+        if( mouseAction == GCBA_RelativeMovement && m_GameWindowFocused )
         {
-            g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
+            g_pEngineCore->OnTouchGameWindow( mouseAction, id, localx, localy, pressure, 1 );
 
             // Input was used.
             return true;
@@ -272,15 +267,15 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
     // Deal with sending input events to the editor window.
     {
         // Pass keyboard and mouse events to the editor under various conditions.
-        if( ( m_EditorWindowFocused && keyaction != -1 ) ||
-            ( m_EditorWindowFocused && mouseaction == GCBA_Up ) ||
-            ( m_EditorWindowFocused && (mouseaction == GCBA_Held || mouseaction == GCBA_RelativeMovement) ) ||
+        if( ( m_EditorWindowFocused && keyAction != -1 ) ||
+            ( m_EditorWindowFocused && mouseAction == GCBA_Up ) ||
+            ( m_EditorWindowFocused && (mouseAction == GCBA_Held || mouseAction == GCBA_RelativeMovement) ) ||
             ( m_EditorWindowHovered )
           )
         {
             // If this is a mouse message and not a relative movement,
             //     calculate mouse x/y relative to this window.
-            if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
+            if( mouseAction != -1 && mouseAction != GCBA_RelativeMovement )
             {
                 localx = x - m_EditorWindowPos.x;
                 localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
@@ -291,21 +286,21 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
 
             // If the right or middle mouse buttons were clicked on this window, set it as having focus.
             // Needed since those buttons don't focus ImGui window directly.
-            if( mouseaction == GCBA_Down && id != 0 )
+            if( mouseAction == GCBA_Down && id != 0 )
             {
                 ImGui::SetWindowFocus( "Editor" );
             }
 
             // First, pass the input into the current editor interface.
-            if( g_pEngineCore->GetCurrentEditorInterface()->HandleInput( keyaction, keycode, mouseaction, id, localx, localy, pressure ) )
+            if( g_pEngineCore->GetCurrentEditorInterface()->HandleInput( keyAction, keyCode, mouseAction, id, localx, localy, pressure ) )
                 return true;
 
             // If it wasn't used, pass it to the transform gizmo.
-            if( g_pEngineCore->GetEditorState()->m_pTransformGizmo->HandleInput( g_pEngineCore, -1, -1, mouseaction, id, localx, localy, pressure ) )
+            if( g_pEngineCore->GetEditorState()->m_pTransformGizmo->HandleInput( g_pEngineCore, -1, -1, mouseAction, id, localx, localy, pressure ) )
                 return true;
 
             // Clear modifier key and mouse button states.
-            g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, localx, localy, pressure );
+            g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyAction, keyCode, mouseAction, id, localx, localy, pressure );
         }
     }
 
@@ -313,33 +308,33 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
     return true;
 }
 
-bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
+bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
 {
-    if( keyaction == GCBA_Down )
+    if( keyAction == GCBA_Down )
     {
-        if( keycode == MYKEYCODE_LCTRL || keycode == MYKEYCODE_RCTRL )
+        if( keyCode == MYKEYCODE_LCTRL || keyCode == MYKEYCODE_RCTRL )
             m_KeyDownCtrl = true;
 
-        if( keycode == MYKEYCODE_LALT || keycode == MYKEYCODE_RALT )
+        if( keyCode == MYKEYCODE_LALT || keyCode == MYKEYCODE_RALT )
             m_KeyDownAlt = true;
 
-        if( keycode == MYKEYCODE_LSHIFT || keycode == MYKEYCODE_RSHIFT )
+        if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT )
             m_KeyDownShift = true;
     }
     
-    if( keyaction == GCBA_Up )
+    if( keyAction == GCBA_Up )
     {
-        if( keycode == MYKEYCODE_LCTRL || keycode == MYKEYCODE_RCTRL )
+        if( keyCode == MYKEYCODE_LCTRL || keyCode == MYKEYCODE_RCTRL )
             m_KeyDownCtrl = false;
 
-        if( keycode == MYKEYCODE_LALT || keycode == MYKEYCODE_RALT )
+        if( keyCode == MYKEYCODE_LALT || keyCode == MYKEYCODE_RALT )
             m_KeyDownAlt = false;
 
-        if( keycode == MYKEYCODE_LSHIFT || keycode == MYKEYCODE_RSHIFT )
+        if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT )
             m_KeyDownShift = false;
     }
 
-    if( keyaction == GCBA_Down )
+    if( keyAction == GCBA_Down )
     {
         bool N  = !m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // No modifiers held
         bool C  =  m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Ctrl
@@ -349,14 +344,14 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
 
         // Handle GameObject renaming, not the best idea to do this here, but okay for a start.
         // TODO: Check if F2 or Enter was pressed when menuitem has focus.
-        if( N  && keycode == VK_F2 || N  && keycode == MYKEYCODE_ENTER )
+        if( N  && keyCode == VK_F2 || N  && keyCode == MYKEYCODE_ENTER )
         {
             m_RenamePressedThisFrame = true;
             m_ConfirmCurrentRenameOp = false;
             return true;
         }
 
-        if( N  && keycode == MYKEYCODE_DELETE )
+        if( N  && keyCode == MYKEYCODE_DELETE )
         {
             g_pEngineCore->GetEditorState()->DeleteSelectedObjects();
             return true;
@@ -364,36 +359,36 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
 
         EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
 
-        if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
-        if( N  && keycode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
-        if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
-        if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
-        if( CS && keycode == 'P' )   { pEditorPrefs->GetImGuiStylePrefs()->Display();                               return true; }
-        if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
-        if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
-        if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
-        if( S  && keycode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return true; }
-        if( CS && keycode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return true; }
-        if( A  && keycode == '1' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return true; }
-        if( A  && keycode == '2' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );                     return true; }
-        if( A  && keycode == '3' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );                   return true; }
-        if( A  && keycode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return true; }
-        if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return true; }
-        if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return true; }
-        if( CS && keycode == 'G' )   { m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] = true;          return true; }
-        if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return true; }
-        if( C  && keycode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
-        if( C  && keycode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
-        if( C  && keycode == '[' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );                return true; }
-        if( C  && keycode == VK_F5 ) { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return true; }
-        if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
-        if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
-        if( CS && keycode == 'L'   ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return true; }
-        if( CS && keycode == 'K'   ) { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return true; }
+        if( C  && keyCode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
+        if( N  && keyCode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
+        if( C  && keyCode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
+        if( CS && keyCode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
+        if( CS && keyCode == 'P' )   { pEditorPrefs->GetImGuiStylePrefs()->Display();                               return true; }
+        if( C  && keyCode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
+        if( C  && keyCode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
+        if( CS && keyCode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
+        if( S  && keyCode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return true; }
+        if( CS && keyCode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return true; }
+        if( A  && keyCode == '1' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return true; }
+        if( A  && keyCode == '2' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );                     return true; }
+        if( A  && keyCode == '3' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );                   return true; }
+        if( A  && keyCode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return true; }
+        if( CS && keyCode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return true; }
+        if( C  && keyCode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return true; }
+        if( CS && keyCode == 'G' )   { m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] = true;          return true; }
+        if( C  && keyCode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return true; }
+        if( C  && keyCode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
+        if( C  && keyCode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
+        if( C  && keyCode == '[' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );                return true; }
+        if( C  && keyCode == VK_F5 ) { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return true; }
+        if( C  && keyCode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
+        if( S  && keyCode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
+        if( CS && keyCode == 'L'   ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return true; }
+        if( CS && keyCode == 'K'   ) { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return true; }
 
 #if _DEBUG
         // Dump current layour to output window, so it can be cut & pasted to g_DefaultLayouts in the EditorLayoutManager.
-        if( CS && keycode == 'D'   ) { m_pLayoutManager->DumpCurrentLayoutToOutputWindow();                         return true; }
+        if( CS && keyCode == 'D'   ) { m_pLayoutManager->DumpCurrentLayoutToOutputWindow();                         return true; }
 #endif
 
     }
@@ -439,7 +434,7 @@ void EditorMainFrame_ImGui::AddEverything()
     flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
     ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f) );
-    ImGui::Begin( "Main Dock", 0, flags );
+    ImGui::Begin( "Main Dock", nullptr, flags );
     ImGui::PopStyleVar();
 
     AddMainMenuBar();
@@ -589,7 +584,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 pComponentSystemManager->OnDrawFrame();
             }
 
-            MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
+            g_pRenderer->BindFramebuffer( 0 );
 
             g_GLStats.EndCanvasFrame();
         }
@@ -608,7 +603,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             m_pEditorFBO->Bind( false );
             g_pEngineCore->GetEditorState()->GetEditorCamera()->SetDeferred( g_pEngineCore->GetEditorPrefs()->Get_View_EditorCamDeferred() );
             pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
-            MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
+            g_pRenderer->BindFramebuffer( 0 );
 
             g_GLCanvasIDActive = 0;
 
@@ -632,8 +627,8 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 MyViewport viewport( 0, 0, m_pMaterialPreviewFBO->GetWidth(), m_pMaterialPreviewFBO->GetHeight() );
                 g_pRenderer->EnableViewport( &viewport, true );
 
-                glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-                glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+                g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.0f, 0.2f, 1.0f ) );
+                g_pRenderer->ClearBuffers( true, true, false );
 
                 pMeshBall->SetMaterial( m_pMaterialToPreview, 0 );
 
@@ -669,10 +664,10 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
 
                 MyLight* lights[] = { &light1, &light2 };
-                pMeshBall->Draw( &matproj, &matview, 0, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
+                pMeshBall->Draw( &matproj, &matview, nullptr, &campos, &camrot, lights, 2, nullptr, nullptr, nullptr, nullptr );
 
                 // Unset the material to avoid holding a ref that prevents the material from unloading.
-                pMeshBall->SetMaterial( 0, 0 );
+                pMeshBall->SetMaterial( nullptr, 0 );
                 m_pMaterialPreviewFBO->Unbind( true );
             }
         }
@@ -696,7 +691,7 @@ void EditorMainFrame_ImGui::Edit2DAnimInfo(My2DAnimInfo* pAnimInfo)
 
 void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
 {
-    // Show Exposed Uniforms
+    // Show Exposed Uniforms.
     if( pMaterial->m_pShaderGroup )
     {
         MyFileObjectShader* pShaderFile = pMaterial->m_pShaderGroup->GetFile();
@@ -742,14 +737,13 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
                     break;
 
                 case ExposedUniformType_Sampler2D:
-                    //ImGui::Text( "Uniform Sampler2D: (TODO)" );
                     {
                         const char* desc = "no texture";
 
                         Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
                         Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
 
-                        TextureDefinition* pTextureColor = pMaterial->m_UniformValues[i].m_pTexture; //pMat->GetTextureColor();
+                        TextureDefinition* pTextureColor = pMaterial->m_UniformValues[i].m_pTexture;
                         if( pTextureColor )
                         {
                             desc = pTextureColor->GetFilename();
@@ -815,14 +809,13 @@ My2DAnimInfo* EditorMainFrame_ImGui::Get2DAnimInfoBeingEdited()
         return m_p2DAnimInfoBeingEdited;
     }
 
-    return 0;
+    return nullptr;
 }
 
 void EditorMainFrame_ImGui::SetFullPathToLast2DAnimInfoBeingEdited(const char* fullPath)
 {
     strcpy_s( m_FullPathToLast2DAnimInfoBeingEdited, MAX_PATH, fullPath );
 }
-
 
 //====================================================================================================
 // Internal methods
@@ -1045,7 +1038,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Mode" ) )
         {
-            if( ImGui::MenuItem( "Switch Focus on Play/Stop", 0, g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() ) ) { EditorMenuCommand( EditorMenuCommand_Mode_SwitchFocusOnPlayStop ); }
+            if( ImGui::MenuItem( "Switch Focus on Play/Stop", nullptr, g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() ) ) { EditorMenuCommand( EditorMenuCommand_Mode_SwitchFocusOnPlayStop ); }
             // Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
             if( ImGui::MenuItem( "Play/Stop", "CTRL-SPACE" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop ); }
             if( ImGui::MenuItem( "Pause", "Ctrl-." ) ) { EditorMenuCommand( EditorMenuCommand_Mode_Pause ); }
@@ -1057,7 +1050,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
                 {
                     bool isSelected = (g_pEditorPrefs->Get_Mode_LaunchPlatform() == i);
-                    if( ImGui::MenuItem( g_LaunchPlatformsMenuLabels[i], 0, isSelected ) ) { EditorMenuCommand( (EditorMenuCommands)(EditorMenuCommand_Mode_LaunchPlatforms + i) ); }
+                    if( ImGui::MenuItem( g_LaunchPlatformsMenuLabels[i], nullptr, isSelected ) ) { EditorMenuCommand( (EditorMenuCommands)(EditorMenuCommand_Mode_LaunchPlatforms + i) ); }
                 }
 
                 ImGui::EndMenu();
@@ -1212,15 +1205,8 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 m_GameWindowPos.Set( pos.x + min.x, pos.y + min.y );
                 m_GameWindowSize.Set( w, h );
 
+                // This will resize our FBO if the window is larger than it ever was.
                 g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
-
-                //// Resize our FBO if the window is larger than it ever was.
-                //if( w > m_pGameFBO->GetTextureWidth() || h > m_pGameFBO->GetTextureHeight() )
-                //{
-                //    // The FBO will be recreated during the TextureManager tick.
-                //    g_pTextureManager->InvalidateFBO( m_pGameFBO );
-                //    m_pGameFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
-                //}
 
                 if( m_pGameFBO->GetColorTexture( 0 ) )
                 {
@@ -1263,15 +1249,8 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 m_EditorWindowPos.Set( pos.x + min.x, pos.y + min.y );
                 m_EditorWindowSize.Set( w, h );
 
+                // This will resize our FBO if the window is larger than it ever was.
                 g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
-
-                //// Resize our FBO if the window is larger than it ever was.
-                //if( w > m_pEditorFBO->GetTextureWidth() || h > m_pEditorFBO->GetTextureHeight() )
-                //{
-                //    // The FBO will be recreated during the TextureManager tick.
-                //    g_pTextureManager->InvalidateFBO( m_pEditorFBO );
-                //    m_pEditorFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
-                //}
 
                 if( m_pEditorFBO->GetColorTexture( 0 ) )
                 {
@@ -1320,12 +1299,12 @@ void EditorMainFrame_ImGui::AddObjectList()
             ImGui::SameLine();
             if( ImGui::Button( "X" ) )
             {
-                m_ObjectListFilter[0] = 0;
+                m_ObjectListFilter[0] = '\0';
             }
         }
 
         bool forceOpen = false;
-        if( m_ObjectListFilter[0] != 0 )
+        if( m_ObjectListFilter[0] != '\0' )
         {
             ImGui::PushID( "FilteredList" );
             forceOpen = true;
@@ -1355,7 +1334,7 @@ void EditorMainFrame_ImGui::AddObjectList()
                     if( sceneindex != SCENEID_Unmanaged )
                         scenename = pUnsavedName;
 
-                    if( pSceneInfo->m_FullPath[0] != 0 )
+                    if( pSceneInfo->m_FullPath[0] != '\0' )
                     {
                         int i;
                         for( i=(int)strlen(pSceneInfo->m_FullPath)-1; i>=0; i-- )
@@ -1377,13 +1356,13 @@ void EditorMainFrame_ImGui::AddObjectList()
 
                     bool treeNodeIsOpen = ImGui::TreeNodeEx( scenename, nodeFlags );
 
-                    // Right-click menu, don't show for the unmanaged scene
+                    // Right-click menu, don't show for the unmanaged scene.
                     if( sceneindex != SCENEID_Unmanaged )
                     {
                         ImGui::PushID( scenename );
                         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                         {
-                            AddContextMenuOptionsForCreatingGameObjects( 0, (SceneID)sceneindex );
+                            AddContextMenuOptionsForCreatingGameObjects( nullptr, (SceneID)sceneindex );
 
                             if( ImGui::MenuItem( "Unload scene (TODO)" ) )
                             {
@@ -1397,12 +1376,12 @@ void EditorMainFrame_ImGui::AddObjectList()
 
                     if( treeNodeIsOpen )
                     {
-                        // Add GameObjects that are in root
+                        // Add GameObjects that are in root.
                         GameObject* pGameObject = pSceneInfo->m_GameObjects.GetHead();
                         while( pGameObject )
                         {
-                            // Add GameObjects, their children and their components
-                            AddGameObjectToObjectList( pGameObject, 0 );
+                            // Add GameObjects, their children and their components.
+                            AddGameObjectToObjectList( pGameObject, nullptr );
 
                             pGameObject = pGameObject->GetNext();
                         }
@@ -1421,7 +1400,7 @@ void EditorMainFrame_ImGui::AddObjectList()
 
         // Clear the "reorder" line each frame.
         // Done here after all gameobjects and the reorder line were drawn.
-        m_pGameObjectToDrawReorderLineAfter = 0;
+        m_pGameObjectToDrawReorderLineAfter = nullptr;
 
         // If GameObject is moved into blank area of object list, move it as last object in last scene.
         if( mousePositionY > cursorScreenPositionY )
@@ -1446,7 +1425,7 @@ void EditorMainFrame_ImGui::AddObjectList()
             }
         }
 
-        if( m_ObjectListFilter[0] != 0 )
+        if( m_ObjectListFilter[0] != '\0' )
         {
             ImGui::PopID(); // "FilteredList"
         }
@@ -1474,10 +1453,10 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
                 }
 
                 PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( prefabFileIndex );
-                MyAssert( pPrefabFile != 0 );
+                MyAssert( pPrefabFile != nullptr );
 
                 const char* pPrefabFilename = pPrefabFile->GetFile()->GetFilename();
-                MyAssert( pPrefabFilename != 0 );
+                MyAssert( pPrefabFilename != nullptr );
 
                 bool treeNodeIsOpen = ImGui::TreeNodeEx( pPrefabFilename, nodeFlags );
 
@@ -1522,7 +1501,7 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
 
 void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, PrefabObject* pPrefab)
 {
-    if( pGameObject->IsManaged() == false && pPrefab == 0 )
+    if( pGameObject->IsManaged() == false && pPrefab == nullptr )
         return;
 
     float startCursorPositionX = ImGui::GetCursorPosX();
@@ -1536,7 +1515,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             m_ConfirmCurrentRenameOp )
         {
             m_pGameObjectWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
-            m_pGameObjectWhoseNameIsBeingEdited = 0;
+            m_pGameObjectWhoseNameIsBeingEdited = nullptr;
             m_RenamePressedThisFrame = false;
         }
 
@@ -1545,7 +1524,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
     else
     {
         // If the object list filter has any characters in it.
-        if( m_ObjectListFilter[0] != 0 )
+        if( m_ObjectListFilter[0] != '\0' )
         {
             // Check if this GameObject's name contains the substrings.
             if( CheckIfMultipleSubstringsAreInString( pGameObject->GetName(), m_ObjectListFilter ) == false )
@@ -1613,7 +1592,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 pEditorState->m_pSelectedObjects[0] != m_pGameObjectWhoseNameIsBeingEdited )
             {
                 m_pGameObjectWhoseNameIsBeingEdited = pEditorState->m_pSelectedObjects[0];
-                m_pMaterialWhoseNameIsBeingEdited = 0;
+                m_pMaterialWhoseNameIsBeingEdited = nullptr;
                 strncpy_s( m_NameBeingEdited, 100, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 99 );
             }
         }
@@ -1629,7 +1608,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 pEditorState->SelectGameObject( pGameObject );
             }
 
-            if( pPrefab != 0 )
+            if( pPrefab != nullptr )
             {
                 int numselected = (int)g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
 
@@ -1695,7 +1674,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                         {
                             PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
                             MyFileObject* pFile = pPrefabFile->GetFile();
-                            MyAssert( pFile != 0 );
+                            MyAssert( pFile != nullptr );
 
                             if( ImGui::MenuItem( pFile->GetFilenameWithoutExtension() ) )
                             {
@@ -1737,7 +1716,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         // Handle start of dragging either GameObjects or Prefabs.
         if( ImGui::BeginDragDropSource() )
         {
-            if( pPrefab != 0 )
+            if( pPrefab != nullptr )
             {
                 ImGui::SetDragDropPayload( "Prefab", &pPrefab, sizeof(pPrefab), ImGuiCond_Once );
             }
@@ -1780,7 +1759,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 GameObject* pFirstGameObjectInScene = pSceneInfo->m_GameObjects.GetHead();
 
                 // If there was no item previously interacted with, set it to the first object in the scene.
-                if( m_pLastGameObjectInteractedWithInObjectPanel == 0 )
+                if( m_pLastGameObjectInteractedWithInObjectPanel == nullptr )
                 {
                     m_pLastGameObjectInteractedWithInObjectPanel = pFirstGameObjectInScene;
                 }
@@ -1802,7 +1781,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     }
 
                     pCurrentGameObject = pCurrentGameObject->GetNext();
-                    if( pCurrentGameObject == 0 )
+                    if( pCurrentGameObject == nullptr )
                         break;
                 }
 
@@ -1823,7 +1802,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                         }
 
                         pCurrentGameObject = pCurrentGameObject->GetPrev();
-                        if( pCurrentGameObject == 0 )
+                        if( pCurrentGameObject == nullptr )
                             break;
                     }
                 }
@@ -2068,7 +2047,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
             {
                 GameObject* pGameObjectThisInheritsFrom = pFirstGameObject->GetGameObjectThisInheritsFrom();
 
-                if( pGameObjectThisInheritsFrom == 0 )
+                if( pGameObjectThisInheritsFrom == nullptr )
                 {
                     ImGui::Text( "%s", pFirstGameObject->GetName() );
                 }
@@ -2254,7 +2233,7 @@ void EditorMainFrame_ImGui::AddMemoryWindow()
         {
             m_pMemoryWindow->Clear();
 
-            for( CPPListNode* pNode = MyMemory_GetFirstMemObject(); pNode != 0; pNode = pNode->GetNext() )
+            for( CPPListNode* pNode = MyMemory_GetFirstMemObject(); pNode; pNode = pNode->GetNext() )
             {
                 MemObject* pMem = (MemObject*)pNode;
 
@@ -2301,12 +2280,12 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
             ImGui::SameLine();
             if( ImGui::Button( "X" ) )
             {
-                m_MemoryPanelFilter[0] = 0;
+                m_MemoryPanelFilter[0] = '\0';
             }
         }
 
         // If a filter is set, show all types.
-        if( m_MemoryPanelFilter[0] != 0 )
+        if( m_MemoryPanelFilter[0] != '\0' )
         {
             ImGui::BeginChild( "Memory Details" );
 
@@ -2394,17 +2373,17 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
 void EditorMainFrame_ImGui::AddContextMenuOptionsForAddingComponents(GameObject* pGameObject)
 {
     int first = 0;
-    if( pGameObject->GetTransform() != 0 )
+    if( pGameObject->GetTransform() != nullptr )
         first = 1;
 
-    const char* lastcategory = 0;
+    const char* lastcategory = nullptr;
     bool menuopen = false;
 
     unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
     for( unsigned int i=first; i<numtypes; i++ )
     {
         const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
-        const char* nextcategory = 0;
+        const char* nextcategory = nullptr;
         if( i < numtypes-1 )
             nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
 
@@ -2417,14 +2396,14 @@ void EditorMainFrame_ImGui::AddContextMenuOptionsForAddingComponents(GameObject*
         {
             if( i == ComponentType_Mesh )
             {
-                // don't include ComponentType_Mesh in the right-click menu.
-                // TODO: if more exceptions are made, improve this system.
+                // Don't include ComponentType_Mesh in the right-click menu.
+                // TODO: If more exceptions are made, improve this system.
             }
             else
             {
                 if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) )
                 {
-                    ComponentBase* pComponent = 0;
+                    ComponentBase* pComponent = nullptr;
                     if( g_pEngineCore->IsInEditorMode() )
                     {
                         EditorCommand_CreateComponent* pCommand = MyNew EditorCommand_CreateComponent( pGameObject, i );
@@ -2453,7 +2432,7 @@ void EditorMainFrame_ImGui::AddContextMenuOptionsForAddingComponents(GameObject*
 
 void EditorMainFrame_ImGui::AddContextMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID)
 {
-    GameObject* pGameObjectCreated = 0;
+    GameObject* pGameObjectCreated = nullptr;
                             
     if( ImGui::MenuItem( "Add GameObject" ) )
     {
@@ -2467,7 +2446,7 @@ void EditorMainFrame_ImGui::AddContextMenuOptionsForCreatingGameObjects(GameObje
     {
         GameObjectTemplateManager* pManager = g_pComponentSystemManager->m_pGameObjectTemplateManager;
     
-        cJSON* jFirstParent = pManager->GetParentTemplateJSONObject( 0 );//startindex );
+        cJSON* jFirstParent = pManager->GetParentTemplateJSONObject( 0 );
 
         unsigned int i = 0;
         while( i < pManager->GetNumberOfTemplates() )
@@ -2496,7 +2475,7 @@ void EditorMainFrame_ImGui::AddContextMenuOptionsForCreatingGameObjects(GameObje
     }
 
     // Don't allow folders other than at root on as children to other folders.
-    if( pParentGameObject == 0 || pParentGameObject->IsFolder() )
+    if( pParentGameObject == nullptr || pParentGameObject->IsFolder() )
     {
         if( ImGui::MenuItem( "Add Folder" ) )
         {
@@ -2531,14 +2510,14 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, voi
 
     if( strcmp( extension, ".my2daniminfo" ) == 0 )
     {
-        if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_2DAnimationEditor] ) )
+        if( ImGui::MenuItem( "Edit 2D Anim Info", nullptr, &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_2DAnimationEditor] ) )
         {
             My2DAnimInfo* pAnim = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, SCENEID_Any )->Get2DAnimInfo();
             Edit2DAnimInfo( pAnim );
             ImGui::CloseCurrentPopup();
         }
     }
-    else if( pSelectedObject != 0 && strcmp( extension, ".glsl" ) == 0 )
+    else if( pSelectedObject != nullptr && strcmp( extension, ".glsl" ) == 0 )
     {
         if( ImGui::MenuItem( "Create Material Using Shader" ) )
         {
@@ -2559,13 +2538,13 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, voi
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 {
-    // Only show the headers if the filter is blank
-    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+    // Only show the headers if the filter is blank.
+    bool showHeaders = (m_MemoryPanelFilter[0] == '\0');
 
     bool someMaterialsAreLoaded = false;
     //unsigned int numMaterialsShown = 0;
 
-    m_pMaterialToPreview = 0;
+    m_pMaterialToPreview = nullptr;
 
     for( int i=0; i<2; i++ )
     {
@@ -2574,7 +2553,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
         if( i == 1 )
             pMat = g_pMaterialManager->Editor_GetFirstMaterialLoaded();
 
-        if( pMat == 0 )
+        if( pMat == nullptr )
             continue;
 
         someMaterialsAreLoaded = true;
@@ -2612,7 +2591,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                     g_pMaterialManager->CallMaterialCreatedCallbacks( pMaterial );
 
                     // Start a rename op on the new material.
-                    m_pGameObjectWhoseNameIsBeingEdited = 0;
+                    m_pGameObjectWhoseNameIsBeingEdited = nullptr;
                     m_pMaterialWhoseNameIsBeingEdited = pMaterial;
                     strncpy_s( m_NameBeingEdited, 100, pMaterial->GetName(), 99 );
                 }
@@ -2630,7 +2609,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                         m_ConfirmCurrentRenameOp )
                     {
                         m_pMaterialWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
-                        m_pMaterialWhoseNameIsBeingEdited = 0;
+                        m_pMaterialWhoseNameIsBeingEdited = nullptr;
                     }
                 }
                 else
@@ -2645,7 +2624,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
                         bool showThisItem = true;
 
-                        if( m_MemoryPanelFilter[0] != 0 )
+                        if( m_MemoryPanelFilter[0] != '\0' )
                         {
                             if( CheckIfMultipleSubstringsAreInString( matName, m_MemoryPanelFilter ) == false )
                             {
@@ -2660,19 +2639,19 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                                 // TODO: Find a better answer than IsItemHovered().
                                 if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
                                 {
-                                    m_pGameObjectWhoseNameIsBeingEdited = 0;
+                                    m_pGameObjectWhoseNameIsBeingEdited = nullptr;
                                     m_pMaterialWhoseNameIsBeingEdited = pMat;
                                     strncpy_s( m_NameBeingEdited, 100, matName, 99 );
                                 }
 
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                 {
-                                    if( ImGui::MenuItem( "Edit Material", 0, &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_MaterialEditor] ) ) { EditMaterial( pMat ); ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Unload File" ) )     { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_UnloadFile ); ImGui::CloseCurrentPopup(); pMat = 0; }
+                                    if( ImGui::MenuItem( "Edit Material", nullptr, &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_MaterialEditor] ) ) { EditMaterial( pMat ); ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Unload File" ) )     { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_UnloadFile ); ImGui::CloseCurrentPopup(); pMat = nullptr; }
                                     if( ImGui::MenuItem( "Find References" ) ) { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_FindAllReferences ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                     if( ImGui::MenuItem( "Rename" ) )
                                     {
-                                        m_pGameObjectWhoseNameIsBeingEdited = 0;
+                                        m_pGameObjectWhoseNameIsBeingEdited = nullptr;
                                         m_pMaterialWhoseNameIsBeingEdited = pMat;
                                         strncpy_s( m_NameBeingEdited, 100, matName, 99 );
 
@@ -2728,8 +2707,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 {
-    // Only show the headers if the filter is blank
-    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+    // Only show the headers if the filter is blank.
+    bool showHeaders = (m_MemoryPanelFilter[0] == '\0');
 
     bool someTexturesAreLoaded = false;
     //unsigned int numTexturesShown = 0;
@@ -2762,7 +2741,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 
                         bool showThisItem = true;
 
-                        if( m_MemoryPanelFilter[0] != 0 )
+                        if( m_MemoryPanelFilter[0] != '\0' )
                         {
                             if( CheckIfMultipleSubstringsAreInString( pTex->GetFilename(), m_MemoryPanelFilter ) == false )
                             {
@@ -2821,8 +2800,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
 {
-    // Only show the headers if the filter is blank
-    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+    // Only show the headers if the filter is blank.
+    bool showHeaders = (m_MemoryPanelFilter[0] == '\0');
 
     bool someShadersAreLoaded = false;
     //unsigned int numShadersShown = 0;
@@ -2851,7 +2830,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
                         {
                             bool showThisItem = true;
 
-                            if( m_MemoryPanelFilter[0] != 0 )
+                            if( m_MemoryPanelFilter[0] != '\0' )
                             {
                                 if( CheckIfMultipleSubstringsAreInString( pFile->GetFilenameWithoutExtension(), m_MemoryPanelFilter ) == false )
                                 {
@@ -2901,8 +2880,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_SoundCues()
 {
-    // Only show the headers if the filter is blank
-    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+    // Only show the headers if the filter is blank.
+    bool showHeaders = (m_MemoryPanelFilter[0] == '\0');
 
     bool someSoundCuesAreLoaded = false;
 
@@ -2937,7 +2916,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_SoundCues()
                         {
                             bool showThisItem = true;
 
-                            if( m_MemoryPanelFilter[0] != 0 )
+                            if( m_MemoryPanelFilter[0] != '\0' )
                             {
                                 if( CheckIfMultipleSubstringsAreInString( pFile->GetFilenameWithoutExtension(), m_MemoryPanelFilter ) == false )
                                 {
@@ -2987,8 +2966,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_SoundCues()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Files()
 {
-    // Only show the headers if the filter is blank
-    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+    // Only show the headers if the filter is blank.
+    bool showHeaders = (m_MemoryPanelFilter[0] == '\0');
 
     bool someFilesAreLoaded = false;
     //unsigned int numFilesShown = 0;
@@ -3014,7 +2993,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
 
             if( showHeaders == false || ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
             {
-                const char* previousFileType = 0;
+                const char* previousFileType = nullptr;
                 bool fileTypeOpen = false;
                 while( pFile )
                 {
@@ -3022,9 +3001,9 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                     {
                         //numFilesShown++;
 
-                        if( previousFileType == 0 || strcmp( previousFileType, pFile->GetExtensionWithDot() ) != 0 )
+                        if( previousFileType == nullptr || strcmp( previousFileType, pFile->GetExtensionWithDot() ) != 0 )
                         {
-                            if( fileTypeOpen && previousFileType != 0 )
+                            if( fileTypeOpen && previousFileType != nullptr )
                             {
                                 if( showHeaders )
                                 {
@@ -3044,7 +3023,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                         {
                             bool showThisItem = true;
 
-                            if( m_MemoryPanelFilter[0] != 0 )
+                            if( m_MemoryPanelFilter[0] != '\0' )
                             {
                                 if( CheckIfMultipleSubstringsAreInString( pFile->GetFilenameWithoutExtension(), m_MemoryPanelFilter ) == false )
                                 {
@@ -3078,7 +3057,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                     pFile = (MyFileObject*)pFile->GetNext();
                 }
 
-                if( fileTypeOpen && previousFileType != 0 )
+                if( fileTypeOpen && previousFileType != nullptr )
                 {
                     if( showHeaders )
                     {
@@ -3187,7 +3166,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
     
     if( ImGui::Begin( "Material Editor", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_MaterialEditor] ) )
     {
-        if( m_pMaterialBeingEdited == 0 )
+        if( m_pMaterialBeingEdited == nullptr )
         {
             ImGui::Text( "No material selected." );
             ImGui::End();
@@ -3208,8 +3187,8 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
         {
             MaterialDefinition* pMat = m_pMaterialBeingEdited;
-            bool showbuiltinuniforms = true;
-            bool showexposeduniforms = true;
+            bool showBuiltInUniforms = true;
+            bool showExposedUniforms = true;
             ShaderGroup* pShaderGroup = pMat->GetShader();
             ShaderGroup* pShaderGroupInstanced = pMat->GetShaderInstanced();
 
@@ -3217,7 +3196,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 ImGui::Text( "WORK IN PROGRESS - NO UNDO - MANUAL SAVE" );
                 if( ImGui::Button( "Save" ) )
                 {
-                    pMat->SaveMaterial( 0 );
+                    pMat->SaveMaterial( nullptr );
                 }
                 ImGui::SameLine();
                 ImGui::Text( "<- MANUAL SAVE" );
@@ -3226,7 +3205,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
             ImGui::Text( pMat->GetName() );
 
-            if( showbuiltinuniforms )
+            if( showBuiltInUniforms )
             {
                 //g_pPanelWatch->AddEnum( "Blend", (int*)&m_BlendType, MyRE::MaterialBlendType_NumTypes, MyRE::MaterialBlendTypeStrings );
                 const char** items = MyRE::MaterialBlendTypeStrings;
@@ -3320,7 +3299,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                     {
                         if( ImGui::IsMouseDoubleClicked( 0 ) )
                         {
-                            pMat->SetShader( 0 );
+                            pMat->SetShader( nullptr );
                             pShaderGroup = pMat->GetShader();
                         }
                     }
@@ -3393,7 +3372,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                     {
                         if( ImGui::IsMouseDoubleClicked( 0 ) )
                         {
-                            pMat->SetShaderInstanced( 0 );
+                            pMat->SetShaderInstanced( nullptr );
                             pShaderGroupInstanced = pMat->GetShaderInstanced();
                         }
                     }
@@ -3459,7 +3438,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                         if( ImGui::IsMouseDoubleClicked( 0 ) )
                         {
-                            pMat->SetTextureColor( 0 );
+                            pMat->SetTextureColor( nullptr );
                         }
                     }
 
@@ -3526,7 +3505,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 ImGui::Text( "MANUAL SAVE" );
                 if( ImGui::Button( "Save" ) )
                 {
-                    pMat->SaveMaterial( 0 );
+                    pMat->SaveMaterial( nullptr );
                 }
                 ImGui::SameLine();
                 ImGui::Text( "<- MANUAL SAVE" );
@@ -3539,12 +3518,12 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
 void EditorMainFrame_ImGui::Add2DAnimationEditor()
 {
-    if( m_p2DAnimInfoBeingEdited != 0 )
+    if( m_p2DAnimInfoBeingEdited != nullptr )
     {
-        m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
+        m_FullPathToLast2DAnimInfoBeingEdited[0] = '\0';
     }
 
-    if( m_FullPathToLast2DAnimInfoBeingEdited[0] != 0 )
+    if( m_FullPathToLast2DAnimInfoBeingEdited[0] != '\0' )
     {
         MyFileInfo* pFileInfo = g_pComponentSystemManager->GetFileInfoIfUsedByScene( m_FullPathToLast2DAnimInfoBeingEdited, SCENEID_Any );
         if( pFileInfo )
@@ -3557,7 +3536,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             if( pFile && pFile->IsFinishedLoading() )
             {
                 m_p2DAnimInfoBeingEdited = pAnimInfo;
-                m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
+                m_FullPathToLast2DAnimInfoBeingEdited[0] = '\0';
             }
         }
     }
@@ -3575,7 +3554,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         {
             if( ImGui::MenuItem( "Close" ) )
             {
-                m_p2DAnimInfoBeingEdited = 0;
+                m_p2DAnimInfoBeingEdited = nullptr;
                 m_pCurrentLayout->m_IsWindowOpen[EditorWindow_2DAnimationEditor] = false;
             }
 
@@ -3587,9 +3566,9 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
         My2DAnimInfo* pAnimInfo = m_p2DAnimInfoBeingEdited;
 
-        if( pAnimInfo == 0 )
+        if( pAnimInfo == nullptr )
         {
-            if( m_FullPathToLast2DAnimInfoBeingEdited[0] == 0 )
+            if( m_FullPathToLast2DAnimInfoBeingEdited[0] == '\0' )
                 ImGui::Text( "No animation selected" );
             else
                 ImGui::Text( "File still loading: %s", m_FullPathToLast2DAnimInfoBeingEdited );
@@ -3599,7 +3578,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             m_pAnimPlayerComponent->SetAnimationFile( pAnimInfo->GetSourceFile() );
             m_pAnimPlayerComponent->SetCurrentAnimation( m_Current2DAnimationIndex );
 
-            ImGui::Columns( 2, 0, false );
+            ImGui::Columns( 2, nullptr, false );
 
             {
                 ImGui::Text( "WORK IN PROGRESS - NO UNDO - MANUAL SAVE" );
@@ -3648,9 +3627,9 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             ImGui::BeginChild( "Animation Details" );
 
             ImGui::Text( "%s Animations:", pAnimInfo->GetSourceFile()->GetFilenameWithoutExtension() );
-            ImGui::Columns( 3, 0, false );
+            ImGui::Columns( 3, nullptr, false );
 
-            // First Column: Animations
+            // First Column: Animations.
             {
                 for( unsigned int animIndex=0; animIndex<pAnimInfo->GetNumberOfAnimations(); animIndex++ )
                 {
@@ -3734,7 +3713,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
                     MaterialDefinition* pMat = pFrame->m_pMaterial;
 
-                    if( pMat != 0 )
+                    if( pMat != nullptr )
                     {
                         ImGui::Text( "%s", pMat->GetName() );
                     }
@@ -3782,7 +3761,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
 void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint)
 {
-    if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(requestedSize.x+50, requestedSize.y+50), 1 ) )
+    if( createWindow == false || ImGui::Begin( "Material", nullptr, ImVec2(requestedSize.x+50, requestedSize.y+50), 1 ) )
     {
         if( m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
         {
@@ -3819,9 +3798,9 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
 
 void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(bool createWindow, MaterialDefinition* pMaterial, ImVec2 requestedSize, ImVec4 tint)
 {
-    if( pMaterial == 0 )
+    if( pMaterial == nullptr )
     {
-        AddTexturePreview( false, 0, requestedSize, ImVec4( 1, 1, 1, 1 ), ImVec2( 0, 0 ), ImVec2( 0, 0 ) );
+        AddTexturePreview( false, nullptr, requestedSize, ImVec4( 1, 1, 1, 1 ), ImVec2( 0, 0 ), ImVec2( 0, 0 ) );
     }
     else
     {
@@ -3833,7 +3812,7 @@ void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(bool createWindow, Ma
 
 void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
 {
-    if( createWindow == false || ImGui::Begin( "Texture", 0, ImVec2(150, 150), 1 ) )
+    if( createWindow == false || ImGui::Begin( "Texture", nullptr, ImVec2(150, 150), 1 ) )
     {
         ImVec2 size = requestedSize;
         if( size.x == 0 )
@@ -3841,7 +3820,7 @@ void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefiniti
         if( size.x > size.y ) size.x = size.y;
         if( size.y > size.x ) size.y = size.x;
 
-        if( pTexture != 0 )
+        if( pTexture != nullptr )
         {
             ImGui::Image( (void*)pTexture->GetTextureID(), size, startUV, endUV, tint );
         }
@@ -3915,7 +3894,7 @@ bool EditorMainFrame_ImGui::OnDropObjectList(GameObject* pGameObject, bool force
         if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", ImGuiDragDropFlags_AcceptPeekOnly ) )
         {
             // Clear the "reorder" line.
-            m_pGameObjectToDrawReorderLineAfter = 0;
+            m_pGameObjectToDrawReorderLineAfter = nullptr;
 
             // If there's a drag/drop payload and it's a gameobject, then:
             //     if we're hovering over the top half of the item, reparent the dropped item.
@@ -3955,10 +3934,10 @@ bool EditorMainFrame_ImGui::OnDropObjectList(GameObject* pGameObject, bool force
 
             if( dragDropOfItemWillResultInAReorder )
             {
-                MyAssert( pGameObject != 0 );
+                MyAssert( pGameObject != nullptr );
 
                 pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reorder );
-                m_pGameObjectToDrawReorderLineAfter = 0;
+                m_pGameObjectToDrawReorderLineAfter = nullptr;
             }
             else
             {
@@ -3969,7 +3948,7 @@ bool EditorMainFrame_ImGui::OnDropObjectList(GameObject* pGameObject, bool force
         if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "SoundCue", 0 ) )
         {
             SoundCue* pSoundCue = (SoundCue*)*(void**)payload->Data;
-            MyAssert( pSoundCue != 0 );
+            MyAssert( pSoundCue != nullptr );
 
             if( pSoundCue )
             {
@@ -3994,7 +3973,7 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
     unsigned int x = m_CurrentMouseInEditorWindow_X;
     unsigned int y = m_CurrentMouseInEditorWindow_Y;
 
-    // get the GameObject the mouse was hovering over.
+    // Get the GameObject the mouse was hovering over.
     ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
     //y = pCamera->m_WindowHeight - y; // prefer 0,0 at bottom left.
     GameObject* pObjectDroppedOn = g_pEngineCore->GetCurrentEditorInterface()->GetObjectAtPixel( x, y, true, false );
@@ -4102,7 +4081,7 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
                     Vector3 pos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
 
                     ComponentRenderable* pComponentMeshDroppedOn = (ComponentRenderable*)pObjectDroppedOn->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-                    if( pComponentMeshDroppedOn && pComponentMeshDroppedOn->GetBounds() != 0 )
+                    if( pComponentMeshDroppedOn && pComponentMeshDroppedOn->GetBounds() != nullptr )
                     {
                         pos.y += pComponentMeshDroppedOn->GetBounds()->GetHalfSize().y;
                         pos.y += pMesh->GetBounds()->GetHalfSize().y;
@@ -4129,25 +4108,25 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
             sceneid = pObjectDroppedOn->GetSceneID();
         }
 
-        // Create the game object
+        // Create the game object.
         GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
 
         if( pGameObjectCreated )
         {
-            // Undo/Redo
+            // Undo/Redo.
             g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
 
-            // Select the object dropped
+            // Select the object dropped.
             g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
             g_pEngineCore->GetEditorState()->SelectGameObject( pGameObjectCreated );
 
-            // Move the new object to the same spot as the one it was dropped on
+            // Move the new object to the same spot as the one it was dropped on.
             if( pObjectDroppedOn )
             {
                 std::vector<GameObject*> selectedobjects;
                 selectedobjects.push_back( pGameObjectCreated );
-                Vector3 worldpos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
-                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_MoveObjects( worldpos, selectedobjects ), true );
+                Vector3 worldPos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_MoveObjects( worldPos, selectedobjects ), true );
             }
         }
     }

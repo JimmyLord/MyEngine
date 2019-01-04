@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,16 +9,11 @@
 
 #include "EngineCommonHeader.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-
 #if MYFW_USING_WX
 bool ComponentMeshPrimitive::m_PanelWatchBlockVisible = true;
 #endif
 
-// Component Variable List
+// Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshPrimitive ); //_VARIABLE_LIST
 
 // These strings are used to save, so don't change them.
@@ -59,11 +54,6 @@ void ComponentMeshPrimitive::RegisterVariables(CPPListHead* pList, ComponentMesh
     pVars[5] = AddVar( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
     pVars[6] = AddVar( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
     pVars[7] = AddVar( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-
-#if MYFW_USING_WX
-    for( int i=0; i<7; i++ )
-        pVars[i]->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
-#endif //MYFW_USING_WX
 }
 
 void ComponentMeshPrimitive::Reset()
@@ -80,15 +70,8 @@ void ComponentMeshPrimitive::Reset()
 
     m_Sphere_Radius = 1;
 
-    //CreatePrimitive();
-
 #if MYFW_EDITOR
     m_PrimitiveSettingsChangedAtRuntime = false;
-
-#if MYFW_USING_WX
-    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
-    m_ControlID_MeshPrimitiveType = -1;
-#endif //MYFW_USING_WX
 #endif //MYFW_EDITOR
 }
 
@@ -104,34 +87,6 @@ void ComponentMeshPrimitive::LuaRegister(lua_State* luastate)
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
-void ComponentMeshPrimitive::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentMeshPrimitive::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "MeshPrimitive", ObjectListIcon_Component );
-}
-
-void ComponentMeshPrimitive::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentMesh::OnLeftClick( count, clear );
-}
-
-void ComponentMeshPrimitive::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh Primitive", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentMesh::FillPropertiesWindow( clear );
-
-        if( addcomponentvariables )
-        {
-            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-        }
-
-        m_ControlID_MeshPrimitiveType = FindVariablesControlIDByLabel( "MPType" );
-    }
-}
-
 bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
     if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
@@ -179,11 +134,11 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
 #endif //MYFW_USING_WX
 
 #if MYFW_EDITOR
-void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
-    if( finishedchanging )
+    if( finishedChanging )
     {
         if( g_pEngineCore->IsInEditorMode() == false )
         {
@@ -192,38 +147,31 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool chang
 
         CreatePrimitive();
 
-#if MYFW_USING_WX
-        if( changedbyinterface && pVar->m_ControlID == m_ControlID_MeshPrimitiveType )
-        {
-            g_pPanelWatch->SetNeedsRefresh();
-        }
-#endif //MYFW_USING_WX
-
         PushChangesToSceneGraphObjects();
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 #endif //MYFW_EDITOR
 
-cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool savesceneid, bool saveid)
+cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool saveSceneID, bool saveID)
 {
-    cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* jComponent = ComponentMesh::ExportAsJSONObject( saveSceneID, saveID );
 
-    return component;
+    return jComponent;
 }
 
-void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
+void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
 {
-    ComponentMesh::ImportFromJSONObject( jsonobj, sceneid );
+    ComponentMesh::ImportFromJSONObject( jComponent, sceneID );
 
-    // for compatibility with old files, now saved as Vector2s
-    cJSONExt_GetFloat( jsonobj, "PlaneSizex", &m_Plane_Size.x );
-    cJSONExt_GetFloat( jsonobj, "PlaneSizey", &m_Plane_Size.y );
-    cJSONExt_GetFloat( jsonobj, "PlaneUVStartx", &m_Plane_UVStart.x );
-    cJSONExt_GetFloat( jsonobj, "PlaneUVStarty", &m_Plane_UVStart.y );
-    cJSONExt_GetFloat( jsonobj, "PlaneUVRangex", &m_Plane_UVRange.x );
-    cJSONExt_GetFloat( jsonobj, "PlaneUVRangey", &m_Plane_UVRange.y );
+    // For compatibility with old files, now saved as Vector2s.
+    cJSONExt_GetFloat( jComponent, "PlaneSizex", &m_Plane_Size.x );
+    cJSONExt_GetFloat( jComponent, "PlaneSizey", &m_Plane_Size.y );
+    cJSONExt_GetFloat( jComponent, "PlaneUVStartx", &m_Plane_UVStart.x );
+    cJSONExt_GetFloat( jComponent, "PlaneUVStarty", &m_Plane_UVStart.y );
+    cJSONExt_GetFloat( jComponent, "PlaneUVRangex", &m_Plane_UVRange.x );
+    cJSONExt_GetFloat( jComponent, "PlaneUVRangey", &m_Plane_UVRange.y );
 
     // This will be hit on initial load and on quickload.
     // Only create the mesh on initial load.
@@ -304,14 +252,14 @@ void ComponentMeshPrimitive::CreatePrimitive()
 
     if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
     {
-        bool createtriangles = true;
-        if( m_GLPrimitiveType == GL_POINTS )
-            createtriangles = false;
+        bool createTriangles = true;
+        if( m_GLPrimitiveType == MyRE::PrimitiveType_Points )
+            createTriangles = false;
 
         if( m_Plane_UVsPerQuad )
-            m_pMesh->CreatePlaneUVsNotShared( Vector3(-m_Plane_Size.x/2, 0, m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart, m_Plane_UVRange, createtriangles );
+            m_pMesh->CreatePlaneUVsNotShared( Vector3(-m_Plane_Size.x/2, 0, m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart, m_Plane_UVRange, createTriangles );
         else
-            m_pMesh->CreatePlane( Vector3(-m_Plane_Size.x/2, 0, m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart, m_Plane_UVRange, createtriangles );
+            m_pMesh->CreatePlane( Vector3(-m_Plane_Size.x/2, 0, m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart, m_Plane_UVRange, createTriangles );
     }
     else if( m_MeshPrimitiveType == ComponentMeshPrimitive_Icosphere )
     {
@@ -326,9 +274,7 @@ void ComponentMeshPrimitive::CreatePrimitive()
         m_pMesh->CreateGrass( Vector3(-m_Plane_Size.x/2, 0, -m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart );
     }
 
-    // Add the Mesh to the main scene graph
-    // TODO: remove the old mesh from the scene graph
-    //SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+    // Add the Mesh to the main scene graph.
     AddToSceneGraph();
 }
 

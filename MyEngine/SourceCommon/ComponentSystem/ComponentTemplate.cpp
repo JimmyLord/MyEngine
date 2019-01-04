@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,11 +9,7 @@
 
 #include "EngineCommonHeader.h"
 
-#if MYFW_USING_WX
-bool ComponentTemplate::m_PanelWatchBlockVisible = true;
-#endif
-
-// Component Variable List
+// Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTemplate ); //_VARIABLE_LIST
 
 ComponentTemplate::ComponentTemplate()
@@ -53,11 +49,7 @@ void ComponentTemplate::RegisterVariables(CPPListHead* pList, ComponentTemplate*
 #pragma GCC diagnostic pop
 #endif
 
-#if MYFW_USING_WX
-    AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, (CVarFunc_DropTarget)&ComponentTemplate::OnDrop, 0 );
-#else
     AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, 0, 0 );
-#endif
 }
 
 void ComponentTemplate::Reset()
@@ -65,16 +57,12 @@ void ComponentTemplate::Reset()
     ComponentBase::Reset();
 
     m_SampleVector3.Set( 0, 0, 0 );
-
-#if MYFW_USING_WX
-    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
-#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_LUA
-void ComponentTemplate::LuaRegister(lua_State* luastate)
+void ComponentTemplate::LuaRegister(lua_State* luaState)
 {
-    luabridge::getGlobalNamespace( luastate )
+    luabridge::getGlobalNamespace( luaState )
         .beginClass<ComponentTemplate>( "ComponentTemplate" )
             //.addData( "m_SampleVector3", &ComponentTemplate::m_SampleVector3 )
             //.addFunction( "GetVector3", &ComponentTemplate::GetVector3 )
@@ -83,31 +71,6 @@ void ComponentTemplate::LuaRegister(lua_State* luastate)
 #endif //MYFW_USING_LUA
 
 #if MYFW_EDITOR
-#if MYFW_USING_WX
-void ComponentTemplate::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentTemplate::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Template", ObjectListIcon_Component );
-}
-
-void ComponentTemplate::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentBase::OnLeftClick( count, clear );
-}
-
-void ComponentTemplate::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Template", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentBase::FillPropertiesWindow( clear );
-
-        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-    }
-}
-#endif //MYFW_USING_WX
-
 void* ComponentTemplate::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldPointer = 0;
@@ -129,28 +92,28 @@ void* ComponentTemplate::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_SampleVector3 ) )
     {
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 #endif //MYFW_EDITOR
 
-//cJSON* ComponentTemplate::ExportAsJSONObject(bool savesceneid, bool saveid)
+//cJSON* ComponentTemplate::ExportAsJSONObject(bool saveSceneID, bool saveID)
 //{
-//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
+//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( saveSceneID, saveID );
 //
 //    return jComponent;
 //}
 //
-//void ComponentTemplate::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
+//void ComponentTemplate::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
 //{
-//    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
+//    ComponentBase::ImportFromJSONObject( jComponent, sceneID );
 //}
 
 ComponentTemplate& ComponentTemplate::operator=(const ComponentTemplate& other)

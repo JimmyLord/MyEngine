@@ -46,7 +46,7 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
 
     // Setup our position attribute, pass in the array of verts, not using a VBO.
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 3, GL_FLOAT, GL_FALSE, sizeof(float)*3, (void*)vertices );
+    pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 3, MyRE::AttributeType_Float, false, sizeof(float)*3, (void*)vertices );
 
     // Setup uniforms, mainly viewproj and tint.
     pShader->ProgramMaterialProperties( 0, m_pMaterial->m_ColorDiffuse, m_pMaterial->m_ColorSpecular, m_pMaterial->m_Shininess );

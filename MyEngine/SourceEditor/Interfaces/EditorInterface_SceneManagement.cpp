@@ -278,11 +278,6 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             // If shift is held, make a copy of the object and control that one.
             if( selectedgizmo && pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
-                // Reselect all objects selected in the object list.
-                //    Select the actual folders instead of objects inside them.
-                //    Don't allow children to be selected if parent is.
-                g_pEngineCore->OnObjectListTreeMultipleSelection( true );
-
                 // Make a copy of the selected objects and clear what the editor thinks is selected.
                 std::vector<GameObject*> selectedobjects = pEditorState->m_pSelectedObjects;
                 pEditorState->ClearSelectedObjectsAndComponents();

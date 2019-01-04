@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -11,15 +11,6 @@
 
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
-
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-
-#if MYFW_USING_WX
-bool ComponentMesh::m_PanelWatchBlockVisible = true;
-#endif
 
 static const char* g_MaterialLabels[] = { "Material1", "Material2", "Material3", "Material4" };
 
@@ -34,7 +25,7 @@ const char* OpenGLPrimitiveTypeStrings[7] =
     "TriangleFan",
 };
 
-// Component Variable List
+// Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMesh ); //_VARIABLE_LIST
 
 ComponentMesh::ComponentMesh()
@@ -48,20 +39,17 @@ ComponentMesh::ComponentMesh()
 
     m_WaitingToAddToSceneGraph = false;
 
-    m_pMesh = 0;
+    m_pMesh = nullptr;
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
-        m_pSceneGraphObjects[i] = 0;
-        m_pMaterials[i] = 0;
-#if MYFW_USING_WX
-        m_MaterialExpanded[i] = false;
-#endif
+        m_pSceneGraphObjects[i] = nullptr;
+        m_pMaterials[i] = nullptr;
     }
 
     m_GLPrimitiveType = MyRE::PrimitiveType_Triangles;
     m_PointSize = 1;
 
-    m_pComponentLuaScript = 0;
+    m_pComponentLuaScript = nullptr;
 
     g_pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
 }
@@ -77,9 +65,9 @@ ComponentMesh::~ComponentMesh()
     SAFE_RELEASE( m_pMesh );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        if( m_pSceneGraphObjects[i] != 0 )
+        if( m_pSceneGraphObjects[i] != nullptr )
             g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObjects[i] );
-        m_pSceneGraphObjects[i] = 0;
+        m_pSceneGraphObjects[i] = nullptr;
         SAFE_RELEASE( m_pMaterials[i] );
     }
 
@@ -98,11 +86,11 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
 
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
-        // materials are not automatically saved/loaded
+        // Materials are not automatically saved/loaded.
         MyAssert( MAX_SUBMESHES == 4 );
         ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
-                                               MyOffsetOf( pThis, &pThis->m_pMaterials[i] ), false, true, 
-                                               0, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentMesh::OnDropMaterial, 0 );
+                                          MyOffsetOf( pThis, &pThis->m_pMaterials[i] ), false, true, 
+                                          nullptr, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentMesh::OnDropMaterial, nullptr );
 
 #if MYFW_EDITOR
         pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMesh::ShouldVariableBeAddedToWatchPanel) );
@@ -110,8 +98,8 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
 #endif
     }
 
-    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
-    AddVar( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
+    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, nullptr, nullptr );
 }
 
 void ComponentMesh::Reset()
@@ -124,69 +112,32 @@ void ComponentMesh::Reset()
 
     m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
 
-    m_pComponentLuaScript = 0;
-
-#if MYFW_USING_WX
-    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
-
-    for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
-        m_MaterialExpanded[i] = false;
-#endif //MYFW_USING_WX
+    m_pComponentLuaScript = nullptr;
 }
 
 #if MYFW_USING_LUA
-void ComponentMesh::LuaRegister(lua_State* luastate)
+void ComponentMesh::LuaRegister(lua_State* luaState)
 {
 }
 #endif //MYFW_USING_LUA
 
 #if MYFW_EDITOR
-ComponentVariable* ComponentMesh::GetComponentVariableForMaterial(int submeshindex)
+ComponentVariable* ComponentMesh::GetComponentVariableForMaterial(int submeshIndex)
 {
     char temp[20];
-    sprintf_s( temp, 20, "Material%d", submeshindex+1 );
+    sprintf_s( temp, 20, "Material%d", submeshIndex+1 );
 
     return FindComponentVariableByLabel( &m_ComponentVariableList_ComponentMesh, temp );
 }
-
-#if MYFW_USING_WX
-void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    MyAssert( gameobjectid.IsOk() );
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentMesh::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Mesh", ObjectListIcon_Component );
-}
-
-void ComponentMesh::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentBase::OnLeftClick( count, clear );
-}
-
-void ComponentMesh::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-    //MyAssert( m_pMesh );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentRenderable::FillPropertiesWindow( clear );
-
-        if( addcomponentvariables )
-        {
-            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-        }
-    }
-}
-#endif //MYFW_USING_WX
 
 bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        // only show enough material variables for the number of submeshes in the mesh.
+        // Only show enough material variables for the number of submeshes in the mesh.
         if( pVar->m_Label == g_MaterialLabels[i] )
         {
-            if( m_pMesh == 0 || i >= m_pMesh->GetSubmeshListCount() )
+            if( m_pMesh == nullptr || i >= m_pMesh->GetSubmeshListCount() )
                 return false;
         }
     }
@@ -198,7 +149,7 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
 {
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        if( m_pMaterials[i] == 0 )
+        if( m_pMaterials[i] == nullptr )
             continue;
 
 #if MYFW_USING_IMGUI
@@ -224,51 +175,12 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
             }
         }
 #endif //MYFW_USING_IMGUI
-
-#if MYFW_USING_WX
-        m_MaterialExpandButtonControlIDs[i] = -1;
-
-        if( pVar->m_Label == g_MaterialLabels[i] )
-        {
-            if( m_pMaterials[i]->m_UniformValues[0].m_Type != ExposedUniformType_NotSet )
-            {
-                int oldpaddingleft = g_pPanelWatch->m_PaddingLeft;
-                g_pPanelWatch->m_PaddingLeft = 110;
-
-                if( m_MaterialExpanded[i] == false )
-                {
-                    m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Expand", this, &ComponentMesh::StaticOnExpandMaterialClicked );
-                }
-                else
-                {
-                    m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Collapse", this, &ComponentMesh::StaticOnExpandMaterialClicked );
-                    GetMaterial( i )->AddToWatchPanel( false, false, true );
-                }
-
-                g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
-            }
-        }
-#endif //MYFW_USING_WX
     }
 }
-
-#if MYFW_USING_WX
-void ComponentMesh::OnExpandMaterialClicked(int controlid)
-{
-    for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
-    {
-        if( m_MaterialExpandButtonControlIDs[i] == controlid )
-        {
-            m_MaterialExpanded[i] = !m_MaterialExpanded[i];
-            g_pPanelWatch->SetNeedsRefresh();
-        }
-    }
-}
-#endif //MYFW_USING_WX
 
 void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, int x, int y)
 {
-    void* oldPointer = 0;
+    void* oldPointer = nullptr;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -292,74 +204,46 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, int x, int y)
             oldPointer = GetMaterial( materialthatchanged );
             SetMaterial( pMaterial, materialthatchanged );
             //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
-
-#if MYFW_USING_WX
-            // update the panel so new Material name shows up.
-            if( g_DragAndDropStruct.GetControlID() != -1 )
-            {
-                if( pMaterial != 0 )
-                    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
-                else
-                    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = 0;
-            }
-#endif //MYFW_USING_WX
         }
     }
 
     return oldPointer;
 }
 
-void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
-    void* oldpointer = 0;
+    void* oldPointer = nullptr;
 
-    if( finishedchanging )
+    if( finishedChanging )
     {
         if( strncmp( pVar->m_Label, "Material", strlen("Material") ) == 0 )
         {
-            int materialthatchanged = -1;
+            int materialThatChanged = -1;
             for( int i=0; i<MAX_SUBMESHES; i++ )
             {
                 if( pVar->m_Label == g_MaterialLabels[i] )
                 {
-                    materialthatchanged = i;
+                    materialThatChanged = i;
                     break;
                 }
             }
-            MyAssert( materialthatchanged != -1 );
+            MyAssert( materialThatChanged != -1 );
 
-            if( changedbyinterface )
+            if( changedByInterface )
             {
-#if MYFW_USING_WX
-                wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
-                if( text == "" || text == "none" )
-                {
-                    g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
-
-                    oldpointer = GetMaterial( materialthatchanged );
-                    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, 0 ) );
-                }
-#endif //MYFW_USING_WX
             }
             else
             {
-                oldpointer = GetMaterial( materialthatchanged );
-                MaterialDefinition* pNewMaterial = pNewValue ? pNewValue->GetMaterialPtr() : 0;
-                SetMaterial( pNewMaterial, materialthatchanged );
+                oldPointer = GetMaterial( materialThatChanged );
+                MaterialDefinition* pNewMaterial = pNewValue ? pNewValue->GetMaterialPtr() : nullptr;
+                SetMaterial( pNewMaterial, materialThatChanged );
             }
-        }
-
-        //if( controlid == m_ControlID_PrimitiveType )
-        {
-#if MYFW_USING_WX
-            g_pPanelWatch->SetNeedsRefresh();
-#endif //MYFW_USING_WX
         }
 
         PushChangesToSceneGraphObjects();
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 
 #if _DEBUG && MYFW_WINDOWS
@@ -374,18 +258,18 @@ void ComponentMesh::TriggerBreakpointOnNextDraw(int submeshIndex)
 
 #endif //MYFW_EDITOR
 
-cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid, bool saveid)
+cJSON* ComponentMesh::ExportAsJSONObject(bool saveSceneID, bool saveID)
 {
-    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( saveSceneID, saveID );
 
     cJSON* jMaterialArray = cJSON_CreateArray();
     cJSON_AddItemToObject( jComponent, "Materials", jMaterialArray );
 
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        MyAssert( m_pMaterials[i] == 0 || m_pMaterials[i]->GetFile() ); // new materials should be saved as files before the state is saved.
+        MyAssert( m_pMaterials[i] == nullptr || m_pMaterials[i]->GetFile() ); // New materials should be saved as files before the state is saved.
 
-        cJSON* jMaterial = 0;
+        cJSON* jMaterial = nullptr;
         if( m_pMaterials[i] && m_pMaterials[i]->GetFile() )
             jMaterial = cJSON_CreateString( m_pMaterials[i]->GetMaterialDescription() );
 
@@ -399,12 +283,12 @@ cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, SceneID sceneid)
+void ComponentMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
 {
-    ComponentRenderable::ImportFromJSONObject( jComponentMesh, sceneid );
+    ComponentRenderable::ImportFromJSONObject( jComponent, sceneID );
 
-    // TODO: remove this "Material" block, it's for old scenes before I changed to multiple materials.
-    cJSON* jMaterial = cJSON_GetObjectItem( jComponentMesh, "Material" );
+    // TODO: Remove this "Material" block, it's for old scenes before I changed to multiple materials.
+    cJSON* jMaterial = cJSON_GetObjectItem( jComponent, "Material" );
     if( jMaterial )
     {
         MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( jMaterial->valuestring );
@@ -415,14 +299,14 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, SceneID sceneid)
         }
     }
 
-    cJSON* jMaterialArray = cJSON_GetObjectItem( jComponentMesh, "Materials" );
+    cJSON* jMaterialArray = cJSON_GetObjectItem( jComponent, "Materials" );
     if( jMaterialArray )
     {
-        int nummaterials = cJSON_GetArraySize( jMaterialArray );
+        int numMaterials = cJSON_GetArraySize( jMaterialArray );
 
         //for( int i=0; i<MAX_SUBMESHES; i++ ) { MyAssert( m_pMaterials[i] == 0 ); }
 
-        for( int i=0; i<nummaterials; i++ )
+        for( int i=0; i<numMaterials; i++ )
         {
             cJSON* jMaterial = cJSON_GetArrayItem( jMaterialArray, i );
             MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( jMaterial->valuestring );
@@ -434,10 +318,10 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, SceneID sceneid)
         }
     }
 
-    //cJSONExt_GetInt( jComponentMesh, "PrimitiveType", &m_GLPrimitiveType );
-    //cJSONExt_GetInt( jComponentMesh, "PointSize", &m_PointSize );
+    //cJSONExt_GetInt( jComponent, "PrimitiveType", &m_GLPrimitiveType );
+    //cJSONExt_GetInt( jComponent, "PointSize", &m_PointSize );
 
-    ImportVariablesFromJSON( jComponentMesh ); //_VARIABLE_LIST
+    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
 }
 
 ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
@@ -496,7 +380,7 @@ void ComponentMesh::OnPlay()
 {
     ComponentBase::OnPlay();
 
-    m_pMesh->RegisterSetupCustomUniformsCallback( 0, 0 );
+    m_pMesh->RegisterSetupCustomUniformsCallback( nullptr, nullptr );
 
     m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
 
@@ -513,7 +397,7 @@ bool ComponentMesh::OnEvent(MyEvent* pEvent)
     if( pEvent->GetType() == Event_MaterialFinishedLoading )
     {
         MaterialDefinition* pMaterial = static_cast<MaterialDefinition*>( pEvent->GetPointer( "Material" ) );
-        MyAssert( pMaterial != 0 );
+        MyAssert( pMaterial != nullptr );
             
         for( int i=0; i<MAX_SUBMESHES; i++ )
         {
@@ -523,13 +407,13 @@ bool ComponentMesh::OnEvent(MyEvent* pEvent)
             }
         }
 
-        return false; // keep propagating the event.
+        return false; // Keep propagating the event.
     }
 
     if( pEvent->GetType() == Event_ShaderFinishedLoading )
     {
         BaseShader* pShader = static_cast<BaseShader*>( pEvent->GetPointer( "Shader" ) );
-        MyAssert( pShader != 0 );
+        MyAssert( pShader != nullptr );
 
         for( int i=0; i<MAX_SUBMESHES; i++ )
         {
@@ -544,38 +428,38 @@ bool ComponentMesh::OnEvent(MyEvent* pEvent)
             }
         }
 
-        return false; // keep propagating the event.
+        return false; // Keep propagating the event.
     }
 
     return false;
 }
 
-void ComponentMesh::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+void ComponentMesh::OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor)
 {
     for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
     {
-        if( m_pSceneGraphObjects[i] != 0 )
+        if( m_pSceneGraphObjects[i] != nullptr )
         {
             g_pComponentSystemManager->GetSceneGraph()->ObjectMoved( m_pSceneGraphObjects[i] );
         }
     }
 }
 
-void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
+void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshIndex)
 {
-    ComponentRenderable::SetMaterial( pMaterial, submeshindex );
+    ComponentRenderable::SetMaterial( pMaterial, submeshIndex );
 
-    MyAssert( submeshindex >= 0 && submeshindex < MAX_SUBMESHES );
+    MyAssert( submeshIndex >= 0 && submeshIndex < MAX_SUBMESHES );
 
     if( pMaterial )
         pMaterial->AddRef();
-    SAFE_RELEASE( m_pMaterials[submeshindex] );
-    m_pMaterials[submeshindex] = pMaterial;
+    SAFE_RELEASE( m_pMaterials[submeshIndex] );
+    m_pMaterials[submeshIndex] = pMaterial;
 
-    if( m_pSceneGraphObjects[submeshindex] )
+    if( m_pSceneGraphObjects[submeshIndex] )
     {
         // Update the material on the SceneGraphObject along with the opaque/transparent flags.
-        m_pSceneGraphObjects[submeshindex]->SetMaterial( pMaterial, true );
+        m_pSceneGraphObjects[submeshIndex]->SetMaterial( pMaterial, true );
     }
 }
 
@@ -628,16 +512,16 @@ void ComponentMesh::AddToSceneGraph()
 {
     MyAssert( m_pMesh );
 
-    // if the object has been disabled, don't add it to the scene graph
+    // If the object has been disabled, don't add it to the scene graph.
     if( m_pGameObject->IsEnabled() == false )
         return;
 
     if( m_pMesh->IsReady() )
     {
         MyAssert( m_pMesh->GetSubmeshListCount() > 0 );
-        MyAssert( m_pSceneGraphObjects[0] == 0 );
+        MyAssert( m_pSceneGraphObjects[0] == nullptr );
 
-        // Add the Mesh to the main scene graph
+        // Add the Mesh to the main scene graph.
         if( m_pMesh->GetSubmeshListCount() > 0 )
         {
             g_pComponentSystemManager->AddMeshToSceneGraph( this, m_pMesh, m_pMaterials, m_GLPrimitiveType, m_PointSize, m_LayersThisExistsOn, m_pSceneGraphObjects );
@@ -656,7 +540,7 @@ void ComponentMesh::AddToSceneGraph()
 
 void ComponentMesh::RemoveFromSceneGraph()
 {
-    if( m_pMesh == 0 )
+    if( m_pMesh == nullptr )
         return;
 
     if( m_WaitingToAddToSceneGraph )
@@ -670,19 +554,19 @@ void ComponentMesh::RemoveFromSceneGraph()
 
     for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
     {
-        if( m_pSceneGraphObjects[i] != 0 )
+        if( m_pSceneGraphObjects[i] != nullptr )
         {
             g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObjects[i] );
-            m_pSceneGraphObjects[i] = 0;
+            m_pSceneGraphObjects[i] = nullptr;
         }
     }
 }
 
 void ComponentMesh::PushChangesToSceneGraphObjects()
 {
-    //ComponentRenderable::PushChangesToSceneGraphObjects(); // pure virtual
+    //ComponentRenderable::PushChangesToSceneGraphObjects(); // Pure virtual.
 
-    // Sync scenegraph objects
+    // Sync scenegraph objects.
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
         if( m_pSceneGraphObjects[i] )
@@ -703,15 +587,15 @@ MyAABounds* ComponentMesh::GetBounds()
     if( m_pMesh )
         return m_pMesh->GetBounds();
 
-    return 0;
+    return nullptr;
 }
 
 void ComponentMesh::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticSetupCustomUniformsCallback
 {
     // This callback should only get called if there was a Lua script component.
-    // TODO: don't register the callback if the lua script object doesn't have a "SetupCustomUniforms" function.
+    // TODO: Don't register the callback if the lua script object doesn't have a "SetupCustomUniforms" function.
 
-    MyAssert( m_pComponentLuaScript != 0 );
+    MyAssert( m_pComponentLuaScript != nullptr );
 
     m_pComponentLuaScript->CallFunction( "SetupCustomUniforms", pShader->m_ProgramHandle );
 }
@@ -720,15 +604,15 @@ void ComponentMesh::OnLuaScriptDeleted(ComponentBase* pComponent) // StaticOnLua
 {
     if( m_pComponentLuaScript == pComponent )
     {
-        m_pComponentLuaScript = 0;
-        m_pMesh->RegisterSetupCustomUniformsCallback( 0, 0 );
+        m_pComponentLuaScript = nullptr;
+        m_pMesh->RegisterSetupCustomUniformsCallback( nullptr, nullptr );
     }
 }
 
 void ComponentMesh::TickCallback(float deltaTime)
 {
-    // TODO: temp hack, if the gameobject doesn't have a transform (shouldn't happen), then don't try to add to scene graph
-    if( m_pGameObject->GetTransform() == 0 )
+    // TODO: Temp hack, if the gameobject doesn't have a transform (shouldn't happen), then don't try to add to scene graph.
+    if( m_pGameObject->GetTransform() == nullptr )
         return;
 
     MyAssert( m_pGameObject->GetTransform() );
@@ -752,8 +636,6 @@ void ComponentMesh::TickCallback(float deltaTime)
 
 void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
-    checkGlError( "start of ComponentMesh::DrawCallback()" );
-
     ComponentRenderable::Draw( pMatProj, pMatView, pShaderOverride, 0 );
 
     MyMatrix matViewProj = *pMatProj * *pMatView;
@@ -762,7 +644,7 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
     {
         MyMatrix worldtransform = *m_pComponentTransform->GetWorldTransform();
 
-        // simple frustum check
+        // Simple frustum check.
         {
             MyAABounds* bounds = m_pMesh->GetBounds();
             Vector3 center = bounds->GetCenter();
@@ -772,7 +654,7 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
 
             Vector4 clippos[8];
 
-            // transform AABB extents into clip space.
+            // Transform AABB extents into clip space.
             clippos[0] = wvp * Vector4(center.x - half.x, center.y - half.y, center.z - half.z, 1);
             clippos[1] = wvp * Vector4(center.x - half.x, center.y - half.y, center.z + half.z, 1);
             clippos[2] = wvp * Vector4(center.x - half.x, center.y + half.y, center.z - half.z, 1);
@@ -782,38 +664,38 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
             clippos[6] = wvp * Vector4(center.x + half.x, center.y + half.y, center.z - half.z, 1);
             clippos[7] = wvp * Vector4(center.x + half.x, center.y + half.y, center.z + half.z, 1);
 
-            // check visibility two planes at a time
+            // Check visibility two planes at a time.
             bool visible = false;
-            for( int component=0; component<3; component++ ) // loop through x/y/z
+            for( int component=0; component<3; component++ ) // Loop through x/y/z.
             {
-                // check if all 8 points are less than the -w extent of it's axis
+                // Check if all 8 points are less than the -w extent of it's axis.
                 visible = false;
                 for( int i=0; i<8; i++ )
                 {
                     if( clippos[i][component] >= -clippos[i].w )
                     {
-                        visible = true; // this point is on the visible side of the plane, skip to next plane
+                        visible = true; // This point is on the visible side of the plane, skip to next plane.
                         break;
                     }
                 }
-                if( visible == false ) // all points are on outside of plane, don't draw object
+                if( visible == false ) // All points are on outside of plane, don't draw object.
                     break;
 
-                // check if all 8 points are greater than the -w extent of it's axis
+                // Check if all 8 points are greater than the -w extent of it's axis.
                 visible = false;
                 for( int i=0; i<8; i++ )
                 {
                     if( clippos[i][component] <= clippos[i].w )
                     {
-                        visible = true; // this point is on the visible side of the plane, skip to next plane
+                        visible = true; // This point is on the visible side of the plane, skip to next plane.
                         break;
                     }
                 }
-                if( visible == false ) // all points are on outside of plane, don't draw object
+                if( visible == false ) // All points are on outside of plane, don't draw object.
                     break;
             }
 
-            // if all points are on outside of frustum, don't draw mesh.
+            // If all points are on outside of frustum, don't draw mesh.
             if( visible == false )
                 return;
         }
@@ -832,15 +714,15 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
         int numlights = g_pLightManager->FindNearestLights( LightType_Point, 4, m_pComponentTransform->GetWorldTransform()->GetTranslation(), lights );
 
         // Find nearest shadow casting light.
-        MyMatrix* pShadowVP = 0;
-        TextureDefinition* pShadowTex = 0;
+        MyMatrix* pShadowVP = nullptr;
+        TextureDefinition* pShadowTex = nullptr;
         if( g_ActiveShaderPass == ShaderPass_Main )
         {
             GameObject* pObject = g_pComponentSystemManager->FindGameObjectByName( "Shadow Light" );
             if( pObject )
             {
                 ComponentBase* pComponent = pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera );
-                ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : 0;
+                ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : nullptr;
                 if( pShadowCam )
                 {
                     pShadowVP = pShadowCam->GetViewProjMatrix();
@@ -879,8 +761,6 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
             }
         }
 
-        m_pMesh->Draw( pMatProj, pMatView, &worldtransform, &campos, &camrot, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );
+        m_pMesh->Draw( pMatProj, pMatView, &worldtransform, &campos, &camrot, lights, numlights, pShadowVP, pShadowTex, nullptr, pShaderOverride );
     }
-
-    checkGlError( "end of ComponentMesh::DrawCallback()" );
 }

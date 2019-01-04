@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -18,7 +18,7 @@ extern const char* OpenGLPrimitiveTypeStrings[7];
 class ComponentMesh : public ComponentRenderable
 {
 protected:
-    // Component Variable List
+    // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentMesh ); //_VARIABLE_LIST
 
 public:
@@ -34,21 +34,21 @@ public:
     int m_PointSize;
 
 protected:
-    // Vars to allow script object callbacks
+    // Vars to allow script object callbacks.
     ComponentLuaScript* m_pComponentLuaScript;
 
 public:
     ComponentMesh();
     virtual ~ComponentMesh();
-    SetClassnameWithParent( "MeshComponent", ComponentRenderable ); // only first 8 character count.
+    SetClassnameWithParent( "MeshComponent", ComponentRenderable ); // Only first 8 characters count.
 
 #if MYFW_USING_LUA
-    static void LuaRegister(lua_State* luastate);
+    static void LuaRegister(lua_State* luaState);
 #endif //MYFW_USING_LUA
 
-    // ComponentBase overrides
-    virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jComponentMesh, SceneID sceneid);
+    // ComponentBase overrides.
+    virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID);
+    virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMesh&)*pObject; }
@@ -65,12 +65,12 @@ public:
     //virtual void OnGameObjectEnabled();
     //virtual void OnGameObjectDisabled();
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentMesh*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
-    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor) { ((ComponentMesh*)pObjectPtr)->OnTransformChanged( newPos, newRot, newScale, changedByUserInEditor ); }
+    void OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor);
 
-    // ComponentRenderable overrides
-    virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_pMaterials[submeshindex]; }
-    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
+    // ComponentRenderable overrides.
+    virtual MaterialDefinition* GetMaterial(int submeshIndex) { return m_pMaterials[submeshIndex]; }
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshIndex);
 
     virtual void SetVisible(bool visible);
     //virtual bool IsVisible();
@@ -86,7 +86,7 @@ public:
 
     virtual MyAABounds* GetBounds();
 
-    // Mesh draw callback
+    // Mesh draw callback.
     static void StaticSetupCustomUniformsCallback(void* pObjectPtr, Shader_Base* pShader) { ((ComponentMesh*)pObjectPtr)->SetupCustomUniformsCallback( pShader ); }
     void SetupCustomUniformsCallback(Shader_Base* pShader);
 
@@ -106,33 +106,14 @@ protected:
 
 public:
 #if MYFW_EDITOR
-    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex);
+    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshIndex);
 
-#if MYFW_USING_WX
-    static bool m_PanelWatchBlockVisible;
-    int m_MaterialExpandButtonControlIDs[MAX_SUBMESHES];
-    bool m_MaterialExpanded[MAX_SUBMESHES];
-
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    
-    // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentMesh*)pObjectPtr)->OnLeftClick( count, true ); }
-    void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
-#endif //MYFW_USING_WX
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
     virtual void VariableAddedToWatchPanel(ComponentVariable* pVar);
 
-#if MYFW_USING_WX
-    // Watch panel callbacks.
-    static void StaticOnExpandMaterialClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentMesh*)pObjectPtr)->OnExpandMaterialClicked( controlid ); }
-    void OnExpandMaterialClicked(int controlid);
-
-#endif //MYFW_USING_WX
-
     // Component variable callbacks. //_VARIABLE_LIST
     void* OnDropMaterial(ComponentVariable* pVar, int x, int y);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 
 #if _DEBUG && MYFW_WINDOWS
     void TriggerBreakpointOnNextDraw(int submeshIndex);

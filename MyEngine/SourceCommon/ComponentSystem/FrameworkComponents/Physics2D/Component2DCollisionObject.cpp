@@ -11,10 +11,10 @@
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Enums.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
+//// TODO: Fix GL Includes.
+//#include <gl/GL.h>
+//#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+//#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 
 #if MYFW_USING_WX
 bool Component2DCollisionObject::m_PanelWatchBlockVisible = true;
@@ -743,8 +743,8 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 255 ) );
 
         // Setup our position attribute, pass in the array of verts, not using a VBO.
-        glBindBuffer( GL_ARRAY_BUFFER, 0 );
-        pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)&m_Vertices[0] );
+        pShader->InitializeAttributeArrays( VertexFormat_None, nullptr, 0, 0 );
+        pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 2, MyRE::AttributeType_Float, false, sizeof(float)*2, (void*)&m_Vertices[0] );
 
         ComponentTransform* pParentTransformComponent = m_pGameObject->GetTransform();
         MyMatrix worldmat;
@@ -755,7 +755,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         pShader->ProgramMaterialProperties( 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
         pShader->ProgramTransforms( pEditorMatProj, pEditorMatView, &worldmat );
 
-        glLineWidth( 3 );
+        g_pRenderer->SetLineWidth( 3.0f );
 
         g_pRenderer->SetBlendEnabled( true );
         g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
@@ -765,7 +765,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
 
         g_pRenderer->DrawArrays( MyRE::PrimitiveType_LineStrip, 0, (int)m_Vertices.size(), false );
 
-        glLineWidth( 1 );
+        g_pRenderer->SetLineWidth( 1.0f );
 
         //g_pRenderer->SetCullingEnabled( true );
         //g_pRenderer->SetDepthTestEnabled( true );
