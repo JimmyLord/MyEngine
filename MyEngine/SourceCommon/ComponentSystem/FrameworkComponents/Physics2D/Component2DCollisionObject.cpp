@@ -8,13 +8,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Enums.h"
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Enums.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
-//// TODO: Fix GL Includes.
-//#include <gl/GL.h>
-//#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-//#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
+// TODO: Fix GL Includes.
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Shader_OpenGL.h"
 
 #if MYFW_USING_WX
 bool Component2DCollisionObject::m_PanelWatchBlockVisible = true;
@@ -736,7 +735,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     // Draw lines for the vertices (connecting the circles if editing verts)
     {
         // Set the material to the correct color and draw the shape.
-        Shader_Base* pShader = (Shader_Base*)pMaterial->GetShader()->GlobalPass( 0, 0 );
+        Shader_OpenGL* pShader = (Shader_OpenGL*)pMaterial->GetShader()->GlobalPass( 0, 0 );
         if( pShader->Activate() == false )
             return;
 

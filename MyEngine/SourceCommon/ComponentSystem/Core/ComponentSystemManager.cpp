@@ -13,6 +13,7 @@
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 #if MYFW_EDITOR
 #include "../SourceEditor/Exporters/ExportBox2DScene.h"

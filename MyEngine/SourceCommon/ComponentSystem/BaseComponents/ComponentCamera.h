@@ -10,7 +10,7 @@
 #ifndef __ComponentCamera_H__
 #define __ComponentCamera_H__
 
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
 
 #include "../../Camera/Camera2D.h"
 #include "../../Camera/Camera3D.h"

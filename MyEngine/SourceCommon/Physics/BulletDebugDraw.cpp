@@ -8,15 +8,17 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Enums.h"
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/Renderer_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Enums.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 #include "BulletDebugDraw.h"
 
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
+#include "../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Shader_OpenGL.h"
 
 BulletDebugDraw::BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView)
 {
@@ -38,7 +40,7 @@ BulletDebugDraw::~BulletDebugDraw()
 void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByte color, MyRE::PrimitiveTypes primitiveType, float pointOrLineSize)
 {
     // Set the material to the correct color and draw the shape.
-    Shader_Base* pShader = (Shader_Base*)m_pMaterial->GetShader()->GlobalPass( 0, 0 );
+    Shader_OpenGL* pShader = (Shader_OpenGL*)m_pMaterial->GetShader()->GlobalPass( 0, 0 );
     if( pShader->Activate() == false )
         return;
 
