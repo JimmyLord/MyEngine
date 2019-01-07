@@ -1325,7 +1325,8 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
                 LOGInfo( "VoxelWorld", "Too many verts needed in chunk - %d\n", maxverts );
             }
 
-            m_SubmeshList[0]->m_pVertexBuffer->TempBufferData( vertcount * GetStride( 0 ), pVerts );
+            BufferDefinition* pVertBuffer = m_SubmeshList[0]->m_pVertexBuffer;
+            pVertBuffer->TempBufferData( vertcount * GetStride( 0 ), pVerts );
         }
 
         // if not a world object, fill an index buffer... TODO: remove this, indices can be static.

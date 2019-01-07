@@ -195,7 +195,7 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
 void VoxelWorld::Tick(float deltaTime, void* pUserData)
 {
     // If ever our single shared index buffer isn't ready (startup, lost context, etc), create the indices
-    if( m_pSharedIndexBuffer->m_Dirty )
+    if( m_pSharedIndexBuffer->IsDirty() )
     {
         BuildSharedIndexBuffer();
     }
