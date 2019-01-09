@@ -10,11 +10,6 @@
 #include "EngineCommonHeader.h"
 #include "../../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-
 #if MYFW_USING_WX
 bool ComponentCamera::m_PanelWatchBlockVisible = true;
 #endif
@@ -533,7 +528,8 @@ void ComponentCamera::OnDrawFrame()
         else
         {
             // If there isn't another post effect, render back to the FBO that was set before this function.
-            MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
+            g_pRenderer->BindFramebuffer( startingFBO );
+            //MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
 
             // Enable viewport and enable/disable scissor region if needed.
             g_pRenderer->EnableViewport( &m_Viewport, true );
@@ -553,7 +549,8 @@ void ComponentCamera::OnDrawFrame()
     {
         // The FBO should already be set, either we didn't change it, or the final pass was sent to this FBO.
         MyAssert( false );
-        MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
+        g_pRenderer->BindFramebuffer( startingFBO );
+        //MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
     }
 }
 
@@ -697,7 +694,8 @@ void ComponentCamera::DrawScene()
     {
         // The FBO should already be set, either we didn't change it, or the final pass was sent to this FBO.
         //MyAssert( false );
-        MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
+        g_pRenderer->BindFramebuffer( startingFBO );
+        //MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_Viewport.GetWidth(), m_Viewport.GetHeight() );
     }
 
     // Finish our deferred render if we started it.
@@ -767,7 +765,7 @@ void ComponentCamera::DrawScene()
             // Draw all the point lights in the scene, using a sphere for each.
             {
                 // Swap culling to draw backs of spheres for the rest of the lights.
-                glCullFace( GL_FRONT );
+                g_pRenderer->SetCullMode( MyRE::CullMode_Front );
 
                 for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
                 {
@@ -798,7 +796,7 @@ void ComponentCamera::DrawScene()
             // Restore the old gl state.
             g_pRenderer->SetDepthWriteEnabled( true );
             g_pRenderer->SetDepthTestEnabled( true );
-            glCullFace( GL_BACK );
+            g_pRenderer->SetCullMode( MyRE::CullMode_Back );
             g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
         }
 
@@ -827,89 +825,7 @@ void ComponentCamera::DrawScene()
 void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticSetupCustomUniformsCallback
 {
     // TODO: Not this...
-    GLint uTextureSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureSize" );
-    GLint uViewportSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_ViewportSize" );
-    GLint uZNear = glGetUniformLocation( pShader->m_ProgramHandle, "u_ZNear" );
-    GLint uZFar = glGetUniformLocation( pShader->m_ProgramHandle, "u_ZFar" );
-    GLint uCamAt = glGetUniformLocation( pShader->m_ProgramHandle, "u_CamAt" );
-    GLint uCamRight = glGetUniformLocation( pShader->m_ProgramHandle, "u_CamRight" );
-    GLint uCamUp = glGetUniformLocation( pShader->m_ProgramHandle, "u_CamUp" );
-    GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedo" );
-    GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePositionShine" );
-    GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
-    GLint uDepth = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureDepth" );
-    GLint uClearColor = glGetUniformLocation( pShader->m_ProgramHandle, "u_ClearColor" );
-
-    if( uTextureSize != -1 )
-    {
-        glUniform2f( uTextureSize, (float)m_pGBuffer->GetTextureWidth(), (float)m_pGBuffer->GetTextureHeight() );
-    }
-
-    if( uViewportSize != -1 )
-    {
-        glUniform2f( uViewportSize, (float)m_pGBuffer->GetWidth(), (float)m_pGBuffer->GetHeight() );
-    }
-
-    if( uZNear != -1 )
-    {
-        glUniform1f( uZNear, m_PerspectiveNearZ );
-    }
-
-    if( uZFar != -1 )
-    {
-        glUniform1f( uZFar, m_PerspectiveFarZ );
-    }
-
-    if( uCamAt != -1 )
-    {
-        Vector3 at = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
-        glUniform3fv( uCamAt, 1, &at.x );
-    }
-
-    if( uCamRight != -1 )
-    {
-        Vector3 right = m_pGameObject->GetTransform()->GetWorldTransform()->GetRight();
-        glUniform3fv( uCamRight, 1, &right.x );
-    }
-
-    if( uCamUp != -1 )
-    {
-        Vector3 up = m_pGameObject->GetTransform()->GetWorldTransform()->GetUp();
-        glUniform3fv( uCamUp, 1, &up.x );
-    }
-
-    if( uAlbedo != -1 )
-    {
-        MyActiveTexture( GL_TEXTURE0 + 4 );
-        glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetColorTexture( 0 )->GetTextureID() );
-        glUniform1i( uAlbedo, 4 );
-    }
-
-    if( uPosition != -1 )
-    {
-        MyActiveTexture( GL_TEXTURE0 + 5 );
-        glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetColorTexture( 1 )->GetTextureID() );
-        glUniform1i( uPosition, 5 );
-    }
-
-    if( uNormal != -1 )
-    {
-        MyActiveTexture( GL_TEXTURE0 + 6 );
-        glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetColorTexture( 2 )->GetTextureID() );
-        glUniform1i( uNormal, 6 );
-    }
-
-    if( uDepth != -1 )
-    {
-        MyActiveTexture( GL_TEXTURE0 + 7 );
-        glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetDepthTexture()->GetTextureID() );
-        glUniform1i( uDepth, 7 );
-    }
-
-    if( uClearColor != -1 )
-    {
-        glUniform4f( uClearColor, 0, 0, 0.2f, 1 );
-    }
+    pShader->ProgramDeferredRenderingUniforms( m_pGBuffer, m_PerspectiveNearZ, m_PerspectiveFarZ, m_pGameObject->GetTransform()->GetWorldTransform(), ColorFloat( 0, 0, 0.2f, 1 ) );
 }
 
 bool ComponentCamera::IsVisible()
