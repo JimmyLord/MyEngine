@@ -12,9 +12,6 @@
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
-// TODO: Fix GL Includes.
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Shader_OpenGL.h"
-
 #if MYFW_USING_WX
 bool Component2DCollisionObject::m_PanelWatchBlockVisible = true;
 #endif
@@ -735,7 +732,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     // Draw lines for the vertices (connecting the circles if editing verts)
     {
         // Set the material to the correct color and draw the shape.
-        Shader_OpenGL* pShader = (Shader_OpenGL*)pMaterial->GetShader()->GlobalPass( 0, 0 );
+        Shader_Base* pShader = (Shader_Base*)pMaterial->GetShader()->GlobalPass( 0, 0 );
         if( pShader->Activate() == false )
             return;
 
@@ -743,7 +740,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
 
         // Setup our position attribute, pass in the array of verts, not using a VBO.
         pShader->InitializeAttributeArrays( VertexFormat_None, nullptr, 0, 0 );
-        pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 2, MyRE::AttributeType_Float, false, sizeof(float)*2, (void*)&m_Vertices[0] );
+        pShader->InitializeAttributeArray( Shader_Base::Attribute_Position, 2, MyRE::AttributeType_Float, false, sizeof(float)*2, (void*)&m_Vertices[0] );
 
         ComponentTransform* pParentTransformComponent = m_pGameObject->GetTransform();
         MyMatrix worldmat;

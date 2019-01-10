@@ -14,12 +14,6 @@
 
 #include "BulletDebugDraw.h"
 
-// TODO: Fix GL Includes.
-#include <gl/GL.h>
-#include "../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Shader_OpenGL.h"
-
 BulletDebugDraw::BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView)
 {
     m_pMatProj = pMatProj;
@@ -40,23 +34,23 @@ BulletDebugDraw::~BulletDebugDraw()
 void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByte color, MyRE::PrimitiveTypes primitiveType, float pointOrLineSize)
 {
     // Set the material to the correct color and draw the shape.
-    Shader_OpenGL* pShader = (Shader_OpenGL*)m_pMaterial->GetShader()->GlobalPass( 0, 0 );
+    Shader_Base* pShader = (Shader_Base*)m_pMaterial->GetShader()->GlobalPass( 0, 0 );
     if( pShader->Activate() == false )
         return;
 
     m_pMaterial->SetColorDiffuse( color );
 
     // Setup our position attribute, pass in the array of verts, not using a VBO.
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 3, MyRE::AttributeType_Float, false, sizeof(float)*3, (void*)vertices );
+    g_pRenderer->TempHack_UnbindVBOAndIBO();
+    pShader->InitializeAttributeArray( Shader_Base::Attribute_Position, 3, MyRE::AttributeType_Float, false, sizeof(float)*3, (void*)vertices );
 
     // Setup uniforms, mainly viewproj and tint.
     pShader->ProgramMaterialProperties( 0, m_pMaterial->m_ColorDiffuse, m_pMaterial->m_ColorSpecular, m_pMaterial->m_Shininess );
     pShader->ProgramTransforms( m_pMatProj, m_pMatView, 0 );
 
-    glLineWidth( pointOrLineSize );
+    g_pRenderer->SetLineWidth( pointOrLineSize );
 #ifndef MYFW_OPENGLES2
-    glPointSize( pointOrLineSize );
+    g_pRenderer->SetPointSize( pointOrLineSize );
 #endif
 
     g_pRenderer->SetBlendEnabled( true );
