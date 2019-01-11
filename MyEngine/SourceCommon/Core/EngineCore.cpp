@@ -173,6 +173,7 @@ EngineCore::~EngineCore()
 
 void EngineCore::SaveEditorPrefs()
 {
+#if MYFW_EDITOR
     cJSON* jPrefs = m_pEditorPrefs->SaveStart();
 
     //// Save Layout strings.
@@ -208,6 +209,7 @@ void EngineCore::SaveEditorPrefs()
     //cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
 
     m_pEditorPrefs->SaveFinish( jPrefs );
+#endif //MYFW_EDITOR
 }
 
 // Helper functions for some global namespace lua binding.
@@ -378,8 +380,8 @@ void EngineCore::OneTimeInit()
 
     if( g_pImGuiManager )
     {
-#if MYFW_EDITOR
         g_pImGuiManager->Init( (float)GetWindowWidth(), (float)GetWindowHeight() );
+#if MYFW_EDITOR
         m_pEditorMainFrame = MyNew EditorMainFrame_ImGui();
 
         // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
