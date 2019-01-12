@@ -1211,7 +1211,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 if( m_pGameFBO->GetColorTexture( 0 ) )
                 {
                     TextureDefinition* tex = m_pGameFBO->GetColorTexture( 0 );
-                    ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->GetTextureHeight()), ImVec2(w/m_pGameFBO->GetTextureWidth(),0), 0 );
+                    ImGui::ImageButton( (void*)tex, ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->GetTextureHeight()), ImVec2(w/m_pGameFBO->GetTextureWidth(),0), 0 );
                 }
             }
         }
@@ -1255,7 +1255,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 if( m_pEditorFBO->GetColorTexture( 0 ) )
                 {
                     TextureDefinition* tex = m_pEditorFBO->GetColorTexture( 0 );
-                    ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->GetTextureHeight()), ImVec2(w/m_pEditorFBO->GetTextureWidth(),0), 0 );
+                    ImGui::ImageButton( (void*)tex, ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->GetTextureHeight()), ImVec2(w/m_pEditorFBO->GetTextureWidth(),0), 0 );
 
                     if( ImGui::BeginDragDropTarget() )
                     {
@@ -3780,8 +3780,8 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
             {
                 int w = pTexture->GetWidth();
                 int h = pTexture->GetHeight();
-                //ImGui::ImageButton( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), -1, ImVec4(0,0,0,1) );
-                ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
+                //ImGui::ImageButton( (void*)pTexture, size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), -1, ImVec4(0,0,0,1) );
+                ImGui::Image( (void*)pTexture, size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
             }
         }
         else //if( m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Flat )
@@ -3822,7 +3822,7 @@ void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefiniti
 
         if( pTexture != nullptr )
         {
-            ImGui::Image( (void*)pTexture->GetTextureID(), size, startUV, endUV, tint );
+            ImGui::Image( (void*)pTexture, size, startUV, endUV, tint );
         }
         else
         {
@@ -3857,7 +3857,7 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
             //int h = pTexture->GetHeight();
             int w = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetWidth();
             int h = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetHeight();
-            ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
+            ImGui::Image( (void*)pTexture, size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
         }
     }
     ImGui::End();

@@ -678,11 +678,11 @@ void ComponentCamera::DrawScene()
                     ImGui::EndPopup();
                 }
 
-                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(0)->GetTextureID(), ImVec2(128,128), ImVec2(0,1), ImVec2(1,0) );
+                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(0), ImVec2(128,128), ImVec2(0,1), ImVec2(1,0) );
                 ImGui::SameLine();
-                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(1)->GetTextureID(), ImVec2(128,128), ImVec2(0,1), ImVec2(1,0) );
+                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(1), ImVec2(128,128), ImVec2(0,1), ImVec2(1,0) );
                 ImGui::SameLine();
-                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(2)->GetTextureID(), ImVec2(128,128), ImVec2(0,1), ImVec2(1,0) );
+                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(2), ImVec2(128,128), ImVec2(0,1), ImVec2(1,0) );
             }
             ImGui::End();
         }

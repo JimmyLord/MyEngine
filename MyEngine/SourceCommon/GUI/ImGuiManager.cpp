@@ -13,6 +13,7 @@
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
 #include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
+#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Texture_OpenGL.h"
 
 ImGuiManager* g_pImGuiManager = 0;
 
@@ -23,7 +24,7 @@ ImGuiManager::ImGuiManager()
 
     m_FrameStarted = false;
 
-    m_FontTexture = 0;
+    m_pFontTexture = nullptr;
     
     m_ShaderHandle = 0;
     m_VertHandle = 0;
@@ -68,7 +69,7 @@ void ImGuiManager::Init(float width, float height)
         // Rebuild ImGui's internal font, but use the original GL texture object.
         CreateFont();
 
-        io.Fonts->TexID = (void*)(uintptr_t)m_FontTexture;
+        io.Fonts->TexID = (void*)m_pFontTexture;
     }
 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_DockingEnable;
@@ -355,7 +356,14 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
             }
             else
             {
-                glBindTexture( GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId );
+                Texture_OpenGL* pGLTexture = (Texture_OpenGL*)pcmd->TextureId;
+                GLuint texture = 0;
+                if( pGLTexture )
+                {
+                    texture = pGLTexture->GetTextureID();
+                }
+
+                glBindTexture( GL_TEXTURE_2D, texture );
                 glScissor( (int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y) );
                 glDrawElements( GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer_offset );
             }
@@ -411,17 +419,23 @@ bool ImGuiManager::CreateFontAndTexture()
 
     io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
 
-    // Upload texture to graphics system.
+    MyAssert( m_pFontTexture == nullptr );
+
     GLint last_texture;
     glGetIntegerv( GL_TEXTURE_BINDING_2D, &last_texture );
-    glGenTextures( 1, &m_FontTexture );
-    glBindTexture( GL_TEXTURE_2D, m_FontTexture );
+
+    // Upload texture to graphics system.
+    m_pFontTexture = MyNew Texture_OpenGL();
+    Texture_OpenGL* pGLTexture = (Texture_OpenGL*)m_pFontTexture;
+    pGLTexture->GenerateTexture( pixels, width, height );
+
+    // Set texture filter.
+    glBindTexture( GL_TEXTURE_2D, pGLTexture->GetTextureID() );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
 
     // Store our identifier.
-    io.Fonts->TexID = (void*)(uintptr_t)m_FontTexture;
+    io.Fonts->TexID = (void*)m_pFontTexture;
 
     // Restore state.
     glBindTexture( GL_TEXTURE_2D, last_texture );
@@ -530,12 +544,9 @@ void ImGuiManager::InvalidateDeviceObjects()
     if( m_ShaderHandle ) glDeleteProgram( m_ShaderHandle );
     m_ShaderHandle = 0;
 
-    if( m_FontTexture )
-    {
-        glDeleteTextures( 1, &m_FontTexture );
-        ImGui::GetIO().Fonts->TexID = 0;
-        m_FontTexture = 0;
-    }
+    delete m_pFontTexture;
+    ImGui::GetIO().Fonts->TexID = 0;
+    m_pFontTexture = nullptr;
 }
 
 bool ImGuiManager::UpdateMouseCursor()

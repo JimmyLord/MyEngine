@@ -24,7 +24,7 @@ protected:
 
     bool m_FrameStarted;
 
-    GLuint m_FontTexture;
+    TextureDefinition* m_pFontTexture;
     int m_ShaderHandle;
     int m_VertHandle;
     int m_FragHandle;
