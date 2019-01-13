@@ -544,7 +544,7 @@ void ImGuiManager::InvalidateDeviceObjects()
     if( m_ShaderHandle ) glDeleteProgram( m_ShaderHandle );
     m_ShaderHandle = 0;
 
-    delete m_pFontTexture;
+    m_pFontTexture->Release();
     ImGui::GetIO().Fonts->TexID = 0;
     m_pFontTexture = nullptr;
 }
