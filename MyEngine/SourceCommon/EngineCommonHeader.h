@@ -16,8 +16,8 @@
 
 const int g_NumberOfVisibilityLayers = 8;
 
-// framework code
-#include "../../../Framework/MyFramework/SourceCommon/CommonHeader.h"
+// MyFramework code.
+#include "../../../Framework/MyFramework/SourceCommon/MyFramework.h"
 #if MYFW_USING_WX
 #include "../../../Framework/MyFramework/SourceWidgets/MYFWMainWx.h"
 #endif
@@ -26,7 +26,7 @@ const int g_NumberOfVisibilityLayers = 8;
 #include "../../../Framework/MyFramework/SourceEditor/CommandStack.h"
 #endif
 
-// bullet
+// Bullet.
 #if MYFW_WINDOWS
 #pragma warning( push )
 #pragma warning( disable : 4244 )
@@ -41,7 +41,7 @@ const int g_NumberOfVisibilityLayers = 8;
 #endif
 #include "Physics/BulletWorld.h"
 
-// lua
+// Lua.
 #if MYFW_USING_LUA
 extern "C"
 {
@@ -59,7 +59,7 @@ extern "C"
 #include "Core/LuaGameState.h"
 #endif //MYFW_USING_LUA
 
-// dear ImGui
+// dear ImGui.
 #include "GUI/ImGuiConfig.h"
 #include "../../Libraries/imgui/imgui.h"
 #include "GUI/ImGuiManager.h"
@@ -81,7 +81,7 @@ enum SceneID
     SCENEID_Any           = 56789, // ID passed in when requesting to load a scene into any slot.
 };
 
-// core component system code
+// Core component system code.
 #include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/Core/SceneHandler.h"
@@ -99,7 +99,7 @@ enum SceneID
 #include "ComponentSystem/BaseComponents/ComponentRenderable.h"
 #include "ComponentSystem/BaseComponents/ComponentMenuPage.h"
 
-// myframework components // ADDING_NEW_ComponentType
+// MyFramework components. // ADDING_NEW_ComponentType
 #include "Core/EngineComponentTypeManager.h"
 #include "ComponentSystem/FrameworkComponents/ComponentLight.h"
 #include "ComponentSystem/FrameworkComponents/ComponentPostEffect.h"
@@ -126,15 +126,15 @@ enum SceneID
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointPrismatic.h"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
 
-// Other components
+// Other components.
 #include "Voxels/VoxelRayCast.h"
 #include "Voxels/ComponentVoxelMesh.h"
 #include "Voxels/ComponentVoxelWorld.h"
 
-// Physics code
+// Physics code.
 #include "Physics/EngineBox2DContactListener.h"
 
-// misc engine code
+// Misc engine code.
 #include "ComponentSystem/Core/PrefabManager.h"
 
 #include "Camera/Camera3D.h"
