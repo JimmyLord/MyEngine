@@ -7,7 +7,7 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
@@ -59,7 +59,7 @@ void EditorInterface_2DPointEditor::OnActivated()
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
         pGameObject->SetName( "2D point editor - point" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );

@@ -10,8 +10,9 @@
 #ifndef __VoxelRayCast_H__
 #define __VoxelRayCast_H__
 
-struct VoxelRayCastResult
+class VoxelRayCastResult
 {
+public:
     bool m_Hit;
     Vector3Int m_BlockWorldPosition;
     

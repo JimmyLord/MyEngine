@@ -10,6 +10,8 @@
 #ifndef __ComponentInputHandler_H__
 #define __ComponentInputHandler_H__
 
+#include "ComponentBase.h"
+
 class ComponentTransform;
 
 class ComponentInputHandler : public ComponentBase

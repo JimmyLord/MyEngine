@@ -10,6 +10,8 @@
 #ifndef __ComponentMeshPrimitive_H__
 #define __ComponentMeshPrimitive_H__
 
+#include "ComponentMesh.h"
+
 class ComponentTransform;
 
 enum ComponentMeshPrimitives // Saved as string, order can change.

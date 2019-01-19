@@ -10,6 +10,8 @@
 #ifndef __ComponentTemplate_H__
 #define __ComponentTemplate_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+
 // Search for ADDING_NEW_ComponentType to find some changes needed for engine.
 
 class ComponentTemplate : public ComponentBase

@@ -7,9 +7,22 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
 
 #include "PrefabManager.h"
+#include "ComponentSystem/BaseComponents/ComponentRenderable.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
+#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#include "Core/EngineComponentTypeManager.h"
+#include "Core/EngineCore.h"
+
+#if MYFW_EDITOR
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/EngineEditorCommands.h"
+#endif
 
 GameObject::GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
 {
@@ -781,6 +794,11 @@ void GameObject::SetManaged(bool managed)
 #endif //MYFW_USING_WX
 }
 
+SceneInfo* GameObject::GetSceneInfo()
+{
+    return g_pComponentSystemManager->GetSceneInfo( m_SceneID );
+}
+
 unsigned int GameObject::GetComponentCount()
 {
     return m_Components.Count();
@@ -1359,9 +1377,9 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
 
         ComponentBase* pComponent = 0;
         if( g_pEngineCore->IsInEditorMode() )
-            pComponent = pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
+            pComponent = pGameObject->AddNewComponent( type, pGameObject->GetSceneID(), g_pComponentSystemManager );
         else
-            pComponent = pGameObject->AddNewComponent( type, SCENEID_Unmanaged );
+            pComponent = pGameObject->AddNewComponent( type, SCENEID_Unmanaged, g_pComponentSystemManager );
 
         pComponent->OnLoad();
     }

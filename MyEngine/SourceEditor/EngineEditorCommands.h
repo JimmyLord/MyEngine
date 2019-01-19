@@ -10,6 +10,9 @@
 #ifndef __EngineEditorCommands_H__
 #define __EngineEditorCommands_H__
 
+#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+
+class ComponentRenderable;
 class EditorCommand_ImGuiPanelWatchNumberValueChanged;
 class EditorCommand_ImGuiPanelWatchColorChanged;
 class EditorCommand_ImGuiPanelWatchPointerChanged;
@@ -39,6 +42,7 @@ class EditorCommand_DivorceOrMarryComponentVariable;
 class EditorCommand_ComponentVariableIndirectPointerChanged;
 class EditorCommand_ReorderOrReparentGameObjects;
 class EditorCommand_RestorePrefabComponent;
+class ExposedVariableDesc;
 
 #if MYFW_USING_IMGUI
 typedef void (*PanelWatchCallbackValueChanged)(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging);

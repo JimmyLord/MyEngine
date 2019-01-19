@@ -10,6 +10,10 @@
 #ifndef __EditorInterface_2DPointEditor_H__
 #define __EditorInterface_2DPointEditor_H__
 
+#include "EditorInterface.h"
+
+class Component2DCollisionObject;
+
 class EditorInterface_2DPointEditor : public EditorInterface
 {
 public:

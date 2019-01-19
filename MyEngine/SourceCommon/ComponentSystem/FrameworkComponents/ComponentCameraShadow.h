@@ -10,8 +10,9 @@
 #ifndef __ComponentCameraShadow_H__
 #define __ComponentCameraShadow_H__
 
-#include "../../Camera/Camera2D.h"
-#include "../../Camera/Camera3D.h"
+#include "Camera/Camera2D.h"
+#include "Camera/Camera3D.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
 
 class ComponentTransform;
 

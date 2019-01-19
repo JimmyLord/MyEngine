@@ -10,6 +10,9 @@
 #ifndef __ComponentLight_H__
 #define __ComponentLight_H__
 
+#include "ComponentSystem/BaseComponents/ComponentData.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+
 class ComponentLight : public ComponentData
 {
 private:

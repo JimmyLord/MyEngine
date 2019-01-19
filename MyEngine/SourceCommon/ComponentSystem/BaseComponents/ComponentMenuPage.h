@@ -10,13 +10,15 @@
 #ifndef __ComponentMenuPage_H__
 #define __ComponentMenuPage_H__
 
-class ComponentMenuPage;
-class ComponentTransform;
+#include "ComponentRenderable.h"
+
 class ComponentCamera;
 class ComponentLuaScript;
-class MenuItem;
-class MenuInputBox;
+class ComponentMenuPage;
+class ComponentTransform;
 class MenuButton;
+class MenuInputBox;
+class MenuItem;
 
 #define LEGACYHACK 0
 
@@ -68,18 +70,6 @@ struct MenuPageOnKeysCallbackStruct
     void* pObj;
     MenuPageOnKeysCallbackFunc pFunc;
 };
-
-#if MYFW_USING_WX
-class ComponentMenuPageEventHandlerForMenuItems : public wxEvtHandler
-{
-public:
-    MenuItem* pMenuItemSelected;
-    ComponentMenuPage* pMenuPageSelected;
-
-public:
-    void OnPopupClick(wxEvent &evt);
-};
-#endif
 
 class ComponentMenuPage : public ComponentRenderable
 {

@@ -7,11 +7,21 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
 
+#include "ComponentCameraShadow.h"
+#include "ComponentLuaScript.h"
+#include "ComponentMesh.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
+
+#if MYFW_EDITOR
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
+#endif
 
 static const char* g_MaterialLabels[] = { "Material1", "Material2", "Material3", "Material4" };
 

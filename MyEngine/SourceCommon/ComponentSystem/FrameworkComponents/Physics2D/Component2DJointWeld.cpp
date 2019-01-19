@@ -7,7 +7,12 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
+
+#include "Component2DCollisionObject.h"
+#include "Component2DJointWeld.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
 
 #if MYFW_USING_WX
 bool Component2DJointWeld::m_PanelWatchBlockVisible = true;

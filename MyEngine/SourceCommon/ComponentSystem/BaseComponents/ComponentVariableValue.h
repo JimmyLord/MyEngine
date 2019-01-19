@@ -10,6 +10,8 @@
 #ifndef __ComponentVariableValue_H__
 #define __ComponentVariableValue_H__
 
+#include "ComponentVariable.h"
+
 class ComponentVariable;
 class GameObject;
 class ComponentBase;

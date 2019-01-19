@@ -10,6 +10,8 @@
 #ifndef __ComponentTransform_H__
 #define __ComponentTransform_H__
 
+#include "ComponentBase.h"
+
 typedef void (*TransformChangedCallbackFunc)(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 struct TransformChangedCallbackStruct : public CPPListNode
 {

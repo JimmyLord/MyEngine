@@ -12,7 +12,7 @@
 
 class GameObject;
 
-struct SceneInfo
+class SceneInfo
 {
 public:
 #if MYFW_USING_WX

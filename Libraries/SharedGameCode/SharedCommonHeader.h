@@ -11,7 +11,7 @@
 #define __SharedCommonHeader_H__
 
 #include "../../../Framework/MyFramework/SourceCommon/MyFramework.h"
-#include "../../../Engine/MyEngine/SourceCommon/EngineCommonHeader.h"
+#include "../../../Engine/MyEngine/SourceCommon/MyEnginePCH.h"
 
 #include "../../../SharedGameCode/Core/RenderTextQuick.h"
 #include "../../../SharedGameCode/Menus/MenuItem.h"

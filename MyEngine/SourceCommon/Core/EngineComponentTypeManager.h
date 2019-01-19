@@ -10,6 +10,8 @@
 #ifndef __EngineComponentTypeManager_H__
 #define __EngineComponentTypeManager_H__
 
+#include "ComponentSystem/Core/ComponentTypeManager.h"
+
 class ComponentBase;
 
 enum EngineComponentTypes // search for ADDING_NEW_ComponentType

@@ -10,8 +10,10 @@
 #ifndef __ComponentPostEffect_H__
 #define __ComponentPostEffect_H__
 
-#include "../../Camera/Camera2D.h"
-#include "../../Camera/Camera3D.h"
+
+#include "Camera/Camera2D.h"
+#include "Camera/Camera3D.h"
+#include "ComponentSystem/BaseComponents/ComponentData.h"
 
 class ComponentTransform;
 

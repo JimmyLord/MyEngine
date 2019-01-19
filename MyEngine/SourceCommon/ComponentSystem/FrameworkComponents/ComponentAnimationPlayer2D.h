@@ -10,6 +10,11 @@
 #ifndef __ComponentAnimationPlayer2D_H__
 #define __ComponentAnimationPlayer2D_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+
+class ComponentSprite;
+
 class ComponentAnimationPlayer2D : public ComponentBase
 {
     friend class EditorMainFrame_ImGui; // Allows call to TickCallback() for preview in 2D animation editor.

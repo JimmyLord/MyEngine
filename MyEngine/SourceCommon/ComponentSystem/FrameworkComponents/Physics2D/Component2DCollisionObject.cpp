@@ -7,13 +7,21 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
+
+#include "Component2DCollisionObject.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
+
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Enums.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
-#if MYFW_USING_WX
-bool Component2DCollisionObject::m_PanelWatchBlockVisible = true;
+#if MYFW_EDITOR
+#include "../SourceEditor/EditorPrefs.h"
+#include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"
 #endif
 
 const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes] = //ADDING_NEW_Physics2DPrimitiveType

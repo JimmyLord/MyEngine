@@ -10,6 +10,8 @@
 #ifndef __ComponentParticleEmitter_H__
 #define __ComponentParticleEmitter_H__
 
+#include "ComponentSystem/BaseComponents/ComponentRenderable.h"
+
 class ComponentTransform;
 
 class ComponentParticleEmitter : public ComponentRenderable

@@ -10,8 +10,12 @@
 #ifndef __ComponentBase_H__
 #define __ComponentBase_H__
 
-class GameObject;
+#include "ComponentVariable.h"
+#include "ComponentVariableValue.h"
+
 class ComponentBase;
+class GameObject;
+class SceneInfo;
 
 enum BaseComponentTypes
 {

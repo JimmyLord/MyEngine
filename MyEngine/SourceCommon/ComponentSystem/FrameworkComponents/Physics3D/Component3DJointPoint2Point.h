@@ -10,6 +10,10 @@
 #ifndef __Component3DJointPoint2Point_H__
 #define __Component3DJointPoint2Point_H__
 
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointBase.h"
+
+class Component3DCollisionObject;
+
 class Component3DJointPoint2Point : public Component3DJointBase
 {
 private:

@@ -10,6 +10,11 @@
 #ifndef __Component2DJointRevolute_H__
 #define __Component2DJointRevolute_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+
+class Component2DCollisionObject;
+
 class Component2DJointRevolute : public ComponentBase
 {
 private:

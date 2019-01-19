@@ -7,11 +7,10 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
 
-#if MYFW_USING_WX
-bool ComponentMeshPrimitive::m_PanelWatchBlockVisible = true;
-#endif
+#include "ComponentMeshPrimitive.h"
+#include "Core/EngineCore.h"
 
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshPrimitive ); //_VARIABLE_LIST

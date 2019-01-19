@@ -7,10 +7,20 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
 
-#include "../../../SourceCommon/GUI/ImGuiExtensions.h"
+#include "ComponentBase.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineComponentTypeManager.h"
+#include "Core/EngineCore.h"
+#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/EditorPrefs.h"
+#include "../SourceEditor/EditorState.h"
+
+#include "GUI/ImGuiExtensions.h"
 #if MYFW_USING_IMGUI
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 #endif
 

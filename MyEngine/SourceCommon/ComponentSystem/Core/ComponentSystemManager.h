@@ -10,7 +10,11 @@
 #ifndef __ComponentSystemManager_H__
 #define __ComponentSystemManager_H__
 
+#include "SceneHandler.h"
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+
 class ComponentSystemManager;
+class ComponentTypeManager;
 class PrefabManager;
 class PrefabFile;
 class PrefabObject;

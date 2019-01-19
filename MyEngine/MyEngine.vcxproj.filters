@@ -231,9 +231,6 @@
     <ClCompile Include="SourceCommon\Core\LuaGameState.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\EngineCommonHeader.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\Core\EngineCore.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
@@ -474,6 +471,9 @@
     <ClCompile Include="SourceEditor\Editor_ImGui\EditorMainFrame_ImGui.cpp">
       <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\MyEnginePCH.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -610,9 +610,6 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\LuaGameState.h">
       <Filter>Source\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\EngineCommonHeader.h">
-      <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\EngineCore.h">
       <Filter>Source\Core Files</Filter>
@@ -877,6 +874,12 @@
     </ClInclude>
     <ClInclude Include="SourceEditor\Editor_ImGui\EditorMainFrame_ImGui.h">
       <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\MyEngine.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\MyEnginePCH.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

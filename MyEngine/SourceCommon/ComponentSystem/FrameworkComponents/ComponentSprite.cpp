@@ -7,12 +7,16 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
 
+#include "ComponentSprite.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 
-#if MYFW_USING_WX
-bool ComponentSprite::m_PanelWatchBlockVisible = true;
+#if MYFW_EDITOR
+#include "../SourceEditor/EngineEditorCommands.h"
 #endif
 
 // Component Variable List

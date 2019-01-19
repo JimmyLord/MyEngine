@@ -10,7 +10,9 @@
 #ifndef __TransformGizmo_H__
 #define __TransformGizmo_H__
 
+class EditorState;
 class EngineCore;
+class GameObject;
 
 class TransformGizmo
 {

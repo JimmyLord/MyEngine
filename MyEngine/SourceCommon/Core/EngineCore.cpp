@@ -7,8 +7,32 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
+
+#include "EngineCore.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "ComponentSystem/Core/EngineFileManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
+#include "Core/EngineComponentTypeManager.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
+#include "../../../SharedGameCode/Core/MeshShapes.h"
+#include "../../../SharedGameCode/Core/RenderTextQuick.h"
+
+#if MYFW_EDITOR
+#include "../SourceEditor/EditorMainFrame.h"
+#include "../SourceEditor/EditorPrefs.h"
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
+#include "../SourceEditor/Interfaces/EditorInterface.h"
+#include "../SourceEditor/Interfaces/EditorInterface_SceneManagement.h"
+#include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"
+#include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
+#endif
 
 EngineCore* g_pEngineCore = nullptr;
 
@@ -1432,7 +1456,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pGameObject = m_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
         pGameObject->SetName( "3D Grid Plane" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             if( g_pEngineCore->GetEditorPrefs() )
@@ -1471,7 +1495,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
         // Add an editor scene camera.
         {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects );
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects, g_pComponentSystemManager );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
             pComponentCamera->m_Orthographic = false;
             pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
@@ -1485,7 +1509,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
         // Add a foreground camera for the transform gizmo only ATM.
         {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects );
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects, g_pComponentSystemManager );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
             pComponentCamera->m_Orthographic = false;
             pComponentCamera->m_LayersToRender = Layer_EditorFG;
@@ -1519,7 +1543,7 @@ void EngineCore::CreateDefaultSceneObjects()
         pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, -10 ) );
 #endif
 
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene, g_pComponentSystemManager );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = false;
         pComponentCamera->m_LayersToRender = Layer_MainScene;
@@ -1531,7 +1555,7 @@ void EngineCore::CreateDefaultSceneObjects()
         pGameObject->SetName( "Hud Camera" );
         pGameObject->SetFlags( 1<<1 );
 
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene, g_pComponentSystemManager );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = true;
         pComponentCamera->m_LayersToRender = Layer_HUD;

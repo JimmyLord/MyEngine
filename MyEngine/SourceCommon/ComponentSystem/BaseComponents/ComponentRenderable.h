@@ -10,6 +10,8 @@
 #ifndef __ComponentRenderable_H__
 #define __ComponentRenderable_H__
 
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+
 class ComponentTransform;
 
 class ComponentRenderable : public ComponentBase

@@ -10,6 +10,8 @@
 #ifndef __ComponentSprite_H__
 #define __ComponentSprite_H__
 
+#include "ComponentSystem/BaseComponents/ComponentRenderable.h"
+
 class ComponentTransform;
 
 class ComponentSprite : public ComponentRenderable

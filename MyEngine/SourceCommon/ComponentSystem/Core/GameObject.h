@@ -10,6 +10,25 @@
 #ifndef __GameObject_H__
 #define __GameObject_H__
 
+#include "PrefabManager.h"
+#include "ComponentSystem/BaseComponents/ComponentGameObjectProperties.h"
+
+class Component2DCollisionObject;
+class Component3DCollisionObject;
+class ComponentAnimationPlayer;
+class ComponentAnimationPlayer2D;
+class ComponentAudioPlayer;
+class ComponentGameObjectProperties;
+class ComponentLuaScript;
+class ComponentObjectPool;
+class ComponentParticleEmitter;
+class ComponentSprite;
+class ComponentTransform;
+class ComponentVoxelWorld;
+class PrefabFile;
+class PrefabObject;
+class PrefabReference;
+
 typedef void (*GameObjectDeletedCallbackFunc)(void* pObjectPtr, GameObject* pGameObject);
 struct GameObjectDeletedCallbackStruct : CPPListNode
 {
@@ -104,7 +123,7 @@ public:
 
     bool IsEnabled() { return m_Enabled; }
     SceneID GetSceneID() { return m_SceneID; }
-    SceneInfo* GetSceneInfo() { return g_pComponentSystemManager->GetSceneInfo( m_SceneID ); }
+    SceneInfo* GetSceneInfo();
     unsigned int GetID() { return m_ID; }
     const char* GetName() { return m_Name; }
 
@@ -118,7 +137,7 @@ public:
     ComponentBase* GetComponentByIndex(unsigned int index);
 
     ComponentBase* AddNewComponent(const char* componentName);
-    ComponentBase* AddNewComponent(int componentType, SceneID sceneID, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
+    ComponentBase* AddNewComponent(int componentType, SceneID sceneID, ComponentSystemManager* pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 

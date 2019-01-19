@@ -10,6 +10,8 @@
 #ifndef __ComponentAudioPlayer_H__
 #define __ComponentAudioPlayer_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+
 class ComponentAudioPlayer : public ComponentBase
 {
 private:

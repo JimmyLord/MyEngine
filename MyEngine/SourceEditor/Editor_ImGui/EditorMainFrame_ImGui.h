@@ -10,6 +10,9 @@
 #ifndef __EditorMainFrame_ImGui_H__
 #define __EditorMainFrame_ImGui_H__
 
+#include "../SourceEditor/EditorMainFrame.h"
+
+class ComponentAnimationPlayer2D;
 class EngineCore;
 class EditorLogWindow_ImGui;
 class EditorMemoryWindow_ImGui;

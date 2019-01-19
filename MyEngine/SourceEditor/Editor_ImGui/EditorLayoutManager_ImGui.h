@@ -10,6 +10,8 @@
 #ifndef __EditorLayoutManager_ImGui_H__
 #define __EditorLayoutManager_ImGui_H__
 
+#include "EditorMainFrame_ImGui.h"
+
 class EngineCore;
 class EditorLogWindow_ImGui;
 

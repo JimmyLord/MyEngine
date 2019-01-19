@@ -10,6 +10,11 @@
 #ifndef __Component2DCollisionObject_H__
 #define __Component2DCollisionObject_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+
+class ComponentLuaScript;
+
 enum Physics2DPrimitiveTypes //ADDING_NEW_Physics2DPrimitiveType - order doesn't matter, saved as string.
 {
     Physics2DPrimitiveType_Box,

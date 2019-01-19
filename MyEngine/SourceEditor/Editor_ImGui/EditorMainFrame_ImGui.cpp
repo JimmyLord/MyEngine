@@ -7,7 +7,7 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
 #include "../EditorMenuCommands.h"
 #include "ImGuiStylePrefs.h"
 #include "EditorMemoryWindow_ImGui.h"
@@ -2412,7 +2412,7 @@ void EditorMainFrame_ImGui::AddContextMenuOptionsForAddingComponents(GameObject*
                     }
                     else
                     {
-                        pComponent = pGameObject->AddNewComponent( i, SCENEID_Unmanaged );
+                        pComponent = pGameObject->AddNewComponent( i, SCENEID_Unmanaged, g_pComponentSystemManager );
                     }
 
                     ImGui::CloseCurrentPopup();
@@ -3870,7 +3870,7 @@ void OnDropSoundCueOnEditorWindow(SoundCue* pSoundCue)
         // Create a new GameObject with an audio player component.
         GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( false, SCENEID_MainScene );
         pGameObjectCreated->SetName( pSoundCue->GetName() );
-        ComponentAudioPlayer* pComponent = (ComponentAudioPlayer*)pGameObjectCreated->AddNewComponent( ComponentType_AudioPlayer, SCENEID_MainScene );
+        ComponentAudioPlayer* pComponent = (ComponentAudioPlayer*)pGameObjectCreated->AddNewComponent( ComponentType_AudioPlayer, SCENEID_MainScene, g_pComponentSystemManager );
         pComponent->SetSoundCue( pSoundCue );
 
         // Add it to the undo stack.
@@ -4069,7 +4069,7 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
 
                 GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
                 pGameObject->SetName( "New mesh" );
-                ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, SCENEID_MainScene );
+                ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, SCENEID_MainScene, g_pComponentSystemManager );
                 pComponentMeshOBJ->SetSceneID( SCENEID_MainScene );
                 pComponentMeshOBJ->SetMaterial( g_pMaterialManager->GetFirstMaterial(), 0 );
                 pComponentMeshOBJ->SetMesh( pMesh );

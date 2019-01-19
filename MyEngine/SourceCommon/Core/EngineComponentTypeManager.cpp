@@ -7,7 +7,40 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
+
+#include "EngineComponentTypeManager.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentMenuPage.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/ComponentTypeManager.h"
+#include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
+#include "ComponentSystem/FrameworkComponents/ComponentCameraShadow.h"
+#include "ComponentSystem/FrameworkComponents/ComponentLight.h"
+#if MYFW_USING_LUA
+#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#endif //MYFW_USING_LUA
+#include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMeshOBJ.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
+#include "ComponentSystem/FrameworkComponents/ComponentParticleEmitter.h"
+#include "ComponentSystem/FrameworkComponents/ComponentPostEffect.h"
+#include "ComponentSystem/FrameworkComponents/ComponentSprite.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointPrismatic.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointRevolute.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DCollisionObject.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointBase.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointHinge.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointPoint2Point.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointSlider.h"
+#include "Voxels/ComponentVoxelMesh.h"
+#include "Voxels/ComponentVoxelWorld.h"
+
 
 // sort by category, otherwise right-click menu will have duplicates.
 // must be in same order as enum EngineComponentTypes

@@ -10,6 +10,10 @@
 #ifndef __EditorInterface_VoxelMeshEditor_H__
 #define __EditorInterface_VoxelMeshEditor_H__
 
+class ComponentVoxelMesh;
+class ComponentVoxelWorld;
+class VoxelRayCastResult;
+
 class EditorInterface_VoxelMeshEditor : public EditorInterface
 {
 public:

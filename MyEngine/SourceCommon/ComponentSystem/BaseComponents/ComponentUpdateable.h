@@ -10,6 +10,8 @@
 #ifndef __ComponentUpdateable_H__
 #define __ComponentUpdateable_H__
 
+#include "ComponentBase.h"
+
 class ComponentTransform;
 
 class ComponentUpdateable : public ComponentBase

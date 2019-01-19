@@ -12,11 +12,13 @@
 
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
 
-#include "../../Camera/Camera2D.h"
-#include "../../Camera/Camera3D.h"
+#include "ComponentBase.h"
+#include "Camera/Camera2D.h"
+#include "Camera/Camera3D.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
 
-class ComponentTransform;
 class ComponentPostEffect;
+class ComponentTransform;
 
 // 32 layers strings since ComponentBase::ExportVariablesToJSON -> case ComponentVariableType_Flags is looking for 32
 extern const char* g_pVisibilityLayerStrings[32]; //g_NumberOfVisibilityLayers];

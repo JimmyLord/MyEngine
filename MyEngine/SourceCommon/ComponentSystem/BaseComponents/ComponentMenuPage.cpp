@@ -7,17 +7,23 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
+
+#include "ComponentMenuPage.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
+#include "../../../SharedGameCode/Menus/MenuInputBox.h"
+#include "../../../SharedGameCode/Menus/MenuItem.h"
+#include "../../../SharedGameCode/Menus/MenuScrollBox.h"
+#include "../../../SharedGameCode/Menus/Menu_Helpers.h"
 
 #if LEGACYHACK
 #include "../../SharedGameCode/Screens/ScreenManager.h"
 #include "../../SharedGameCode/Screens/Screen_Base.h"
 #include "../../SharedGameCode/Menus/MenuScrollBox.h"
 #endif //LEGACYHACK
-
-#if MYFW_USING_WX
-bool ComponentMenuPage::m_PanelWatchBlockVisible = true;
-#endif
 
 ComponentMenuPage::ComponentMenuPage()
 : ComponentRenderable()

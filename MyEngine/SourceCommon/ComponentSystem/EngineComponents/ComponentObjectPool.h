@@ -10,6 +10,8 @@
 #ifndef __ComponentObjectPool_H__
 #define __ComponentObjectPool_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+
 class ComponentObjectPool : public ComponentBase
 {
 private:

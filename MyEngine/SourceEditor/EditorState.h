@@ -10,6 +10,8 @@
 #ifndef __EditorState_H__
 #define __EditorState_H__
 
+class ComponentBase;
+class ComponentCamera;
 class TransformGizmo;
 
 #if MYFW_EDITOR
@@ -50,8 +52,9 @@ enum EditorIcons
 
 extern const char* EditorIconFilenames[EditorIcon_NumIcons];
 
-struct EditorState
+class EditorState
 {
+public:
     MyRect m_EditorWindowRect;
 
     unsigned int m_ModifierKeyStates;

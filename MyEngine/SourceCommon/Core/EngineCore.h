@@ -10,12 +10,20 @@
 #ifndef __EngineCore_H__
 #define __EngineCore_H__
 
+class BulletWorld;
+class ComponentSystemManager;
+class ComponentTypeManager;
+class GameObject;
+class EngineCore;
+class EditorInterface;
+class EditorMainFrame;
+class EditorPrefs;
+class EditorState;
+class MyMeshText;
+
 #if _DEBUG || MYFW_EDITOR
 #define MYFW_PROFILING_ENABLED 1
 #endif
-
-class BulletWorld;
-class EngineCore;
 
 extern EngineCore* g_pEngineCore;
 

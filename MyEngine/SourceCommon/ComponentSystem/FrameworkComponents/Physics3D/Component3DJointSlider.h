@@ -10,6 +10,10 @@
 #ifndef __Component3DJointSlider_H__
 #define __Component3DJointSlider_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+
+class Component3DCollisionObject;
+
 class Component3DJointSlider : public ComponentBase
 {
 private:

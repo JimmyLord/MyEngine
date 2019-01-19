@@ -7,8 +7,10 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
+
 #include "TransformGizmo.h"
+#include "ComponentSystem/Core/GameObject.h"
 
 #if MYFW_USING_IMGUI
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
@@ -559,7 +561,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - x-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -577,7 +579,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - y-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -595,7 +597,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - z-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -619,7 +621,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - xy-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -637,7 +639,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - xz-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -655,7 +657,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - yz-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -681,7 +683,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - x-scale" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -699,7 +701,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - y-scale" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -717,7 +719,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - z-scale" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -739,7 +741,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - xyz-scale" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -766,7 +768,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - x-axis-rotate" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -784,7 +786,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - y-axis-rotate" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -802,7 +804,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - z-axis-rotate" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid, g_pComponentSystemManager );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );

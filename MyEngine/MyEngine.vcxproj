@@ -403,7 +403,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYFW_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>MyEnginePCH.h</PrecompiledHeaderFile>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
@@ -424,7 +424,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYFW_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>MyEnginePCH.h</PrecompiledHeaderFile>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -485,7 +485,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYFW_WINDOWS;_DEBUG;MYFW_EDITOR;MYFW_USING_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>MyEnginePCH.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
     </ClCompile>
@@ -504,7 +504,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYFW_WINDOWS;_DEBUG;MYFW_EDITOR;MYFW_USING_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>MyEnginePCH.h</PrecompiledHeaderFile>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
@@ -614,7 +614,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MYFW_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>MyEnginePCH.h</PrecompiledHeaderFile>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <DebugInformationFormat>
       </DebugInformationFormat>
@@ -638,7 +638,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MYFW_WINDOWS;MYFW_EDITOR;MYFW_USING_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>MyEnginePCH.h</PrecompiledHeaderFile>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <DebugInformationFormat>
       </DebugInformationFormat>
@@ -662,7 +662,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MYFW_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>MyEnginePCH.h</PrecompiledHeaderFile>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -688,7 +688,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MYFW_WINDOWS;MYFW_EDITOR;MYFW_USING_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
-      <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>MyEnginePCH.h</PrecompiledHeaderFile>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -1668,7 +1668,7 @@
     <ClCompile Include="SourceCommon\Core\InputFinger.cpp" />
     <ClCompile Include="SourceCommon\Core\LuaGameState.cpp" />
     <ClCompile Include="SourceCommon\Core\LuaGLFunctions.cpp" />
-    <ClCompile Include="SourceCommon\EngineCommonHeader.cpp">
+    <ClCompile Include="SourceCommon\MyEnginePCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">Create</PrecompiledHeader>
@@ -2099,11 +2099,12 @@
     <ClInclude Include="SourceCommon\Core\InputFinger.h" />
     <ClInclude Include="SourceCommon\Core\LuaGameState.h" />
     <ClInclude Include="SourceCommon\Core\LuaGLFunctions.h" />
-    <ClInclude Include="SourceCommon\EngineCommonHeader.h" />
+    <ClInclude Include="SourceCommon\MyEnginePCH.h" />
     <ClInclude Include="SourceCommon\GUI\EditorIcons.h" />
     <ClInclude Include="SourceCommon\GUI\ImGuiConfig.h" />
     <ClInclude Include="SourceCommon\GUI\ImGuiExtensions.h" />
     <ClInclude Include="SourceCommon\GUI\ImGuiManager.h" />
+    <ClInclude Include="SourceCommon\MyEngine.h" />
     <ClInclude Include="SourceCommon\Physics\BulletDebugDraw.h" />
     <ClInclude Include="SourceCommon\Physics\BulletWorld.h" />
     <ClInclude Include="SourceCommon\Physics\EngineBox2DContactListener.h" />

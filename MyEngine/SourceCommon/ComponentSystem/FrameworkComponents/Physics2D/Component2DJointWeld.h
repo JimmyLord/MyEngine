@@ -10,6 +10,10 @@
 #ifndef __Component2DJointWeld_H__
 #define __Component2DJointWeld_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+
+class Component2DCollisionObject;
+
 class Component2DJointWeld : public ComponentBase
 {
 private:

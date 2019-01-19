@@ -10,6 +10,8 @@
 #ifndef __ComponentGameObjectProperties_H__
 #define __ComponentGameObjectProperties_H__
 
+#include "ComponentBase.h"
+
 class ComponentGameObjectProperties : public ComponentBase
 {
 private:

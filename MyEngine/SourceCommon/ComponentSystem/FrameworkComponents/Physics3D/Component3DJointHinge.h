@@ -10,6 +10,11 @@
 #ifndef __Component3DJointHinge_H__
 #define __Component3DJointHinge_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+
+class Component3DCollisionObject;
+
 class Component3DJointHinge : public ComponentBase
 {
 private:

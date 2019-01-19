@@ -10,6 +10,7 @@
 #ifndef __PrefabManager_H__
 #define __PrefabManager_H__
 
+class GameObject;
 class PrefabObject;
 class PrefabFile;
 class PrefabManager;

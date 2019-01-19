@@ -7,14 +7,16 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
+
+#include "ComponentLuaScript.h"
+#include "ComponentSystem/Core/EngineFileManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineComponentTypeManager.h"
+#include "Core/EngineCore.h"
 #include "../../../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
 #if MYFW_USING_LUA
-
-#if MYFW_USING_WX
-bool ComponentLuaScript::m_PanelWatchBlockVisible = true;
-#endif
 
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLuaScript ); //_VARIABLE_LIST

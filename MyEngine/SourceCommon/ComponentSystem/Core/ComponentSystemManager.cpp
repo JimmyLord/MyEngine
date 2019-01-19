@@ -7,15 +7,32 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
+#include "MyEnginePCH.h"
 
+#include "ComponentSystemManager.h"
 #include "PrefabManager.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentInputHandler.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/ComponentTypeManager.h"
+#include "ComponentSystem/Core/EngineFileManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentCameraShadow.h"
+#include "ComponentSystem/FrameworkComponents/ComponentSprite.h"
+#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DCollisionObject.h"
+#include "Core/EngineComponentTypeManager.h"
+#include "Core/EngineCore.h"
+#include "Physics/EngineBox2DContactListener.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 #if MYFW_EDITOR
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/Exporters/ExportBox2DScene.h"
 #endif //MYFW_EDITOR
 
@@ -1242,7 +1259,7 @@ ComponentBase* ComponentSystemManager::CreateComponentFromJSONObject(GameObject*
         }
 
         // Create a new component of this type on the game object.
-        pComponent = pGameObject->AddNewComponent( type, sceneid );
+        pComponent = pGameObject->AddNewComponent( type, sceneid, g_pComponentSystemManager );
 
         // If this component had an id set in the scene file, then use it.
         if( id != 0 )
@@ -1841,9 +1858,9 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         ComponentBase* pComponent = 0;
 
         if( g_pEngineCore->IsInEditorMode() )
-            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->GetType(), pNewObject->GetSceneID() );
+            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->GetType(), pNewObject->GetSceneID(), g_pComponentSystemManager );
         else
-            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->GetType(), SCENEID_Unmanaged );
+            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->GetType(), SCENEID_Unmanaged, g_pComponentSystemManager );
 
         if( disableNewObject )
         {

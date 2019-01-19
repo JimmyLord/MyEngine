@@ -10,6 +10,8 @@
 #ifndef __ComponentData_H__
 #define __ComponentData_H__
 
+#include "ComponentBase.h"
+
 class ComponentData : public ComponentBase
 {
 public:

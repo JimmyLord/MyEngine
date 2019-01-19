@@ -10,6 +10,9 @@
 #ifndef __ComponentAnimationPlayer_H__
 #define __ComponentAnimationPlayer_H__
 
+#include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
+
+class ComponentMesh;
 class ComponentTransform;
 
 class ComponentAnimationPlayer : public ComponentUpdateable

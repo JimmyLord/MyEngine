@@ -10,6 +10,8 @@
 #ifndef __ComponentMeshOBJ_H__
 #define __ComponentMeshOBJ_H__
 
+#include "ComponentMesh.h"
+
 class ComponentTransform;
 
 class ComponentMeshOBJ : public ComponentMesh

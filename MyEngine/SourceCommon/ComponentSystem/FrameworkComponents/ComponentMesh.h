@@ -10,6 +10,9 @@
 #ifndef __ComponentMesh_H__
 #define __ComponentMesh_H__
 
+#include "ComponentSystem/BaseComponents/ComponentRenderable.h"
+
+class ComponentLuaScript;
 class ComponentTransform;
 class SceneGraphObject;
 

@@ -7,12 +7,10 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "EngineCommonHeader.h"
-#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
+#include "MyEnginePCH.h"
 
-#if MYFW_USING_WX
-bool ComponentPostEffect::m_PanelWatchBlockVisible = true;
-#endif
+#include "ComponentPostEffect.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentPostEffect ); //_VARIABLE_LIST

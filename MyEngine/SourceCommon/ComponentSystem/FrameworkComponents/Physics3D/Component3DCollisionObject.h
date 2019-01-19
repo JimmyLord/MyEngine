@@ -10,6 +10,9 @@
 #ifndef __Component3DCollisionObject_H__
 #define __Component3DCollisionObject_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+
 enum PhysicsPrimitiveTypes //ADDING_NEW_PhysicsPrimitiveType - order doesn't matter, saved as string.
 {
     PhysicsPrimitiveType_Cube,

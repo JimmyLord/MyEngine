@@ -10,6 +10,8 @@
 #ifndef __Component3DJointBase_H__
 #define __Component3DJointBase_H__
 
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+
 class Component3DJointBase : public ComponentBase
 {
 public:

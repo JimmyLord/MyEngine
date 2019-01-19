@@ -10,6 +10,9 @@
 #ifndef __ComponentLuaScript_H__
 #define __ComponentLuaScript_H__
 
+#include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+
 enum ExposedVariableTypes
 {
     ExposedVariableType_Unused,
@@ -19,8 +22,9 @@ enum ExposedVariableTypes
     ExposedVariableType_GameObject,
 };
 
-struct ExposedVariableDesc
+class ExposedVariableDesc
 {
+public:
     std::string name;
     ExposedVariableTypes type;
     union // TODO?: make these values shared between c++ and lua so they can be changed/saved more easily.
@@ -54,23 +58,6 @@ struct ExposedVariableDesc
 };
 
 typedef void (*LuaExposedVarValueChangedCallback)(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer);
-
-#if MYFW_USING_WX
-class ComponentLuaScriptEventHandlerForExposedVariables : public wxEvtHandler
-{
-public:
-    ComponentLuaScript* pLuaScriptComponent;
-    ExposedVariableDesc* pExposedVar;
-
-public:
-    ComponentLuaScriptEventHandlerForExposedVariables()
-    {
-        pLuaScriptComponent = 0;
-        pExposedVar = 0;
-    };
-    void OnPopupClick(wxEvent &evt);
-};
-#endif
 
 class ComponentLuaScript : public ComponentUpdateable
 {
