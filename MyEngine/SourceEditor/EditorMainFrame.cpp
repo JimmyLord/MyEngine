@@ -8,7 +8,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
+#include "EditorMainFrame.h"
 #include "EditorMenuCommands.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 
 const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumTypes] =
 {

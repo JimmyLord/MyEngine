@@ -23,54 +23,53 @@
 //============================================================================================================
 
 // Core component system code.
-#include "ComponentSystem/Core/EngineFileManager.h"
-#include "ComponentSystem/Core/ComponentTypeManager.h"
-#include "ComponentSystem/Core/SceneHandler.h"
+#include "ComponentSystem/ComponentTemplate.h"
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentData.h"
+#include "ComponentSystem/BaseComponents/ComponentInputHandler.h"
+#include "ComponentSystem/BaseComponents/ComponentMenuPage.h"
+#include "ComponentSystem/BaseComponents/ComponentGameObjectProperties.h"
+#include "ComponentSystem/BaseComponents/ComponentRenderable.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/BaseComponents/ComponentVariable.h"
 #include "ComponentSystem/BaseComponents/ComponentVariableValue.h"
-#include "ComponentSystem/BaseComponents/ComponentBase.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
-#include "ComponentSystem/ComponentTemplate.h"
-#include "ComponentSystem/BaseComponents/ComponentGameObjectProperties.h"
-#include "ComponentSystem/BaseComponents/ComponentTransform.h"
-#include "ComponentSystem/BaseComponents/ComponentData.h"
-#include "ComponentSystem/BaseComponents/ComponentCamera.h"
-#include "ComponentSystem/BaseComponents/ComponentInputHandler.h"
-#include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
-#include "ComponentSystem/BaseComponents/ComponentRenderable.h"
-#include "ComponentSystem/BaseComponents/ComponentMenuPage.h"
+#include "ComponentSystem/Core/ComponentTypeManager.h"
+#include "ComponentSystem/Core/EngineFileManager.h"
+#include "ComponentSystem/Core/SceneHandler.h"
+
+// MyEngine components.
+#include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
+#include "Voxels/ComponentVoxelMesh.h"
+#include "Voxels/ComponentVoxelWorld.h"
+#include "Voxels/VoxelRayCast.h"
 
 // MyFramework components. // ADDING_NEW_ComponentType
-#include "Core/EngineComponentTypeManager.h"
-#include "ComponentSystem/FrameworkComponents/ComponentLight.h"
-#include "ComponentSystem/FrameworkComponents/ComponentPostEffect.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
 #include "ComponentSystem/FrameworkComponents/ComponentCameraShadow.h"
-#include "ComponentSystem/FrameworkComponents/ComponentSprite.h"
+#include "ComponentSystem/FrameworkComponents/ComponentLight.h"
+#if MYFW_USING_LUA
+#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#endif //MYFW_USING_LUA
 #include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMeshOBJ.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
 #include "ComponentSystem/FrameworkComponents/ComponentParticleEmitter.h"
-#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
-#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
-#include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
-#if MYFW_USING_LUA
-#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
-#endif //MYFW_USING_LUA
-#include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
+#include "ComponentSystem/FrameworkComponents/ComponentPostEffect.h"
+#include "ComponentSystem/FrameworkComponents/ComponentSprite.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointPrismatic.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointRevolute.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DCollisionObject.h"
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointBase.h"
-#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointPoint2Point.h"
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointHinge.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointPoint2Point.h"
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointSlider.h"
-#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
-#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointRevolute.h"
-#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointPrismatic.h"
-#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
-
-// Other components.
-#include "Voxels/VoxelRayCast.h"
-#include "Voxels/ComponentVoxelMesh.h"
-#include "Voxels/ComponentVoxelWorld.h"
 
 // Physics code.
 #include "Physics/EngineBox2DContactListener.h"
@@ -78,48 +77,48 @@
 // Misc engine code.
 #include "ComponentSystem/Core/PrefabManager.h"
 
-#include "Camera/Camera3D.h"
 #include "Camera/Camera2D.h"
+#include "Camera/Camera3D.h"
+#include "Core/EngineComponentTypeManager.h"
 #include "Core/InputFinger.h"
+#include "Core/EngineCore.h"
 
 #include "ComponentSystem/Core/GameObject.h"
 
-#include "../../../SharedGameCode/Core/RenderTextQuick.h"
-#include "../../../SharedGameCode/Menus/MenuItem.h"
 #include "../../../SharedGameCode/Core/MeshShapes.h"
+#include "../../../SharedGameCode/Core/RenderTextQuick.h"
 
 #include "../../../SharedGameCode/Menus/LanguageTable.h"
 #include "../../../SharedGameCode/Menus/MenuButton.h"
 #include "../../../SharedGameCode/Menus/MenuCheckBox.h"
+#include "../../../SharedGameCode/Menus/MenuInputBox.h"
+#include "../../../SharedGameCode/Menus/MenuItem.h"
+#include "../../../SharedGameCode/Menus/MenuScrollingText.h"
 #include "../../../SharedGameCode/Menus/MenuSprite.h"
 #include "../../../SharedGameCode/Menus/MenuText.h"
-#include "../../../SharedGameCode/Menus/MenuInputBox.h"
-#include "../../../SharedGameCode/Menus/MenuScrollingText.h"
 
 #include "../../../SharedGameCode/Menus/Menu_Helpers.h"
 
 #if MYFW_EDITOR
+#include "../SourceEditor/DragAndDropHackeryExtended.h"
+#include "../SourceEditor/EditorMainFrame.h"
 #include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EditorMainFrame.h"
-#include "../SourceEditor/DragAndDropHackeryExtended.h"
-#include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/EngineCommandStack.h"
 #include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/TransformGizmo.h"
 
 #if MYFW_USING_IMGUI
-#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorLogWindow_ImGui.h"
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #endif
 
 #include "../SourceEditor/Interfaces/EditorInterface.h"
-#include "../SourceEditor/Interfaces/EditorInterface_SceneManagement.h"
 #include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"
+#include "../SourceEditor/Interfaces/EditorInterface_SceneManagement.h"
 #include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
 #endif
-
-#include "Core/EngineCore.h"
 
 #endif //__MyEngine_H__

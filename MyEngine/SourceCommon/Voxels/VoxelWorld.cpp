@@ -8,10 +8,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
 #include "VoxelBlock.h"
 #include "VoxelChunk.h"
 #include "VoxelJobs.h"
 #include "VoxelWorld.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "Core/EngineCore.h"
 
 VoxelWorld::VoxelWorld()
 {

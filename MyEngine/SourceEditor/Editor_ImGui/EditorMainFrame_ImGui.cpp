@@ -8,9 +8,27 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
-#include "../EditorMenuCommands.h"
+
 #include "ImGuiStylePrefs.h"
 #include "EditorMemoryWindow_ImGui.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMeshOBJ.h"
+#include "Core/EngineComponentTypeManager.h"
+#include "Core/EngineCore.h"
+#include "../SourceEditor/EditorMenuCommands.h"
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/GameObjectTemplateManager.h"
+#include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
+#include "../SourceEditor/Editor_ImGui/EditorLogWindow_ImGui.h"
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
+#include "../SourceEditor/EngineCommandStack.h"
+#include "../SourceEditor/Interfaces/EditorInterface.h"
 #include "../../SourceCommon/GUI/EditorIcons.h"
 #include "../../SourceCommon/GUI/ImGuiExtensions.h"
 

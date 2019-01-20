@@ -10,6 +10,8 @@
 #ifndef __ComponentVoxelMesh_H__
 #define __ComponentVoxelMesh_H__
 
+#include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
+
 class VoxelChunk;
 
 class ComponentVoxelMesh : public ComponentMesh

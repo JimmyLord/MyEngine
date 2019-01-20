@@ -8,11 +8,14 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
+#include "ComponentVoxelMesh.h"
 #include "VoxelBlock.h"
 #include "VoxelChunk.h"
+#include "Core/EngineCore.h"
 
-#if MYFW_USING_WX
-bool ComponentVoxelMesh::m_PanelWatchBlockVisible = true;
+#if MYFW_EDITOR
+#include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
 #endif
 
 // Component Variable List

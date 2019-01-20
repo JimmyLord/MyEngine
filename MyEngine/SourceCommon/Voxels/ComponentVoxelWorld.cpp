@@ -8,15 +8,21 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
+#include "ComponentVoxelWorld.h"
 #include "VoxelBlock.h"
 #include "VoxelChunk.h"
 #include "VoxelWorld.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/EngineFileManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
+
+#if MYFW_EDITOR
+#include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
+#endif
 
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
-
-#if MYFW_USING_WX
-bool ComponentVoxelWorld::m_PanelWatchBlockVisible = true;
-#endif
 
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentVoxelWorld ); //_VARIABLE_LIST

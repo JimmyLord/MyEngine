@@ -9,6 +9,33 @@
 
 #include "MyEnginePCH.h"
 
+#include "Core/EngineCore.h"
+#include "ComponentSystem/BaseComponents/ComponentBase.h"
+#include "ComponentSystem/BaseComponents/ComponentGameObjectProperties.h"
+#include "ComponentSystem/BaseComponents/ComponentMenuPage.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
+#if MYFW_USING_LUA
+#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#endif //MYFW_USING_LUA
+#include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
+#include "ComponentSystem/FrameworkComponents/ComponentParticleEmitter.h"
+#include "ComponentSystem/FrameworkComponents/ComponentSprite.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DCollisionObject.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
+#include "Voxels/ComponentVoxelMesh.h"
+#include "Voxels/ComponentVoxelWorld.h"
+#include "../../../SharedGameCode/Menus/MenuItem.h"
+#include "../../../SharedGameCode/Menus/MenuButton.h"
+#include "../../../SharedGameCode/Menus/MenuSprite.h"
+#include "../../../SharedGameCode/Menus/MenuText.h"
+
 #if MYFW_USING_LUA
 
 #define LUA_DEBUG_PORT 19542

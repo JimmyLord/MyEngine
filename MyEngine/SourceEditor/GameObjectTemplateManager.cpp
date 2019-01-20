@@ -9,6 +9,8 @@
 
 #include "MyEnginePCH.h"
 
+#include "GameObjectTemplateManager.h"
+
 GameObjectTemplateManager::GameObjectTemplateManager()
 {
     char* filestring = PlatformSpecific_LoadFile( "Data/DataEngine/EngineGameObjects.mytemplate", 0 );

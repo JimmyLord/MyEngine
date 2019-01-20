@@ -92,6 +92,4 @@ enum SceneID
     SCENEID_Any           = 56789, // ID passed in when requesting to load a scene into any slot.
 };
 
-#include "MyEngine.h"
-
 #endif //__EnginePCH_H__

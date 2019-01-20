@@ -8,7 +8,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
 #include "EngineCommandStack.h"
+#include "Core/EngineCore.h"
 
 EngineCommandStack::EngineCommandStack()
 {

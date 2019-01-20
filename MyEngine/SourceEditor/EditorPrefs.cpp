@@ -8,7 +8,15 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
-#include "../SourceCommon/GUI/ImGuiExtensions.h"
+
+#include "EditorPrefs.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "Core/EngineCore.h"
+#include "GUI/ImGuiExtensions.h"
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 
 EditorPrefs* g_pEditorPrefs = 0;

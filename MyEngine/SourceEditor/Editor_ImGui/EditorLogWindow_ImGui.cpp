@@ -9,6 +9,10 @@
 
 #include "MyEnginePCH.h"
 
+#include "EditorLogWindow_ImGui.h"
+#include "Core/EngineCore.h"
+#include "../SourceEditor/EditorMainFrame.h"
+
 //====================================================================================================
 // Public methods
 //====================================================================================================

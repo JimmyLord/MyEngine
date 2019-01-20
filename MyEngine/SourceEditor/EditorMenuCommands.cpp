@@ -8,8 +8,16 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
-#include "PlatformSpecific/FileOpenDialog.h"
+
 #include "EditorMenuCommands.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/Core/PrefabManager.h"
+#include "Core/EngineCore.h"
+#include "PlatformSpecific/FileOpenDialog.h"
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 
 void LoadScene(const char* sceneName, bool unloadScenes)
 {

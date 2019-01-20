@@ -8,11 +8,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
+#include "BulletDebugDraw.h"
+
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Enums.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
-
-#include "BulletDebugDraw.h"
 
 BulletDebugDraw::BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView)
 {

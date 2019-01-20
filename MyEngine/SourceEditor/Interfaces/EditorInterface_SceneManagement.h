@@ -10,6 +10,8 @@
 #ifndef __EditorInterface_SceneManagement_H__
 #define __EditorInterface_SceneManagement_H__
 
+#include "EditorInterface.h"
+
 class EditorInterface_SceneManagement : public EditorInterface
 {
 protected:

@@ -9,6 +9,13 @@
 
 #include "MyEnginePCH.h"
 
+#include "EditorState.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/EngineFileManager.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/TransformGizmo.h"
+
 #if MYFW_EDITOR
 
 const char* EditorIconFilenames[EditorIcon_NumIcons] =

@@ -8,7 +8,10 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
+#include "EditorLayoutManager_ImGui.h"
 #include "ImGuiStylePrefs.h"
+#include "../SourceEditor/EditorPrefs.h"
 
 const char* g_DefaultEditorLayoutImGuiIniStrings[EditorLayout_NumLayouts] =
 {

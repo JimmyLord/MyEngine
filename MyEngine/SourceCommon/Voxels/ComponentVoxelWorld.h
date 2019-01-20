@@ -10,6 +10,8 @@
 #ifndef __ComponentVoxelWorld_H__
 #define __ComponentVoxelWorld_H__
 
+#include "ComponentSystem/BaseComponents/ComponentRenderable.h"
+
 class VoxelWorld;
 
 class ComponentVoxelWorld : public ComponentRenderable

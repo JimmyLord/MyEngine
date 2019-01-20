@@ -10,6 +10,8 @@
 #ifndef __EditorInterface_VoxelMeshEditor_H__
 #define __EditorInterface_VoxelMeshEditor_H__
 
+#include "EditorInterface.h"
+
 class ComponentVoxelMesh;
 class ComponentVoxelWorld;
 class VoxelRayCastResult;

@@ -10,6 +10,8 @@
 #ifndef __EditorInterface_H__
 #define __EditorInterface_H__
 
+class GameObject;
+
 class EditorInterface
 {
 protected:

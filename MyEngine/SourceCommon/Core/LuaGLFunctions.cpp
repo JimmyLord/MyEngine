@@ -9,6 +9,8 @@
 
 #include "MyEnginePCH.h"
 
+#include "Core/EngineCore.h"
+
 // TODO: Fix GL Includes.
 #include <gl/GL.h>
 #include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"

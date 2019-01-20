@@ -8,7 +8,15 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
 #include "EngineEditorCommands.h"
+#include "ComponentSystem/BaseComponents/ComponentRenderable.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
+#include "Core/EngineCore.h"
+#include "../SourceEditor/EditorState.h"
 
 #if MYFW_USING_IMGUI
 //====================================================================================================

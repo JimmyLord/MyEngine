@@ -9,6 +9,17 @@
 
 #include "MyEnginePCH.h"
 
+#include "EditorInterface_SceneManagement.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
+#include "ComponentSystem/FrameworkComponents/ComponentCameraShadow.h"
+#include "Core/EngineCore.h"
+#include "../SourceEditor/EditorPrefs.h"
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/TransformGizmo.h"
+
 EditorInterface_SceneManagement::EditorInterface_SceneManagement()
 {
 }

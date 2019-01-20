@@ -8,9 +8,17 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
-#include "../../SourceCommon/Voxels/VoxelBlock.h"
-#include "../../SourceCommon/Voxels/VoxelChunk.h"
-#include "../../SourceCommon/Voxels/VoxelWorld.h"
+
+#include "EditorInterface_VoxelMeshEditor.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
+#include "Voxels/ComponentVoxelMesh.h"
+#include "Voxels/ComponentVoxelWorld.h"
+#include "Voxels/VoxelBlock.h"
+#include "Voxels/VoxelChunk.h"
+#include "Voxels/VoxelWorld.h"
+#include "../SourceEditor/EditorState.h"
 
 EditorInterface_VoxelMeshEditor::EditorInterface_VoxelMeshEditor()
 {

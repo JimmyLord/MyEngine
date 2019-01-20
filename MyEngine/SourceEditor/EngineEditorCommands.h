@@ -12,6 +12,8 @@
 
 #include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
 
+class Component2DCollisionObject;
+class ComponentAudioPlayer;
 class ComponentRenderable;
 class EditorCommand_ImGuiPanelWatchNumberValueChanged;
 class EditorCommand_ImGuiPanelWatchColorChanged;

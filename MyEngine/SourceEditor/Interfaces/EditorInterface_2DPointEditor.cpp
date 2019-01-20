@@ -8,6 +8,18 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
+#include "EditorInterface_2DPointEditor.h"
+#include "ComponentSystem/BaseComponents/ComponentCamera.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
+#include "Core/EngineComponentTypeManager.h"
+#include "Core/EngineCore.h"
+#include "../SourceEditor/EditorPrefs.h"
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/EngineEditorCommands.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()

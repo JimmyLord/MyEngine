@@ -10,6 +10,8 @@
 #ifndef __EditorMenuCommands_H__
 #define __EditorMenuCommands_H__
 
+#include "../SourceEditor/EditorPrefs.h"
+
 enum EditorMenuCommands
 {
     EditorMenuCommand_File_NewScene,

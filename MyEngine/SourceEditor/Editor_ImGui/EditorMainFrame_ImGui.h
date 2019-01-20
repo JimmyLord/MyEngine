@@ -18,6 +18,8 @@ class EditorLogWindow_ImGui;
 class EditorMemoryWindow_ImGui;
 class EditorLayoutManager_ImGui;
 class EditorLayout;
+class GameObject;
+class PrefabObject;
 
 enum EditorWindowTypes
 {

@@ -9,6 +9,8 @@
 
 #include "MyEnginePCH.h"
 
+#include "InputFinger.h"
+
 InputFinger g_Fingers[MAX_FINGERS];
 
 void ClearAllFingers()

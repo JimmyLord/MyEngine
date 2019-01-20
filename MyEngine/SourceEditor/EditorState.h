@@ -12,6 +12,7 @@
 
 class ComponentBase;
 class ComponentCamera;
+class GameObject;
 class TransformGizmo;
 
 #if MYFW_EDITOR

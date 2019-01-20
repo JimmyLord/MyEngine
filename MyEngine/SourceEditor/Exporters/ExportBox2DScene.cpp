@@ -9,6 +9,17 @@
 
 #include "MyEnginePCH.h"
 
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentSprite.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMeshOBJ.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointRevolute.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointPrismatic.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
+#include "Core/EngineCore.h"
+
 cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
 {
     cJSON* jGameObject = 0;

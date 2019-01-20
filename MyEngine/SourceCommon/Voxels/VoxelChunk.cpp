@@ -8,9 +8,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "MyEnginePCH.h"
+
 #include "VoxelBlock.h"
 #include "VoxelChunk.h"
 #include "VoxelWorld.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "Core/EngineCore.h"
 
 VoxelChunk::VoxelChunk()
 {
