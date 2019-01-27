@@ -192,7 +192,7 @@ void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool ch
         }
     }
 
-    // sanity check on Translation limits.
+    // Sanity check on Translation limits.
     if( pVar->m_Offset == MyOffsetOf( this, &m_TranslationLimitMin ) )
     {
         if( m_TranslationLimitMin > m_TranslationLimitMax )
@@ -205,12 +205,12 @@ void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool ch
             m_TranslationLimitMax = m_TranslationLimitMin;
     }
 
-    // the joint will only exist if game is running.
+    // The joint will only exist if game is running.
     if( m_pJoint )
     {
         if( pVar->m_Offset == MyOffsetOf( this, &m_MotorEnabled ) )
         {
-            if( fequal( m_MotorSpeed, 0 ) == false )
+            if( m_MotorEnabled )
             {
                 m_pJoint->EnableMotor( true );
                 m_pJoint->SetMotorSpeed( m_MotorSpeed );
@@ -234,14 +234,14 @@ void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool ch
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_TranslationLimitEnabled ) )
         {
-            if( fequal( m_MotorSpeed, 0 ) == false )
+            if( m_TranslationLimitEnabled )
             {
                 m_pJoint->EnableLimit( true );
                 m_pJoint->SetLimits( m_TranslationLimitMin, m_TranslationLimitMax );
             }
             else
             {
-                m_pJoint->EnableMotor( false );
+                m_pJoint->EnableLimit( false );
             }
         }
 

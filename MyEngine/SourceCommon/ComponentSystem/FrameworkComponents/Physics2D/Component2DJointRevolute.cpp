@@ -194,7 +194,7 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
         }
     }
 
-    // sanity check on angle limits.
+    // Sanity check on angle limits.
     if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitMin ) )
     {
         if( m_AngleLimitMin > m_AngleLimitMax )
@@ -207,12 +207,12 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
             m_AngleLimitMax = m_AngleLimitMin;
     }
 
-    // the joint will only exist if game is running.
+    // The joint will only exist if game is running.
     if( m_pJoint )
     {
         if( pVar->m_Offset == MyOffsetOf( this, &m_MotorEnabled ) )
         {
-            if( fequal( m_MotorSpeed, 0 ) == false )
+            if( m_MotorEnabled )
             {
                 m_pJoint->EnableMotor( true );
                 m_pJoint->SetMotorSpeed( m_MotorSpeed );
@@ -236,7 +236,7 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitEnabled ) )
         {
-            if( fequal( m_MotorSpeed, 0 ) == false )
+            if( m_AngleLimitEnabled )
             {
                 m_pJoint->EnableLimit( true );
                 m_pJoint->SetLimits( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );

@@ -187,7 +187,7 @@ void* Component3DJointSlider::OnValueChanged(ComponentVariable* pVar, bool chang
         }
     }
 
-    // sanity check on Translation limits.
+    // Sanity check on Translation limits.
     if( pVar->m_Offset == MyOffsetOf( this, &m_TranslationLimitMin ) )
     {
         if( m_TranslationLimitMin > m_TranslationLimitMax )
@@ -200,12 +200,12 @@ void* Component3DJointSlider::OnValueChanged(ComponentVariable* pVar, bool chang
             m_TranslationLimitMax = m_TranslationLimitMin;
     }
 
-    // the joint will only exist if game is running.
+    // The joint will only exist if game is running.
     if( m_pJoint )
     {
         if( pVar->m_Offset == MyOffsetOf( this, &m_MotorEnabled ) )
         {
-            if( fequal( m_MotorSpeed, 0 ) == false )
+            if( m_MotorEnabled )
             {
                 //m_pJoint->EnableMotor( true );
                 //m_pJoint->SetMotorSpeed( m_MotorSpeed );
@@ -229,7 +229,7 @@ void* Component3DJointSlider::OnValueChanged(ComponentVariable* pVar, bool chang
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_TranslationLimitEnabled ) )
         {
-            if( fequal( m_MotorSpeed, 0 ) == false )
+            if( m_TranslationLimitEnabled )
             {
                 //m_pJoint->EnableLimit( true );
                 //m_pJoint->SetLimits( m_TranslationLimitMin, m_TranslationLimitMax );

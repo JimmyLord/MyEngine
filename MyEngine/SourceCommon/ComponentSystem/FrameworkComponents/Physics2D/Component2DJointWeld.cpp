@@ -168,7 +168,7 @@ void* Component2DJointWeld::OnValueChanged(ComponentVariable* pVar, bool changed
         }
     }
 
-    // the joint will only exist if game is running.
+    // The joint will only exist if game is running.
     if( m_pJoint )
     {
     }
