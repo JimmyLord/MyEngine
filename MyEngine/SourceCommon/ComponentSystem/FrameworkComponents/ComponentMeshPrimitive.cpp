@@ -144,6 +144,9 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool chang
             m_PrimitiveSettingsChangedAtRuntime = true;
         }
 
+        MyClampMin( m_Plane_VertCount.x, 2 );
+        MyClampMin( m_Plane_VertCount.y, 2 );
+
         CreatePrimitive();
 
         PushChangesToSceneGraphObjects();

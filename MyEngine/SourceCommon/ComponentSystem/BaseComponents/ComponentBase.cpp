@@ -750,7 +750,8 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         case ComponentVariableType_Int:
             {
                 float speed = 1.0f;
-                ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
+                bool modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
+                TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
             }
             break;
 
