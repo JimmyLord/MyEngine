@@ -14,7 +14,7 @@ class VoxelChunk;
 class VoxelMeshBuilder;
 class VoxelChunkGenerator;
 
-typedef unsigned int (*VoxelWorld_GenerateMap_CallbackFunction)(Vector3Int worldpos);
+typedef unsigned int VoxelWorld_GenerateMap_CallbackFunction(Vector3Int worldpos);
 
 class VoxelWorld
 {
@@ -49,7 +49,7 @@ protected:
     MaterialDefinition* m_pMaterial;
     BufferDefinition* m_pSharedIndexBuffer;
 
-    VoxelWorld_GenerateMap_CallbackFunction m_pMapGenCallbackFunc;
+    VoxelWorld_GenerateMap_CallbackFunction* m_pMapGenCallbackFunc;
 
     Vector3Int m_MaxWorldSize;
     MyFileObject* m_pSaveFile;
@@ -113,8 +113,8 @@ public:
     Vector3 GetBlockSize() { return m_BlockSize; }
 
     // Map generation
-    void SetMapGenerationCallbackFunction(VoxelWorld_GenerateMap_CallbackFunction pFunc);
-    VoxelWorld_GenerateMap_CallbackFunction GetMapGenerationCallbackFunction();
+    void SetMapGenerationCallbackFunction(VoxelWorld_GenerateMap_CallbackFunction* pFunc);
+    VoxelWorld_GenerateMap_CallbackFunction* GetMapGenerationCallbackFunction();
 
     // Space conversions
     Vector3Int GetWorldPosition(Vector3 scenepos);

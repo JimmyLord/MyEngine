@@ -80,53 +80,13 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
         m_pSceneInfoMap[i].Reset();
     }
 
-#if MYFW_USING_WX
-    // Add icons to the object list tree
-    {
-        wxImageList* pImageList = new wxImageList(16,16);
-
-        wxBitmap bitmap_scene( "Data/DataEngine/EditorIcons/IconScene.bmp", wxBITMAP_TYPE_BMP );
-        wxBitmap bitmap_gameobject( "Data/DataEngine/EditorIcons/IconGameObject.bmp", wxBITMAP_TYPE_BMP );
-        wxBitmap bitmap_folder( "Data/DataEngine/EditorIcons/IconFolder.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
-        wxBitmap bitmap_logicobject( "Data/DataEngine/EditorIcons/IconLogicObject.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
-        wxBitmap bitmap_component( "Data/DataEngine/EditorIcons/IconComponent.bmp", wxBITMAP_TYPE_BMP );
-        wxBitmap bitmap_prefab( "Data/DataEngine/EditorIcons/IconPrefab.bmp", wxBITMAP_TYPE_BMP );
-
-        // make sure bitmaps loaded
-        //    will happen if DataEngine folder isn't there... run "Windows-CreateSymLinksForData.bat"
-        MyAssert( bitmap_scene.IsOk() );
-
-        if( bitmap_scene.IsOk() )
-        {
-            // Order added must match ObjectListIconTypes enum order
-            pImageList->Add( bitmap_scene );          // ObjectListIcon_Scene,
-            pImageList->Add( bitmap_gameobject );     // ObjectListIcon_GameObject,
-            pImageList->Add( bitmap_folder );         // ObjectListIcon_Folder,
-            pImageList->Add( bitmap_logicobject );    // ObjectListIcon_LogicObject,
-            pImageList->Add( bitmap_component );      // ObjectListIcon_Component,
-            pImageList->Add( bitmap_prefab );         // ObjectListIcon_Prefab,
-        }
-
-        g_pPanelObjectList->AssignImageListToObjectTree( pImageList );
-    }
-
-    // Add click callbacks to the root of the objects tree
-    g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
+#if MYFW_EDITOR
+    //// Mark the scene for engine object as being used, so it will be unloaded.
+    //m_pSceneInfoMap[SCENEID_EngineObjects].m_InUse = true;
+#endif //MYFW_EDITOR
 
     // Create a scene for "Unmanaged/Runtime" objects.
-    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged", ObjectListIcon_Scene );
-    g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
-    SceneInfo scene;
     m_pSceneInfoMap[SCENEID_Unmanaged].m_InUse = true;
-    m_pSceneInfoMap[SCENEID_Unmanaged].m_TreeID = treeid;
-
-    // Mark the scene for engine object as being used, so it will be unloaded.
-    m_pSceneInfoMap[SCENEID_EngineObjects].m_InUse = true;
-#else
-    // Create a scene for "Unmanaged/Runtime" objects.
-    m_pSceneInfoMap[SCENEID_Unmanaged].m_InUse = true;
-#endif //MYFW_USING_WX
 }
 
 ComponentSystemManager::~ComponentSystemManager()
@@ -355,20 +315,12 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
 
     // move files used by gameobjects that start with "Load" to front of file list.
     {
-#if 0 //MYFW_USING_WX
-        typedef std::map<int, SceneInfo>::iterator it_type;
-        for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
-        {
-            SceneID sceneid = iterator->first;
-            SceneInfo* pSceneInfo = &iterator->second;
-#else
         for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
             if( m_pSceneInfoMap[i].m_InUse == false )
                 continue;
 
             SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif //MYFW_USING_WX
 
             if( pSceneInfo->m_GameObjects.GetHead() )
             {
@@ -382,20 +334,12 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
 
     // add the game objects and their transform components.
     {
-#if 0 //MYFW_USING_WX
-        typedef std::map<int, SceneInfo>::iterator it_type;
-        for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
-        {
-            SceneID sceneid = iterator->first;
-            SceneInfo* pSceneInfo = &iterator->second;
-#else
         for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
             if( m_pSceneInfoMap[i].m_InUse == false )
                 continue;
 
             SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif //MYFW_USING_WX
 
             GameObject* first = pSceneInfo->m_GameObjects.GetHead();
             if( first && ( first->GetSceneID() == sceneid || savingallscenes ) )
@@ -559,12 +503,12 @@ MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativep
     return LoadDataFile( relativepath, (SceneID)sceneid, fullsourcefilepath, convertifrequired );
 }
 
-MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired)
+MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, SceneID sceneID, const char* fullSourceFilePath, bool convertIfRequired)
 {
-    MyAssert( relativepath );
+    MyAssert( relativePath );
 
     // each scene loaded will add ref's to the file.
-    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( relativepath, sceneid );
+    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( relativePath, sceneID );
 
     // if the file is already tagged as being used by this scene, don't request/addref it.
     if( pFileInfo != 0 )
@@ -579,23 +523,23 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
         MyFileObject* pFile = 0;
 
         size_t fulllen = 0;
-        if( fullsourcefilepath )
-            fulllen = strlen( fullsourcefilepath );
-        size_t rellen = strlen( relativepath );
+        if( fullSourceFilePath )
+            fulllen = strlen( fullSourceFilePath );
+        size_t rellen = strlen( relativePath );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 #if MYFW_WINDOWS
-        if( convertifrequired && fullsourcefilepath )
+        if( convertIfRequired && fullSourceFilePath )
         {
             WIN32_FIND_DATAA datafiledata;
             memset( &datafiledata, 0, sizeof( datafiledata ) );
-            HANDLE datafilehandle = FindFirstFileA( relativepath, &datafiledata );
+            HANDLE datafilehandle = FindFirstFileA( relativePath, &datafiledata );
             if( datafilehandle != INVALID_HANDLE_VALUE )
                 FindClose( datafilehandle );
 
             WIN32_FIND_DATAA sourcefiledata;
             memset( &sourcefiledata, 0, sizeof( sourcefiledata ) );
-            HANDLE sourcefilehandle = FindFirstFileA( fullsourcefilepath, &sourcefiledata );
+            HANDLE sourcefilehandle = FindFirstFileA( fullSourceFilePath, &sourcefiledata );
             if( sourcefilehandle != INVALID_HANDLE_VALUE )
                 FindClose( sourcefilehandle );
 
@@ -604,14 +548,17 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
                 ( sourcefiledata.ftLastWriteTime.dwHighDateTime == datafiledata.ftLastWriteTime.dwHighDateTime &&
                   sourcefiledata.ftLastWriteTime.dwLowDateTime >= datafiledata.ftLastWriteTime.dwLowDateTime ) )
             {
-                MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
+                MyFileObject* pFile = ImportDataFile( sceneID, fullSourceFilePath );
 
                 if( pFile )
-                    return pFile;
+                {
+                    pFileInfo = AddToFileList( pFile, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneID );
+                    return pFileInfo;
+                }
             }
         }
 #else
-        if( convertifrequired && fullsourcefilepath )
+        if( convertIfRequired && fullSourceFilePath )
         {
             struct stat datafiledata;
             memset( &datafiledata, 0, sizeof( datafiledata ) );
@@ -624,30 +571,33 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             // If the source file is newer than the data file (or data file doesn't exist), reimport it.
             if( sourcefiledata.st_mtime >= datafiledata.st_mtime )
             {
-                MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
+                MyFileObject* pFile = ImportDataFile( sceneid, fullSourceFilePath );
 
                 if( pFile )
-                    return pFile;
+                {
+                    pFileInfo = AddToFileList( pFile, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneID );
+                    return pFileInfo;
+                }
             }
         }
 #endif // Windows vs OSX/Linux
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
         
         // store pFile so we can free it afterwards.
-        pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, 0, 0, sceneid );
+        pFileInfo = AddToFileList( pFile, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneID );
 
-        TextureDefinition* pTexture = 0;
+        TextureDefinition* pTexture = nullptr;
 
         // Load textures differently than other files.
-        if( rellen > 4 && strcmp( &relativepath[rellen-4], ".png" ) == 0 )
+        if( rellen > 4 && strcmp( &relativePath[rellen-4], ".png" ) == 0 )
         {
             // Check if the texture is already loaded and create it if not.
-            pTexture = g_pTextureManager->FindTexture( relativepath );
+            pTexture = g_pTextureManager->FindTexture( relativePath );
 
-            if( pTexture == 0 )
+            if( pTexture == nullptr )
             {
                 // Find the file and add it to the object, 
-                pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativepath );
+                pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativePath );
                 pFileInfo->SetFile( pFile );
                 pFile->Release(); // Release ref added by RequestFile.
 
@@ -664,29 +614,28 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
                 MyAssert( false ); // the texture shouldn't be loaded and not in the list of files used.
             }
         }
-        else if( rellen > 4 && strcmp( &relativepath[rellen-4], ".wav" ) == 0 )
+        else if( rellen > 4 && strcmp( &relativePath[rellen-4], ".wav" ) == 0 )
         {
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
             // raw wav's shouldn't be loadable in standalone builds, scenes should only reference sound cues
             MyAssert( false );
 #else
             // Let SoundPlayer (SDL on windows) load the wav files
             SoundCue* pCue = g_pGameCore->GetSoundManager()->CreateCue( "new cue" );
-            g_pGameCore->GetSoundManager()->AddSoundToCue( pCue, relativepath );
-            pCue->SaveSoundCue( 0 );
+            g_pGameCore->GetSoundManager()->AddSoundToCue( pCue, relativePath );
+            pCue->SaveSoundCue( nullptr );
 
-            pFileInfo->m_pSoundCue = pCue;
-            pFileInfo->m_pFile = pCue->GetFile();
-            pFileInfo->m_pFile->AddRef();
-            //strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
-#endif //!MYFW_USING_WX
+            pFileInfo->SetSoundCue( pCue );
+            pFileInfo->SetFile( pCue->GetFile() );
+            //strcpy_s( pFileInfo->GetSourceFileFullPath(), MAX_PATH, relativepath );
+#endif //!MYFW_EDITOR
             return 0;
         }
 #if MYFW_EDITOR
-        else if( rellen > 14 && strcmp( &relativepath[rellen-14], ".myspritesheet" ) == 0 )
+        else if( rellen > 14 && strcmp( &relativePath[rellen-14], ".myspritesheet" ) == 0 )
         {
             // In editor builds, fully load spritesheets immediately.
-            pFile = g_pEngineFileManager->LoadFileNow( relativepath );
+            pFile = g_pEngineFileManager->LoadFileNow( relativePath );
             pFileInfo->SetFile( pFile );
             if( pFile )
             {
@@ -697,29 +646,25 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
         else
         {
             // Call untracked request since we're in the tracking code, just to avoid unnecessary repeat of LoadDataFile() call.
-            pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativepath );
+            pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativePath );
             pFileInfo->SetFile( pFile );
             pFile->Release(); // Release ref added by RequestFile.
-#if MYFW_USING_WX
-            // TODO: wasn't used and causes a crash in release mode... look into it.
-            //pFile->SetCustomLeftClickCallback( StaticOnMemoryPanelFileSelectedLeftClick, this );
-#endif
         }
 
         // if the extension of the source file is different than that of the file we're loading,
         //  then store the source file path in the fileobject, so we can detect/reconvert if that file changes.
         if( rellen > 4 && fulllen > 4 &&
-            ( strcmp( &relativepath[rellen-4], &fullsourcefilepath[fulllen-4] ) != 0 ) )
+            ( strcmp( &relativePath[rellen-4], &fullSourceFilePath[fulllen-4] ) != 0 ) )
         {
             char path[MAX_PATH];
-            strcpy_s( path, MAX_PATH, fullsourcefilepath );
+            strcpy_s( path, MAX_PATH, fullSourceFilePath );
             const char* relativepath = GetRelativePath( path );
 
             char finalpath[MAX_PATH];
 
             // store the relative path if the file is relative... otherwise store the full path.
             if( relativepath == 0 )
-                strcpy_s( finalpath, MAX_PATH, fullsourcefilepath );
+                strcpy_s( finalpath, MAX_PATH, fullSourceFilePath );
             else
                 strcpy_s( finalpath, MAX_PATH, relativepath );
 
@@ -729,7 +674,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
         }
 
         // If not file was loaded (file not found), return now.
-        if( pFile == 0 )
+        if( pFile == nullptr )
         {
             return pFileInfo;
         }
@@ -753,7 +698,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
         {
             ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
 
-            if( pShaderGroup == 0 )
+            if( pShaderGroup == nullptr )
             {
                 pShaderGroup = MyNew ShaderGroup( pFile );
                 pFileInfo->SetShaderGroup( pShaderGroup );
@@ -815,7 +760,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
                 if( g_pFileManager->DoesFileExist( animFullPath ) )
                 {
                     // Load the existing animation file.
-                    LoadDataFile( animFullPath, sceneid, 0, false );
+                    LoadDataFile( animFullPath, sceneID, 0, false );
                 }
                 else
                 {
@@ -823,7 +768,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
                     MyFileObject* pFile = g_pFileManager->CreateFileObject( animFullPath );
                     My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
                     pAnimInfo->SetSourceFile( pFile );
-                    AddToFileList( pFile, 0, 0, 0, 0, 0, 0, pAnimInfo, sceneid );
+                    AddToFileList( pFile, 0, 0, 0, 0, 0, 0, pAnimInfo, sceneID );
                     pAnimInfo->Release();
 
                     pAnimInfo->LoadFromSpriteSheet( pSpriteSheet, 0.2f );
@@ -845,7 +790,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
     return pFileInfo;
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneid, const char* fullsourcefilepath)
 {
     MyAssert( fullsourcefilepath );
@@ -900,9 +845,11 @@ MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneid, const char
         info.lpDirectory = workingdir;
         info.nShow = SW_SHOWNOACTIVATE;
         info.hInstApp = 0;
-
+        
         DWORD errorcode = 1;
         BOOL success = ShellExecuteExA( &info );
+
+        // If Shell execute gives a process handle, wait for it to finish.
         if( info.hProcess )
         {
             WaitForSingleObject( info.hProcess, INFINITE );
@@ -910,6 +857,11 @@ MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneid, const char
             //TerminateProcess( info.hProcess );
             CloseHandle( info.hProcess );
         }
+        else if( success == 1 ) // If it simple returns success, we're good?
+        {
+            errorcode = 0;
+        }
+
 #elif MYFW_OSX
         char commandwithparams[PATH_MAX*3];
         sprintf( commandwithparams, "Tools/MeshTool %s", params );
@@ -937,13 +889,15 @@ MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneid, const char
             char newrelativepath[MAX_PATH];
             sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
 
-            return LoadDataFile( newrelativepath, sceneid, fullsourcefilepath, false );
+            MyFileInfo* pFileInfo = LoadDataFile( newrelativepath, sceneid, fullsourcefilepath, false );
+            MyAssert( pFileInfo != nullptr );
+            return pFileInfo->GetFile();
         }
     }
 
     return 0;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 void ComponentSystemManager::FreeDataFile(MyFileInfo* pFileInfo)
 {
@@ -1409,27 +1363,11 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
             if( m_pSceneInfoMap[sceneid].m_InUse == false )
                 continue;
 
-#if MYFW_USING_WX
-            MyAssert( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() );
-            if( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() )
-            {
-                g_pPanelObjectList->m_pTree_Objects->Delete( m_pSceneInfoMap[sceneid].m_TreeID );
-            }
-#endif
-
             m_pSceneInfoMap[sceneid].Reset();
         }
     }
     else if( sceneIDToClear != SCENEID_Unmanaged ) // If clearing any scene other than the unmanaged scene.
     {
-#if MYFW_USING_WX
-        MyAssert( m_pSceneInfoMap[sceneIDToClear].m_TreeID.IsOk() );
-        if( m_pSceneInfoMap[sceneIDToClear].m_TreeID.IsOk() )
-        {
-            g_pPanelObjectList->m_pTree_Objects->Delete( m_pSceneInfoMap[sceneIDToClear].m_TreeID );
-        }
-#endif
-
         MyAssert( m_pSceneInfoMap[sceneIDToClear].m_InUse == true );
         m_pSceneInfoMap[sceneIDToClear].Reset();
     }
@@ -1437,25 +1375,6 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
 
 bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
 {
-#if 0 //MYFW_USING_WX
-    typedef std::map<int, SceneInfo>::iterator it_type;
-    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
-    {
-        SceneInfo* pSceneInfo = &iterator->second;
-
-        if( pSceneInfo->m_InUse )
-        {
-            if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
-                return true;
-
-            const char* relativepath = GetRelativePath( pSceneInfo->m_FullPath );
-            if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
-                return true;
-
-            iterator++;
-        }
-    }
-#else
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse )
@@ -1471,7 +1390,6 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
             }
         }
     }
-#endif
 
     return false;
 }
@@ -1644,15 +1562,6 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 else
                 {
                     pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, true, sceneID );
-
-#if MYFW_USING_WX
-                    // Move as last item in parent.
-                    GameObject* pLastChild = pGameObject->GetChildList()->GetTail();
-                    if( pLastChild != 0 )
-                        g_pPanelObjectList->Tree_MoveObject( pChildGameObject, pLastChild, false );
-                    else
-                        g_pPanelObjectList->Tree_MoveObject( pChildGameObject, pGameObject, true );
-#endif
                 }
                 MyAssert( pChildGameObject != 0 );
 
@@ -1705,7 +1614,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
 
     return pGameObject;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 void ComponentSystemManager::UnmanageGameObject(GameObject* pObject, bool unmanagechildren)
 {
@@ -1892,11 +1801,6 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( pObject->GetParentGameObject() != 0 )
     {
         pNewObject->SetParentGameObject( pObject->GetParentGameObject() );
-
-#if MYFW_USING_WX
-        // Place the child under the parent in the object list
-        g_pPanelObjectList->Tree_MoveObject( pNewObject, pObject->GetParentGameObject(), true );
-#endif
     }
 
     if( pObject->IsFolder() == false )
@@ -1911,11 +1815,6 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     {
         GameObject* pNewChild = CopyGameObject( pChild, pChild->GetName(), disableNewObject );
         pNewChild->SetParentGameObject( pNewObject );
-
-#if MYFW_USING_WX
-        // Place the child under the parent in the object list
-        g_pPanelObjectList->Tree_MoveObject( pNewChild, pNewObject, true );
-#endif
 
         pChild = pChild->GetNext();
     }
@@ -2001,20 +1900,12 @@ GameObject* ComponentSystemManager::FindGameObjectByIDFromList(GameObject* list,
 // Exposed to Lua, change elsewhere if function signature changes.
 GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
 {
-#if 0 //MYFW_USING_WX
-    typedef std::map<int, SceneInfo>::iterator it_type;
-    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
-    {
-        SceneID sceneid = iterator->first;
-        SceneInfo* pSceneInfo = &iterator->second;
-#else
     for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
 
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif //MYFW_USING_WX
 
         if( pSceneInfo->m_GameObjects.GetHead() )
         {
@@ -2111,10 +2002,10 @@ ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONCompon
     return 0;
 }
 
-ComponentCamera* ComponentSystemManager::GetFirstCamera(bool prefereditorcam)
+ComponentCamera* ComponentSystemManager::GetFirstCamera(bool preferEditorCam)
 {
-#if MYFW_USING_WX
-    if( prefereditorcam && g_pEngineCore->IsInEditorMode() )
+#if MYFW_EDITOR
+    if( preferEditorCam && g_pEngineCore->IsInEditorMode() )
     {
         return g_pEngineCore->GetEditorState()->GetEditorCamera();
     }
@@ -2188,10 +2079,6 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
         pComponent->GetGameObject()->RemoveComponent( pComponent );
     }
 
-#if MYFW_USING_WX
-    g_pPanelObjectList->RemoveObject( pComponent );
-#endif
-
     pComponent->SetEnabled( false );
     SAFE_DELETE( pComponent );
 }
@@ -2237,7 +2124,7 @@ void ComponentSystemManager::Tick(float deltaTime)
             m_Files.MoveTail( pNode );
     }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     CheckForUpdatedDataSourceFiles( true );
 #endif
 
@@ -2577,71 +2464,12 @@ SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath, boo
 void ComponentSystemManager::CreateNewScene(const char* scenename, SceneID sceneid)
 {
     MyAssert( sceneid >= SCENEID_MainScene && sceneid < MAX_SCENES_LOADED );
-#if MYFW_USING_WX
-    MyAssert( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() == false );
-
-    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename, ObjectListIcon_Scene );
-    g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
-    m_pSceneInfoMap[sceneid].m_TreeID = treeid;
-#endif // MYFW_USING_WX
     m_pSceneInfoMap[sceneid].m_InUse = true;
 
     // create the box2d world, pass in a material for the debug renderer.
     ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
     m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, new EngineBox2DContactListener );
 }
-
-#if MYFW_USING_WX
-wxTreeItemId ComponentSystemManager::GetTreeIDForScene(SceneID sceneid)
-{
-    return m_pSceneInfoMap[sceneid].m_TreeID;
-}
-
-//SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
-//{
-//    typedef std::map<int, SceneInfo>::iterator it_type;
-//    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); iterator++ )
-//    {
-//        SceneID sceneid = iterator->first;
-//        SceneInfo* pSceneInfo = &iterator->second;
-//
-//        if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
-//            return sceneid;
-//
-//        const char* relativepath = GetRelativePath( pSceneInfo->m_FullPath );
-//        if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
-//            return sceneid;
-//    }
-//
-//    MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
-//    return SCENEID_NotFound;
-//}
-
-SceneID ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId treeid)
-{
-    //typedef std::map<int, SceneInfo>::iterator it_type;
-    //for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); iterator++ )
-    //{
-    //    SceneID sceneid = iterator->first;
-    //    SceneInfo* pSceneInfo = &iterator->second;
-
-    //    if( pSceneInfo->m_TreeID == treeid )
-    //        return sceneid;
-    //}
-
-    //MyAssert( false ); // treeid not found, it should be.
-    //return -1;
-    for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
-    {
-        if( m_pSceneInfoMap[i].m_InUse && m_pSceneInfoMap[i].m_TreeID == treeid )
-            return (SceneID)i;
-    }
-
-    MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
-    return SCENEID_NotFound;
-}
-#endif //MYFW_USING_WX
 
 unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
 {
@@ -2996,9 +2824,6 @@ void ComponentSystemManager::OnPlay(SceneID sceneid)
 void ComponentSystemManager::OnStop(SceneID sceneid)
 {
     SetTimeScale( 1 );
-#if MYFW_USING_WX
-    g_pPanelWatch->SetNeedsRefresh();
-#endif //MYFW_USING_WX
 
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
@@ -3145,7 +2970,7 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
 #if MYFW_EDITOR
 void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMatView, GameObject* pObject, ShaderGroup* pShaderOverride)
 {
-    MyAssert( pObject != 0 );
+    MyAssert( pObject != nullptr );
 
     for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
@@ -3158,66 +2983,64 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMat
             ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
 
             ComponentBase* pCallbackComponent = (ComponentBase*)pCallbackStruct->pObj;
-            if( pCallbackComponent != 0 && pCallbackStruct->pFunc != 0 )
+            if( pCallbackComponent != nullptr && pCallbackStruct->pFunc != nullptr )
             {
-                (pCallbackComponent->*pCallbackStruct->pFunc)( 0, pMatProj, pMatView, pShaderOverride );
+                (pCallbackComponent->*pCallbackStruct->pFunc)( nullptr, pMatProj, pMatView, pShaderOverride );
             }
         }
     }
 }
 
-#if MYFW_USING_WX
-void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
+#if MYFW_EDITOR
+void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialCheck)
 {
     for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
     {
         MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
-        if( pFileInfo->m_pFile == 0 )
+        if( pFileInfo->GetFile() == nullptr )
             continue;
 
 #if MYFW_WINDOWS
-        if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && // haven't done initial check
-            pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime != 0 && // converted file has been loaded
-            pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
+        if( (initialCheck == false || pFileInfo->GetDidInitialCheckIfSourceFileWasUpdated() == false) && // Haven't done initial check.
+            pFileInfo->GetFile()->GetFileLastWriteTime().dwHighDateTime != 0 && // Converted file has been loaded.
+            pFileInfo->GetSourceFileFullPath()[0] != '\0' ) // We have a source file.
         {
             WIN32_FIND_DATAA data;
             memset( &data, 0, sizeof( data ) );
 
-            HANDLE handle = FindFirstFileA( pFileInfo->m_SourceFileFullPath, &data );
+            HANDLE handle = FindFirstFileA( pFileInfo->GetSourceFileFullPath(), &data );
             if( handle != INVALID_HANDLE_VALUE )
                 FindClose( handle );
 
             // if the source file is newer than the data file, reimport it.
-            if( data.ftLastWriteTime.dwHighDateTime > pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime ||
-                ( data.ftLastWriteTime.dwHighDateTime == pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime &&
-                  data.ftLastWriteTime.dwLowDateTime > pFileInfo->m_pFile->GetFileLastWriteTime().dwLowDateTime ) )
+            if( data.ftLastWriteTime.dwHighDateTime > pFileInfo->GetFile()->GetFileLastWriteTime().dwHighDateTime ||
+                ( data.ftLastWriteTime.dwHighDateTime == pFileInfo->GetFile()->GetFileLastWriteTime().dwHighDateTime &&
+                  data.ftLastWriteTime.dwLowDateTime > pFileInfo->GetFile()->GetFileLastWriteTime().dwLowDateTime ) )
             {
-                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
-                bool updated = true;
+                ImportDataFile( pFileInfo->GetSceneID(), pFileInfo->GetSourceFileFullPath() );
             }
 
-            pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
+            pFileInfo->SetDidInitialCheckIfSourceFileWasUpdated();
         }
 #else
-        if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && 
-            pFileInfo->m_pFile->GetFileLastWriteTime() != 0 && // converted file has been loaded
-            pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
+        if( (initialCheck == false || pFileInfo->GetDidInitialCheckIfSourceFileWasUpdated() == false) && // Haven't done initial check.
+            pFileInfo->m_pFile->GetFileLastWriteTime() != 0 && // Converted file has been loaded.
+            pFileInfo->GetSourceFileFullPath()[0] != '\0' ) // We have a source file.
         {
             struct stat data;
-            stat( pFileInfo->m_SourceFileFullPath, &data );
+            stat( pFileInfo->GetSourceFileFullPath(), &data );
             if( data.st_mtime == pFileInfo->m_pFile->GetFileLastWriteTime() )
             {
-                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
-                bool updated = true;
+                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->GetSourceFileFullPath() );
             }
 
-            pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
+            pFileInfo->SetDidInitialCheckIfSourceFileWasUpdated();
         }
 #endif
     }
     
-    // TODO: check for updates to files that are still loading?
+    // TODO: Check for updates to files that are still loading?
     //m_FilesStillLoading
 }
 
@@ -3229,10 +3052,10 @@ void ComponentSystemManager::OnFileUpdated(MyFileObject* pFile)
     }
 }
 
-void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj)
+void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction* pFunc, void* pObj)
 {
-    MyAssert( pFunc != 0 );
-    MyAssert( pObj != 0 );
+    MyAssert( pFunc != nullptr );
+    MyAssert( pObj != nullptr );
 
     FileUpdatedCallbackStruct callbackstruct;
     callbackstruct.pFunc = pFunc;
@@ -3240,41 +3063,7 @@ void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallb
 
     m_pFileUpdatedCallbackList.push_back( callbackstruct );
 }
-
-void ComponentSystemManager::OnLeftClick(unsigned int count, bool clear)
-{
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
-}
-
-void ComponentSystemManager::OnRightClick()
-{
-    //wxMenu menu;
-    //menu.SetClientData( this );
-
-    //menu.Append( 1000, "Add Game Object" );
-    //menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentSystemManager::OnPopupClick );
-
-    //// blocking call. // should delete all categorymenu's new'd above when done.
-    //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
-}
-
-void ComponentSystemManager::OnPopupClick(wxEvent &evt)
-{
-    //int id = evt.GetId();
-    //if( id == 1000 )
-    //{
-    //    GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetName( "New Game Object" );
-    //}
-}
-
-void ComponentSystemManager::OnMemoryPanelFileSelectedLeftClick()
-{
-    // not sure why I put this in anymore... might be handy later.
-    //int bp = 1;
-}
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
 {
@@ -3283,7 +3072,7 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
     if( pMaterial )
     {
         // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, 0, SCENEID_MainScene );
+        AddToFileList( pMaterial->GetFile(), nullptr, nullptr, nullptr, pMaterial, nullptr, nullptr, nullptr, SCENEID_MainScene );
     }
 }
 

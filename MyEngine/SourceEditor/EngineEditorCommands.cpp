@@ -23,7 +23,7 @@
 // EditorCommand_ImGuiPanelWatchNumberValueChanged
 //====================================================================================================
 
-//EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(double difference, PanelWatch_Types type, void* pointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj)
+//EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(double difference, PanelWatch_Types type, void* pointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged* callbackfunc, void* callbackobj)
 //EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(ComponentBase* pCallbackObj, ComponentVariable* pVar, double difference, bool directlychanged)
 EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(ComponentBase* pCallbackObj, ComponentVariable* pVar, ComponentVariableValue newvalue, ComponentVariableValue oldvalue, bool directlychanged)
 {
@@ -311,25 +311,25 @@ EditorCommand* EditorCommand_ImGuiPanelWatchNumberValueChanged::Repeat()
 // EditorCommand_ImGuiPanelWatchColorChanged
 //====================================================================================================
 
-EditorCommand_ImGuiPanelWatchColorChanged::EditorCommand_ImGuiPanelWatchColorChanged(ColorFloat newcolor, PanelWatch_Types type, void* pointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj)
+EditorCommand_ImGuiPanelWatchColorChanged::EditorCommand_ImGuiPanelWatchColorChanged(ColorFloat newColor, PanelWatch_Types type, void* pPointer, int controlID, bool directlyChanged, PanelWatchCallbackValueChanged* callbackFunc, void* callbackObj)
 {
     m_Name = "EditorCommand_ImGuiPanelWatchColorChanged";
 
     MyAssert( type == PanelWatchType_ColorFloat || type == PanelWatchType_ColorByte );
 
-    m_NewColor = newcolor;
+    m_NewColor = newColor;
     m_Type = type;
-    m_Pointer = pointer;
-    m_ControlID = controlid;
-    m_DirectlyChanged = directlychanged;
+    m_Pointer = pPointer;
+    m_ControlID = controlID;
+    m_DirectlyChanged = directlyChanged;
 
     if( m_Type == PanelWatchType_ColorFloat )
-        m_OldColor = *(ColorFloat*)pointer;
+        m_OldColor = *(ColorFloat*)pPointer;
     else
-        m_OldColor = ((ColorByte*)pointer)->AsColorFloat();
+        m_OldColor = ((ColorByte*)pPointer)->AsColorFloat();
 
-    m_pOnValueChangedCallBackFunc = callbackfunc;
-    m_pCallbackObj = callbackobj;
+    m_pOnValueChangedCallBackFunc = callbackFunc;
+    m_pCallbackObj = callbackObj;
 }
 
 EditorCommand_ImGuiPanelWatchColorChanged::~EditorCommand_ImGuiPanelWatchColorChanged()
@@ -396,22 +396,22 @@ EditorCommand* EditorCommand_ImGuiPanelWatchColorChanged::Repeat()
 // EditorCommand_ImGuiPanelWatchPointerChanged
 //====================================================================================================
 
-EditorCommand_ImGuiPanelWatchPointerChanged::EditorCommand_ImGuiPanelWatchPointerChanged(void* newvalue, PanelWatch_Types type, void** ppointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj)
+EditorCommand_ImGuiPanelWatchPointerChanged::EditorCommand_ImGuiPanelWatchPointerChanged(void* newValue, PanelWatch_Types type, void** pPointer, int controlID, bool directlyChanged, PanelWatchCallbackValueChanged callbackFunc, void* callbackObj)
 {
     m_Name = "EditorCommand_ImGuiPanelWatchPointerChanged";
 
     MyAssert( type == PanelWatchType_PointerWithDesc );
 
-    m_NewValue = newvalue;
+    m_NewValue = newValue;
     m_Type = type;
-    m_pPointer = ppointer;
-    m_ControlID = controlid;
-    m_DirectlyChanged = directlychanged;
+    m_pPointer = pPointer;
+    m_ControlID = controlID;
+    m_DirectlyChanged = directlyChanged;
 
-    m_OldValue = *ppointer;
+    m_OldValue = *pPointer;
 
-    m_pOnValueChangedCallBackFunc = callbackfunc;
-    m_pCallbackObj = callbackobj;
+    m_pOnValueChangedCallBackFunc = callbackFunc;
+    m_pCallbackObj = callbackObj;
 }
 
 EditorCommand_ImGuiPanelWatchPointerChanged::~EditorCommand_ImGuiPanelWatchPointerChanged()
@@ -1649,17 +1649,17 @@ EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
 // EditorCommand_LuaExposedVariablePointerChanged
 //====================================================================================================
 
-EditorCommand_LuaExposedVariablePointerChanged::EditorCommand_LuaExposedVariablePointerChanged(void* newvalue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback callbackfunc, void* callbackobj)
+EditorCommand_LuaExposedVariablePointerChanged::EditorCommand_LuaExposedVariablePointerChanged(void* newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
 {
     m_Name = "EditorCommand_LuaExposedVariablePointerChanged";
 
-    m_NewValue = newvalue;
+    m_NewValue = newValue;
     m_pVar = pVar;
 
     m_OldValue = pVar->pointer;
 
-    m_pOnValueChangedCallBackFunc = callbackfunc;
-    m_pCallbackObj = callbackobj;
+    m_pOnValueChangedCallBackFunc = callbackFunc;
+    m_pCallbackObj = callbackObj;
 }
 
 EditorCommand_LuaExposedVariablePointerChanged::~EditorCommand_LuaExposedVariablePointerChanged()

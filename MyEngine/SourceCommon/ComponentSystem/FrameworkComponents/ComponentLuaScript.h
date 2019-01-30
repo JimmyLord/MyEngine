@@ -57,7 +57,7 @@ public:
     }
 };
 
-typedef void (*LuaExposedVarValueChangedCallback)(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer);
+typedef void LuaExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
 
 class ComponentLuaScript : public ComponentUpdateable
 {

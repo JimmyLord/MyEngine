@@ -480,7 +480,7 @@ void VoxelChunk::GenerateMap()
                 unsigned int blocktype;
                 Vector3Int worldpos = Vector3Int( chunkoffset.x + x, chunkoffset.y + y, chunkoffset.z + z );
 
-                VoxelWorld_GenerateMap_CallbackFunction pFunc = m_pWorld->GetMapGenerationCallbackFunction();
+                VoxelWorld_GenerateMap_CallbackFunction* pFunc = m_pWorld->GetMapGenerationCallbackFunction();
 
                 if( pFunc != 0 )
                     blocktype = pFunc( worldpos );

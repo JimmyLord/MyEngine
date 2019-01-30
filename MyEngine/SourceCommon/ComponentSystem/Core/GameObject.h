@@ -29,11 +29,11 @@ class PrefabFile;
 class PrefabObject;
 class PrefabReference;
 
-typedef void (*GameObjectDeletedCallbackFunc)(void* pObjectPtr, GameObject* pGameObject);
+typedef void GameObjectDeletedCallbackFunc(void* pObjectPtr, GameObject* pGameObject);
 struct GameObjectDeletedCallbackStruct : CPPListNode
 {
     void* pObj;
-    GameObjectDeletedCallbackFunc pFunc;
+    GameObjectDeletedCallbackFunc* pFunc;
 };
 
 class GameObject : public TCPPListNode<GameObject*>
@@ -174,8 +174,8 @@ public:
     void ReturnToPool();
 
     // Callbacks
-    void RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
-    void UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
+    void RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc* pCallback);
+    void UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc* pCallback);
 
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((GameObject*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     void OnGameObjectDeleted(GameObject* pGameObject);

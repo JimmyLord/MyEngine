@@ -11,7 +11,7 @@
 			        "Type":	"Light",
 			        "LightType":	"Point",
 			        "Color":	[1, 1, 1, 1],
-			        "Atten":	[0, 0, 0.090000]
+			        "Atten":	[8, 0, 0.090000]
 				}]
         }, {
 			"Name":	"2D Physics Objects",

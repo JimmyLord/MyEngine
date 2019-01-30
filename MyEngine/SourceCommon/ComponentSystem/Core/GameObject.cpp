@@ -1208,7 +1208,7 @@ ComponentBase* GameObject::GetNextComponentOfType(ComponentBase* pLastComponent)
     return 0; // component not found.
 }
 
-void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback)
+void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc* pCallback)
 {
     MyAssert( pCallback != 0 );
 
@@ -1231,7 +1231,7 @@ void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackF
     m_pOnDeleteCallbacks.AddTail( pCallbackStruct );
 }
 
-void GameObject::UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback)
+void GameObject::UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc* pCallback)
 {
     for( CPPListNode* pNode = m_pOnDeleteCallbacks.GetHead(); pNode; pNode = pNode->GetNext() )
     {

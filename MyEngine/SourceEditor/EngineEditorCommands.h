@@ -47,7 +47,7 @@ class EditorCommand_RestorePrefabComponent;
 class ExposedVariableDesc;
 
 #if MYFW_USING_IMGUI
-typedef void (*PanelWatchCallbackValueChanged)(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging);
+typedef void PanelWatchCallbackValueChanged(void* pObjectPtr, int controlID, bool directlyChanged, bool finishedChanging, double oldValue, bool valueWasChangedByDragging);
 
 enum PanelWatch_Types
 {
@@ -105,11 +105,11 @@ protected:
     int m_ControlID;
     bool m_DirectlyChanged;
 
-    PanelWatchCallbackValueChanged m_pOnValueChangedCallBackFunc;
+    PanelWatchCallbackValueChanged* m_pOnValueChangedCallBackFunc;
     void* m_pCallbackObj;
 
 public:
-    EditorCommand_ImGuiPanelWatchColorChanged(ColorFloat newcolor, PanelWatch_Types type, void* pointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj);
+    EditorCommand_ImGuiPanelWatchColorChanged(ColorFloat newColor, PanelWatch_Types type, void* pPointer, int controlID, bool directlyChanged, PanelWatchCallbackValueChanged* callbackFunc, void* callbackObj);
     virtual ~EditorCommand_ImGuiPanelWatchColorChanged();
 
     virtual void Do();
@@ -129,11 +129,11 @@ protected:
     int m_ControlID;
     bool m_DirectlyChanged;
 
-    PanelWatchCallbackValueChanged m_pOnValueChangedCallBackFunc;
+    PanelWatchCallbackValueChanged* m_pOnValueChangedCallBackFunc;
     void* m_pCallbackObj;
 
 public:
-    EditorCommand_ImGuiPanelWatchPointerChanged(void* newvalue, PanelWatch_Types type, void** ppointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj);
+    EditorCommand_ImGuiPanelWatchPointerChanged(void* newValue, PanelWatch_Types type, void** pPointer, int controlID, bool directlyChanged, PanelWatchCallbackValueChanged* callbackFunc, void* callbackObj);
     virtual ~EditorCommand_ImGuiPanelWatchPointerChanged();
 
     virtual void Do();
@@ -550,11 +550,11 @@ protected:
     void* m_OldValue;
     ExposedVariableDesc* m_pVar;
 
-    LuaExposedVarValueChangedCallback m_pOnValueChangedCallBackFunc;
+    LuaExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
     void* m_pCallbackObj;
 
 public:
-    EditorCommand_LuaExposedVariablePointerChanged(void* newvalue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback callbackfunc, void* callbackobj);
+    EditorCommand_LuaExposedVariablePointerChanged(void* newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
     virtual ~EditorCommand_LuaExposedVariablePointerChanged();
 
     virtual void Do();

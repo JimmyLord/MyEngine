@@ -41,14 +41,14 @@ enum ObjectListIconTypes
 
 extern ComponentSystemManager* g_pComponentSystemManager;
 
-#if MYFW_USING_WX
-typedef void (*FileUpdatedCallbackFunction)(void* obj, MyFileObject* pFile);
+#if MYFW_EDITOR
+typedef void FileUpdatedCallbackFunction(void* obj, MyFileObject* pFile);
 struct FileUpdatedCallbackStruct
 {
     void* pObj;
-    FileUpdatedCallbackFunction pFunc;
+    FileUpdatedCallbackFunction* pFunc;
 };
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 // Define structures to hold callback funcs and objects.
 #define MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT(CallbackType) \
@@ -133,9 +133,6 @@ MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnKeys );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnFileRenamed );
 
 class ComponentSystemManager
-#if MYFW_USING_WX
-: public wxEvtHandler
-#endif //MYFW_USING_WX
 {
 protected:
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
@@ -154,9 +151,9 @@ protected:
 
     SceneGraph_Base* m_pSceneGraph;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 public:
     ComponentSystemManager(ComponentTypeManager* typemanager);
@@ -185,8 +182,8 @@ public:
 
     MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneid);
     MyFileInfo* EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired);
-    MyFileInfo* LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired);
-#if MYFW_USING_WX
+    MyFileInfo* LoadDataFile(const char* relativePath, SceneID sceneID, const char* fullSourceFilePath, bool convertIfRequired);
+#if MYFW_EDITOR
     MyFileObject* ImportDataFile(SceneID sceneid, const char* fullsourcefilepath);
 #endif
     void FreeDataFile(MyFileInfo* pFileInfo);
@@ -230,7 +227,7 @@ public:
     GameObject* FindGameObjectByNameFromList(GameObject* list, const char* name);
     GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultSceneID, bool requireSceneBeLoaded);
     ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid);
-    ComponentCamera* GetFirstCamera(bool prefereditorcam = false);
+    ComponentCamera* GetFirstCamera(bool preferEditorCam = false);
     ComponentBase* GetFirstComponentOfType(const char* type);
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);
 
@@ -307,20 +304,11 @@ public:
 #if MYFW_EDITOR
     void DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMatView, GameObject* pObject, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
 
-#if MYFW_USING_WX
-    void CheckForUpdatedDataSourceFiles(bool initialcheck);
+#if MYFW_EDITOR
+    void CheckForUpdatedDataSourceFiles(bool initialCheck);
     void OnFileUpdated(MyFileObject* pFile);
-    void Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj);
-
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick( count, true ); }
-    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }
-    void OnLeftClick(unsigned int count, bool clear);
-    void OnRightClick();
-    void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
-
-    static void StaticOnMemoryPanelFileSelectedLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnMemoryPanelFileSelectedLeftClick(); }
-    void OnMemoryPanelFileSelectedLeftClick();
-#endif //MYFW_USING_WX
+    void Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction* pFunc, void* pObj);
+#endif //MYFW_EDITOR
 
     static void StaticOnMaterialCreated(void* pObjectPtr, MaterialDefinition* pMaterial) { ((ComponentSystemManager*)pObjectPtr)->OnMaterialCreated( pMaterial ); }
     void OnMaterialCreated(MaterialDefinition* pMaterial);
@@ -390,8 +378,10 @@ public:
         SAFE_RELEASE( m_p2DAnimInfo );
     }
 
+    // Getters.
     SceneID GetSceneID() { return m_SceneID; }
     const char* GetSourceFileFullPath() { return m_SourceFileFullPath; }
+    bool GetDidInitialCheckIfSourceFileWasUpdated() { return m_DidInitialCheckIfSourceFileWasUpdated; }
 
     MyFileObject*       GetFile()           { return m_pFile; }
     MyMesh*             GetMesh()           { return m_pMesh; }
@@ -403,8 +393,10 @@ public:
     PrefabFile*         GetPrefabFile()     { return m_pPrefabFile; }
     My2DAnimInfo*       Get2DAnimInfo()     { return m_p2DAnimInfo; }
 
+    // Setters.
     void SetSceneID(SceneID id) { m_SceneID = id; }
     void SetSourceFileFullPath(const char* fullPath) { strcpy_s( m_SourceFileFullPath, MAX_PATH, fullPath ); }
+    void SetDidInitialCheckIfSourceFileWasUpdated() { m_DidInitialCheckIfSourceFileWasUpdated = true; }
 
     void SetFile(MyFileObject* pFile)               { m_pFile = pFile;                  if( pFile )         pFile->AddRef(); }
     void SetMesh(MyMesh* pMesh)                     { m_pMesh = pMesh;                  if( pMesh )         pMesh->AddRef(); }

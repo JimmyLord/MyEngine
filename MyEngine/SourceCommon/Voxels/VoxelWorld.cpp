@@ -1038,12 +1038,12 @@ cJSON* VoxelWorld::GetJSONObjectForChunk(Vector3Int chunkpos)
 // ============================================================================================================================
 // Map generation
 // ============================================================================================================================
-void VoxelWorld::SetMapGenerationCallbackFunction(VoxelWorld_GenerateMap_CallbackFunction pFunc)
+void VoxelWorld::SetMapGenerationCallbackFunction(VoxelWorld_GenerateMap_CallbackFunction* pFunc)
 {
     m_pMapGenCallbackFunc = pFunc;
 }
 
-VoxelWorld_GenerateMap_CallbackFunction VoxelWorld::GetMapGenerationCallbackFunction()
+VoxelWorld_GenerateMap_CallbackFunction* VoxelWorld::GetMapGenerationCallbackFunction()
 {
     return m_pMapGenCallbackFunc;
 }
