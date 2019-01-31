@@ -22,53 +22,53 @@ class MenuItem;
 
 #define LEGACYHACK 0
 
-typedef bool (*MenuPageActionCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, const char* function, const char* action, MenuItem* pMenuItem);
+typedef bool MenuPageActionCallbackFunc(void* pObjectPtr, ComponentMenuPage* pPage, const char* function, const char* action, MenuItem* pMenuItem);
 struct MenuPageActionCallbackStruct
 {
     void* pObj;
-    MenuPageActionCallbackFunc pFunc;
+    MenuPageActionCallbackFunc* pFunc;
 };
 
-typedef void (*MenuPageVisibleCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, bool visible);
+typedef void MenuPageVisibleCallbackFunc(void* pObjectPtr, ComponentMenuPage* pPage, bool visible);
 struct MenuPageVisibleCallbackStruct
 {
     void* pObj;
-    MenuPageVisibleCallbackFunc pFunc;
+    MenuPageVisibleCallbackFunc* pFunc;
 };
 
-typedef void (*MenuPageTickCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, float deltaTime);
+typedef void MenuPageTickCallbackFunc(void* pObjectPtr, ComponentMenuPage* pPage, float deltaTime);
 struct MenuPageTickCallbackStruct
 {
     void* pObj;
-    MenuPageTickCallbackFunc pFunc;
+    MenuPageTickCallbackFunc* pFunc;
 };
 
-typedef void (*MenuPageDrawCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
+typedef void MenuPageDrawCallbackFunc(void* pObjectPtr, ComponentMenuPage* pPage, ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
 struct MenuPageDrawCallbackStruct
 {
     void* pObj;
-    MenuPageDrawCallbackFunc pFunc;
+    MenuPageDrawCallbackFunc* pFunc;
 };
 
-typedef bool (*MenuPageOnTouchCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, int action, int id, float x, float y, float pressure, float size);
+typedef bool MenuPageOnTouchCallbackFunc(void* pObjectPtr, ComponentMenuPage* pPage, int action, int id, float x, float y, float pressure, float size);
 struct MenuPageOnTouchCallbackStruct
 {
     void* pObj;
-    MenuPageOnTouchCallbackFunc pFunc;
+    MenuPageOnTouchCallbackFunc* pFunc;
 };
 
-typedef bool (*MenuPageOnButtonsCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, GameCoreButtonActions action, GameCoreButtonIDs id);
+typedef bool MenuPageOnButtonsCallbackFunc(void* pObjectPtr, ComponentMenuPage* pPage, GameCoreButtonActions action, GameCoreButtonIDs id);
 struct MenuPageOnButtonsCallbackStruct
 {
     void* pObj;
-    MenuPageOnButtonsCallbackFunc pFunc;
+    MenuPageOnButtonsCallbackFunc* pFunc;
 };
 
-typedef bool (*MenuPageOnKeysCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, GameCoreButtonActions action, int keycode, int unicodechar);
+typedef bool MenuPageOnKeysCallbackFunc(void* pObjectPtr, ComponentMenuPage* pPage, GameCoreButtonActions action, int keycode, int unicodechar);
 struct MenuPageOnKeysCallbackStruct
 {
     void* pObj;
-    MenuPageOnKeysCallbackFunc pFunc;
+    MenuPageOnKeysCallbackFunc* pFunc;
 };
 
 class ComponentMenuPage : public ComponentRenderable
@@ -168,13 +168,13 @@ public:
 
     unsigned int GetNumMenuItemsUsed() { return m_MenuItemsUsed; }
 
-    void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc);
-    void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc);
-    void RegisterMenuPageTickCallback(void* pObj, MenuPageTickCallbackFunc pFunc);
-    void RegisterMenuPageDrawCallback(void* pObj, MenuPageDrawCallbackFunc pFunc);
-    void RegisterMenuPageOnTouchCallback(void* pObj, MenuPageOnTouchCallbackFunc pFunc);
-    void RegisterMenuPageOnButtonsCallback(void* pObj, MenuPageOnButtonsCallbackFunc pFunc);
-    void RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc pFunc);
+    void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc* pFunc);
+    void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc* pFunc);
+    void RegisterMenuPageTickCallback(void* pObj, MenuPageTickCallbackFunc* pFunc);
+    void RegisterMenuPageDrawCallback(void* pObj, MenuPageDrawCallbackFunc* pFunc);
+    void RegisterMenuPageOnTouchCallback(void* pObj, MenuPageOnTouchCallbackFunc* pFunc);
+    void RegisterMenuPageOnButtonsCallback(void* pObj, MenuPageOnButtonsCallbackFunc* pFunc);
+    void RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc* pFunc);
 
     virtual void SetVisible(bool visible);
     virtual bool IsVisible();

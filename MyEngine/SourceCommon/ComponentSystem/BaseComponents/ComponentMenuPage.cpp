@@ -1781,43 +1781,43 @@ MenuItem* ComponentMenuPage::GetSelectedItem()
     return m_pMenuItems[m_ItemSelected];
 }
 
-void ComponentMenuPage::RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc)
+void ComponentMenuPage::RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc* pFunc)
 {
     m_MenuPageActionCallbackStruct.pFunc = pFunc;
     m_MenuPageActionCallbackStruct.pObj = pObj;
 }
 
-void ComponentMenuPage::RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc)
+void ComponentMenuPage::RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc* pFunc)
 {
     m_MenuPageVisibleCallbackStruct.pFunc = pFunc;
     m_MenuPageVisibleCallbackStruct.pObj = pObj;
 }
 
-void ComponentMenuPage::RegisterMenuPageTickCallback(void* pObj, MenuPageTickCallbackFunc pFunc)
+void ComponentMenuPage::RegisterMenuPageTickCallback(void* pObj, MenuPageTickCallbackFunc* pFunc)
 {
     m_MenuPageTickCallbackStruct.pFunc = pFunc;
     m_MenuPageTickCallbackStruct.pObj = pObj;
 }
 
-void ComponentMenuPage::RegisterMenuPageDrawCallback(void* pObj, MenuPageDrawCallbackFunc pFunc)
+void ComponentMenuPage::RegisterMenuPageDrawCallback(void* pObj, MenuPageDrawCallbackFunc* pFunc)
 {
     m_MenuPageDrawCallbackStruct.pFunc = pFunc;
     m_MenuPageDrawCallbackStruct.pObj = pObj;
 }
 
-void ComponentMenuPage::RegisterMenuPageOnTouchCallback(void* pObj, MenuPageOnTouchCallbackFunc pFunc)
+void ComponentMenuPage::RegisterMenuPageOnTouchCallback(void* pObj, MenuPageOnTouchCallbackFunc* pFunc)
 {
     m_MenuPageOnTouchCallbackStruct.pFunc = pFunc;
     m_MenuPageOnTouchCallbackStruct.pObj = pObj;
 }
 
-void ComponentMenuPage::RegisterMenuPageOnButtonsCallback(void* pObj, MenuPageOnButtonsCallbackFunc pFunc)
+void ComponentMenuPage::RegisterMenuPageOnButtonsCallback(void* pObj, MenuPageOnButtonsCallbackFunc* pFunc)
 {
     m_MenuPageOnButtonsCallbackStruct.pFunc = pFunc;
     m_MenuPageOnButtonsCallbackStruct.pObj = pObj;
 }
 
-void ComponentMenuPage::RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc pFunc)
+void ComponentMenuPage::RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc* pFunc)
 {
     m_MenuPageOnKeysCallbackStruct.pFunc = pFunc;
     m_MenuPageOnKeysCallbackStruct.pObj = pObj;

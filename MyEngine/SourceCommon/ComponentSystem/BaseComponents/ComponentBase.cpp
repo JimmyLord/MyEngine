@@ -216,7 +216,7 @@ SceneInfo* ComponentBase::GetSceneInfo()
     return g_pComponentSystemManager->GetSceneInfo( m_SceneIDLoadedFrom );
 }
 
-void ComponentBase::RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback)
+void ComponentBase::RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc* pCallback)
 {
     MyAssert( pCallback != 0 );
 
@@ -236,7 +236,7 @@ void ComponentBase::RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbac
     m_pOnDeleteCallbacks.AddTail( pCallbackStruct );
 }
 
-void ComponentBase::UnregisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback)
+void ComponentBase::UnregisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc* pCallback)
 {
     for( CPPListNode* pNode = m_pOnDeleteCallbacks.GetHead(); pNode; pNode = pNode->GetNext() )
     {

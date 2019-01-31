@@ -31,11 +31,11 @@ enum BaseComponentTypes
 
 class ComponentVariable;
 
-typedef void (*ComponentDeletedCallbackFunc)(void* pObjectPtr, ComponentBase* pComponent);
+typedef void ComponentDeletedCallbackFunc(void* pObjectPtr, ComponentBase* pComponent);
 struct ComponentDeletedCallbackStruct : CPPListNode
 {
     void* pObj;
-    ComponentDeletedCallbackFunc pFunc;
+    ComponentDeletedCallbackFunc* pFunc;
 };
 
 class ComponentBase : public CPPListNode
@@ -109,8 +109,8 @@ public:
     virtual bool ExistsOnLayer(unsigned int layerflags) { return true; }
 
     // Callbacks.
-    void RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback);
-    void UnregisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback);
+    void RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc* pCallback);
+    void UnregisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc* pCallback);
 
 protected:
     static void ClearAllVariables_Base(CPPListHead* pComponentVariableList);

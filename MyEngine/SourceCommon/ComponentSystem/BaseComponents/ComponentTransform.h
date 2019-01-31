@@ -12,11 +12,11 @@
 
 #include "ComponentBase.h"
 
-typedef void (*TransformChangedCallbackFunc)(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+typedef void TransformChangedCallbackFunc(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 struct TransformChangedCallbackStruct : public CPPListNode
 {
     void* pObj;
-    TransformChangedCallbackFunc pFunc;
+    TransformChangedCallbackFunc* pFunc;
 };
 
 extern MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_TransformChangedCallbackPool;
@@ -112,7 +112,7 @@ public:
     void UpdateTransform();
 
     // Callbacks
-    void RegisterTransformChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback);
+    void RegisterTransformChangedCallback(void* pObj, TransformChangedCallbackFunc* pCallback);
     void UnregisterTransformChangedCallbacks(void* pObj);
 
     // Parent transform changed

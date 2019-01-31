@@ -875,7 +875,7 @@ void ComponentTransform::UpdateTransform()
 //    return &m_Transform;
 //}
 
-void ComponentTransform::RegisterTransformChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback)
+void ComponentTransform::RegisterTransformChangedCallback(void* pObj, TransformChangedCallbackFunc* pCallback)
 {
     MyAssert( pCallback != 0 );
 
