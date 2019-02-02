@@ -18,7 +18,7 @@
 #include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
-#include "../../../SharedGameCode/Core/MeshShapes.h"
+#include "../../../SharedGameCode/Core/MyMeshText.h"
 #include "../../../SharedGameCode/Core/RenderTextQuick.h"
 
 #if MYFW_EDITOR

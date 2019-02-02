@@ -276,6 +276,8 @@ void ComponentMeshPrimitive::CreatePrimitive()
         m_pMesh->CreateGrass( Vector3(-m_Plane_Size.x/2, 0, -m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart );
     }
 
+    m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
+
     // Add the Mesh to the main scene graph.
     AddToSceneGraph();
 }

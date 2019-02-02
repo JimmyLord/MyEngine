@@ -85,7 +85,7 @@
 
 #include "ComponentSystem/Core/GameObject.h"
 
-#include "../../../SharedGameCode/Core/MeshShapes.h"
+#include "../../../SharedGameCode/Core/MyMeshText.h"
 #include "../../../SharedGameCode/Core/RenderTextQuick.h"
 
 #include "../../../SharedGameCode/Menus/LanguageTable.h"

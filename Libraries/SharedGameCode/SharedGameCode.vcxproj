@@ -726,7 +726,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\SharedGameCode\Camera\SharedCamera3D.cpp" />
-    <ClCompile Include="..\..\..\SharedGameCode\Core\MeshShapes.cpp" />
+    <ClCompile Include="..\..\..\SharedGameCode\Core\MyMeshText.cpp" />
     <ClCompile Include="..\..\..\SharedGameCode\Core\RenderTextQuick.cpp" />
     <ClCompile Include="..\..\..\SharedGameCode\Menus\LanguageTable.cpp" />
     <ClCompile Include="..\..\..\SharedGameCode\Menus\MenuButton.cpp" />
@@ -785,7 +785,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\SharedGameCode\Camera\SharedCamera3D.h" />
-    <ClInclude Include="..\..\..\SharedGameCode\Core\MeshShapes.h" />
+    <ClInclude Include="..\..\..\SharedGameCode\Core\MyMeshText.h" />
     <ClInclude Include="..\..\..\SharedGameCode\Core\RenderTextQuick.h" />
     <ClInclude Include="..\..\..\SharedGameCode\Menus\LanguageTable.h" />
     <ClInclude Include="..\..\..\SharedGameCode\Menus\MenuButton.h" />

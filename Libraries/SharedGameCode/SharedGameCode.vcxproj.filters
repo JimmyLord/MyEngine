@@ -58,10 +58,10 @@
     <ClCompile Include="SharedCommonHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SharedGameCode\Core\MeshShapes.cpp">
+    <ClCompile Include="..\..\..\SharedGameCode\Core\RenderTextQuick.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\SharedGameCode\Core\RenderTextQuick.cpp">
+    <ClCompile Include="..\..\..\SharedGameCode\Core\MyMeshText.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,10 +108,10 @@
     <ClInclude Include="SharedCommonHeader.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\SharedGameCode\Core\MeshShapes.h">
+    <ClInclude Include="..\..\..\SharedGameCode\Core\RenderTextQuick.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\SharedGameCode\Core\RenderTextQuick.h">
+    <ClInclude Include="..\..\..\SharedGameCode\Core\MyMeshText.h">
       <Filter>Source Files\Core</Filter>
     </ClInclude>
   </ItemGroup>

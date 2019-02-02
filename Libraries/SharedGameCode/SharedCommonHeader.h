@@ -15,7 +15,7 @@
 
 #include "../../../SharedGameCode/Core/RenderTextQuick.h"
 #include "../../../SharedGameCode/Menus/MenuItem.h"
-#include "../../../SharedGameCode/Core/MeshShapes.h"
+#include "../../../SharedGameCode/Core/MyMeshText.h"
 
 #include "../../../SharedGameCode/Menus/LanguageTable.h"
 #include "../../../SharedGameCode/Menus/MenuButton.h"
