@@ -41,7 +41,7 @@ public:
     Vector2 m_Plane_UVStart;
     Vector2 m_Plane_UVRange;
 
-    // Sphere.
+    // Icosphere and 2D circle.
     float m_Sphere_Radius;
 
 public:
@@ -53,15 +53,15 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID);
-    virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID);
+    virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID) override;
+    virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID) override;
 
-    virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshPrimitive&)*pObject; }
-    virtual ComponentMeshPrimitive& operator=(const ComponentMeshPrimitive& other);
+    virtual void Reset() override;
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) override { *this = (ComponentMeshPrimitive&)*pObject; }
+    virtual ComponentMeshPrimitive& operator=(const ComponentMeshPrimitive& other) override;
 
-    virtual void RegisterCallbacks();
-    virtual void UnregisterCallbacks();
+    virtual void RegisterCallbacks() override;
+    virtual void UnregisterCallbacks() override;
 
     void CreatePrimitive();
 
@@ -78,6 +78,9 @@ protected:
 public:
 #if MYFW_EDITOR
     bool m_PrimitiveSettingsChangedAtRuntime;
+
+    // Component variable callbacks.
+    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar) override;
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };

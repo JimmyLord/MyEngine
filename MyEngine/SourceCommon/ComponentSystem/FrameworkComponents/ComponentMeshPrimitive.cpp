@@ -15,7 +15,7 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshPrimitive ); //_VARIABLE_LIST
 
-// These strings are used to save, so don't change them.
+// These strings are used to save/load, so don't change them.
 const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
 {
     "Plane",       // ComponentMeshPrimitive_Plane
@@ -53,6 +53,14 @@ void ComponentMeshPrimitive::RegisterVariables(CPPListHead* pList, ComponentMesh
     pVars[5] = AddVar( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
     pVars[6] = AddVar( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
     pVars[7] = AddVar( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+
+#if MYFW_EDITOR
+    for( int i=0; i<8; i++ )
+    {
+        pVars[i]->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+        //pVars[i]->AddCallback_VariableAddedToInterface( (CVarFunc_VariableAddedToInterface)(&ComponentMeshPrimitive::VariableAddedToWatchPanel) );
+    }
+#endif
 }
 
 void ComponentMeshPrimitive::Reset()
@@ -85,7 +93,7 @@ void ComponentMeshPrimitive::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
     if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
@@ -130,9 +138,7 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
 
     return ComponentMesh::ShouldVariableBeAddedToWatchPanel( pVar );
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldPointer = 0;
