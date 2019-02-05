@@ -20,6 +20,8 @@ enum ComponentMeshPrimitives // Saved as string, order can change.
     ComponentMeshPrimitive_Icosphere,
     ComponentMeshPrimitive_2DCircle,
     ComponentMeshPrimitive_Grass,
+    ComponentMeshPrimitive_NumTypesAccessibleFromInterface,
+    ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive = ComponentMeshPrimitive_NumTypesAccessibleFromInterface,
     ComponentMeshPrimitive_NumTypes,
 };
 

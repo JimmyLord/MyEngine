@@ -11,6 +11,7 @@
 #define __EngineEditorCommands_H__
 
 #include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
 
 class Component2DCollisionObject;
 class ComponentAudioPlayer;
@@ -44,6 +45,7 @@ class EditorCommand_DivorceOrMarryComponentVariable;
 class EditorCommand_ComponentVariableIndirectPointerChanged;
 class EditorCommand_ReorderOrReparentGameObjects;
 class EditorCommand_RestorePrefabComponent;
+class EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh;
 class ExposedVariableDesc;
 
 #if MYFW_USING_IMGUI
@@ -663,6 +665,27 @@ protected:
 public:
     EditorCommand_RestorePrefabComponent(GameObject* pObject, uint32 deletedPrefabComponentID);
     virtual ~EditorCommand_RestorePrefabComponent();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh : public EditorCommand
+{
+protected:
+    ComponentMeshPrimitive* m_pComponent;
+    MyMesh* m_pOldMesh;
+    MyMesh* m_pNewMesh;
+    MyRE::PrimitiveTypes m_OldGLPrimitiveType;
+    MyRE::PrimitiveTypes m_NewGLPrimitiveType;
+    ComponentMeshPrimitives m_NewMeshPrimitiveType;
+
+public:
+    EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh(ComponentMeshPrimitive* pComponent, MyMesh* pOldMesh, ComponentMeshPrimitives newMeshPrimitiveType);
+    virtual ~EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh();
 
     virtual void Do();
     virtual void Undo();

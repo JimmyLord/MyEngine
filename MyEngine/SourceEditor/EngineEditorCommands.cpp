@@ -15,6 +15,7 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorState.h"
 
@@ -2168,6 +2169,57 @@ void EditorCommand_RestorePrefabComponent::Undo()
 }
 
 EditorCommand* EditorCommand_RestorePrefabComponent::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
+//====================================================================================================
+
+EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh::EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh(ComponentMeshPrimitive* pComponent, MyMesh* pOldMesh, ComponentMeshPrimitives newMeshPrimitiveType)
+{
+    MyAssert( pComponent != nullptr );
+    MyAssert( pOldMesh != nullptr );
+    MyAssert( newMeshPrimitiveType < ComponentMeshPrimitive_NumTypesAccessibleFromInterface );
+
+    m_Name = "EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh";
+
+    m_pComponent = pComponent;
+    
+    m_pOldMesh = pOldMesh;
+    m_pOldMesh->AddRef();
+    m_pNewMesh = MyNew MyMesh();
+
+    m_OldGLPrimitiveType = m_pComponent->m_GLPrimitiveType;
+    m_NewGLPrimitiveType = m_pComponent->m_GLPrimitiveType;
+    m_NewMeshPrimitiveType = newMeshPrimitiveType;
+}
+
+EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh::~EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh()
+{
+    SAFE_RELEASE( m_pOldMesh );
+    SAFE_RELEASE( m_pNewMesh );
+}
+
+void EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh::Do()
+{
+    m_pComponent->SetMesh( m_pNewMesh );
+    m_pComponent->m_GLPrimitiveType = m_NewGLPrimitiveType;
+    m_pComponent->m_MeshPrimitiveType = m_NewMeshPrimitiveType;
+
+    m_pComponent->CreatePrimitive();
+}
+
+void EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh::Undo()
+{
+    m_NewGLPrimitiveType = m_pComponent->m_GLPrimitiveType;
+
+    m_pComponent->SetMesh( m_pOldMesh );
+    m_pComponent->m_GLPrimitiveType = m_OldGLPrimitiveType;
+    m_pComponent->m_MeshPrimitiveType = ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive;
+}
+
+EditorCommand* EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh::Repeat()
 {
     return 0;
 }

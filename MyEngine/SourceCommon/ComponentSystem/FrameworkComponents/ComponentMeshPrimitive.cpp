@@ -12,6 +12,10 @@
 #include "ComponentMeshPrimitive.h"
 #include "Core/EngineCore.h"
 
+#if MYFW_EDITOR
+#include "../../../SourceEditor/EngineEditorCommands.h"
+#endif
+
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshPrimitive ); //_VARIABLE_LIST
 
@@ -22,6 +26,7 @@ const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
     "Icosphere",   // ComponentMeshPrimitive_Icosphere
     "2DCircle",    // ComponentMeshPrimitive_2DCircle
     "Grass",       // ComponentMeshPrimitive_Grass
+    "Copy",        // ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive
 };
 
 ComponentMeshPrimitive::ComponentMeshPrimitive()
@@ -45,14 +50,14 @@ void ComponentMeshPrimitive::RegisterVariables(CPPListHead* pList, ComponentMesh
 
     ComponentVariable* pVars[8];
 
-    pVars[0] = AddVarEnum( pList, "MPType", MyOffsetOf( pThis, &pThis->m_MeshPrimitiveType ), true, true, 0, ComponentMeshPrimitive_NumTypes, ComponentMeshPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[1] = AddVar( pList, "PlaneSize", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[2] = AddVar( pList, "PlaneVertCountx", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.x ), true, true, "VertCount X", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[3] = AddVar( pList, "PlaneVertCounty", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.y ), true, true, "VertCount Y", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[4] = AddVar( pList, "UVs per Quad", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Plane_UVsPerQuad ), true, true, "UVs per Quad", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[5] = AddVar( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[6] = AddVar( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[7] = AddVar( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[0] = AddVarEnum( pList, "MPType", MyOffsetOf( pThis, &pThis->m_MeshPrimitiveType ), true, true, nullptr, ComponentMeshPrimitive_NumTypesAccessibleFromInterface, ComponentMeshPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, nullptr, nullptr );
+    pVars[1] = AddVar( pList, "PlaneSize", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, nullptr, nullptr );
+    pVars[2] = AddVar( pList, "PlaneVertCountx", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.x ), true, true, "VertCount X", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, nullptr, nullptr );
+    pVars[3] = AddVar( pList, "PlaneVertCounty", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.y ), true, true, "VertCount Y", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, nullptr, nullptr );
+    pVars[4] = AddVar( pList, "UVs per Quad", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Plane_UVsPerQuad ), true, true, "UVs per Quad", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, nullptr, nullptr );
+    pVars[5] = AddVar( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, nullptr, nullptr );
+    pVars[6] = AddVar( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, nullptr, nullptr );
+    pVars[7] = AddVar( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, nullptr, nullptr );
 
 #if MYFW_EDITOR
     for( int i=0; i<8; i++ )
@@ -136,15 +141,44 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
         if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return false;
     }
 
+    if( m_MeshPrimitiveType == ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive )
+    {
+        if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return false;
+        if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return false;
+        if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
+        if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return false;
+    }
+
     return ComponentMesh::ShouldVariableBeAddedToWatchPanel( pVar );
 }
 
 void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
-    void* oldPointer = 0;
+    void* oldPointer = nullptr;
 
     if( finishedChanging )
     {
+        if( g_pEngineCore->IsInEditorMode() )
+        {
+            if( strcmp( pVar->m_Label, "MPType" ) == 0 )
+            {
+                if( oldValue == ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive )
+                {
+                    if( changedByInterface )
+                    {
+                        // Changing from a copy of another mesh primitive to a new object, so create a new mesh.
+                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh( this, m_pMesh, m_MeshPrimitiveType ) );
+                    }
+
+                    // If switching away from a reference to another mesh primitive (Do or Redo),
+                    //   let EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh call CreatePrimitive().
+                    return oldPointer;
+                }
+            }
+        }
+
         if( g_pEngineCore->IsInEditorMode() == false )
         {
             m_PrimitiveSettingsChangedAtRuntime = true;
@@ -184,7 +218,7 @@ void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jComponent, SceneID sce
     // This will be hit on initial load and on quickload.
     // Only create the mesh on initial load.
     // Also will rebuild if changes are made during runtime inside editor.
-    if( m_pMesh == 0
+    if( m_pMesh == nullptr
 #if MYFW_EDITOR
         || m_PrimitiveSettingsChangedAtRuntime
 #endif
@@ -198,7 +232,7 @@ ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(const ComponentMeshPri
 {
     MyAssert( &other != this );
 
-    this->m_MeshPrimitiveType = other.m_MeshPrimitiveType;
+    this->m_MeshPrimitiveType = ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive;
 
     this->m_Plane_Size = other.m_Plane_Size;
     this->m_Plane_VertCount = other.m_Plane_VertCount;
@@ -247,10 +281,10 @@ void ComponentMeshPrimitive::UnregisterCallbacks()
 
 void ComponentMeshPrimitive::CreatePrimitive()
 {
-    if( m_MeshPrimitiveType >= ComponentMeshPrimitive_NumTypes )
+    if( m_MeshPrimitiveType >= ComponentMeshPrimitive_NumTypesAccessibleFromInterface )
         return;
 
-    if( m_pMesh == 0 )
+    if( m_pMesh == nullptr )
         m_pMesh = MyNew MyMesh;
     else
         RemoveFromSceneGraph();
