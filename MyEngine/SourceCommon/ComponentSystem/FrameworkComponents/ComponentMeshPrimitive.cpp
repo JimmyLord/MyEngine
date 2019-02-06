@@ -82,6 +82,8 @@ void ComponentMeshPrimitive::Reset()
 
     m_Sphere_Radius = 1;
 
+    m_pOtherMeshPrimitive = nullptr;
+
 #if MYFW_EDITOR
     m_PrimitiveSettingsChangedAtRuntime = false;
 #endif //MYFW_EDITOR
@@ -106,6 +108,7 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
         if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return true;
         if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return true;
         if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return true;
+        if( strcmp( pVar->m_Label, "UVs per Quad" ) == 0 )       return true;
         if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return true;
         if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return true;
         if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return false;
@@ -116,6 +119,7 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
         if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return false;
         if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return false;
         if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "UVs per Quad" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return true;
@@ -126,6 +130,7 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
         if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return false;
         if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return false;
         if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "UVs per Quad" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return true;
@@ -136,16 +141,19 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
         if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return true;
         if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return true;
         if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return true;
+        if( strcmp( pVar->m_Label, "UVs per Quad" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return true;
         if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return false;
     }
 
-    if( m_MeshPrimitiveType == ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive )
+    if( m_MeshPrimitiveType == ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive ||
+        m_MeshPrimitiveType == ComponentMeshPrimitive_NumTypes )
     {
         if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return false;
         if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return false;
         if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "UVs per Quad" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return false;
@@ -200,6 +208,11 @@ cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool saveSceneID, bool saveID)
 {
     cJSON* jComponent = ComponentMesh::ExportAsJSONObject( saveSceneID, saveID );
 
+    if( m_MeshPrimitiveType == ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive )
+    {
+        cJSON_AddItemToObject( jComponent, "OtherMeshPrimitive", m_pOtherMeshPrimitive->ExportReferenceAsJSONObject() );
+    }
+
     return jComponent;
 }
 
@@ -224,7 +237,20 @@ void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jComponent, SceneID sce
 #endif
       )
     {
-        CreatePrimitive();
+        if( m_MeshPrimitiveType == ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive )
+        {
+            cJSON* jComponentRef = cJSON_GetObjectItem( jComponent, "OtherMeshPrimitive" );
+
+            ComponentMeshPrimitive* pComponent = (ComponentMeshPrimitive*)g_pComponentSystemManager->FindComponentByJSONRef( jComponentRef, m_SceneIDLoadedFrom );
+            MyAssert( pComponent->IsA( "MeshPrimitiveComponent" ) );
+            m_pOtherMeshPrimitive = pComponent;
+
+            SetMesh( m_pOtherMeshPrimitive->m_pMesh );
+        }
+        else
+        {
+            CreatePrimitive();
+        }
     }
 }
 
@@ -233,6 +259,7 @@ ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(const ComponentMeshPri
     MyAssert( &other != this );
 
     this->m_MeshPrimitiveType = ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive;
+    this->m_pOtherMeshPrimitive = &other;
 
     this->m_Plane_Size = other.m_Plane_Size;
     this->m_Plane_VertCount = other.m_Plane_VertCount;

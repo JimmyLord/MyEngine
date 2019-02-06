@@ -71,7 +71,7 @@ public:
 
     virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID);
     virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID);
-    virtual cJSON* ExportReferenceAsJSONObject();
+    virtual cJSON* ExportReferenceAsJSONObject() const;
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentBase&)*pObject; }
@@ -93,7 +93,7 @@ public:
     int GetType() { return m_Type; }
     GameObject* GetGameObject() { return m_pGameObject; }
     bool IsEnabled() { return m_Enabled; }
-    SceneID GetSceneID() { return m_SceneIDLoadedFrom; }
+    SceneID GetSceneID() const { return m_SceneIDLoadedFrom; }
     SceneInfo* GetSceneInfo();
     unsigned int GetID() { return m_ID; }
 

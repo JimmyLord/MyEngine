@@ -295,7 +295,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         MyAssert( false );
     }
 
-    m_pCallbackObj->OnValueChangedVariable( m_pVar, controlcomponent, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
+    m_pCallbackObj->OnValueChangedVariable( m_pVar, controlcomponent, m_DirectlyChanged, true, previousvalue, false, &m_OldValue );
     m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
 }
 

@@ -46,6 +46,9 @@ public:
     // Icosphere and 2D circle.
     float m_Sphere_Radius;
 
+    // Reference to another mesh primitive component.
+    const ComponentMeshPrimitive* m_pOtherMeshPrimitive;
+
 public:
     ComponentMeshPrimitive();
     virtual ~ComponentMeshPrimitive();

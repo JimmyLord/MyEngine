@@ -447,11 +447,14 @@ bool ComponentMesh::OnEvent(MyEvent* pEvent)
 
 void ComponentMesh::OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor)
 {
-    for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
+    if( m_pMesh )
     {
-        if( m_pSceneGraphObjects[i] != nullptr )
+        for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
         {
-            g_pComponentSystemManager->GetSceneGraph()->ObjectMoved( m_pSceneGraphObjects[i] );
+            if( m_pSceneGraphObjects[i] != nullptr )
+            {
+                g_pComponentSystemManager->GetSceneGraph()->ObjectMoved( m_pSceneGraphObjects[i] );
+            }
         }
     }
 }
