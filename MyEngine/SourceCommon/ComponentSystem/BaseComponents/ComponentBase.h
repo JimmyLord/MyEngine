@@ -71,6 +71,7 @@ public:
 
     virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID);
     virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID);
+    virtual void FinishImportingFromJSONObject(cJSON* jComponent);
     virtual cJSON* ExportReferenceAsJSONObject() const;
 
     virtual void Reset();

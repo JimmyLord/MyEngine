@@ -47,7 +47,7 @@ public:
     float m_Sphere_Radius;
 
     // Reference to another mesh primitive component.
-    const ComponentMeshPrimitive* m_pOtherMeshPrimitive;
+    ComponentMeshPrimitive* m_pOtherMeshPrimitive;
 
 public:
     ComponentMeshPrimitive();
@@ -60,10 +60,11 @@ public:
 
     virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID) override;
     virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID) override;
+    virtual void FinishImportingFromJSONObject(cJSON* jComponent) override;
 
     virtual void Reset() override;
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) override { *this = (ComponentMeshPrimitive&)*pObject; }
-    virtual ComponentMeshPrimitive& operator=(const ComponentMeshPrimitive& other) override;
+    virtual ComponentMeshPrimitive& operator=(ComponentMeshPrimitive& other) override;
 
     virtual void RegisterCallbacks() override;
     virtual void UnregisterCallbacks() override;

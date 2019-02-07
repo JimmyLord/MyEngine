@@ -151,6 +151,10 @@ void ComponentBase::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
     ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
 }
 
+void ComponentBase::FinishImportingFromJSONObject(cJSON* jComponent)
+{
+}
+
 cJSON* ComponentBase::ExportReferenceAsJSONObject() const
 {
     // see ComponentSystemManager::FindComponentByJSONRef

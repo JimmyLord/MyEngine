@@ -189,7 +189,7 @@ public:
     void FreeDataFile(MyFileInfo* pFileInfo);
     void FreeAllDataFiles(SceneID sceneIDToClear);
 
-    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid);
+    void LoadSceneFromJSON(const char* sceneName, const char* jsonString, SceneID sceneID);
     ComponentBase* CreateComponentFromJSONObject(GameObject* pGameObject, cJSON* jComponent);
     void FinishLoading(bool lockwhileloading, SceneID sceneid, bool playwhenfinishedloading);
 

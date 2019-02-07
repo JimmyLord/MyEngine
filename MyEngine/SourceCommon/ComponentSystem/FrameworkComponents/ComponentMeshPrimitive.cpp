@@ -189,7 +189,14 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool chang
 
         if( g_pEngineCore->IsInEditorMode() == false )
         {
-            m_PrimitiveSettingsChangedAtRuntime = true;
+            if( m_pOtherMeshPrimitive )
+            {
+                m_pOtherMeshPrimitive->m_PrimitiveSettingsChangedAtRuntime = true;
+            }
+            else
+            {
+                m_PrimitiveSettingsChangedAtRuntime = true;
+            }
         }
 
         MyClampMin( m_Plane_VertCount.x, 2 );
@@ -237,6 +244,22 @@ void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jComponent, SceneID sce
 #endif
       )
     {
+        CreatePrimitive();
+    }
+}
+
+void ComponentMeshPrimitive::FinishImportingFromJSONObject(cJSON* jComponent)
+{
+    // This will be hit on initial load and on quickload.
+    // Only create the mesh on initial load.
+    // Also will rebuild if changes are made during runtime inside editor.
+    if( m_pMesh == nullptr
+#if MYFW_EDITOR
+        || m_PrimitiveSettingsChangedAtRuntime
+#endif
+      )
+    {
+        // If referencing another mesh primitive component, grab it's mesh pointer.
         if( m_MeshPrimitiveType == ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive )
         {
             cJSON* jComponentRef = cJSON_GetObjectItem( jComponent, "OtherMeshPrimitive" );
@@ -245,21 +268,23 @@ void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jComponent, SceneID sce
             MyAssert( pComponent->IsA( "MeshPrimitiveComponent" ) );
             m_pOtherMeshPrimitive = pComponent;
 
+            MyAssert( m_pOtherMeshPrimitive->m_pMesh != nullptr );
             SetMesh( m_pOtherMeshPrimitive->m_pMesh );
         }
-        else
-        {
-            CreatePrimitive();
-        }
     }
+
+    m_PrimitiveSettingsChangedAtRuntime = false;
 }
 
-ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(const ComponentMeshPrimitive& other)
+ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(ComponentMeshPrimitive& other)
 {
     MyAssert( &other != this );
 
     this->m_MeshPrimitiveType = ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive;
-    this->m_pOtherMeshPrimitive = &other;
+    if( other.m_pOtherMeshPrimitive )
+        this->m_pOtherMeshPrimitive = other.m_pOtherMeshPrimitive;
+    else
+        this->m_pOtherMeshPrimitive = &other;
 
     this->m_Plane_Size = other.m_Plane_Size;
     this->m_Plane_VertCount = other.m_Plane_VertCount;
