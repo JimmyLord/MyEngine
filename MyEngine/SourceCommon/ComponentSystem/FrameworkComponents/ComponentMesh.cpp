@@ -165,15 +165,23 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
 
 #if MYFW_USING_IMGUI
 
-#if _DEBUG && MYFW_WINDOWS
-        if( ImGui::Button( "Trigger Breakpoint on Next Draw" ) )
-        {
-            TriggerBreakpointOnNextDraw( i );
-        }
-#endif //_DEBUG && MYFW_WINDOWS
-
         if( pVar->m_Label == g_MaterialLabels[i] )
         {
+            if( ImGui::IsItemHovered() )
+            {
+                ImGui::BeginTooltip();
+                ImGui::Text( "%s", m_pMaterials[i]->GetName() );
+                g_pEngineCore->GetEditorMainFrame_ImGui()->AddMaterialPreview( m_pMaterials[i], false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                ImGui::EndTooltip();
+            }
+
+#if _DEBUG && MYFW_WINDOWS
+            if( ImGui::Button( "Trigger Breakpoint on Next Draw" ) )
+            {
+                TriggerBreakpointOnNextDraw( i );
+            }
+#endif //_DEBUG && MYFW_WINDOWS
+
             if( m_pMaterials[i]->m_UniformValues[0].m_Type != ExposedUniformType_NotSet )
             {
                 ImGui::SameLine();

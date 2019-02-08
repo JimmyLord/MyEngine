@@ -687,6 +687,9 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 // Unset the material to avoid holding a ref that prevents the material from unloading.
                 pMeshBall->SetMaterial( nullptr, 0 );
                 m_pMaterialPreviewFBO->Unbind( true );
+
+                // Unset the material to preview, it will be reset every frame by the code that needs it.
+                m_pMaterialToPreview = nullptr;
             }
         }
     }
@@ -794,7 +797,7 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
                             {
                                 ImGui::BeginTooltip();
                                 //ImGui::Text( "%s", pTex->GetFilename() );
-                                AddTexturePreview( false, pTextureColor, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                AddTexturePreview( pTextureColor, false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
                                 ImGui::EndTooltip();
                             }
 
@@ -2562,8 +2565,6 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
     bool someMaterialsAreLoaded = false;
     //unsigned int numMaterialsShown = 0;
 
-    m_pMaterialToPreview = nullptr;
-
     for( int i=0; i<2; i++ )
     {
         //MaterialDefinition* pMat = g_pMaterialManager->GetFirstMaterial();
@@ -2686,18 +2687,16 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                                     }
 
                                     ImGui::BeginTooltip();
-                                    m_pMaterialToPreview = pMat;
-                                    ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                                    AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                    ImGui::Text( "%s", pMat->GetName() );
+                                    AddMaterialPreview( pMat, false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
                                     ImGui::EndTooltip();
                                 }
 
                                 if( ImGui::BeginDragDropSource() )
                                 {
                                     ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
-                                    m_pMaterialToPreview = pMat;
-                                    ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                                    AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
+                                    ImGui::Text( "%s", pMat->GetName() );
+                                    AddMaterialPreview( pMat, false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
                                     ImGui::EndDragDropSource();
                                 }
 
@@ -2782,7 +2781,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
                                 {
                                     ImGui::BeginTooltip();
                                     //ImGui::Text( "%s", pTex->GetFilename() );
-                                    AddTexturePreview( false, pTex, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                    AddTexturePreview( pTex, false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
                                     ImGui::EndTooltip();
                                 }
 
@@ -2790,7 +2789,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
                                 {
                                     ImGui::SetDragDropPayload( "Texture", &pTex, sizeof(pTex), ImGuiCond_Once );
                                     //ImGui::Text( "%s", pTex->GetFilename() );
-                                    AddTexturePreview( false, pTex, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                    AddTexturePreview( pTex, false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
                                     ImGui::EndDragDropSource();
                                 }
 
@@ -3200,8 +3199,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
             ImGui::EndPopup();
         }
 
-        m_pMaterialToPreview = m_pMaterialBeingEdited;
-        AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4(1,1,1,1) );
+        AddMaterialPreview( m_pMaterialBeingEdited, false, ImVec2( 100, 100 ), ImVec4(1,1,1,1) );
 
         {
             MaterialDefinition* pMat = m_pMaterialBeingEdited;
@@ -3450,7 +3448,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         {
                             ImGui::BeginTooltip();
                             //ImGui::Text( "%s", pTex->GetFilename() );
-                            AddTexturePreview( false, pTextureColor, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                            AddTexturePreview( pTextureColor, false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
                             ImGui::EndTooltip();
                         }
 
@@ -3579,9 +3577,6 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             ImGui::EndPopup();
         }
 
-        //m_p2DAnimInfoToPreview = m_p2DAnimInfoBeingEdited;
-        //AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4(1,1,1,1) );
-
         My2DAnimInfo* pAnimInfo = m_p2DAnimInfoBeingEdited;
 
         if( pAnimInfo == nullptr )
@@ -3620,7 +3615,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
                     MaterialDefinition* pMat = pFrame->m_pMaterial;
 
-                    AddMaterialColorTexturePreview( false, pMat, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
+                    AddMaterialColorTexturePreview( pMat, false, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
 
                     ImGui::SameLine();
 
@@ -3740,7 +3735,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                         ImGui::Text( "No Material Assigned" );
                     }
 
-                    AddMaterialColorTexturePreview( false, pMat, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
+                    AddMaterialColorTexturePreview( pMat, false, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
 
                     if( ImGui::BeginDragDropTarget() )
                     {
@@ -3777,8 +3772,10 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
     ImGui::End();
 }
 
-void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint)
+void EditorMainFrame_ImGui::AddMaterialPreview(MaterialDefinition* pMaterial, bool createWindow, ImVec2 requestedSize, ImVec4 tint)
 {
+    m_pMaterialToPreview = pMaterial;
+
     if( createWindow == false || ImGui::Begin( "Material", nullptr, ImVec2(requestedSize.x+50, requestedSize.y+50), 1 ) )
     {
         if( m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
@@ -3804,7 +3801,7 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
         }
         else //if( m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Flat )
         {
-            AddMaterialColorTexturePreview( false, m_pMaterialToPreview, requestedSize, tint );
+            AddMaterialColorTexturePreview( m_pMaterialToPreview, false, requestedSize, tint );
         }
     }
 
@@ -3814,21 +3811,21 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
     }
 }
 
-void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(bool createWindow, MaterialDefinition* pMaterial, ImVec2 requestedSize, ImVec4 tint)
+void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(MaterialDefinition* pMaterial, bool createWindow, ImVec2 requestedSize, ImVec4 tint)
 {
     if( pMaterial == nullptr )
     {
-        AddTexturePreview( false, nullptr, requestedSize, ImVec4( 1, 1, 1, 1 ), ImVec2( 0, 0 ), ImVec2( 0, 0 ) );
+        AddTexturePreview( nullptr, false, requestedSize, ImVec4( 1, 1, 1, 1 ), ImVec2( 0, 0 ), ImVec2( 0, 0 ) );
     }
     else
     {
         ImVec2 startUV( pMaterial->GetUVOffset() );
         ImVec2 endUV( pMaterial->GetUVOffset() + pMaterial->GetUVScale() );
-        AddTexturePreview( false, pMaterial->GetTextureColor(), requestedSize, ImVec4( 1, 1, 1, 1 ), startUV, endUV );
+        AddTexturePreview( pMaterial->GetTextureColor(), false, requestedSize, ImVec4( 1, 1, 1, 1 ), startUV, endUV );
     }
 }
 
-void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
+void EditorMainFrame_ImGui::AddTexturePreview(TextureDefinition* pTexture, bool createWindow, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
 {
     if( createWindow == false || ImGui::Begin( "Texture", nullptr, ImVec2(150, 150), 1 ) )
     {

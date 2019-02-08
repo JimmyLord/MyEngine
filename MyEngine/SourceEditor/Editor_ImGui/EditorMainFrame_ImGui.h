@@ -167,6 +167,9 @@ protected:
 
 public:
     void AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject = nullptr);
+    void AddMaterialPreview(MaterialDefinition* pMaterial, bool createWindow, ImVec2 requestedSize, ImVec4 tint);
+    void AddMaterialColorTexturePreview(MaterialDefinition* pMaterial, bool createWindow, ImVec2 requestedSize, ImVec4 tint);
+    void AddTexturePreview(TextureDefinition* pTexture, bool createWindow, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV = ImVec2(0,0), ImVec2 endUV = ImVec2(1,1));
 
 protected:
     void AddMemoryPanel_Materials();
@@ -179,9 +182,6 @@ protected:
     void AddMaterialEditor();
     void Add2DAnimationEditor();
 
-    void AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint);
-    void AddMaterialColorTexturePreview(bool createWindow, MaterialDefinition* pMaterial, ImVec2 requestedSize, ImVec4 tint);
-    void AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV = ImVec2(0,0), ImVec2 endUV = ImVec2(1,1));
     void AddDebug_MousePicker();
 
     bool OnDropObjectList(GameObject* pGameObject, bool forceReorder);
