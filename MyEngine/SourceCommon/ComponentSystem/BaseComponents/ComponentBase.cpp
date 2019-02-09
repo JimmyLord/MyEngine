@@ -1127,6 +1127,11 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         OnDropVariable( pVar, 0, -1, -1, true );
                     }
 
+                    if( ImGui::MenuItem( "Edit material" ) )
+                    {
+                        g_pEngineCore->GetEditorMainFrame_ImGui()->EditMaterial( pMaterial );
+                    }
+
                     ImGui::PopStyleColor( 1 );
 
                     ImGui::EndPopup();
