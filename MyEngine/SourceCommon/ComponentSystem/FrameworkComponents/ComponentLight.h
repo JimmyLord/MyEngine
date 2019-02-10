@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -29,25 +29,28 @@ public:
     virtual ~ComponentLight();
     SetClassnameBase( "LightComponent" ); // only first 8 character count.
 
-    virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid);
+    virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID) override;
+    virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID) override;
 
-    virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLight&)*pObject; }
+    virtual void Reset() override;
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) override { *this = (ComponentLight&)*pObject; }
     ComponentLight& operator=(const ComponentLight& other);
 
-    virtual void RegisterCallbacks();
-    virtual void UnregisterCallbacks();
+    virtual void RegisterCallbacks() override;
+    virtual void UnregisterCallbacks() override;
 
-    virtual void OnGameObjectEnabled();
-    virtual void OnGameObjectDisabled();
+    virtual void OnGameObjectEnabled() override;
+    virtual void OnGameObjectDisabled() override;
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentLight*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
-    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor) { ((ComponentLight*)pObjectPtr)->OnTransformChanged( newPos, newRot, newScale, changedByUserInEditor ); }
+    void OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor);
+
+    // Setters.
+    virtual void SetEnabled(bool enabled) override;
 
     // pre-DrawCallback functions
-    virtual bool IsVisible();
-    virtual bool ExistsOnLayer(unsigned int layerflags);
+    virtual bool IsVisible() override;
+    virtual bool ExistsOnLayer(unsigned int layerFlags) override;
 
 protected:
     // Callback functions for various events.
@@ -66,21 +69,12 @@ public:
     float m_LightSphereRenderTimeRemaining;
 
 #if MYFW_USING_IMGUI
-    virtual void AddAllVariablesToWatchPanel();
+    virtual void AddAllVariablesToWatchPanel() override;
 #endif
-
-#if MYFW_USING_WX
-    static bool m_PanelWatchBlockVisible;
-
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentLight*)pObjectPtr)->OnLeftClick( count, true ); }
-    void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
-#endif //MYFW_USING_WX
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, int x, int y);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };
 

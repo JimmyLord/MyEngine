@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -20,7 +20,7 @@
 #include "../SourceEditor/EditorState.h"
 #endif
 
-// Component Variable List
+// Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLight );
 
 ComponentLight::ComponentLight()
@@ -34,7 +34,7 @@ ComponentLight::ComponentLight()
     
     m_LightType = LightType_Point;
 
-    m_pLight = 0;
+    m_pLight = nullptr;
 
 #if MYFW_EDITOR
     m_LightSphereRenderTimeRemaining = 0;
@@ -48,35 +48,32 @@ ComponentLight::~ComponentLight()
     m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
 
     if( m_pLight )
+    {
         g_pLightManager->DestroyLight( m_pLight );
+    }
 }
 
 void ComponentLight::RegisterVariables(CPPListHead* pList, ComponentLight* pThis) //_VARIABLE_LIST
 {
-    // TODO: lights don't do inheritance ATM since all vars are indirectly stored in a light object outside the class (m_pLight).
+    // TODO: Lights don't do inheritance ATM since all vars are indirectly stored in a light object outside the class (m_pLight).
 
-    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
+    // Just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     //MyAssert( offsetof( ComponentLight, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
 
-    //AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
+    //AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, nullptr, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, nullptr );
 
     //cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
     //cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
 
-#if MYFW_USING_WX
     AddVarEnum( pList, "LightType", MyOffsetOf( pThis, &pThis->m_LightType ), true, true, "Type", 3, g_LightTypeStrings,
-        (CVarFunc_ValueChanged)&ComponentLight::OnValueChanged, (CVarFunc_DropTarget)&ComponentLight::OnDrop, 0 );
-#else
-    AddVarEnum( pList, "LightType", MyOffsetOf( pThis, &pThis->m_LightType ), true, true, "Type", 3, g_LightTypeStrings,
-        (CVarFunc_ValueChanged)&ComponentLight::OnValueChanged, 0, 0 );
-#endif
+        (CVarFunc_ValueChanged)&ComponentLight::OnValueChanged, nullptr, nullptr );
 }
 
 void ComponentLight::Reset()
 {
     ComponentData::Reset();
 
-    if( m_pLight == 0 )
+    if( m_pLight == nullptr )
     {
         m_pLight = g_pLightManager->CreateLight();
         m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
@@ -87,10 +84,6 @@ void ComponentLight::Reset()
     m_pLight->m_SpotDirectionVector.Set( 0, 0, 0 );
     m_pLight->m_Color.Set( 1, 1, 1, 1 );
     m_pLight->m_Attenuation.Set( 0, 0, 0.09f );
-
-#if MYFW_USING_WX
-    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
-#endif //MYFW_USING_WX
 }
 
 #if MYFW_EDITOR
@@ -116,41 +109,9 @@ void ComponentLight::AddAllVariablesToWatchPanel()
 }
 #endif
 
-#if MYFW_USING_WX
-void ComponentLight::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentLight::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Light", ObjectListIcon_Component );
-}
-
-void ComponentLight::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentBase::OnLeftClick( count, clear );
-}
-
-void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Light", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentData::FillPropertiesWindow( clear );
-
-        if( addcomponentvariables )
-            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-
-        if( m_pLight )
-        {
-            g_pPanelWatch->AddColorFloat( "Color", &m_pLight->m_Color, 0, 1 );
-            g_pPanelWatch->AddVector3( "Attenuation", &m_pLight->m_Attenuation, 0, 1 );
-        }
-    }
-}
-#endif //MYFW_USING_WX
-
 void* ComponentLight::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldPointer = 0;
+    void* oldPointer = nullptr;
 
     //DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -162,26 +123,26 @@ void* ComponentLight::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentLight::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentLight::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
-    void* oldpointer = 0;
+    void* oldPointer = nullptr;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_LightType ) )
     {
-        MyAssert( m_pLight != 0 );
+        MyAssert( m_pLight != nullptr );
 
         m_pLight->m_LightType = m_LightType;
     }
 
     m_LightSphereRenderTimeRemaining = 3.0f;
 
-    return oldpointer;
+    return oldPointer;
 }
 #endif //MYFW_EDITOR
 
-cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid, bool saveid)
+cJSON* ComponentLight::ExportAsJSONObject(bool saveSceneID, bool saveID)
 {
-    cJSON* jComponent = ComponentData::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* jComponent = ComponentData::ExportAsJSONObject( saveSceneID, saveID );
 
     cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
     cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
@@ -189,12 +150,12 @@ cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
+void ComponentLight::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
 {
-    ComponentData::ImportFromJSONObject( jsonobj, sceneid );
+    ComponentData::ImportFromJSONObject( jComponent, sceneID );
 
-    cJSONExt_GetFloatArray( jsonobj, "Color", &m_pLight->m_Color.r, 4 );
-    cJSONExt_GetFloatArray( jsonobj, "Atten", &m_pLight->m_Attenuation.x, 3 );
+    cJSONExt_GetFloatArray( jComponent, "Color", &m_pLight->m_Color.r, 4 );
+    cJSONExt_GetFloatArray( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
 
     MyAssert( m_pLight );
 
@@ -203,7 +164,7 @@ void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
     m_pLight->m_SpotDirectionVector = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
 }
 
-void ComponentLight::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+void ComponentLight::OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor)
 {
     MyAssert( m_pLight );
 
@@ -266,16 +227,37 @@ void ComponentLight::OnGameObjectEnabled()
 {
     ComponentBase::OnGameObjectEnabled();
 
-    if( m_pLight )
+    if( m_pLight && m_Enabled )
+    {
         g_pLightManager->SetLightEnabled( m_pLight, true );
+    }
 }
 
 void ComponentLight::OnGameObjectDisabled()
 {
     ComponentBase::OnGameObjectDisabled();
 
-    if( m_pLight )
+    if( m_pLight && m_Enabled )
+    {
         g_pLightManager->SetLightEnabled( m_pLight, false );
+    }
+}
+
+void ComponentLight::SetEnabled(bool enabled)
+{
+    if( m_Enabled == enabled )
+        return;
+
+    ComponentBase::SetEnabled( enabled );
+
+    if( m_Enabled )
+    {
+        g_pLightManager->SetLightEnabled( m_pLight, true );
+    }
+    else
+    {
+        g_pLightManager->SetLightEnabled( m_pLight, false );
+    }
 }
 
 bool ComponentLight::IsVisible()
@@ -283,9 +265,9 @@ bool ComponentLight::IsVisible()
     return true;
 }
 
-bool ComponentLight::ExistsOnLayer(unsigned int layerflags)
+bool ComponentLight::ExistsOnLayer(unsigned int layerFlags)
 {
-    if( layerflags & Layer_Editor )
+    if( layerFlags & Layer_Editor )
         return true;
     
     return false;
@@ -297,7 +279,9 @@ void ComponentLight::TickCallback(float deltaTime)
     m_LightSphereRenderTimeRemaining -= g_pEngineCore->GetTimePassedUnpausedLastFrame();
     
     if( m_LightSphereRenderTimeRemaining < 0 )
+    {
         m_LightSphereRenderTimeRemaining = 0;
+    }
 }
 
 void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
@@ -306,7 +290,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
         return;
 
     MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[EditorIcon_Light];
-    if( pSprite == 0 )
+    if( pSprite == nullptr )
         return;
 
     Vector2 size( 1, 1 );
@@ -315,14 +299,14 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
     MyMatrix* pCameraTransform = pCamera->m_pComponentTransform->GetWorldTransform();
 
     MyMatrix scale;
-    MyMatrix rotpos;
+    MyMatrix rotAndPos;
     scale.CreateScale( size );
-    rotpos.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetLocalPosition() );
+    rotAndPos.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetLocalPosition() );
 
-    MyMatrix transform = rotpos * scale;
+    MyMatrix transform = rotAndPos * scale;
     //pSprite->SetPosition( &transform );
 
-    // Set the sprite color
+    // Set the sprite color.
     pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
     pSprite->GetMaterial()->m_ColorDiffuse.a = 255;
     
@@ -334,7 +318,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
     if( m_LightType == LightType_Point && m_LightSphereRenderTimeRemaining > 0 )
     {
         MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
-        if( pMeshBall && pShaderOverride == 0 )
+        if( pMeshBall && pShaderOverride == nullptr )
         {
             MaterialDefinition* pMaterial = g_pEngineCore->GetMaterial_FresnelTint();
             ColorByte lightColor = m_pLight->m_Color.AsColorByte();
@@ -344,15 +328,15 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
             //g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
             //g_pRenderer->SetCullingEnabled( false );
             g_pRenderer->SetDepthWriteEnabled( false );
-            pMeshBall->SetMaterial( pMaterial, 0 );
+            pMeshBall->SetMaterial( pMaterial, nullptr );
 
             MyMatrix matWorld;
             matWorld.CreateSRT( m_pLight->m_Attenuation.x, Vector3(0), this->m_pGameObject->GetTransform()->GetWorldPosition() );
             Vector3 camPos = pCamera->m_pComponentTransform->GetWorldPosition();
             Vector3 camRot = pCamera->m_pComponentTransform->GetWorldTransform()->GetAt();
-            pMeshBall->Draw( pMatProj, pMatView, &matWorld, &camPos, &camRot, 0, 0, 0, 0, 0, 0 );
+            pMeshBall->Draw( pMatProj, pMatView, &matWorld, &camPos, &camRot, nullptr, 0, nullptr, nullptr, nullptr, nullptr );
 
-            pMeshBall->SetMaterial( 0, 0 );
+            pMeshBall->SetMaterial( nullptr, 0 );
             g_pRenderer->SetDepthWriteEnabled( true );
             //g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
             //g_pRenderer->SetCullingEnabled( true );
