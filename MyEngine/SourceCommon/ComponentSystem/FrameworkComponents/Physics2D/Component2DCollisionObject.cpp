@@ -446,7 +446,9 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
 
 void Component2DCollisionObject::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -465,6 +467,8 @@ void Component2DCollisionObject::RegisterCallbacks()
 
 void Component2DCollisionObject::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
@@ -526,14 +530,17 @@ void Component2DCollisionObject::OnStop()
     m_pBox2DWorld = 0;
 }
 
-void Component2DCollisionObject::SetEnabled(bool enabled)
+bool Component2DCollisionObject::SetEnabled(bool enableComponent)
 {
-    ComponentBase::SetEnabled( enabled );
+    if( ComponentBase::SetEnabled( enableComponent ) == false )
+        return false;
 
     if( m_pBody == 0 )
-        return;
+        return true;
 
-    m_pBody->SetActive( enabled );
+    m_pBody->SetActive( enableComponent );
+
+    return true;
 }
 
 void Component2DCollisionObject::CreateBody()
@@ -677,7 +684,7 @@ void Component2DCollisionObject::CreateBody()
             }
         }
 
-        pBody->SetActive( m_Enabled );
+        pBody->SetActive( m_EnabledState == EnabledState_Enabled );
     }
 }
 

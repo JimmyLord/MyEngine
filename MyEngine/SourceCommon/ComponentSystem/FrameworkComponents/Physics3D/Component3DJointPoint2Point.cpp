@@ -199,7 +199,9 @@ Component3DJointPoint2Point& Component3DJointPoint2Point::operator=(const Compon
 
 void Component3DJointPoint2Point::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -215,6 +217,8 @@ void Component3DJointPoint2Point::RegisterCallbacks()
 
 void Component3DJointPoint2Point::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

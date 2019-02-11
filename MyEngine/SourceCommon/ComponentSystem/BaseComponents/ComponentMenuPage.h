@@ -148,7 +148,7 @@ public:
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
 
-    virtual void SetEnabled(bool enabled);
+    virtual bool SetEnabled(bool enableComponent) override;
 
     void LoadLayoutBasedOnCurrentAspectRatio();
     void UpdateLayout(cJSON* layout);

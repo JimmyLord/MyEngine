@@ -197,7 +197,9 @@ ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
 
 void ComponentMenuPage::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -213,6 +215,8 @@ void ComponentMenuPage::RegisterCallbacks()
 
 void ComponentMenuPage::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
@@ -993,19 +997,19 @@ void ComponentMenuPage::OnGameObjectDisabled()
     HidePage();
 }
 
-void ComponentMenuPage::SetEnabled(bool enabled)
+bool ComponentMenuPage::SetEnabled(bool enableComponent)
 {
-    if( m_Enabled == enabled )
-        return;
-
-    ComponentRenderable::SetEnabled( enabled );
+    if( ComponentRenderable::SetEnabled( enableComponent ) == false )
+        return false;
 
     // if this is newly enabled, trigger the visible callback.
-    if( m_Enabled == true )
+    if( enableComponent == true )
     {
         m_Visible = false;
         SetVisible( true );
     }
+
+    return true;
 }
 
 // will return true if input is used.
@@ -1405,7 +1409,7 @@ void ComponentMenuPage::TickCallback(float deltaTime)
         //CreateMenuItems(); // create menu items if they haven't been already.
 
         //if( m_MenuItemsCreated && m_Enabled && m_Visible )
-        if( m_Enabled && m_Visible )
+        if( m_EnabledState == EnabledState_Enabled && m_Visible )
             ShowPage();
     }
 

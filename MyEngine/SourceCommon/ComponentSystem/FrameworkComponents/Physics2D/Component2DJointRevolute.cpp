@@ -293,7 +293,9 @@ Component2DJointRevolute& Component2DJointRevolute::operator=(const Component2DJ
 
 void Component2DJointRevolute::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -309,6 +311,8 @@ void Component2DJointRevolute::RegisterCallbacks()
 
 void Component2DJointRevolute::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

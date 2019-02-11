@@ -264,7 +264,9 @@ ComponentAudioPlayer& ComponentAudioPlayer::operator=(const ComponentAudioPlayer
 
 void ComponentAudioPlayer::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -282,6 +284,8 @@ void ComponentAudioPlayer::RegisterCallbacks()
 
 void ComponentAudioPlayer::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
 #if MYFW_USING_WX

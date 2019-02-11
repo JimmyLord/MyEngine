@@ -46,7 +46,7 @@ public:
     void OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor);
 
     // Setters.
-    virtual void SetEnabled(bool enabled) override;
+    virtual bool SetEnabled(bool enableComponent) override;
 
     // pre-DrawCallback functions
     virtual bool IsVisible() override;

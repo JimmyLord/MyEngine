@@ -82,7 +82,7 @@ public:
     virtual void OnPlay();
     virtual void OnStop();
 
-    virtual void SetEnabled(bool enabled);
+    virtual bool SetEnabled(bool enabled) override;
 
     void CreateBody();
     b2Body* GetBody() { return m_pBody; }

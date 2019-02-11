@@ -188,7 +188,9 @@ ComponentLight& ComponentLight::operator=(const ComponentLight& other)
 
 void ComponentLight::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -207,6 +209,8 @@ void ComponentLight::RegisterCallbacks()
 
 void ComponentLight::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
@@ -227,30 +231,28 @@ void ComponentLight::OnGameObjectEnabled()
 {
     ComponentBase::OnGameObjectEnabled();
 
-    if( m_pLight && m_Enabled )
-    {
-        g_pLightManager->SetLightEnabled( m_pLight, true );
-    }
+    //if( m_pLight && m_EnabledState == EnabledState_Enabled )
+    //{
+    //    g_pLightManager->SetLightEnabled( m_pLight, true );
+    //}
 }
 
 void ComponentLight::OnGameObjectDisabled()
 {
     ComponentBase::OnGameObjectDisabled();
 
-    if( m_pLight && m_Enabled )
-    {
-        g_pLightManager->SetLightEnabled( m_pLight, false );
-    }
+    //if( m_pLight && m_EnabledState != EnabledState_Enabled )
+    //{
+    //    g_pLightManager->SetLightEnabled( m_pLight, false );
+    //}
 }
 
-void ComponentLight::SetEnabled(bool enabled)
+bool ComponentLight::SetEnabled(bool enableComponent)
 {
-    if( m_Enabled == enabled )
-        return;
+    if( ComponentBase::SetEnabled( enableComponent ) == false )
+        return false;
 
-    ComponentBase::SetEnabled( enabled );
-
-    if( m_Enabled )
+    if( m_EnabledState == EnabledState_Enabled )
     {
         g_pLightManager->SetLightEnabled( m_pLight, true );
     }
@@ -258,6 +260,8 @@ void ComponentLight::SetEnabled(bool enabled)
     {
         g_pLightManager->SetLightEnabled( m_pLight, false );
     }
+
+    return true;
 }
 
 bool ComponentLight::IsVisible()

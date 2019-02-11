@@ -269,7 +269,9 @@ ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
 
 void ComponentMeshOBJ::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -285,6 +287,8 @@ void ComponentMeshOBJ::RegisterCallbacks()
 
 void ComponentMeshOBJ::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

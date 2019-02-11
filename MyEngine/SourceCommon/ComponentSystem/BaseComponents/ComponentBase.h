@@ -24,7 +24,7 @@ enum BaseComponentTypes
     BaseComponentType_InputHandler,
     BaseComponentType_Updateable,
     BaseComponentType_Renderable,
-    BaseComponentType_MenuPage, // not crazy about approach, but will handle input/update/render.
+    BaseComponentType_MenuPage, // Not crazy about approach, but will handle input/update/render.
     BaseComponentType_None,
     BaseComponentType_NumTypes = BaseComponentType_None
 };
@@ -43,13 +43,21 @@ class ComponentBase : public CPPListNode
 , public wxEvtHandler
 #endif
 {
+public:
+    enum EnabledState
+    {
+        EnabledState_Disabled_ManuallyDisabled,
+        EnabledState_Disabled_EnableWithGameObject,
+        EnabledState_Enabled,
+    };
+
 protected:
-    bool m_Enabled;
+    EnabledState m_EnabledState;
     SceneID m_SceneIDLoadedFrom;
     unsigned int m_ID; // Unique ID within a scene, used when quick-loading scene to find matching component.
 
-    // an unsigned int of all divorced components variables, only maintained in editor builds.
-    unsigned int m_DivorcedVariables; // moved outside USING_WX block to allow load/save in game mode.
+    // An unsigned int of all divorced components variables, only maintained in editor builds.
+    unsigned int m_DivorcedVariables; // Moved outside USING_EDITOR block to allow load/save in game mode.
 
     BaseComponentTypes m_BaseType;
     int m_Type;
@@ -63,7 +71,7 @@ protected:
 public:
     ComponentBase();
     virtual ~ComponentBase();
-    SetClassnameBase( "BaseComponent" ); // only first 8 character count.
+    SetClassnameBase( "BaseComponent" ); // Only first 8 character count.
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
@@ -93,7 +101,8 @@ public:
     BaseComponentTypes GetBaseType() { return m_BaseType; }
     int GetType() { return m_Type; }
     GameObject* GetGameObject() { return m_pGameObject; }
-    bool IsEnabled() { return m_Enabled; }
+    bool IsEnabled() { return m_EnabledState == EnabledState_Enabled; }
+    EnabledState GetEnabledState() { return m_EnabledState; }
     SceneID GetSceneID() const { return m_SceneIDLoadedFrom; }
     SceneInfo* GetSceneInfo();
     unsigned int GetID() { return m_ID; }
@@ -101,7 +110,7 @@ public:
     // Setters.
     void SetType(int type) { m_Type = type; }
     void SetGameObject(GameObject* object) { m_pGameObject = object; }
-    virtual void SetEnabled(bool enabled);
+    virtual bool SetEnabled(bool enableComponent); // Returns if state changed.
     void SetSceneID(SceneID sceneid) { m_SceneIDLoadedFrom = sceneid; }
     void SetID(unsigned int id) { m_ID = id; }
 
@@ -119,7 +128,7 @@ protected:
     static ComponentVariable* AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
     static ComponentVariable* AddVariableEnum_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
     static ComponentVariable* AddVariableFlags_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
-    virtual CPPListHead* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: make this pure virual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component
+    virtual CPPListHead* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: Make this pure virtual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component.
 #if MYFW_USING_WX
     void FillPropertiesWindowWithVariables();
 #endif
@@ -146,11 +155,11 @@ protected:
 #if MYFW_EDITOR
 protected:
     // Unique to a single gameobject on a single prefab, used to match components between gameobjects and their prefabs.
-    // Set to 0 if GameObject has no parent/prefab or if this component doesn't exist on the parent/prefab
+    // Set to 0 if GameObject has no parent/prefab or if this component doesn't exist on the parent/prefab.
     unsigned int m_PrefabComponentID;
 
 public:
-    // An array of all components of this type selected (when more than 1 is selected)
+    // An array of all components of this type selected (when more than 1 is selected).
     std::vector<ComponentBase*> m_MultiSelectedComponents;
 
 public:
@@ -184,7 +193,7 @@ public:
     ComponentBase* FindMatchingComponentInParent();
 
     // Watch panel callbacks for component variables.
-    // if any variables value changed, then react.
+    // If any variables value changed, then react.
     static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, directlychanged, finishedchanging, oldvalue, valuewaschangedbydragging, 0 ); }
     void OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue);
     void OnValueChangedVariable(ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue);

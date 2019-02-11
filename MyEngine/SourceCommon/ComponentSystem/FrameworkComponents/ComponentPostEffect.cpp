@@ -38,9 +38,9 @@ ComponentPostEffect::~ComponentPostEffect()
 
 void ComponentPostEffect::RegisterVariables(CPPListHead* pList, ComponentPostEffect* pThis) //_VARIABLE_LIST
 {
-    AddVar( pList, "Enabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, nullptr,
-            (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged,
-            nullptr, nullptr );
+    //AddVar( pList, "Enabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, nullptr,
+    //        (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged,
+    //        nullptr, nullptr );
     AddVar( pList, "Material", ComponentVariableType_MaterialPtr,
             MyOffsetOf( pThis, &pThis->m_pMaterial ), false, true, 
             nullptr, (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged, (CVarFunc_DropTarget)&ComponentPostEffect::OnDropMaterial, nullptr );

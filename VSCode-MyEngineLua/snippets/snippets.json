@@ -753,7 +753,7 @@
     //        .beginClass<ComponentBase>( "ComponentBase" )
     //            //.addData( "localmatrix", &ComponentBase::m_LocalTransform )
     //        
-    //            .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // void ComponentBase::SetEnabled(bool enabled)
+    //            .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // bool ComponentBase::SetEnabled(bool enabled)
     //            .addFunction( "IsEnabled", &ComponentBase::IsEnabled ) // bool ComponentBase::IsEnabled()
     //        
     //            .addFunction( "GetSceneID", &ComponentBase::GetSceneID ) // unsigned int ComponentBase::GetSceneID()

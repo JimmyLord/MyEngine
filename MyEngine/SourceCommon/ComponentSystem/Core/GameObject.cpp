@@ -530,12 +530,6 @@ void GameObject::SetEnabled(bool enabled, bool affectChildren)
 
     m_Enabled = enabled;
 
-    // Un/register all component callbacks.
-    if( m_Enabled )
-        RegisterAllComponentCallbacks( false );
-    else
-        UnregisterAllComponentCallbacks( false );
-
     // Loop through all components and call OnGameObjectEnabled/OnGameObjectDisabled.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
@@ -544,6 +538,12 @@ void GameObject::SetEnabled(bool enabled, bool affectChildren)
         else
             m_Components[i]->OnGameObjectDisabled();
     }
+
+    // Un/register all component callbacks.
+    if( m_Enabled )
+        RegisterAllComponentCallbacks( false );
+    else
+        UnregisterAllComponentCallbacks( false );
 
     // Recurse through children.
     if( affectChildren )

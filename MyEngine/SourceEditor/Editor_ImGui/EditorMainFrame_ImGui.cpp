@@ -2140,12 +2140,17 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
                             //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
                             ImGui::PushID( pComponentToLookFor );
-                            
-                            bool enabled = pComponentToLookFor->IsEnabled();
+
                             Vector4 bgColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Header );
                             Vector4 checkColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_CheckMark );
                             ImGui::PushStyleColor( ImGuiCol_FrameBg, bgColor );
                             ImGui::PushStyleColor( ImGuiCol_CheckMark, checkColor );
+
+                            // Draw the enabled/disabled checkbox.
+                            ComponentBase::EnabledState enabledState = pComponentToLookFor->GetEnabledState();
+                            bool enabled = true;
+                            if( enabledState == ComponentBase::EnabledState_Disabled_ManuallyDisabled )
+                                enabled = false;
                             if( ImGui::Checkbox( "", &enabled ) )
                             {
                                 pComponentToLookFor->SetEnabled( enabled );
@@ -2154,6 +2159,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             ImGui::SameLine();
                             ImGui::SetCursorPosX( ImGui::GetCursorPosX() - 5 );
 
+                            // Draw the component name in a collapsable block.
                             if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                             {
                                 pComponentToLookFor->AddAllVariablesToWatchPanel();

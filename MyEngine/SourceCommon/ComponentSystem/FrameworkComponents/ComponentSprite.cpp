@@ -213,7 +213,9 @@ ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
 
 void ComponentSprite::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -229,6 +231,8 @@ void ComponentSprite::RegisterCallbacks()
 
 void ComponentSprite::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
@@ -307,7 +311,7 @@ void ComponentSprite::AddToSceneGraph()
     if( pMaterial == 0 )
         return;
 
-    if( m_Enabled == false )
+    if( m_EnabledState != EnabledState_Enabled )
         return;
 
     MyAssert( m_pSceneGraphObject == 0 );

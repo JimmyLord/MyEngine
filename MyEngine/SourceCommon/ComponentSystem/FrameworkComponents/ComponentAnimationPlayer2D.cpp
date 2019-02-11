@@ -298,7 +298,9 @@ void ComponentAnimationPlayer2D::SetCurrentAnimation(uint32 anim)
 
 void ComponentAnimationPlayer2D::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -314,6 +316,8 @@ void ComponentAnimationPlayer2D::RegisterCallbacks()
 
 void ComponentAnimationPlayer2D::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

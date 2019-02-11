@@ -284,7 +284,9 @@ Component3DJointSlider& Component3DJointSlider::operator=(const Component3DJoint
 
 void Component3DJointSlider::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -300,6 +302,8 @@ void Component3DJointSlider::RegisterCallbacks()
 
 void Component3DJointSlider::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

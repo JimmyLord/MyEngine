@@ -198,7 +198,9 @@ Component2DJointWeld& Component2DJointWeld::operator=(const Component2DJointWeld
 
 void Component2DJointWeld::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -214,6 +216,8 @@ void Component2DJointWeld::RegisterCallbacks()
 
 void Component2DJointWeld::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

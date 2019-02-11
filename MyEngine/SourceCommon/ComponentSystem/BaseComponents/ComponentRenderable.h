@@ -44,7 +44,7 @@ public:
 
     //virtual void OnGameObjectEnabled();
     //virtual void OnGameObjectDisabled();
-    virtual void SetEnabled(bool enabled);
+    virtual bool SetEnabled(bool enableComponent) override;
 
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex) {}

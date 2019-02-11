@@ -322,7 +322,9 @@ Component3DCollisionObject& Component3DCollisionObject::operator=(const Componen
 
 void Component3DCollisionObject::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -338,6 +340,8 @@ void Component3DCollisionObject::RegisterCallbacks()
 
 void Component3DCollisionObject::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

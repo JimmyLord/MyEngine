@@ -293,7 +293,9 @@ Component3DJointHinge& Component3DJointHinge::operator=(const Component3DJointHi
 
 void Component3DJointHinge::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -309,6 +311,8 @@ void Component3DJointHinge::RegisterCallbacks()
 
 void Component3DJointHinge::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

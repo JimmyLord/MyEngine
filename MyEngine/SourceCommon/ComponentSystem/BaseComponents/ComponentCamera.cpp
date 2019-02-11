@@ -315,7 +315,9 @@ ComponentCamera& ComponentCamera::operator=(const ComponentCamera& other)
 
 void ComponentCamera::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -334,6 +336,8 @@ void ComponentCamera::RegisterCallbacks()
 
 void ComponentCamera::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

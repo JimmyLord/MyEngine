@@ -291,7 +291,9 @@ Component2DJointPrismatic& Component2DJointPrismatic::operator=(const Component2
 
 void Component2DJointPrismatic::RegisterCallbacks()
 {
-    if( m_Enabled && m_CallbacksRegistered == false )
+    MyAssert( m_EnabledState == EnabledState_Enabled );
+
+    if( m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -307,6 +309,8 @@ void Component2DJointPrismatic::RegisterCallbacks()
 
 void Component2DJointPrismatic::UnregisterCallbacks()
 {
+    MyAssert( m_EnabledState != EnabledState_Enabled );
+
     if( m_CallbacksRegistered == true )
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );

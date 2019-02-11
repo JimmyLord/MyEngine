@@ -30,7 +30,7 @@ ComponentBase::ComponentBase()
 , m_pGameObject( 0 )
 , m_Type(-1)
 , m_ID(0)
-, m_Enabled( true )
+, m_EnabledState( EnabledState_Enabled )
 {
     ClassnameSanityCheck();
 
@@ -55,7 +55,7 @@ ComponentBase::~ComponentBase()
 #endif //MYFW_USING_WX
 
     // Components must be disabled before being deleted, so they unregister their callbacks.
-    MyAssert( m_Enabled == false );
+    MyAssert( m_EnabledState == EnabledState_Disabled_ManuallyDisabled );
     MyAssert( m_CallbacksRegistered == false );
 
     // Let others know we were deleted.
@@ -84,7 +84,7 @@ void ComponentBase::LuaRegister(lua_State* luastate)
         .beginClass<ComponentBase>( "ComponentBase" )
             //.addData( "localmatrix", &ComponentBase::m_LocalTransform )
             
-            .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // void ComponentBase::SetEnabled(bool enabled)
+            .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // bool ComponentBase::SetEnabled(bool enabled)
             .addFunction( "IsEnabled", &ComponentBase::IsEnabled ) // bool ComponentBase::IsEnabled()
             
             .addFunction( "GetSceneID", &ComponentBase::GetSceneID ) // unsigned int ComponentBase::GetSceneID()
@@ -102,7 +102,7 @@ cJSON* ComponentBase::ExportAsJSONObject(bool saveSceneID, bool saveID)
     if( saveSceneID )
         cJSON_AddNumberToObject( jComponent, "SceneID", m_SceneIDLoadedFrom );
 
-    // Transform are saved is a dedicated transforms array, so don't print the Type name for them.
+    // Transform are saved as a dedicated transforms array, so don't print the Type name for them.
     if( m_Type != -1 && m_Type != ComponentType_Transform )
     {
         const char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
@@ -185,7 +185,10 @@ ComponentBase& ComponentBase::operator=(const ComponentBase& other)
 
 void ComponentBase::OnLoad()
 {
-    if( m_Enabled && m_pGameObject && m_pGameObject->IsEnabled() )
+    if( m_pGameObject && m_pGameObject->IsEnabled() == false )
+        m_EnabledState = EnabledState_Disabled_EnableWithGameObject;
+
+    if( m_EnabledState == EnabledState_Enabled )
         RegisterCallbacks();
     else
         UnregisterCallbacks();
@@ -193,26 +196,76 @@ void ComponentBase::OnLoad()
 
 void ComponentBase::OnGameObjectEnabled()
 {
-    SetEnabled( true );
+    if( m_EnabledState == EnabledState_Enabled )
+        return;
+
+    if( m_EnabledState == EnabledState_Disabled_EnableWithGameObject )
+    {
+        SetEnabled( true );
+    }
 }
 
 void ComponentBase::OnGameObjectDisabled()
 {
+    if( m_EnabledState != EnabledState_Enabled )
+        return;
+
     SetEnabled( false );
+
+    // If this component was previously enabled, then the "SetEnabled( false );" call above will set it to ManuallyDisabled.
+    // Switch it to "EnabledState_Disabled_EnableWithGameObject".
+    if( m_EnabledState == EnabledState_Disabled_ManuallyDisabled )
+    {
+        m_EnabledState = EnabledState_Disabled_EnableWithGameObject;
+    }
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void ComponentBase::SetEnabled(bool enabled)
+bool ComponentBase::SetEnabled(bool enableComponent)
 {
-    if( m_Enabled == enabled )
-        return;
+    bool stateChanged = false;
 
-    m_Enabled = enabled;
+    if( enableComponent == true )
+    {
+        // If component as already enabled, kick out.
+        if( m_EnabledState == EnabledState_Enabled )
+            return false;
 
-    if( enabled )
+        // If the GameObject is disabled, mark component to enable with GameObject, but don't enable it.
+        if( m_pGameObject && m_pGameObject->IsEnabled() == false )
+        {
+            m_EnabledState = EnabledState_Disabled_EnableWithGameObject;
+            return false;
+        }
+
+        // Register callbacks if the component needs to be enabled.
+        m_EnabledState = EnabledState_Enabled;
         RegisterCallbacks();
+        stateChanged = true;
+    }
     else
-        UnregisterCallbacks();
+    {
+        // If the component was already manually disabled, kick out.
+        if( m_EnabledState == EnabledState_Disabled_ManuallyDisabled )
+            return false;
+
+        // Only unregister callbacks if the component was enabled.
+        if( m_EnabledState == EnabledState_Enabled )
+        {
+            m_EnabledState = EnabledState_Disabled_ManuallyDisabled;
+            UnregisterCallbacks();
+            stateChanged = true;
+        }
+        else
+        {
+            MyAssert( m_EnabledState == EnabledState_Disabled_EnableWithGameObject );
+
+            // If it was set to "EnableWithGameObject", then set to manually disabled.
+            m_EnabledState = EnabledState_Disabled_ManuallyDisabled;
+        }
+    }
+
+    return stateChanged;
 }
 
 SceneInfo* ComponentBase::GetSceneInfo()

@@ -146,11 +146,12 @@ bool ComponentRenderable::IsVisible()
 //    ComponentBase::OnGameObjectDisabled();
 //}
 
-void ComponentRenderable::SetEnabled(bool enabled)
+bool ComponentRenderable::SetEnabled(bool enableComponent)
 {
-    ComponentBase::SetEnabled( enabled );
+    if( ComponentBase::SetEnabled( enableComponent ) == false )
+        return false;
 
-    if( enabled == false )
+    if( enableComponent == false )
     {
         RemoveFromSceneGraph();
     }
@@ -158,6 +159,8 @@ void ComponentRenderable::SetEnabled(bool enabled)
     {
         AddToSceneGraph();
     }
+
+    return true;
 }
 
 void ComponentRenderable::Draw(MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride, int drawcount)
