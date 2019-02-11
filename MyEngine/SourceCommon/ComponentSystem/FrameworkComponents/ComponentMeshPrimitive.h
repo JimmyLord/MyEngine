@@ -64,7 +64,7 @@ public:
 
     virtual void Reset() override;
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) override { *this = (ComponentMeshPrimitive&)*pObject; }
-    virtual ComponentMeshPrimitive& operator=(ComponentMeshPrimitive& other) override;
+    virtual ComponentMeshPrimitive& operator=(ComponentMeshPrimitive& other);
 
     virtual void RegisterCallbacks() override;
     virtual void UnregisterCallbacks() override;

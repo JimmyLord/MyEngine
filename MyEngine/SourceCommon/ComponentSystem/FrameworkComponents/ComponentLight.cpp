@@ -332,7 +332,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
             //g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
             //g_pRenderer->SetCullingEnabled( false );
             g_pRenderer->SetDepthWriteEnabled( false );
-            pMeshBall->SetMaterial( pMaterial, nullptr );
+            pMeshBall->SetMaterial( pMaterial, 0 );
 
             MyMatrix matWorld;
             matWorld.CreateSRT( m_pLight->m_Attenuation.x, Vector3(0), this->m_pGameObject->GetTransform()->GetWorldPosition() );
