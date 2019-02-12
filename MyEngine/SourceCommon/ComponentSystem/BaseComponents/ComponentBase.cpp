@@ -3504,7 +3504,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 {
                     size_t offset = pVar->m_Offset;
 
-                    ColorByte* oldcolor = (ColorByte*)*(long*)&oldvalue;
+                    ColorByte* oldcolor = (ColorByte*)*(size_t*)&oldvalue;
                     ColorByte* childcolor = (ColorByte*)((char*)pChildComponent + offset);
                     
                     // copy the value, call the callback function and update children.
