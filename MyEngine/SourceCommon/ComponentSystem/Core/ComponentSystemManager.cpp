@@ -948,7 +948,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
     }
 #else
     // Create the Box2D world.
-    MyAssert( sceneID >= SCENEID_MainScene && sceneid < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
+    MyAssert( sceneID >= SCENEID_MainScene && sceneID < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
     MyAssert( m_pSceneInfoMap[sceneID].m_pBox2DWorld == nullptr );
     m_pSceneInfoMap[sceneID].m_pBox2DWorld = MyNew Box2DWorld( nullptr, nullptr, nullptr, new EngineBox2DContactListener );
 #endif //MYFW_EDITOR

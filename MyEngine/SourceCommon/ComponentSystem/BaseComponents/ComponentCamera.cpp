@@ -18,8 +18,11 @@
 #include "ComponentSystem/FrameworkComponents/ComponentCameraShadow.h"
 #include "ComponentSystem/FrameworkComponents/ComponentPostEffect.h"
 #include "Core/EngineCore.h"
+
+#if MYFW_EDITOR
 #include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
+#endif
 
 #if MYFW_USING_WX
 bool ComponentCamera::m_PanelWatchBlockVisible = true;

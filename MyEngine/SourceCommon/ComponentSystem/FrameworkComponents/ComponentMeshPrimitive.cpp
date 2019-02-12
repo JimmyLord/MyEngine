@@ -273,7 +273,9 @@ void ComponentMeshPrimitive::FinishImportingFromJSONObject(cJSON* jComponent)
         }
     }
 
+#if MYFW_EDITOR
     m_PrimitiveSettingsChangedAtRuntime = false;
+#endif
 }
 
 ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(ComponentMeshPrimitive& other)

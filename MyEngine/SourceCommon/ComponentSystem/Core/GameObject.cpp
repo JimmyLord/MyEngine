@@ -1037,8 +1037,8 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
 
     if( found )
     {
-        // unregister all this components callbacks.
-        pComponent->UnregisterCallbacks();
+        // Disable and unregister all this components callbacks.
+        pComponent->SetEnabled( false );
 
 #if MYFW_EDITOR
         {

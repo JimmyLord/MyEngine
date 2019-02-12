@@ -14,9 +14,12 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
+
+#if MYFW_EDITOR
 #include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
+#endif
 
 #include "GUI/ImGuiExtensions.h"
 #if MYFW_USING_IMGUI
