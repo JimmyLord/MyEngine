@@ -108,8 +108,8 @@ public:
 
     void SetEnabledViaEvent(bool enabled, bool affectChildren);
     void SetEnabled(bool enabled, bool affectChildren);
-    void RegisterAllComponentCallbacks(bool ignoreenabledflag);
-    void UnregisterAllComponentCallbacks(bool ignoreenabledflag);
+    //void RegisterAllComponentCallbacks(bool ignoreenabledflag);
+    //void UnregisterAllComponentCallbacks(bool ignoreenabledflag);
     void SetSceneID(SceneID sceneid, bool assignnewgoid = true);
     void SetID(unsigned int id);
     void SetName(const char* name);

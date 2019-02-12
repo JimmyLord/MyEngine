@@ -113,11 +113,15 @@ GameObject::~GameObject()
     }
     SAFE_DELETE( m_pComponentTransform );
 
+    m_Properties.SetEnabled( false );
+
     SAFE_DELETE_ARRAY( m_Name );
 
     // Delete all children.
     while( m_ChildList.GetHead() )
+    {
         delete m_ChildList.RemHead();
+    }
 }
 
 void GameObject::SetGameObjectThisInheritsFrom(GameObject* pObj)
@@ -539,11 +543,11 @@ void GameObject::SetEnabled(bool enabled, bool affectChildren)
             m_Components[i]->OnGameObjectDisabled();
     }
 
-    // Un/register all component callbacks.
-    if( m_Enabled )
-        RegisterAllComponentCallbacks( false );
-    else
-        UnregisterAllComponentCallbacks( false );
+    //// Un/register all component callbacks.
+    //if( m_Enabled )
+    //    RegisterAllComponentCallbacks( false );
+    //else
+    //    UnregisterAllComponentCallbacks( false );
 
     // Recurse through children.
     if( affectChildren )
@@ -558,25 +562,25 @@ void GameObject::SetEnabled(bool enabled, bool affectChildren)
     }
 }
 
-void GameObject::RegisterAllComponentCallbacks(bool ignoreenabledflag)
-{
-    // Loop through all components and register/unregister their callbacks.
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        if( m_Components[i]->IsEnabled() || ignoreenabledflag )
-            m_Components[i]->RegisterCallbacks();
-    }
-}
-
-void GameObject::UnregisterAllComponentCallbacks(bool ignoreenabledflag)
-{
-    // Loop through all components and register/unregister their callbacks.
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        if( m_Components[i]->IsEnabled() || ignoreenabledflag )
-            m_Components[i]->UnregisterCallbacks();
-    }
-}
+//void GameObject::RegisterAllComponentCallbacks(bool ignoreenabledflag)
+//{
+//    // Loop through all components and register/unregister their callbacks.
+//    for( unsigned int i=0; i<m_Components.Count(); i++ )
+//    {
+//        if( m_Components[i]->IsEnabled() || ignoreenabledflag )
+//            m_Components[i]->RegisterCallbacks();
+//    }
+//}
+//
+//void GameObject::UnregisterAllComponentCallbacks(bool ignoreenabledflag)
+//{
+//    // Loop through all components and register/unregister their callbacks.
+//    for( unsigned int i=0; i<m_Components.Count(); i++ )
+//    {
+//        if( m_Components[i]->IsEnabled() || ignoreenabledflag )
+//            m_Components[i]->UnregisterCallbacks();
+//    }
+//}
 
 void GameObject::SetSceneID(SceneID sceneid, bool assignnewgoid)
 {
@@ -948,8 +952,8 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
             g_pComponentSystemManager->AddComponent( pComponent );
     }
 
-    // register this components callbacks.
-    pComponent->RegisterCallbacks();
+    //// Register this components callbacks.
+    //pComponent->RegisterCallbacks();
 
     // pComponent->GetSceneID() == SCENEID_Unmanaged || 
     MyAssert( m_SceneID == pComponent->GetSceneID() );

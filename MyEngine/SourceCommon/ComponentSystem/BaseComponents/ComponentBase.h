@@ -65,8 +65,13 @@ protected:
 
     CPPListHead m_pOnDeleteCallbacks;
 
+    bool m_CallbacksRegistered;
+
 protected:
     void NotifyOthersThisWasDeleted();
+
+    virtual void RegisterCallbacks() {}
+    virtual void UnregisterCallbacks() {}
 
 public:
     ComponentBase();
@@ -86,10 +91,7 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentBase&)*pObject; }
     ComponentBase& operator=(const ComponentBase& other);
 
-    bool m_CallbacksRegistered;
-    virtual void RegisterCallbacks() {}
-    virtual void UnregisterCallbacks() {}
-
+public:
     virtual void OnLoad();
     virtual void OnPlay() {}
     virtual void OnStop() {}

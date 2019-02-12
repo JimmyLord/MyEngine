@@ -2278,7 +2278,7 @@ void EditorMainFrame_ImGui::AddMemoryWindow()
             {
                 MemObject* pMem = (MemObject*)pNode;
 
-                m_pMemoryWindow->AddEntry( pMem->m_File, pMem->m_Line, pMem->m_Size );
+                m_pMemoryWindow->AddEntry( pMem->m_File, pMem->m_Line, (uint32)pMem->m_Size );
             }
         }
         
@@ -2290,7 +2290,7 @@ void EditorMainFrame_ImGui::AddMemoryWindow()
         PrintNumberWithCommas( temp, 32, MyMemory_GetNumberOfActiveMemoryAllocations() );
         ImGui::Text( "Active Allocations: %s", temp );
 
-        PrintNumberWithCommas( temp, 32, MyMemory_GetNumberOfBytesAllocated() );
+        PrintNumberWithCommas( temp, 32, (uint32)MyMemory_GetNumberOfBytesAllocated() );
         ImGui::Text( "Active Bytes Allocated: %s", temp );
 
         m_pMemoryWindow->DrawMid();

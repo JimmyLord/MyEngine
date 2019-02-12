@@ -750,7 +750,7 @@ void EditorCommand_DeleteObjects::Do()
         GameObject* pDeletedObject = m_ObjectsDeleted[i];
         GameObject* pDeletedObjectsParent = m_ObjectsDeleted[i]->GetParentGameObject();
 
-        pDeletedObject->UnregisterAllComponentCallbacks( true );
+        //pDeletedObject->UnregisterAllComponentCallbacks( true );
         pDeletedObject->SetEnabled( false, true );
         g_pComponentSystemManager->UnmanageGameObject( pDeletedObject, true );
         pDeletedObject->GetSceneInfo()->m_GameObjects.MoveTail( pDeletedObject );
@@ -809,7 +809,7 @@ void EditorCommand_DeleteObjects::Undo()
         // Undo everything we did to "delete" this object
         g_pComponentSystemManager->ManageGameObject( m_ObjectsDeleted[i], true );
         m_ObjectsDeleted[i]->SetEnabled( true, true );
-        m_ObjectsDeleted[i]->RegisterAllComponentCallbacks( false );
+        //m_ObjectsDeleted[i]->RegisterAllComponentCallbacks( false );
 
         // Place gameobject in old spot in tree.
         if( m_ObjectsDeleted[i]->Prev && m_ObjectsDeleted[i]->GetPrev() != 0 )

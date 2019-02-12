@@ -281,7 +281,7 @@ void EditorMemoryWindow_ImGui::DrawSingleEntry(unsigned int lineindex)
         }
         else
         {
-            int len = strlen( filename );
+            int len = (int)strlen( filename );
             for( ; len >= 0; len-- )
                 if( filename[len] == '\\' || filename[len] == '/' )
                     break;

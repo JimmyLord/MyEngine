@@ -1151,35 +1151,13 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
         // Load all the components properties after all components are created.
         for( int i=0; i<cJSON_GetArraySize( jComponentArray ); i++ )
         {
-            cJSON* componentobj = cJSON_GetArrayItem( jComponentArray, i );
+            cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
         
             if( getSceneIDFromEachObject )
             {
-                cJSONExt_GetUnsignedInt( componentobj, "SceneID", (unsigned int*)&sceneID );
+                cJSONExt_GetUnsignedInt( jComponent, "SceneID", (unsigned int*)&sceneID );
             }
 
-            unsigned int componentID;
-            cJSONExt_GetUnsignedInt( componentobj, "ID", &componentID );
-
-            ComponentBase* pComponent = FindComponentByID( componentID, sceneID );
-            MyAssert( pComponent );
-
-            if( pComponent )
-            {
-                if( pComponent->GetGameObject()->IsEnabled() == false )
-                {
-                    pComponent->SetEnabled( false );
-                }
-
-                pComponent->ImportFromJSONObject( componentobj, sceneID );
-            }
-        }
-
-        // Second pass on loading component properties for components that rely on other components being initialized.
-        for( int i=0; i<cJSON_GetArraySize( jComponentArray ); i++ )
-        {
-            cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
-        
             unsigned int componentID;
             cJSONExt_GetUnsignedInt( jComponent, "ID", &componentID );
 
@@ -1190,9 +1168,31 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
             {
                 if( pComponent->GetGameObject()->IsEnabled() == false )
                 {
-                    pComponent->SetEnabled( false );
+                    pComponent->OnGameObjectDisabled();
                 }
 
+                pComponent->ImportFromJSONObject( jComponent, sceneID );
+            }
+        }
+
+        // Second pass on loading component properties for components that rely on other components being initialized.
+        for( int i=0; i<cJSON_GetArraySize( jComponentArray ); i++ )
+        {
+            cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
+        
+            if( getSceneIDFromEachObject )
+            {
+                cJSONExt_GetUnsignedInt( jComponent, "SceneID", (unsigned int*)&sceneID );
+            }
+
+            unsigned int componentID;
+            cJSONExt_GetUnsignedInt( jComponent, "ID", &componentID );
+
+            ComponentBase* pComponent = FindComponentByID( componentID, sceneID );
+            MyAssert( pComponent );
+
+            if( pComponent )
+            {
                 pComponent->FinishImportingFromJSONObject( jComponent );
             }
         }
@@ -1805,7 +1805,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
 
         if( disableNewObject )
         {
-            pComponent->SetEnabled( false );
+            pComponent->OnGameObjectDisabled();
         }
 
         pComponent->CopyFromSameType_Dangerous( pObject->GetComponentByIndex( i ) );

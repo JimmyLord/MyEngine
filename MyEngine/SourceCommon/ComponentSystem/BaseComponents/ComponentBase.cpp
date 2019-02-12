@@ -103,7 +103,14 @@ cJSON* ComponentBase::ExportAsJSONObject(bool saveSceneID, bool saveID)
     //cJSON_AddNumberToObject( jComponent, "BaseType", m_BaseType );
 
     if( saveSceneID )
+    {
         cJSON_AddNumberToObject( jComponent, "SceneID", m_SceneIDLoadedFrom );
+    }
+
+    if( m_EnabledState == EnabledState_Disabled_ManuallyDisabled )
+    {
+        cJSON_AddBoolToObject( jComponent, "Enabled", false );
+    }
 
     // Transform are saved as a dedicated transforms array, so don't print the Type name for them.
     if( m_Type != -1 && m_Type != ComponentType_Transform )
@@ -148,6 +155,13 @@ void ComponentBase::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
     MyAssert( m_SceneIDLoadedFrom == SCENEID_NotSet || m_SceneIDLoadedFrom == sceneID );
     SetSceneID( sceneID );
 
+    if( m_pGameObject && m_pGameObject->IsEnabled() == false )
+        m_EnabledState = EnabledState_Disabled_EnableWithGameObject;
+
+    bool enabled = true;
+    cJSONExt_GetBool( jComponent, "Enabled", &enabled );
+    SetEnabled( enabled );
+
     // TODO: this will break if more variables are added to a component or it's parents.
     cJSONExt_GetUnsignedInt( jComponent, "Divorced", &m_DivorcedVariables );
 
@@ -188,9 +202,6 @@ ComponentBase& ComponentBase::operator=(const ComponentBase& other)
 
 void ComponentBase::OnLoad()
 {
-    if( m_pGameObject && m_pGameObject->IsEnabled() == false )
-        m_EnabledState = EnabledState_Disabled_EnableWithGameObject;
-
     if( m_EnabledState == EnabledState_Enabled )
         RegisterCallbacks();
     else
