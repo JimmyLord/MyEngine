@@ -2810,9 +2810,9 @@ void ComponentSystemManager::OnLoad(SceneID sceneid)
 
 void ComponentSystemManager::OnPlay(SceneID sceneid)
 {
-    // TODO: find a better solution than 2 passes, sort the OnPlay callback lists(once OnPlay is a callback of course...)
+    // TODO: Find a better solution than 2 passes, sort the OnPlay callback lists(once OnPlay is a callback of course...)
 
-    // first pass, everything but 2d physics joints.
+    // First pass, everything but 2d physics joints.
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
         for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
@@ -2824,7 +2824,7 @@ void ComponentSystemManager::OnPlay(SceneID sceneid)
             if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
                 continue;
 
-            if( pComponent->GetGameObject()->IsEnabled() == true )
+            if( pComponent->IsEnabled() == true )
             {
                 if( pComponent->IsA( "2DJoint-" ) == false )
                     pComponent->OnPlay();
@@ -2832,7 +2832,7 @@ void ComponentSystemManager::OnPlay(SceneID sceneid)
         }
     }
 
-    // second pass, only 2d physics joints.
+    // Second pass, only 2d physics joints.
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
         for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
@@ -2844,7 +2844,7 @@ void ComponentSystemManager::OnPlay(SceneID sceneid)
             if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
                 continue;
 
-            if( pComponent->GetGameObject()->IsEnabled() == true )
+            if( pComponent->IsEnabled() == true )
             {
                 if( pComponent->IsA( "2DJoint-" ) == true )
                     pComponent->OnPlay();

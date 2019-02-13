@@ -130,8 +130,10 @@ ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& o
 
 bool ComponentRenderable::IsVisible()
 {
-    if( m_pGameObject->IsEnabled() == false )
+    if( IsEnabled() == false )
         return false;
+
+    MyAssert( m_pGameObject->IsEnabled() );
 
     return m_Visible;
 }

@@ -1843,8 +1843,10 @@ void ComponentMenuPage::SetVisible(bool visible)
 
 bool ComponentMenuPage::IsVisible()
 {
-    if( m_pGameObject->IsEnabled() == false )
+    if( IsEnabled() == false )
         return false;
+
+    MyAssert( m_pGameObject->IsEnabled() );
 
     return ComponentRenderable::IsVisible();
 }
@@ -1856,8 +1858,10 @@ void ComponentMenuPage::SetInputEnabled(bool inputenabled)
 
 bool ComponentMenuPage::IsInputEnabled()
 {
-    if( m_pGameObject->IsEnabled() == false )
+    if( IsEnabled() == false )
         return false;
+
+    MyAssert( m_pGameObject->IsEnabled() );
 
     return m_InputEnabled;
 }

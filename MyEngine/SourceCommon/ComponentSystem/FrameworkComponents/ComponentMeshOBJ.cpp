@@ -347,8 +347,11 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
     //        }
     //    }
 
-        if( m_pGameObject->IsEnabled() && m_pMesh != 0 )
+        if( IsEnabled() && m_pMesh != 0 )
+        {
+            MyAssert( m_pGameObject->IsEnabled() );
             AddToSceneGraph();
+        }
     //}
 }
 

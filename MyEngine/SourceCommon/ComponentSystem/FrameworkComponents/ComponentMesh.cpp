@@ -539,8 +539,10 @@ void ComponentMesh::AddToSceneGraph()
     MyAssert( m_pMesh );
 
     // If the object has been disabled, don't add it to the scene graph.
-    if( m_pGameObject->IsEnabled() == false )
+    if( IsEnabled() == false )
         return;
+
+    MyAssert( m_pGameObject->IsEnabled() );
 
     if( m_pMesh->IsReady() )
     {
