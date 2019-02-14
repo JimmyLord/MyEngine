@@ -81,8 +81,7 @@ void EditorInterface_2DPointEditor::OnActivated()
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
-            // Remove this from the main list of renderable components.
-            pComponentMesh->UnregisterCallbacks();
+            pComponentMesh->OnLoad();
         }
         
         m_pPoint = pGameObject;

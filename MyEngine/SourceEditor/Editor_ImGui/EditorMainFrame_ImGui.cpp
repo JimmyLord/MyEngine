@@ -1360,7 +1360,7 @@ void EditorMainFrame_ImGui::AddObjectList()
                         int i;
                         for( i=(int)strlen(pSceneInfo->m_FullPath)-1; i>=0; i-- )
                         {
-                            if( scenename[i] == '\\' || pSceneInfo->m_FullPath[i] == '/' )
+                            if( pSceneInfo->m_FullPath[i] == '\\' || pSceneInfo->m_FullPath[i] == '/' )
                                 break;
                         }
                         scenename = &pSceneInfo->m_FullPath[i+1];

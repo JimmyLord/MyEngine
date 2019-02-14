@@ -174,7 +174,10 @@ void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdes
         MyAssert( newdesc );
         if( newdesc )
         {
-            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
+            // Load the material throught the engine, so the ComponentSystemManager can keep a reference.
+            MyFileInfo* pFileInfo = g_pComponentSystemManager->LoadDataFile( newdesc, m_SceneIDLoadedFrom, nullptr, false );
+            MaterialDefinition* pMaterial = pFileInfo->GetMaterial();
+            pMaterial->AddRef();
 #if MYFW_EDITOR
             g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
 #else
@@ -249,6 +252,8 @@ void ComponentSprite::UnregisterCallbacks()
 
 void ComponentSprite::OnLoad()
 {
+    ComponentRenderable::OnLoad();
+
     m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
 
     if( m_pSceneGraphObject == 0 )
