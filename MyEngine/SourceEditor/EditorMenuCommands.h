@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2018-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -16,6 +16,7 @@ enum EditorMenuCommands
 {
     EditorMenuCommand_File_NewScene,
     EditorMenuCommand_File_LoadScene,
+    EditorMenuCommand_File_LoadPreselectedScene,
     EditorMenuCommand_File_CreateAdditionalScene,
     EditorMenuCommand_File_LoadAdditionalScene,
     EditorMenuCommand_File_SaveScene,
@@ -48,5 +49,6 @@ enum EditorMenuCommands
 };
 
 void EditorMenuCommand(EditorMenuCommands command);
+void EditorMenuCommand(EditorMenuCommands command, std::string value);
 
 #endif //__EditorMenuCommands_H__

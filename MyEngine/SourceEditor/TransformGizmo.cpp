@@ -1008,9 +1008,9 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
 
                     Vector3 finalpos = pos + diff/2;
                     Vector3 newfinalpos;
-                    newfinalpos.x = MyRoundToMultipleOf( finalpos.x, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.x );
-                    newfinalpos.y = MyRoundToMultipleOf( finalpos.y, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.y );
-                    newfinalpos.z = MyRoundToMultipleOf( finalpos.z, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.z );
+                    newfinalpos.x = MyRoundToMultipleOf( finalpos.x, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepSize.x );
+                    newfinalpos.y = MyRoundToMultipleOf( finalpos.y, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepSize.y );
+                    newfinalpos.z = MyRoundToMultipleOf( finalpos.z, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepSize.z );
 
                     diff = newfinalpos - pos;
 

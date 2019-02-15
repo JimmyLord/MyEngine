@@ -844,10 +844,14 @@ void EditorMainFrame_ImGui::SetFullPathToLast2DAnimInfoBeingEdited(const char* f
 
 void EditorMainFrame_ImGui::AddMainMenuBar()
 {
+    bool wasInEditorMode = true;
+
     if( g_pEngineCore->IsInEditorMode() == false )
     {
         Vector4 gameRunningMenuBarColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_GameRunningMenuBarColor );
         ImGui::PushStyleColor( ImGuiCol_MenuBarBg, gameRunningMenuBarColor );
+
+        wasInEditorMode = false;
     }
 
     if( ImGui::BeginMainMenuBar() )
@@ -868,6 +872,34 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 else
                     EditorMenuCommand( EditorMenuCommand_File_LoadScene );
             }
+            if( ImGui::BeginMenu( "Load Recent Scene..." ) )
+            {
+                uint32 numRecentScenes = g_pEngineCore->GetEditorPrefs()->Get_File_NumRecentScenes();
+                if( numRecentScenes == 0 )
+                {
+                    ImGui::Text( "no recent scenes..." );
+                }
+
+                for( uint32 i=0; i<numRecentScenes; i++ )
+                {
+                    std::string recentFilename = g_pEngineCore->GetEditorPrefs()->Get_File_RecentScene( i );
+                    if( ImGui::MenuItem( recentFilename.c_str() ) )
+                    {
+                        if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
+                        {
+                            m_ShowLoadSceneWarning = true;
+                        }
+                        else
+                        {
+                            // TODO: Handle files that no longer exist.
+                            EditorMenuCommand( EditorMenuCommand_File_LoadPreselectedScene, recentFilename );
+                        }
+                    }
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::Separator();
 
             if( ImGui::MenuItem( "Create Additional Scene" ) )
             {
@@ -877,6 +909,9 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 EditorMenuCommand( EditorMenuCommand_File_LoadAdditionalScene );
             }
+
+            ImGui::Separator();
+
             if( ImGui::MenuItem( "Save Scene", "Ctrl-S" ) )
             {
                 EditorMenuCommand( EditorMenuCommand_File_SaveScene );
@@ -886,11 +921,15 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 EditorMenuCommand( EditorMenuCommand_File_SaveSceneAs );
             }
 
+            ImGui::Separator();
+
             if( ImGui::BeginMenu( "Export" ) )
             {
                 if( ImGui::MenuItem( "Box2D Scene...", "Ctrl-Shift-E" ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); }
                 ImGui::EndMenu();
             }
+
+            ImGui::Separator();
 
             if( ImGui::MenuItem( "Preferences...", "Ctrl-Shift-P" ) ) { g_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->Display(); }
 
@@ -901,8 +940,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Edit" ) )
         {
-            if( ImGui::MenuItem( "Undo", "CTRL-Z" ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Undo ); }
-            if( ImGui::MenuItem( "Redo", "CTRL-Y" ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Redo ); }
+            if( ImGui::MenuItem( "Undo", "Ctrl-Z" ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Undo ); }
+            if( ImGui::MenuItem( "Redo", "Ctrl-Y" ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Redo ); }
 
             ImGui::EndMenu();
         }
@@ -1061,7 +1100,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         {
             if( ImGui::MenuItem( "Switch Focus on Play/Stop", nullptr, g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() ) ) { EditorMenuCommand( EditorMenuCommand_Mode_SwitchFocusOnPlayStop ); }
             // Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
-            if( ImGui::MenuItem( "Play/Stop", "CTRL-SPACE" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop ); }
+            if( ImGui::MenuItem( "Play/Stop", "Ctrl-Spacebar" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop ); }
             if( ImGui::MenuItem( "Pause", "Ctrl-." ) ) { EditorMenuCommand( EditorMenuCommand_Mode_Pause ); }
             if( ImGui::MenuItem( "Advance 1 Frame", "Ctrl-]" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame ); }
             if( ImGui::MenuItem( "Advance 1 Second", "Ctrl-[" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond ); }
@@ -1119,8 +1158,10 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         ImGui::EndMainMenuBar();
     }
 
-    if( g_pEngineCore->IsInEditorMode() == false )
+    if( wasInEditorMode == false )
+    {
         ImGui::PopStyleColor();
+    }
 }
 
 void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()

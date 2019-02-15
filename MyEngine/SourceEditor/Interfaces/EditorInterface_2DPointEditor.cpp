@@ -310,8 +310,8 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyAction, int keyCode, int 
                     if( g_pEngineCore->GetEditorPrefs()->Get_Grid_SnapEnabled() )
                     {
                         // Snap point to grid.
-                        newPos.x = MyRoundToMultipleOf( newPos.x, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.x );
-                        newPos.y = MyRoundToMultipleOf( newPos.y, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.y );
+                        newPos.x = MyRoundToMultipleOf( newPos.x, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepSize.x );
+                        newPos.y = MyRoundToMultipleOf( newPos.y, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepSize.y );
                     }
 
                     if( createNewVertex )

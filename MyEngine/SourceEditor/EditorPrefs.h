@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2018-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -47,23 +47,24 @@ extern const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms];
 struct GridSettings
 {
     bool visible;
-    bool snapenabled;
-    Vector3 stepsize;
+    bool snapEnabled;
+    Vector3 stepSize;
 };
 
 class EditorPrefs
 {
 public:
     const static int MAX_RECENT_LUA_SCRIPTS = 10;
+    const static int MAX_RECENT_SCENES = 10;
 
 private:
     FILE* m_pSaveFile; // Stored temporarily between SaveStart and Save Finish.
 
 protected:
-    // Editor preferences JSON object
+    // Editor preferences JSON object.
     cJSON* m_jEditorPrefs;
 
-    // Editor preferences
+    // Editor preferences.
     int m_WindowX;
     int m_WindowY;
     int m_WindowWidth;
@@ -80,6 +81,7 @@ protected:
     LaunchPlatforms m_Mode_CurrentLaunchPlatform;
     bool m_Debug_DrawPhysicsDebugShapes;
     std::vector<std::string> m_Lua_RecentScripts;
+    std::vector<std::string> m_File_RecentScenes;
 
 #if MYFW_USING_IMGUI
     ImGuiStylePrefs* m_pImGuiStylePrefs;
@@ -122,12 +124,14 @@ public:
     bool Get_View_SelectedObjects_ShowEffect() { return m_View_SelectedObjects_ShowEffect; }
     GLViewTypes Get_Aspect_GameAspectRatio() { return m_Aspect_CurrentGameWindowAspectRatio; }
     bool Get_Grid_Visible() { return m_GridSettings.visible; }
-    bool Get_Grid_SnapEnabled() { return m_GridSettings.snapenabled; }
+    bool Get_Grid_SnapEnabled() { return m_GridSettings.snapEnabled; }
     bool Get_Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
     LaunchPlatforms Get_Mode_LaunchPlatform() { return m_Mode_CurrentLaunchPlatform; }
     bool Get_Debug_DrawPhysicsDebugShapes() { return m_Debug_DrawPhysicsDebugShapes; }
     uint32 Get_Lua_NumRecentScripts() { return (uint32)m_Lua_RecentScripts.size(); }
     std::string Get_Lua_RecentScript(int index) { return m_Lua_RecentScripts[index]; }
+    uint32 Get_File_NumRecentScenes() { return (uint32)m_File_RecentScenes.size(); }
+    std::string Get_File_RecentScene(int index) { return m_File_RecentScenes[index]; }
 
     void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
     void Toggle_View_EditorCamDeferred() { m_View_EditorCamDeferred = !m_View_EditorCamDeferred; }
@@ -140,7 +144,8 @@ public:
     void Set_Mode_LaunchPlatform(LaunchPlatforms platform) { m_Mode_CurrentLaunchPlatform = platform; }
     void Toggle_Debug_DrawPhysicsDebugShapes() { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
 
-    void AddRecentLuaScript(const char* relativepath);
+    void AddRecentLuaScript(const char* relativePath);
+    void AddRecentScene(const char* relativePath);
 
     void FillGridSettingsWindow();
 

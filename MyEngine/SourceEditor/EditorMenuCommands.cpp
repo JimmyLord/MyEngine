@@ -219,14 +219,20 @@ void EditorMenuCommand(EditorMenuCommands command)
     case EditorMenuCommand_File_LoadScene:
         {
             const char* filename = FileOpenDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
-            if( filename[0] != 0 )
+            if( filename[0] != '\0' )
             {
                 char path[MAX_PATH];
                 strcpy_s( path, MAX_PATH, filename );
-                const char* relativepath = GetRelativePath( path );
-                LoadScene( relativepath, true );
+                const char* relativePath = GetRelativePath( path );
+                LoadScene( relativePath, true );
+
+                g_pEditorPrefs->AddRecentScene( relativePath );
             }
         }
+        break;
+
+    case EditorMenuCommand_File_LoadPreselectedScene:
+        MyAssert( false ); // Handled by an override of EditorMenuCommand.
         break;
 
     case EditorMenuCommand_File_CreateAdditionalScene:
@@ -240,12 +246,14 @@ void EditorMenuCommand(EditorMenuCommands command)
     case EditorMenuCommand_File_LoadAdditionalScene:
         {
             const char* filename = FileOpenDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
-            if( filename[0] != 0 )
+            if( filename[0] != '\0' )
             {
                 char path[MAX_PATH];
                 strcpy_s( path, MAX_PATH, filename );
-                const char* relativepath = GetRelativePath( path );
-                LoadScene( relativepath, false );
+                const char* relativePath = GetRelativePath( path );
+                LoadScene( relativePath, false );
+
+                g_pEditorPrefs->AddRecentScene( relativePath );
             }
         }
         break;
@@ -321,6 +329,8 @@ void EditorMenuCommand(EditorMenuCommands command)
                 g_pGameCore->GetSoundManager()->SaveAllCues();
 
                 g_pEngineCore->SaveScene( relativePath, SCENEID_MainScene );
+
+                g_pEditorPrefs->AddRecentScene( relativePath );
             }
         }
         break;
@@ -542,5 +552,15 @@ void EditorMenuCommand(EditorMenuCommands command)
         g_pLuaGameState->RunFile( relativePath );
 
         g_pEditorPrefs->AddRecentLuaScript( relativePath );
+    }
+}
+
+void EditorMenuCommand(EditorMenuCommands command, std::string value)
+{
+    if( command == EditorMenuCommand_File_LoadPreselectedScene )
+    {
+        LoadScene( value.c_str(), true );
+
+        g_pEditorPrefs->AddRecentScene( value.c_str() );
     }
 }
