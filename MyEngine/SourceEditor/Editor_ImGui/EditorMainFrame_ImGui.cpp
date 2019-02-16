@@ -888,6 +888,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                         if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
                         {
                             m_ShowLoadSceneWarning = true;
+                            m_SceneToLoadAfterWarning = recentFilename;
                         }
                         else
                         {
@@ -1202,7 +1203,14 @@ void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
         
         if( ImGui::Button( "Load anyway / Lose changes" ) )
         {
-            EditorMenuCommand( EditorMenuCommand_File_LoadScene );
+            if( m_SceneToLoadAfterWarning.empty() == true )
+            {
+                EditorMenuCommand( EditorMenuCommand_File_LoadScene );
+            }
+            else
+            {
+                EditorMenuCommand( EditorMenuCommand_File_LoadPreselectedScene, m_SceneToLoadAfterWarning );
+            }
             ImGui::CloseCurrentPopup();
         }
 

@@ -49,6 +49,7 @@ protected:
     // Warnings.
     bool m_ShowNewSceneWarning;
     bool m_ShowLoadSceneWarning;
+    std::string m_SceneToLoadAfterWarning;
     bool m_ShowCloseEditorWarning;
 
     // Render surfaces.
