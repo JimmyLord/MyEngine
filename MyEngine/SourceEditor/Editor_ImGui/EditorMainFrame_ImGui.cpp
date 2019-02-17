@@ -125,6 +125,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     // For renaming things.
     m_RenamePressedThisFrame = false;
     m_ConfirmCurrentRenameOp = false;
+    m_RenameTimerForSlowDoubleClick = 0.0f;
     m_pGameObjectWhoseNameIsBeingEdited = nullptr;
     m_pMaterialWhoseNameIsBeingEdited = nullptr;
     m_NameBeingEdited[0] = '\0';
@@ -436,6 +437,8 @@ void EditorMainFrame_ImGui::OnModeTogglePlayStop(bool nowInEditorMode)
 
 void EditorMainFrame_ImGui::Update(float deltaTime)
 {
+    m_RenameTimerForSlowDoubleClick += deltaTime;
+
     m_pAnimPlayerComponent->TickCallback( deltaTime );
 }
 
@@ -1815,11 +1818,6 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered() &&
             hoveringOverArrow == false && dragDropPayloadAcceptedOnRelease == false )
         {
-            if( ImGui::GetIO().KeyCtrl == false )
-            {
-                pEditorState->ClearSelectedObjectsAndComponents();
-            }
-
             if( ImGui::GetIO().KeyShift == true )
             {
                 // Select all GameObjects between last interacted object in list and this one.
@@ -1879,6 +1877,28 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             }
             else
             {
+                // If control isn't held, clear the selected objects.
+                if( ImGui::GetIO().KeyCtrl == false )
+                {
+                    // If slow-doubleclicking a selected object, then rename it.
+                    if( pEditorState->IsGameObjectSelected( pGameObject ) )
+                    {
+                        if( m_RenameTimerForSlowDoubleClick < ImGui::GetIO().MouseDoubleClickTime || m_RenameTimerForSlowDoubleClick > 1.0f )
+                        {
+                            m_RenameTimerForSlowDoubleClick = 0.0f;
+                        }
+                        else
+                        {
+                            m_pGameObjectWhoseNameIsBeingEdited = pGameObject;
+                            m_pMaterialWhoseNameIsBeingEdited = nullptr;
+                            strncpy_s( m_NameBeingEdited, 100, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 99 );
+                            m_ConfirmCurrentRenameOp = false;
+                        }
+                    }
+
+                    pEditorState->ClearSelectedObjectsAndComponents();
+                }
+
                 // If there are any selected items and there's a mix of gameobjects and prefabs, then unselect all.
                 if( pEditorState->m_pSelectedObjects.size() > 0 )
                 {
@@ -1899,6 +1919,8 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 }
                 else
                 {
+                    m_RenameTimerForSlowDoubleClick = 0.0f;
+
                     m_pLastGameObjectInteractedWithInObjectPanel = pGameObject;
                     pEditorState->SelectGameObject( pGameObject );
 

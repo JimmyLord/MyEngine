@@ -84,6 +84,7 @@ protected:
     // For renaming things.
     bool m_RenamePressedThisFrame;
     bool m_ConfirmCurrentRenameOp;
+    float m_RenameTimerForSlowDoubleClick;
     GameObject* m_pGameObjectWhoseNameIsBeingEdited;
     MaterialDefinition* m_pMaterialWhoseNameIsBeingEdited;
     char m_NameBeingEdited[100];
