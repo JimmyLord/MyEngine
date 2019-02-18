@@ -85,6 +85,7 @@ protected:
     bool m_RenamePressedThisFrame;
     bool m_ConfirmCurrentRenameOp;
     float m_RenameTimerForSlowDoubleClick;
+    void* m_RenameOp_LastObjectClicked;
     GameObject* m_pGameObjectWhoseNameIsBeingEdited;
     MaterialDefinition* m_pMaterialWhoseNameIsBeingEdited;
     char m_NameBeingEdited[100];
@@ -153,6 +154,8 @@ public:
     void SetFullPathToLast2DAnimInfoBeingEdited(const char* fullPath);
 
 protected:
+    void StartRenameOp(GameObject* pGameObject, MaterialDefinition* pMaterial, const char* name);
+
     void AddMainMenuBar();
     void AddLoseChangesWarningPopups();
     void AddGameAndEditorWindows();

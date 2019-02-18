@@ -126,6 +126,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_RenamePressedThisFrame = false;
     m_ConfirmCurrentRenameOp = false;
     m_RenameTimerForSlowDoubleClick = 0.0f;
+    m_RenameOp_LastObjectClicked = nullptr;
     m_pGameObjectWhoseNameIsBeingEdited = nullptr;
     m_pMaterialWhoseNameIsBeingEdited = nullptr;
     m_NameBeingEdited[0] = '\0';
@@ -844,6 +845,15 @@ void EditorMainFrame_ImGui::SetFullPathToLast2DAnimInfoBeingEdited(const char* f
 //====================================================================================================
 // Internal methods
 //====================================================================================================
+
+void EditorMainFrame_ImGui::StartRenameOp(GameObject* pGameObject, MaterialDefinition* pMaterial, const char* name)
+{
+    m_pGameObjectWhoseNameIsBeingEdited = pGameObject;
+    m_pMaterialWhoseNameIsBeingEdited = pMaterial;
+    strncpy_s( m_NameBeingEdited, 100, name, 99 );
+
+    m_ConfirmCurrentRenameOp = false;
+}
 
 void EditorMainFrame_ImGui::AddMainMenuBar()
 {
@@ -1584,8 +1594,17 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
     {
         ImGui::PushID( pGameObject );
         ImGui::SetKeyboardFocusHere();
-        if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) ||
-            m_ConfirmCurrentRenameOp )
+        
+        bool confirmed = ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue );
+
+        // Any click will confirm the rename op, but cancel the confirmation if the click was in the edit box.
+        if( ImGui::IsItemClicked() )
+        {
+            m_ConfirmCurrentRenameOp = false;
+        }
+
+        // If 'enter' was pressed or another mouse click confirmed the change.
+        if( confirmed || m_ConfirmCurrentRenameOp )
         {
             m_pGameObjectWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
             m_pGameObjectWhoseNameIsBeingEdited = nullptr;
@@ -1664,9 +1683,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             if( ImGui::IsRootWindowOrAnyChildFocused() && m_RenamePressedThisFrame &&
                 pEditorState->m_pSelectedObjects[0] != m_pGameObjectWhoseNameIsBeingEdited )
             {
-                m_pGameObjectWhoseNameIsBeingEdited = pEditorState->m_pSelectedObjects[0];
-                m_pMaterialWhoseNameIsBeingEdited = nullptr;
-                strncpy_s( m_NameBeingEdited, 100, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 99 );
+                StartRenameOp( pEditorState->m_pSelectedObjects[0], nullptr, pEditorState->m_pSelectedObjects[0]->GetName() );
             }
         }
 
@@ -1768,18 +1785,23 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     }
                     if( ImGui::MenuItem( "Delete GameObject" ) )
                     {
-                        // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+                        // If the object isn't selected, delete just the one object, otherwise delete all selected objects.
                         if( pEditorState->IsGameObjectSelected( pGameObject ) )
                         {
                             pEditorState->DeleteSelectedObjects();
                         }
                         else
                         {
-                            // create a temp vector to pass into command.
+                            // Create a temp vector to pass into command.
                             std::vector<GameObject*> gameobjects;
                             gameobjects.push_back( pGameObject );
                             g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
                         }
+                    }
+                    if( ImGui::MenuItem( "Rename" ) )
+                    {
+                        StartRenameOp( pGameObject, nullptr, pGameObject->GetName() );
+                        ImGui::CloseCurrentPopup();
                     }
                 }
             }
@@ -1880,22 +1902,6 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 // If control isn't held, clear the selected objects.
                 if( ImGui::GetIO().KeyCtrl == false )
                 {
-                    // If slow-doubleclicking a selected object, then rename it.
-                    if( pEditorState->IsGameObjectSelected( pGameObject ) )
-                    {
-                        if( m_RenameTimerForSlowDoubleClick < ImGui::GetIO().MouseDoubleClickTime || m_RenameTimerForSlowDoubleClick > 1.0f )
-                        {
-                            m_RenameTimerForSlowDoubleClick = 0.0f;
-                        }
-                        else
-                        {
-                            m_pGameObjectWhoseNameIsBeingEdited = pGameObject;
-                            m_pMaterialWhoseNameIsBeingEdited = nullptr;
-                            strncpy_s( m_NameBeingEdited, 100, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 99 );
-                            m_ConfirmCurrentRenameOp = false;
-                        }
-                    }
-
                     pEditorState->ClearSelectedObjectsAndComponents();
                 }
 
@@ -1919,8 +1925,6 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 }
                 else
                 {
-                    m_RenameTimerForSlowDoubleClick = 0.0f;
-
                     m_pLastGameObjectInteractedWithInObjectPanel = pGameObject;
                     pEditorState->SelectGameObject( pGameObject );
 
@@ -1936,6 +1940,30 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                         }
                     }
                 }
+            }
+        }
+
+        // Deal with slow double-click for renaming GameObjects.
+        if( ImGui::IsItemClicked( 0 ) )
+        {
+            // Clear the timer if there was a double-click or a different object was selected.
+            if( ImGui::IsMouseDoubleClicked( 0 ) )
+            {
+                m_RenameTimerForSlowDoubleClick = 9999.0f;
+            }
+            else if( pGameObject != m_RenameOp_LastObjectClicked )
+            {
+                m_RenameTimerForSlowDoubleClick = 0.0f;
+                m_RenameOp_LastObjectClicked = pGameObject;
+            }
+            else
+            {
+                if( m_RenameTimerForSlowDoubleClick > ImGui::GetIO().MouseDoubleClickTime && m_RenameTimerForSlowDoubleClick < 1.0f )
+                {
+                    StartRenameOp( pGameObject, nullptr, pGameObject->GetName() );
+                }
+
+                m_RenameTimerForSlowDoubleClick = 0.0f;
             }
         }
 
@@ -2701,9 +2729,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                     g_pMaterialManager->CallMaterialCreatedCallbacks( pMaterial );
 
                     // Start a rename op on the new material.
-                    m_pGameObjectWhoseNameIsBeingEdited = nullptr;
-                    m_pMaterialWhoseNameIsBeingEdited = pMaterial;
-                    strncpy_s( m_NameBeingEdited, 100, pMaterial->GetName(), 99 );
+                    StartRenameOp( nullptr, pMaterial, pMaterial->GetName() );
                 }
                 ImGui::EndPopup();
             }
@@ -2749,9 +2775,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                                 // TODO: Find a better answer than IsItemHovered().
                                 if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
                                 {
-                                    m_pGameObjectWhoseNameIsBeingEdited = nullptr;
-                                    m_pMaterialWhoseNameIsBeingEdited = pMat;
-                                    strncpy_s( m_NameBeingEdited, 100, matName, 99 );
+                                    StartRenameOp( nullptr, pMat, matName );
                                 }
 
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
@@ -2761,10 +2785,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                                     if( ImGui::MenuItem( "Find References" ) ) { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_FindAllReferences ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                     if( ImGui::MenuItem( "Rename" ) )
                                     {
-                                        m_pGameObjectWhoseNameIsBeingEdited = nullptr;
-                                        m_pMaterialWhoseNameIsBeingEdited = pMat;
-                                        strncpy_s( m_NameBeingEdited, 100, matName, 99 );
-
+                                        StartRenameOp( nullptr, pMat, matName );
                                         ImGui::CloseCurrentPopup();
                                     }
                                     ImGui::EndPopup();
