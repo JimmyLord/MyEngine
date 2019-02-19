@@ -155,6 +155,7 @@ public:
 
 protected:
     void StartRenameOp(GameObject* pGameObject, MaterialDefinition* pMaterial, const char* name);
+    bool WasItemSlowDoubleClicked(void* pObjectClicked);
 
     void AddMainMenuBar();
     void AddLoseChangesWarningPopups();

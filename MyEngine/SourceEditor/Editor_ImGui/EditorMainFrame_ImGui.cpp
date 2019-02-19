@@ -407,10 +407,9 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
         if( CS && keyCode == 'K'   ) { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return true; }
 
 #if _DEBUG
-        // Dump current layour to output window, so it can be cut & pasted to g_DefaultLayouts in the EditorLayoutManager.
+        // Dump current layout to output window, so it can be cut & pasted to g_DefaultLayouts in the EditorLayoutManager.
         if( CS && keyCode == 'D'   ) { m_pLayoutManager->DumpCurrentLayoutToOutputWindow();                         return true; }
 #endif
-
     }
 
     return false;
@@ -853,6 +852,40 @@ void EditorMainFrame_ImGui::StartRenameOp(GameObject* pGameObject, MaterialDefin
     strncpy_s( m_NameBeingEdited, 100, name, 99 );
 
     m_ConfirmCurrentRenameOp = false;
+}
+
+bool EditorMainFrame_ImGui::WasItemSlowDoubleClicked(void* pObjectClicked)
+{
+    MyAssert( pObjectClicked != nullptr );
+
+    if( ImGui::IsItemClicked( 0 ) )
+    {
+        if( ImGui::IsMouseDoubleClicked( 0 ) )
+        {
+            // Clear the timer if there was a double-click.
+            m_RenameTimerForSlowDoubleClick = 9999.0f;
+        }
+        else if( pObjectClicked != m_RenameOp_LastObjectClicked )
+        {
+            // Restart the timer if a different object was selected.
+            m_RenameTimerForSlowDoubleClick = 0.0f;
+            m_RenameOp_LastObjectClicked = pObjectClicked;
+        }
+        else
+        {
+            // If we're in the slow double click window, return true.
+            if( m_RenameTimerForSlowDoubleClick > ImGui::GetIO().MouseDoubleClickTime && m_RenameTimerForSlowDoubleClick < 1.0f )
+            {
+                m_RenameTimerForSlowDoubleClick = 0.0f;
+                return true;
+            }
+
+            // Restart the timer.
+            m_RenameTimerForSlowDoubleClick = 0.0f;
+        }
+    }
+
+    return false;
 }
 
 void EditorMainFrame_ImGui::AddMainMenuBar()
@@ -1568,7 +1601,7 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
                         
                         if( pGameObject )
                         {
-                            // Add GameObjects, their children and their components
+                            // Add GameObjects, their children and their components.
                             AddGameObjectToObjectList( pGameObject, pPrefab );
                         }
 
@@ -1944,27 +1977,9 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         }
 
         // Deal with slow double-click for renaming GameObjects.
-        if( ImGui::IsItemClicked( 0 ) )
+        if( WasItemSlowDoubleClicked( pGameObject ) )
         {
-            // Clear the timer if there was a double-click or a different object was selected.
-            if( ImGui::IsMouseDoubleClicked( 0 ) )
-            {
-                m_RenameTimerForSlowDoubleClick = 9999.0f;
-            }
-            else if( pGameObject != m_RenameOp_LastObjectClicked )
-            {
-                m_RenameTimerForSlowDoubleClick = 0.0f;
-                m_RenameOp_LastObjectClicked = pGameObject;
-            }
-            else
-            {
-                if( m_RenameTimerForSlowDoubleClick > ImGui::GetIO().MouseDoubleClickTime && m_RenameTimerForSlowDoubleClick < 1.0f )
-                {
-                    StartRenameOp( pGameObject, nullptr, pGameObject->GetName() );
-                }
-
-                m_RenameTimerForSlowDoubleClick = 0.0f;
-            }
+            StartRenameOp( pGameObject, nullptr, pGameObject->GetName() );
         }
 
         bool forceOpen = false;
@@ -2774,6 +2789,12 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                             {
                                 // TODO: Find a better answer than IsItemHovered().
                                 if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
+                                {
+                                    StartRenameOp( nullptr, pMat, matName );
+                                }
+
+                                // Deal with slow double-click for renaming Materials.
+                                if( WasItemSlowDoubleClicked( pMat ) )
                                 {
                                     StartRenameOp( nullptr, pMat, matName );
                                 }
@@ -4218,7 +4239,7 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
                     pGameObject->GetTransform()->UpdateTransform();
                 }
 
-                // Undo/redo
+                // Undo/redo.
                 g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObject ) );
             }
         }
