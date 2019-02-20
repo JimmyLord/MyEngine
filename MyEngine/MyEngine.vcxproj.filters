@@ -474,6 +474,9 @@
     <ClCompile Include="SourceCommon\MyEnginePCH.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="SourceEditor\Editor_ImGui\MyNodeGraph.cpp">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -880,6 +883,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\MyEnginePCH.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Editor_ImGui\MyNodeGraph.h">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

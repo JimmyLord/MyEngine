@@ -9,8 +9,10 @@
 
 #include "MyEnginePCH.h"
 
-#include "ImGuiStylePrefs.h"
 #include "EditorMemoryWindow_ImGui.h"
+
+#include "ImGuiStylePrefs.h"
+#include "MyNodeGraph.h"
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/GameObject.h"
@@ -534,6 +536,14 @@ void EditorMainFrame_ImGui::AddEverything()
         }
         ImGui::End();
     }
+
+    static MyNodeGraph nodeGraph;
+    ImGui::SetNextWindowSize( ImVec2(700, 600), ImGuiSetCond_FirstUseEver );
+    if( ImGui::Begin( "MyImGuiNodeGraph" ) )
+    {
+        nodeGraph.Update();
+    }
+    ImGui::End();
 
     m_RenamePressedThisFrame = false;
 

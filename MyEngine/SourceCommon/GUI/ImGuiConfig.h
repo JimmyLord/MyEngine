@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2018-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -12,9 +12,11 @@
 
 //---- Define constructor and implicit cast operators to convert back<>forth from your math types and ImVec2/ImVec4.
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
-#define IM_VEC2_CLASS_EXTRA                                                 \
-        ImVec2(const Vector2& f) { x = f.x; y = f.y; }                      \
-        operator Vector2() const { return Vector2(x,y); }
+#define IM_VEC2_CLASS_EXTRA                                                                 \
+        ImVec2(const Vector2& f) { x = f.x; y = f.y; }                                      \
+        operator Vector2() const { return Vector2(x,y); }                                   \
+        Vector2 operator +(const Vector2 o) const { return Vector2( x + o.x, y + o.y ); }   \
+        Vector2 operator -(const Vector2 o) const { return Vector2( x - o.x, y - o.y ); }
 
 #define IM_VEC4_CLASS_EXTRA                                                 \
         ImVec4(const Vector4& f) { x = f.x; y = f.y; z = f.z; w = f.w; }    \
