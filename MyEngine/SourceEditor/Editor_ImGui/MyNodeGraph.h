@@ -13,11 +13,11 @@
 #include "../../Libraries/imgui/imgui.h"
 #include "../../Libraries/imgui/imgui_internal.h"
 
-class Node;
-class NodeLink;
-
 class MyNodeGraph
 {
+    class Node;
+    class NodeLink;
+
     friend class Node;
     friend class NodeLink;
 
@@ -45,12 +45,14 @@ protected:
 
         void Set(NodeID nodeID, SlotID slotID, SlotType slotType) { m_NodeID = nodeID; m_SlotID = slotID; m_SlotType = slotType; }
         void Clear() { Set( NodeID_Undefined, SlotID_Undefined, SlotType_Undefined ); }
+        bool InUse() { return m_NodeID != NodeID_Undefined; }
     };
 
 protected:
     ImVector<Node> m_Nodes;
     ImVector<NodeLink> m_Links;
-    NodeID m_SelectedNodeID;
+    ImVector<NodeID> m_SelectedNodeIDs;
+    int m_SelectedNodeLinkIndex;
 
     Vector2 m_ScrollOffset;
     bool m_GridVisible;
@@ -60,6 +62,8 @@ protected:
 protected:
     void DrawGrid(Vector2 offset);
     int FindNodeIndexByID(NodeID nodeID);
+    bool IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType);
+    void HandleNodeSlot(ImDrawList* pDrawList, Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType);
     bool HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType);
 
 public:
