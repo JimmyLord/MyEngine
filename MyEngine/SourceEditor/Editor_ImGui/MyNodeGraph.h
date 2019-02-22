@@ -13,13 +13,34 @@
 #include "../../Libraries/imgui/imgui.h"
 #include "../../Libraries/imgui/imgui_internal.h"
 
+const ImU32 COLOR_BG = IM_COL32( 60, 60, 70, 200 );
+const ImU32 COLOR_GRID = IM_COL32( 200, 200, 200, 40 );
+
+const ImU32 COLOR_DRAG_SELECTOR = IM_COL32( 60, 200, 60, 75 );
+
+const ImU32 COLOR_LINK_NORMAL = IM_COL32( 200, 200, 100, 255 );
+const ImU32 COLOR_LINK_HIGHLIGHTED = IM_COL32( 100, 100, 200, 255 );
+const ImU32 COLOR_LINK_SELECTED = IM_COL32( 0, 0, 255, 255 );
+
+const ImU32 COLOR_LINK_IN_PROGRESS_DEFAULT = IM_COL32( 100, 100, 100, 255 );
+const ImU32 COLOR_LINK_IN_PROGRESS_INVALID = IM_COL32( 200, 100, 100, 255 );
+const ImU32 COLOR_LINK_IN_PROGRESS_VALID = IM_COL32( 100, 200, 100, 255 );
+
+const ImU32 COLOR_SLOT_HOVERED = IM_COL32( 0, 255, 0, 255 );
+const ImU32 COLOR_SLOT_DEFAULT = IM_COL32( 150, 150, 150, 255 );
+
+const ImU32 COLOR_NODE_TRIM = IM_COL32( 0, 0, 0, 255 );
+const ImU32 COLOR_NODE_BG_TITLE = IM_COL32( 60, 20, 150, 230 );
+const ImU32 COLOR_NODE_BG = IM_COL32( 25, 0, 79, 230 );
+const ImU32 COLOR_NODE_BG_SELECTED_BORDER = IM_COL32( 245, 142, 0, 128 );
+
 class MyNodeGraph
 {
-    class Node;
-    class NodeLink;
+    class MyNode;
+    class MyNodeLink;
 
-    friend class Node;
-    friend class NodeLink;
+    friend class MyNode;
+    friend class MyNodeLink;
 
 protected:
     typedef uint32 NodeID;
@@ -48,9 +69,26 @@ protected:
         bool InUse() { return m_NodeID != NodeID_Undefined; }
     };
 
+    class MyNodeGraph::MyNodeLink
+    {
+    public:
+        NodeID m_OutputNodeID;
+        SlotID m_OutputSlotID;
+        NodeID m_InputNodeID;
+        SlotID m_InputSlotID;
+
+        MyNodeLink(NodeID outputNodeID, SlotID outputSlotID, NodeID inputNodeID, SlotID inputSlotID)
+        {
+            m_OutputNodeID = outputNodeID;
+            m_OutputSlotID = outputSlotID;
+            m_InputNodeID = inputNodeID;
+            m_InputSlotID = inputSlotID;
+        }
+    };
+
 protected:
-    ImVector<Node> m_Nodes;
-    ImVector<NodeLink> m_Links;
+    ImVector<MyNode> m_Nodes;
+    ImVector<MyNodeLink> m_Links;
     ImVector<NodeID> m_SelectedNodeIDs;
     int m_SelectedNodeLinkIndex;
 
@@ -63,8 +101,7 @@ protected:
     void DrawGrid(Vector2 offset);
     int FindNodeIndexByID(NodeID nodeID);
     bool IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType);
-    void HandleNodeSlot(ImDrawList* pDrawList, Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType);
-    bool HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType);
+    void SetExpandedForAllSelectedNodes(bool expand);
 
 public:
     MyNodeGraph();

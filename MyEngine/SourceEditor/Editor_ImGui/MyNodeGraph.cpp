@@ -10,95 +10,10 @@
 #include "MyEnginePCH.h"
 
 #include "MyNodeGraph.h"
+#include "MyNode.h"
 
 // Based on this: https://gist.github.com/ocornut/7e9b3ec566a333d725d4
 //   but rewritten and expanded.
-
-const float NODE_SLOT_RADIUS = 4.0f;
-const float NODE_SLOT_COLLISION_RADIUS = 6.0f;
-const Vector2 NODE_WINDOW_PADDING( 8.0f, 8.0f );
-
-const ImU32 COLOR_BG = IM_COL32( 60, 60, 70, 200 );
-const ImU32 COLOR_GRID = IM_COL32( 200, 200, 200, 40 );
-
-const ImU32 COLOR_LINK_NORMAL = IM_COL32( 200, 200, 100, 255 );
-const ImU32 COLOR_LINK_HIGHLIGHTED = IM_COL32( 100, 100, 200, 255 );
-const ImU32 COLOR_LINK_SELECTED = IM_COL32( 0, 0, 255, 255 );
-
-const ImU32 COLOR_LINK_IN_PROGRESS_DEFAULT = IM_COL32( 100, 100, 100, 255 );
-const ImU32 COLOR_LINK_IN_PROGRESS_INVALID = IM_COL32( 200, 100, 100, 255 );
-const ImU32 COLOR_LINK_IN_PROGRESS_VALID = IM_COL32( 100, 200, 100, 255 );
-
-const ImU32 COLOR_SLOT_HOVERED = IM_COL32( 0, 255, 0, 255 );
-const ImU32 COLOR_SLOT_DEFAULT = IM_COL32( 150, 150, 150, 255 );
-
-const ImU32 COLOR_NODE_TRIM = IM_COL32( 0, 0, 0, 255 );
-const ImU32 COLOR_NODE_BG_TITLE_DEFAULT = IM_COL32( 60, 20, 150, 230 );
-const ImU32 COLOR_NODE_BG_TITLE_HOVERED = IM_COL32( 60, 20, 150, 230 );
-const ImU32 COLOR_NODE_BG_DEFAULT = IM_COL32( 25, 0, 79, 230 );
-const ImU32 COLOR_NODE_BG_HOVERED = IM_COL32( 25, 0, 79, 230 );
-const ImU32 COLOR_NODE_BG_SELECTED_BORDER = IM_COL32( 245, 142, 0, 128 );
-
-class MyNodeGraph::Node
-{
-public:
-    NodeID m_ID;
-    char m_Name[32];
-    Vector2 m_Pos;
-    Vector2 m_Size;
-    float m_TitleWidth;
-    int m_InputsCount;
-    int m_OutputsCount;
-    bool m_Expanded;
-
-    // Node properties.
-    float m_Value;
-    ImVec4 m_Color;
-
-    Node(int id, const char* name, const Vector2& pos, float value, const ImVec4& color, int inputsCount, int outputsCount)
-    {
-        m_ID = id;
-        strncpy_s( m_Name, 32, name, 31 );
-        m_Name[31] = '\0';
-        m_Pos = pos;
-        m_Size.Set( 0, 0 );
-        m_TitleWidth = 1; // Initially set to a small width, will expand based on controls.
-        m_InputsCount = inputsCount;
-        m_OutputsCount = outputsCount;
-        m_Expanded = true;
-
-        // Node properties.
-        m_Value = value;
-        m_Color = color;
-    }
-
-    ImVec2 GetInputSlotPos(SlotID slotID) const
-    {
-        return ImVec2( m_Pos.x, m_Pos.y + m_Size.y * ((float)slotID + 1) / ((float)m_InputsCount + 1) );
-    }
-    
-    ImVec2 GetOutputSlotPos(SlotID slotID) const
-    {
-        return ImVec2( m_Pos.x + m_Size.x, m_Pos.y + m_Size.y * ((float)slotID + 1) / ((float)m_OutputsCount + 1) );
-    }
-};
-
-class MyNodeGraph::NodeLink
-{
-public:
-    NodeID m_OutputNodeID;
-    SlotID m_OutputSlotID;
-    NodeID m_InputNodeID;
-    SlotID m_InputSlotID;
-
-    NodeLink(NodeID outputNodeID, SlotID outputSlotID, NodeID inputNodeID, SlotID inputSlotID)
-    {
-        m_OutputNodeID = outputNodeID;
-        m_OutputSlotID = outputSlotID;
-        m_InputNodeID = inputNodeID;
-        m_InputSlotID = inputSlotID;
-    }
-};
 
 float GetClosestPointToCubicBezier(int iterations, float fx, float fy, float start, float end, int slices, const ImVec2& P0, const ImVec2& P1, const ImVec2& P2, const ImVec2& P3) 
 {
@@ -168,11 +83,11 @@ MyNodeGraph::MyNodeGraph()
 
     m_MouseNodeLinkStartPoint.Clear();
 
-    m_Nodes.push_back( Node( 100, "MainTex", ImVec2(40, 50), 0.5f, ImColor(255, 100, 100), 1, 1 ) );
-    m_Nodes.push_back( Node( 200, "BumpMap", ImVec2(40, 150), 0.42f, ImColor(200, 100, 200), 1, 1 ) );
-    m_Nodes.push_back( Node( 300, "Combine", ImVec2(270, 80), 1.0f, ImColor(0, 200, 100), 2, 2 ) );
-    m_Links.push_back( NodeLink( 100, 0, 300, 1 ) );
-    m_Links.push_back( NodeLink( 200, 0, 300, 1 ) );
+    m_Nodes.push_back( MyNode( this, 100, "MainTex", ImVec2(40, 50), 0.5f, ImColor(255, 100, 100), 1, 1 ) );
+    m_Nodes.push_back( MyNode( this, 200, "BumpMap", ImVec2(40, 150), 0.42f, ImColor(200, 100, 200), 1, 1 ) );
+    m_Nodes.push_back( MyNode( this, 300, "Combine", ImVec2(270, 80), 1.0f, ImColor(0, 200, 100), 2, 2 ) );
+    m_Links.push_back( MyNodeLink( 100, 0, 300, 0 ) );
+    m_Links.push_back( MyNodeLink( 200, 0, 300, 1 ) );
 }
 
 MyNodeGraph::~MyNodeGraph()
@@ -228,82 +143,15 @@ bool MyNodeGraph::IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotTyp
     return false;
 }
 
-void MyNodeGraph::HandleNodeSlot(ImDrawList* pDrawList, Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType)
+void MyNodeGraph::SetExpandedForAllSelectedNodes(bool expand)
 {
-    ImU32 slotColor = COLOR_SLOT_DEFAULT;
-
-    // Check for collisions.
-    if( HandleNodeLinkCreation( slotPos, nodeID, slotID, slotType ) )
+    for( int i=0; i<m_SelectedNodeIDs.Size; i++ )
     {
-        slotColor = m_MouseNodeLinkStartPoint.m_Color;
+        NodeID nodeID = m_SelectedNodeIDs[i];
+        int nodeIndex = FindNodeIndexByID( nodeID );
+        MyNode* pNode = &m_Nodes[nodeIndex];
+        pNode->m_Expanded = expand;
     }
-
-    // Draw the circle.
-    if( IsNodeSlotInUse( nodeID, slotID, slotType ) )
-    {
-        pDrawList->AddCircleFilled( slotPos, NODE_SLOT_RADIUS, slotColor );
-    }
-    else
-    {
-        pDrawList->AddCircle( slotPos, NODE_SLOT_RADIUS, slotColor, 12, 2 );
-    }
-}
-
-bool MyNodeGraph::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType)
-{
-    Vector2 diff = ImGui::GetIO().MousePos - slotPos;
-    
-    // Check if mouse is not over circle.
-    if( diff.Length() > NODE_SLOT_COLLISION_RADIUS )
-        return false;
-
-    // If mouse is clicked, then start a new link. // TODO: Have this take precedence over moving a node around with the mouse.
-    if( ImGui::IsMouseClicked( 0 ) )
-    {
-        m_MouseNodeLinkStartPoint.Set( nodeID, slotID, slotType );
-    }
-
-    if( slotType == SlotType_Input )
-        int a= 1;
-
-    // Don't allow link to same node. TODO: Check for circlular links between multiple nodes.
-    if( nodeID == m_MouseNodeLinkStartPoint.m_NodeID )
-    {
-        m_MouseNodeLinkStartPoint.m_Color = COLOR_LINK_IN_PROGRESS_INVALID;
-    }
-    else if( m_MouseNodeLinkStartPoint.m_SlotType == SlotType_Undefined )
-    {
-        m_MouseNodeLinkStartPoint.m_Color = COLOR_SLOT_HOVERED;
-    }
-    else
-    {
-        if( m_MouseNodeLinkStartPoint.m_SlotType == SlotType_Input && slotType == SlotType_Output )
-        {
-            m_MouseNodeLinkStartPoint.m_Color = COLOR_LINK_IN_PROGRESS_VALID;
-
-            // If mouse is released, create a link.
-            if( ImGui::IsMouseReleased( 0 ) )
-            {
-                m_Links.push_back( NodeLink( nodeID, slotID, m_MouseNodeLinkStartPoint.m_NodeID, m_MouseNodeLinkStartPoint.m_SlotID ) );
-            }
-        }
-        else if( m_MouseNodeLinkStartPoint.m_SlotType == SlotType_Output && slotType == SlotType_Input )
-        {
-            m_MouseNodeLinkStartPoint.m_Color = COLOR_LINK_IN_PROGRESS_VALID;
-
-            // If mouse is released, create a link.
-            if( ImGui::IsMouseReleased( 0 ) )
-            {
-                m_Links.push_back( NodeLink( m_MouseNodeLinkStartPoint.m_NodeID, m_MouseNodeLinkStartPoint.m_SlotID, nodeID, slotID ) );
-            }
-        }
-        else
-        {
-            m_MouseNodeLinkStartPoint.m_Color = COLOR_LINK_IN_PROGRESS_INVALID;
-        }
-    }
-
-    return true; // Mouse is over circle.
 }
 
 void MyNodeGraph::Update()
@@ -318,7 +166,7 @@ void MyNodeGraph::Update()
     ImGui::Separator();
     for( int nodeIndex = 0; nodeIndex < m_Nodes.Size; nodeIndex++ )
     {
-        Node* pNode = &m_Nodes[nodeIndex];
+        MyNode* pNode = &m_Nodes[nodeIndex];
         ImGui::PushID( pNode->m_ID );
         
         bool isSelected = false;
@@ -329,10 +177,11 @@ void MyNodeGraph::Update()
             m_SelectedNodeIDs.push_back( pNode->m_ID );
         }
 
-        if( ImGui::IsItemHovered() )
+        // Check for right-click context menu.
+        if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
         {
             nodeIndexHoveredInList = nodeIndex;
-            openContextMenu |= ImGui::IsMouseClicked( 1 );
+            openContextMenu = true;
         }
 
         ImGui::PopID();
@@ -369,9 +218,9 @@ void MyNodeGraph::Update()
         pDrawList->ChannelsSetCurrent( 0 ); // Background.
         for( int linkIndex = 0; linkIndex < m_Links.Size; linkIndex++ )
         {
-            NodeLink* pLink = &m_Links[linkIndex];
-            Node* pOutputNode = &m_Nodes[FindNodeIndexByID(pLink->m_OutputNodeID)];
-            Node* pInputNode = &m_Nodes[FindNodeIndexByID(pLink->m_InputNodeID)];
+            MyNodeLink* pLink = &m_Links[linkIndex];
+            MyNode* pOutputNode = &m_Nodes[FindNodeIndexByID(pLink->m_OutputNodeID)];
+            MyNode* pInputNode = &m_Nodes[FindNodeIndexByID(pLink->m_InputNodeID)];
             Vector2 p1 = offset + pOutputNode->GetOutputSlotPos( pLink->m_OutputSlotID );
             Vector2 p2 = offset + pInputNode->GetInputSlotPos( pLink->m_InputSlotID );
 
@@ -392,7 +241,7 @@ void MyNodeGraph::Update()
             Vector2 p1, p2;
 
             int inputNodeIndex = FindNodeIndexByID( m_MouseNodeLinkStartPoint.m_NodeID );
-            Node* pInputNode = &m_Nodes[inputNodeIndex];
+            MyNode* pInputNode = &m_Nodes[inputNodeIndex];
             
             if( m_MouseNodeLinkStartPoint.m_SlotType == SlotType_Input )
             {
@@ -415,135 +264,15 @@ void MyNodeGraph::Update()
     {
         for( int nodeIndex = 0; nodeIndex < m_Nodes.Size; nodeIndex++ )
         {
-            Node* pNode = &m_Nodes[nodeIndex];
-            ImGui::PushID( pNode->m_ID );
-            ImVec2 nodeRectMin = offset + pNode->m_Pos;
+            MyNode* pNode = &m_Nodes[nodeIndex];
+            pNode->Draw( pDrawList, offset, m_SelectedNodeIDs.contains( pNode->m_ID ), &m_MouseNodeLinkStartPoint );
 
-            bool wasAnyActive = ImGui::IsAnyItemActive();
-            bool backgroundOfNodeIsActive = false;
-            float titleHeight = 28.0f;
-            bool titleOfNodeIsActive = false;
-
-            // Display node contents first to establish a size for the background.
+            // Check for right-click context menu.
+            if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
             {
-                pDrawList->ChannelsSetCurrent( 1 ); // Foreground.
-                ImGui::SetCursorScreenPos( nodeRectMin + NODE_WINDOW_PADDING );
-        
-                // Draw the node contents as a group to lock horizontal position.
-                ImGui::BeginGroup();
-            
-                // Add the node's name along with an arrow to collapse/expand it.
-                ImGui::SetCursorScreenPos( nodeRectMin + NODE_WINDOW_PADDING );
-                if( ImGui::ArrowButton( "", pNode->m_Expanded ? ImGuiDir_Down : ImGuiDir_Right ) )
-                {
-                    pNode->m_Expanded = !pNode->m_Expanded;
-                }
-                ImGui::SameLine();
-                ImGui::Text( pNode->m_Name );
-
-                // Add an invisible button, so entire title area can be double-clicked to collapse/expand.
-                ImGui::SetCursorScreenPos( nodeRectMin );
-                ImGui::InvisibleButton( "", ImVec2( pNode->m_TitleWidth + NODE_WINDOW_PADDING.x, titleHeight ) );
-                titleOfNodeIsActive = ImGui::IsItemActive();
-                if( ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked( 0 ) )
-                {
-                    pNode->m_Expanded = !pNode->m_Expanded;
-                }
-
-                // If expanded, add this node's controls.
-                if( pNode->m_Expanded )
-                {
-                    ImGui::SetCursorScreenPos( nodeRectMin + NODE_WINDOW_PADDING + ImVec2( 0, titleHeight ) );
-                    ImGui::SliderFloat( "##value", &pNode->m_Value, 0.0f, 1.0f, "Alpha %.2f" );
-                    ImGui::ColorEdit3( "##color", &pNode->m_Color.x );
-                }
-                else
-                {
-                    // Otherwise, pad out the space, so size doesn't change.
-                    ImGui::SetCursorScreenPos( nodeRectMin + ImVec2( pNode->m_Size.x, titleHeight ) + NODE_WINDOW_PADDING );
-                }
-
-                ImGui::EndGroup();
+                nodeIndexHoveredInScene = nodeIndex;
+                openContextMenu = true;
             }
-
-            // Save the size of what we have emitted and whether any of the widgets are being used.
-            bool widgetOnNodeIsActive = (!wasAnyActive && ImGui::IsAnyItemActive());
-            if( pNode->m_Expanded )
-            {
-                pNode->m_TitleWidth = ImGui::GetItemRectSize().x == 0 ? 1 : ImGui::GetItemRectSize().x;
-                pNode->m_Size = ImGui::GetItemRectSize() + NODE_WINDOW_PADDING + NODE_WINDOW_PADDING;
-            }
-            else
-            {
-                pNode->m_Size = ImGui::GetItemRectSize();
-            }
-
-            // Display node background.
-            {
-                ImVec2 nodeRectMidLeft = ImVec2( nodeRectMin.x, nodeRectMin.y + titleHeight );
-                ImVec2 nodeRectMidRight = ImVec2( nodeRectMin.x + pNode->m_Size.x, nodeRectMin.y + titleHeight );
-                ImVec2 nodeRectMax = nodeRectMin + pNode->m_Size;
-
-                pDrawList->ChannelsSetCurrent( 0 ); // Background.
-                ImGui::SetCursorScreenPos( nodeRectMin );
-                ImGui::InvisibleButton( "node", pNode->m_Size );
-                if( ImGui::IsItemHovered() )
-                {
-                    nodeIndexHoveredInScene = nodeIndex;
-                    openContextMenu |= ImGui::IsMouseClicked(1);
-                }
-                backgroundOfNodeIsActive = ImGui::IsItemActive();
-                if( widgetOnNodeIsActive || backgroundOfNodeIsActive )
-                {
-                    m_SelectedNodeIDs.clear(); // TODO: Handle holding control key to multi-select.
-                    m_SelectedNodeIDs.push_back( pNode->m_ID );
-                }
-
-                bool hovered = ( nodeIndexHoveredInList == nodeIndex ||
-                                 nodeIndexHoveredInScene == nodeIndex );
-                ImU32 nodeBGColor = hovered ? COLOR_NODE_BG_HOVERED : COLOR_NODE_BG_DEFAULT;
-                ImU32 nodeTitleColor = hovered ? COLOR_NODE_BG_TITLE_HOVERED : COLOR_NODE_BG_TITLE_DEFAULT;
-            
-                ImVec2 thickness = ImVec2( 3, 3 );
-                if( m_SelectedNodeIDs.contains( pNode->m_ID ) )
-                {
-                    pDrawList->AddRectFilled( nodeRectMin - thickness, nodeRectMax + thickness, COLOR_NODE_BG_SELECTED_BORDER, 4.0f );
-                }
-
-                if( pNode->m_Expanded )
-                {
-                    pDrawList->AddRectFilled( nodeRectMin, nodeRectMidRight, nodeTitleColor, 4.0f, 1<<0 | 1<<1 );
-                    pDrawList->AddRectFilled( nodeRectMidLeft, nodeRectMax, nodeBGColor, 4.0f, 1<<2 | 1<<3 );
-                }
-                else
-                {
-                    pDrawList->AddRectFilled( nodeRectMin, nodeRectMax, nodeTitleColor, 4.0f );
-                }
-                pDrawList->AddRect( nodeRectMin, nodeRectMax, COLOR_NODE_TRIM, 4.0f );
-            }
-
-            // Draw a circle for each link slot and check slots for mouse hover/click.
-            {
-                for( int slotIndex = 0; slotIndex < pNode->m_OutputsCount; slotIndex++ )
-                {
-                    Vector2 slotPos = offset + pNode->GetOutputSlotPos( slotIndex );
-                    HandleNodeSlot( pDrawList, slotPos, pNode->m_ID, slotIndex, SlotType_Output );
-                }
-
-                for( int slotIndex = 0; slotIndex < pNode->m_InputsCount; slotIndex++ )
-                {
-                    Vector2 slotPos = offset + pNode->GetInputSlotPos( slotIndex );
-                    HandleNodeSlot( pDrawList, slotPos, pNode->m_ID, slotIndex, SlotType_Input );
-                }
-            }
-
-            // Move window if backgroundOfNodeIsActive and we're not creating a link.
-            if( (backgroundOfNodeIsActive || titleOfNodeIsActive) && ImGui::IsMouseDragging(0) && m_MouseNodeLinkStartPoint.InUse() == false )
-            {
-                pNode->m_Pos = pNode->m_Pos + ImGui::GetIO().MouseDelta;
-            }
-
-            ImGui::PopID();
         }
     }
 
@@ -556,10 +285,10 @@ void MyNodeGraph::Update()
         m_MouseNodeLinkStartPoint.Clear();
     }
 
-    // Deal with context menu.
+    // Deal with context menus.
     {
-        // Open context menu.
-        if( !ImGui::IsAnyItemHovered() && ImGui::IsMouseHoveringWindow() && ImGui::IsMouseClicked( 1 ) )
+        // If we right-click an empty part of the grid, unselect everything and open context menu.
+        if( !ImGui::IsAnyItemHovered() && ImGui::IsMouseHoveringWindow() && ImGui::IsMouseReleased( 1 ) )
         {
             m_SelectedNodeIDs.clear();
             m_SelectedNodeLinkIndex = -1;
@@ -604,7 +333,7 @@ void MyNodeGraph::Update()
             }
             else 
             {
-                Node* pNode = nullptr;
+                MyNode* pNode = nullptr;
             
                 int nodeIndex = m_SelectedNodeIDs.size() > 0 ? FindNodeIndexByID( m_SelectedNodeIDs[0] ) : -1;
                 if( nodeIndex != -1 )
@@ -623,7 +352,7 @@ void MyNodeGraph::Update()
                 {
                     if( ImGui::MenuItem( "Add" ) )
                     {
-                        m_Nodes.push_back( Node( m_Nodes.Size, "New node", scenePos, 0.5f, ImColor(100, 100, 200), 2, 2 ) );
+                        m_Nodes.push_back( MyNode( this, m_Nodes.Size, "New node", scenePos, 0.5f, ImColor(100, 100, 200), 2, 2 ) );
                     }
                     if( ImGui::MenuItem( "Paste", nullptr, false, false ) ) {}
                 }
@@ -633,19 +362,67 @@ void MyNodeGraph::Update()
         ImGui::PopStyleVar();
     }
 
-    // Handle scrolling.
+    // Handle scrolling and multi-node box select.
     {
+        static bool dragging = false;
+
+        if( dragging )
+        {
+            // Multi-node box select.
+            if( ImGui::IsMouseDragging( 0, 0.0f ) )
+            {
+                AABB2D mouseAABB;
+                ImVec2 windowPos = ImGui::GetWindowPos();
+                Vector2 mouse1 = ImGui::GetMousePos() - windowPos + m_ScrollOffset;
+                Vector2 mouse2 = ImGui::GetIO().MouseClickedPos[0] - windowPos + m_ScrollOffset;
+                mouseAABB.SetUnsorted( mouse1, mouse2 );
+
+                pDrawList->AddRectFilled( ImGui::GetMousePos(), ImGui::GetIO().MouseClickedPos[0], COLOR_DRAG_SELECTOR );
+
+                if( ImGui::GetIO().KeyCtrl == false )
+                {
+                    m_SelectedNodeIDs.clear();
+                }
+
+                for( int nodeIndex = 0; nodeIndex < m_Nodes.Size; nodeIndex++ )
+                {
+                    MyNode* pNode = &m_Nodes[nodeIndex];
+
+                    AABB2D nodeAABB;
+                    nodeAABB.Set( pNode->m_Pos, pNode->m_Pos + pNode->m_Size );
+
+                    if( nodeAABB.IsOverlapped( mouseAABB ) )
+                    {
+                        if( m_SelectedNodeIDs.contains( pNode->m_ID ) == false )
+                        {
+                            m_SelectedNodeIDs.push_back( pNode->m_ID );
+                        }
+                    }
+                }
+            }
+        }
+
+        if( ImGui::IsMouseReleased( 0 ) )
+        {
+            dragging = false;
+        }
+
         // If the node graph area is hovered, but no items are active:
         if( ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() )
         {
+            if( ImGui::IsMouseDragging( 0, 0.0f ) )
+            {
+                dragging = true;
+            }
+
             // Scroll view with middle mouse.
             if( ImGui::IsMouseDragging( 2, 0.0f ) )
             {
                 m_ScrollOffset = m_ScrollOffset + ImGui::GetIO().MouseDelta;
             }
 
-            // Clear selected nodes if left-mouse is pressed and we're not dragging a new link.
-            if( ImGui::IsMouseClicked( 0 ) && m_MouseNodeLinkStartPoint.InUse() == false )
+            // Clear selected nodes if left-mouse is pressed, control isn't held and we're not dragging a new link.
+            if( ImGui::IsMouseClicked( 0 ) && ImGui::GetIO().KeyCtrl == false && m_MouseNodeLinkStartPoint.InUse() == false )
             {
                 m_SelectedNodeIDs.clear();
             }
