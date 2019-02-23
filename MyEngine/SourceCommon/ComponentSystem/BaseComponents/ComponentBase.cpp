@@ -343,9 +343,7 @@ void ComponentBase::NotifyOthersThisWasDeleted()
     }
 }
 
-//CPPListHead ComponentBase::m_ComponentVariableList;
-
-void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)
+void ComponentBase::ClearAllVariables_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList)
 {
     while( CPPListNode* pNode = pComponentVariableList->GetHead() )
     {
@@ -355,7 +353,7 @@ void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)
     }
 }
 
-ComponentVariable* ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
+ComponentVariable* ComponentBase::AddVariable_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel,
         0, 0, 0, 0, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
@@ -370,7 +368,7 @@ ComponentVariable* ComponentBase::AddVariable_Base(CPPListHead* pComponentVariab
     return pVariable;
 }
 
-ComponentVariable* ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
+ComponentVariable* ComponentBase::AddVariablePointer_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch, watchlabel,
         pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc,
@@ -386,7 +384,7 @@ ComponentVariable* ComponentBase::AddVariablePointer_Base(CPPListHead* pComponen
     return pVariable;
 }
 
-ComponentVariable* ComponentBase::AddVariableEnum_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
+ComponentVariable* ComponentBase::AddVariableEnum_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Enum, offset, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
@@ -397,7 +395,7 @@ ComponentVariable* ComponentBase::AddVariableEnum_Base(CPPListHead* pComponentVa
     return pVariable;
 }
 
-ComponentVariable* ComponentBase::AddVariableFlags_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
+ComponentVariable* ComponentBase::AddVariableFlags_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Flags, offset, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
@@ -730,7 +728,7 @@ int ComponentBase::FindVariablesControlIDByLabel(const char* label)
 #if MYFW_USING_IMGUI
 void ComponentBase::AddAllVariablesToWatchPanel()
 {
-    CPPListHead* pComponentVariableList = GetComponentVariableList();
+    TCPPListHead<ComponentVariable*>* pComponentVariableList = GetComponentVariableList();
     if( pComponentVariableList == 0 )
         return;
 
@@ -739,7 +737,7 @@ void ComponentBase::AddAllVariablesToWatchPanel()
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
 
-        AddVariableToWatchPanel( pVar );
+        AddVariableToWatchPanel( this, pVar, this );
     }
 }
 
@@ -749,7 +747,7 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(ImGuiID id, 
     if( id != m_ImGuiControlIDForCurrentlySelectedVariable )
     {
         // If a new control was selected, store the starting value and start a new undo chain.
-        m_ComponentVariableValueWhenControlSelected.GetValueFromVariable( this, pVar );
+        m_ComponentVariableValueWhenControlSelected.GetValueFromVariable( this, pVar, this );
         m_LinkNextUndoCommandToPrevious = false;
         m_ImGuiControlIDForCurrentlySelectedVariable = id;
     }
@@ -760,7 +758,7 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(ImGuiID id, 
         MyAssert( id == m_ImGuiControlIDForCurrentlySelectedVariable );
 
         // Store the end value.
-        ComponentVariableValue endvalue( this, pVar );
+        ComponentVariableValue endvalue( this, pVar, this );
 
         // Add an undo action.
         g_pEngineCore->GetCommandStack()->Do(
@@ -775,8 +773,10 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(ImGuiID id, 
     }
 }
 
-void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
+void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent)
 {
+    MyAssert( pObject != nullptr );
+
     if( pVar->m_DisplayInWatch == false )
     {
     //    // clear out the control id, for cases where variables get dynamically enabled/disabled.
@@ -786,7 +786,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
     if( pVar->m_pShouldVariableBeAddedCallbackFunc )
     {
-        if( (this->*pVar->m_pShouldVariableBeAddedCallbackFunc)( pVar ) == false )
+        if( pComponent && (pComponent->*pVar->m_pShouldVariableBeAddedCallbackFunc)( pVar ) == false )
         {
             pVar->m_ControlID = -10; // less than -4 since vec4's add 3 in FindComponentVariableForControl()
             return;
@@ -795,14 +795,14 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
     int numStylesPushed = 0;
 
-    if( IsDivorced( pVar->m_Index ) )
+    if( pComponent && pComponent->IsDivorced( pVar->m_Index ) )
     {
         Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_DivorcedVarText );
         ImGui::PushStyleColor( ImGuiCol_Text, color ); //ImVec4( 1.0f, 0.5f, 0.0f, 1.0f ) );
         numStylesPushed++;
     }
 
-    if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
+    if( pComponent && pComponent->DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
     {
         Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_MultiSelectedVarDiffText );
         ImGui::PushStyleColor( ImGuiCol_Text, color ); //ImVec4( 0.0f, 0.5f, 1.0f, 1.0f ) );
@@ -821,15 +821,18 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         case ComponentVariableType_Int:
             {
                 float speed = 1.0f;
-                bool modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
-                TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                bool modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
+                if( pComponent )
+                {
+                    pComponent->TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                }
             }
             break;
 
         case ComponentVariableType_Enum:
             {
                 const char** items = pVar->m_ppEnumStrings;
-                int currentItem = *(int*)((char*)this + pVar->m_Offset);
+                int currentItem = *(int*)((char*)pObject + pVar->m_Offset);
                 const char* currentItemStr = pVar->m_ppEnumStrings[currentItem];
                 if( ImGui::BeginCombo( pVar->m_WatchLabel, currentItemStr ) )
                 {
@@ -839,18 +842,20 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         if( ImGui::Selectable( items[n], is_selected ) )
                         {
                             // Store the old value.
-                            ComponentVariableValue oldvalue( this, pVar );
+                            ComponentVariableValue oldvalue( pObject, pVar, pComponent );
 
                             // Change the value.
-                            *(int*)((char*)this + pVar->m_Offset) = n;
+                            *(int*)((char*)pObject + pVar->m_Offset) = n;
 
                             // Store the new value.
-                            ComponentVariableValue newvalue( this, pVar );
+                            ComponentVariableValue newvalue( pObject, pVar, pComponent );
 
-                            g_pEngineCore->GetCommandStack()->Do(
-                                MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                                            this, pVar, newvalue, oldvalue, true ),
-                                false );
+                            if( pComponent )
+                            {
+                                g_pEngineCore->GetCommandStack()->Do(
+                                    MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pComponent, pVar, newvalue, oldvalue, true ),
+                                    false );
+                            }
                         }
                         if( is_selected )
                         {
@@ -866,7 +871,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         case ComponentVariableType_Flags:
             {
                 const char** items = pVar->m_ppEnumStrings;
-                unsigned int flags = *(int*)((char*)this + pVar->m_Offset);
+                unsigned int flags = *(int*)((char*)pObject + pVar->m_Offset);
 
                 // Build a string of all selected flags.
                 std::string str;
@@ -893,21 +898,23 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         if( ImGui::CheckboxFlags( items[n], &flags, 1<<n ) )
                         {
                             // Store the old value.
-                            ComponentVariableValue oldvalue( this, pVar );
+                            ComponentVariableValue oldvalue( pObject, pVar, pComponent );
 
                             // Change the value.
                             if( is_selected )
-                                *(int*)((char*)this + pVar->m_Offset) &= ~(1<<n);
+                                *(int*)((char*)pObject + pVar->m_Offset) &= ~(1<<n);
                             else
-                                *(int*)((char*)this + pVar->m_Offset) |= 1<<n;
+                                *(int*)((char*)pObject + pVar->m_Offset) |= 1<<n;
 
                             // Store the new value.
-                            ComponentVariableValue newvalue( this, pVar );
+                            ComponentVariableValue newvalue( pObject, pVar, pComponent );
 
-                            g_pEngineCore->GetCommandStack()->Do(
-                                MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                                            this, pVar, newvalue, oldvalue, true ),
-                                false );
+                            if( pComponent )
+                            {
+                                g_pEngineCore->GetCommandStack()->Do(
+                                    MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pComponent, pVar, newvalue, oldvalue, true ),
+                                    false );
+                            }
                         }
                         if( is_selected )
                         {
@@ -923,7 +930,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_UnsignedInt:
             {
-                unsigned int* pValueUInt = (unsigned int*)((char*)this + pVar->m_Offset);
+                unsigned int* pValueUInt = (unsigned int*)((char*)pObject + pVar->m_Offset);
                 int valueInt = *pValueUInt;
 
                 float speed = 1.0f;
@@ -938,21 +945,23 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         //ComponentVariableType_UnsignedChar,
         case ComponentVariableType_Bool:
             {
-                bool modified = ImGui::Checkbox( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset) );
+                bool modified = ImGui::Checkbox( pVar->m_WatchLabel, (bool*)((char*)pObject + pVar->m_Offset) );
                 if( modified )
                 {
                     // Flip the bool to store the old value, then flip is back.
-                    *(bool*)((char*)this + pVar->m_Offset) = !*(bool*)((char*)this + pVar->m_Offset);
-                    ComponentVariableValue oldvalue( this, pVar );
-                    *(bool*)((char*)this + pVar->m_Offset) = !*(bool*)((char*)this + pVar->m_Offset);
+                    *(bool*)((char*)pObject + pVar->m_Offset) = !*(bool*)((char*)pObject + pVar->m_Offset);
+                    ComponentVariableValue oldvalue( pObject, pVar, pComponent );
+                    *(bool*)((char*)pObject + pVar->m_Offset) = !*(bool*)((char*)pObject + pVar->m_Offset);
 
                     // Store the new value.
-                    ComponentVariableValue newvalue( this, pVar );
+                    ComponentVariableValue newvalue( pObject, pVar, pComponent );
 
-                    g_pEngineCore->GetCommandStack()->Do(
-                        MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                                    this, pVar, newvalue, oldvalue, true ),
-                        false );
+                    if( pComponent )
+                    {
+                        g_pEngineCore->GetCommandStack()->Do(
+                            MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pComponent, pVar, newvalue, oldvalue, true ),
+                            false );
+                    }
                 }
             }
             break;
@@ -962,8 +971,11 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 float speed = 0.1f;
                 if( pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit > 0 )
                     speed = (pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit) / 300.0f;
-                bool modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
-                TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                bool modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                if( pComponent )
+                {
+                    pComponent->TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                }
             }
             break;
 
@@ -972,32 +984,48 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_ColorByte:
             {
-                ImGui::Text( "ColorByte: %s (TODO)", pVar->m_Label );
-                //pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+                ColorFloat colorFloat = ((ColorByte*)((char*)pObject + pVar->m_Offset))->AsColorFloat();
+                bool modified = ImGui::ColorEdit4( pVar->m_Label, &colorFloat.r );
+                if( modified )
+                {
+                    *(ColorByte*)((char*)pObject + pVar->m_Offset) = colorFloat.AsColorByte();
+                }
+
+                // TODO: Implement undo/redo for ColorByte.
+                //if( pComponent )
+                //{
+                //    pComponent->TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                //}
             }
             break;
 
         case ComponentVariableType_Vector2:
             {
-                bool modified = ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
-                TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                bool modified = ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                if( pComponent )
+                {
+                    pComponent->TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                }
             }
             break;
 
         case ComponentVariableType_Vector3:
             {
-                bool modified = ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
-                TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                bool modified = ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                if( pComponent )
+                {
+                    pComponent->TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                }
             }
             break;
 
         case ComponentVariableType_Vector2Int:
-            ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset) );
+            ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
             //pVar->m_ControlID = g_pPanelWatch->AddVector2Int( pVar->m_WatchLabel, (Vector2Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             break;
 
         case ComponentVariableType_Vector3Int:
-            ImGui::DragInt3( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset) );
+            ImGui::DragInt3( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
             //pVar->m_ControlID = g_pPanelWatch->AddVector3Int( pVar->m_WatchLabel, (Vector3Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             break;
 
@@ -1006,7 +1034,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
 
-                GameObject* pGameObject = *(GameObject**)((char*)this + pVar->m_Offset);
+                GameObject* pGameObject = *(GameObject**)((char*)pObject + pVar->m_Offset);
 
                 const char* pDesc = "none";
                 if( pGameObject )
@@ -1029,7 +1057,10 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pGameObject );
 
-                        OnDropVariable( pVar, 0, -1, -1, true );
+                        if( pComponent )
+                        {
+                            pComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
                     }
 
                     ImGui::EndDragDropTarget();
@@ -1047,7 +1078,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
 
-                ComponentBase* pComponent = *(ComponentBase**)((char*)this + pVar->m_Offset);
+                ComponentBase* pComponent = *(ComponentBase**)((char*)pObject + pVar->m_Offset);
 
                 const char* pDesc = "none";
                 if( pComponent )
@@ -1070,7 +1101,10 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pGameObject );
 
-                        OnDropVariable( pVar, 0, -1, -1, true );
+                        if( pComponent )
+                        {
+                            pComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
                     }
 
                     ImGui::EndDragDropTarget();
@@ -1088,7 +1122,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
 
-                MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
+                MyFileObject* pFile = *(MyFileObject**)((char*)pObject + pVar->m_Offset);
 
                 Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
                 Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
@@ -1119,7 +1153,10 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
 
-                        OnDropVariable( pVar, 0, -1, -1, true );
+                        if( pComponent )
+                        {
+                            pComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
                     }
 
                     ImGui::EndDragDropTarget();
@@ -1137,7 +1174,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
 
-                MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)this + pVar->m_Offset);
+                MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)pObject + pVar->m_Offset);
 
                 const char* pDesc = "no material";
                 if( pMaterial != 0 )
@@ -1158,7 +1195,10 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pNewMat );
 
-                        OnDropVariable( pVar, 0, -1, -1, true );
+                        if( pComponent )
+                        {
+                            pComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
                     }
 
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
@@ -1191,7 +1231,10 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, 0 );
 
-                        OnDropVariable( pVar, 0, -1, -1, true );
+                        if( pComponent )
+                        {
+                            pComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
                     }
 
                     if( ImGui::MenuItem( "Edit material" ) )
@@ -1209,7 +1252,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_SoundCuePtr:
             {
-                SoundCue* pCue = *(SoundCue**)((char*)this + pVar->m_Offset);
+                SoundCue* pCue = *(SoundCue**)((char*)pObject + pVar->m_Offset);
 
                 const char* desc = "no sound cue";
                 if( pCue != 0 )
@@ -1221,12 +1264,13 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             break;
 
         case ComponentVariableType_PointerIndirect:
+            if( pComponent )
             {
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
 
                 //void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
-                const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
+                const char* pDesc = (pComponent->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
 
                 Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
                 Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
@@ -1255,7 +1299,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pMat );
 
-                        OnDropVariable( pVar, 0, -1, -1, true );
+                        pComponent->OnDropVariable( pVar, 0, -1, -1, true );
                     }
 
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
@@ -1266,7 +1310,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
 
-                        OnDropVariable( pVar, 0, -1, -1, true );
+                        pComponent->OnDropVariable( pVar, 0, -1, -1, true );
                     }
 
                     ImGui::EndDragDropTarget();
@@ -1283,7 +1327,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, 0 );
 
-                        OnDropVariable( pVar, 0, -1, -1, true );
+                        pComponent->OnDropVariable( pVar, 0, -1, -1, true );
                     }
                 }
 
@@ -1305,18 +1349,19 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         // Right-click menu, for divorce/marry and other things.
         // Will attach to last control used, which should be the control and label which are grouped.
+        if( pComponent )
         {
             ImGui::PushID( pVar );
             if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
             {
-                if( m_pGameObject->GetGameObjectThisInheritsFrom() )
+                if( pComponent->m_pGameObject->GetGameObjectThisInheritsFrom() )
                 {
-                    if( IsDivorced( pVar->m_Index ) == false )
+                    if( pComponent->IsDivorced( pVar->m_Index ) == false )
                     {
                         contextMenuItemCount++;
                         if( ImGui::MenuItem( "Divorce value from parent" ) )
                         {
-                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
+                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, true ) );
 
                             ImGui::CloseCurrentPopup();
                         }
@@ -1326,7 +1371,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         contextMenuItemCount++;
                         if( ImGui::MenuItem( "Reset value to parent" ) )
                         {
-                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, false ) );
+                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, false ) );
 
                             ImGui::CloseCurrentPopup();
                         }
@@ -1336,7 +1381,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 // Call this pVar callback, not sure what's using it.
                 if( pVar->m_pOnRightClickCallbackFunc )
                 {
-                    (this->*(pVar->m_pOnRightClickCallbackFunc))( pVar, 0 ); //&menu );
+                    (pComponent->*(pVar->m_pOnRightClickCallbackFunc))( pVar, 0 ); //&menu );
 
                     // TODO: Have the callback return how many menu items it added instead of assuming it added one.
                     contextMenuItemCount++;
@@ -1347,7 +1392,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                     if( contextMenuItemCount > 0 )
                         ImGui::Separator();
 
-                    MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
+                    MyFileObject* pFile = *(MyFileObject**)((char*)pObject + pVar->m_Offset);
                     g_pEngineCore->GetEditorMainFrame_ImGui()->AddContextMenuItemsForFiles( pFile );
 
                     contextMenuItemCount++;
@@ -1368,9 +1413,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
     if( pVar->m_Label != 0 )
         ImGui::PopID(); // For ImGui::PushID( pVar->m_Label );
 
-    if( pVar->m_pVariableAddedToInterfaceCallbackFunc )
+    if( pComponent && pVar->m_pVariableAddedToInterfaceCallbackFunc )
     {
-        (this->*pVar->m_pVariableAddedToInterfaceCallbackFunc)( pVar );
+        (pComponent->*pVar->m_pVariableAddedToInterfaceCallbackFunc)( pVar );
     }
 }
 #endif
@@ -1857,7 +1902,7 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
 void ComponentBase::SyncUndivorcedVariables(ComponentBase* pSourceComponent)
 {
     // Sync variables.
-    CPPListHead* pVariableList = GetComponentVariableList();
+    TCPPListHead<ComponentVariable*>* pVariableList = GetComponentVariableList();
 
     if( pVariableList )
     {
@@ -2271,7 +2316,7 @@ void ComponentBase::OnValueChangedVariable(ComponentVariable* pVar, int controlc
 }
 
 
-ComponentVariable* ComponentBase::FindComponentVariableByLabel(CPPListHead* list, const char* label)
+ComponentVariable* ComponentBase::FindComponentVariableByLabel(TCPPListHead<ComponentVariable*>* list, const char* label)
 {
     for( CPPListNode* pNode = list->GetHead(); pNode; pNode = pNode->GetNext() )
     {
@@ -2698,13 +2743,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
     case ComponentVariableType_Int:
     case ComponentVariableType_Enum:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             int oldvalue = *(int*)((char*)this + offset);
             int newvalue = *(int*)((char*)pOtherComponent + offset);
             *(int*)((char*)this + offset) = newvalue;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
@@ -2723,13 +2768,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
     case ComponentVariableType_UnsignedInt:
     case ComponentVariableType_Flags:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             unsigned int oldvalue = *(unsigned int*)((char*)this + offset);
             unsigned int newvalue = *(unsigned int*)((char*)pOtherComponent + offset);
             *(unsigned int*)((char*)this + offset) = newvalue;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
@@ -2753,13 +2798,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
     case ComponentVariableType_Bool:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             bool oldvalue = *(bool*)((char*)this + offset);
             bool newvalue = *(bool*)((char*)pOtherComponent + offset);
             *(bool*)((char*)this + offset) = newvalue;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
@@ -2777,13 +2822,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
     case ComponentVariableType_Float:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             float oldvalue = *(float*)((char*)this + offset);
             float newvalue = *(float*)((char*)pOtherComponent + offset);
             *(float*)((char*)this + offset) = newvalue;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
@@ -2807,7 +2852,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
     case ComponentVariableType_ColorByte:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             ColorByte* thiscolor = (ColorByte*)((char*)this + offset);
             ColorByte* parentcolor = (ColorByte*)((char*)pOtherComponent + offset);
@@ -2815,7 +2860,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
             ColorByte oldcolor = *thiscolor;
             *thiscolor = *parentcolor;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // store the old color in a local var.
             // send the pointer to that var via callback in the double.
@@ -2837,13 +2882,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
     case ComponentVariableType_Vector2:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             Vector2 oldvalue = *(Vector2*)((char*)this + offset);
             Vector2 newvalue = *(Vector2*)((char*)pOtherComponent + offset);
             *(Vector2*)((char*)this + offset) = newvalue;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar, 0, false, true, oldvalue.x, false, 0 );
@@ -2865,13 +2910,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
     case ComponentVariableType_Vector3:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             float oldvalue = (*(Vector3*)((char*)this + offset))[controlcomponent];
             float newvalue = (*(Vector3*)((char*)pOtherComponent + offset))[controlcomponent];
             (*(Vector3*)((char*)this + offset))[controlcomponent] = newvalue;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // Notify component and it's children that the value changed.
             OnValueChangedVariable( pVar, controlcomponent, false, true, oldvalue, false, 0 );
@@ -2890,13 +2935,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
     case ComponentVariableType_Vector2Int:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             Vector2Int oldvalue = *(Vector2Int*)((char*)this + offset);
             Vector2Int newvalue = *(Vector2Int*)((char*)pOtherComponent + offset);
             *(Vector2Int*)((char*)this + offset) = newvalue;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar, 0, false, true, oldvalue.x, false, 0 );
@@ -2918,13 +2963,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
     case ComponentVariableType_Vector3Int:
         {
-            ComponentVariableValue oldComponentVarValue( this, pVar );
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             Vector3Int oldvalue = *(Vector3Int*)((char*)this + offset);
             Vector3Int newvalue = *(Vector3Int*)((char*)pOtherComponent + offset);
             *(Vector3Int*)((char*)this + offset) = newvalue;
 
-            ComponentVariableValue newComponentVarValue( this, pVar );
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar, 0, false, true, oldvalue.x, false, 0 );
@@ -3599,7 +3644,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 if( pVar->m_pOnValueChangedCallbackFunc )
                 {
                     //void* newpointer = *(void**)((char*)this + offset);
-                    ComponentVariableValue newpointer( this, pVar );
+                    ComponentVariableValue newpointer( this, pVar, this );
 
                     void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, &newpointer );
                     //MyAssert( oldpointer2 == oldpointer );
@@ -3637,7 +3682,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                 if( pVar->m_pOnValueChangedCallbackFunc )
                 {
-                    ComponentVariableValue newpointer( this, pVar );
+                    ComponentVariableValue newpointer( this, pVar, this );
 
                     void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, &newpointer );
                     //MyAssert( oldpointer2 == oldpointer );

@@ -65,7 +65,7 @@ ComponentLuaScript::~ComponentLuaScript()
     SAFE_RELEASE( m_pScriptFile );
 }
 
-void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScript* pThis) //_VARIABLE_LIST
+void ComponentLuaScript::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentLuaScript* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
 #if __GNUC__

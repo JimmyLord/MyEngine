@@ -39,7 +39,7 @@ ComponentTemplate::~ComponentTemplate()
     //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnFileRenamed );
 }
 
-void ComponentTemplate::RegisterVariables(CPPListHead* pList, ComponentTemplate* pThis) //_VARIABLE_LIST
+void ComponentTemplate::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentTemplate* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
 #if __GNUC__

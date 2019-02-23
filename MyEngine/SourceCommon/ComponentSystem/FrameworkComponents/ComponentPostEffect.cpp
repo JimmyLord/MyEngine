@@ -36,7 +36,7 @@ ComponentPostEffect::~ComponentPostEffect()
     SAFE_RELEASE( m_pMaterial );
 }
 
-void ComponentPostEffect::RegisterVariables(CPPListHead* pList, ComponentPostEffect* pThis) //_VARIABLE_LIST
+void ComponentPostEffect::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentPostEffect* pThis) //_VARIABLE_LIST
 {
     //AddVar( pList, "Enabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, nullptr,
     //        (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged,

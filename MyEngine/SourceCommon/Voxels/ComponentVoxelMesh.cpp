@@ -40,7 +40,7 @@ ComponentVoxelMesh::~ComponentVoxelMesh()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void ComponentVoxelMesh::RegisterVariables(CPPListHead* pList, ComponentVoxelMesh* pThis) //_VARIABLE_LIST
+void ComponentVoxelMesh::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentVoxelMesh* pThis) //_VARIABLE_LIST
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 

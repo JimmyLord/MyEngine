@@ -17,16 +17,19 @@ ComponentVariableValue::ComponentVariableValue()
     m_Type = ComponentVariableType_NumTypes;
 }
 
-ComponentVariableValue::ComponentVariableValue(ComponentBase* pComponent, ComponentVariable* pVar)
+ComponentVariableValue::ComponentVariableValue(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent)
 {
-    GetValueFromVariable( pComponent, pVar );
+    GetValueFromVariable( pObject, pVar, pComponent );
 }
 
-void ComponentVariableValue::GetValueFromVariable(ComponentBase* pComponent, ComponentVariable* pVar)
+void ComponentVariableValue::GetValueFromVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent)
 {
     m_Type = pVar->m_Type;
 
-    void* memoryaddr = ((char*)pComponent + pVar->m_Offset);
+    void* memoryaddr = ((char*)pObject + pVar->m_Offset);
+
+    // If this is an indirect pointer type, make sure we have a pointer to a component.
+    MyAssert( pVar->m_Type != ComponentVariableType_PointerIndirect || pComponent != nullptr );
 
     switch( pVar->m_Type )
     {
@@ -59,10 +62,10 @@ void ComponentVariableValue::GetValueFromVariable(ComponentBase* pComponent, Com
     }
 }
 
-void ComponentVariableValue::UpdateComponentAndChildrenWithValue(ComponentBase* pComponent, ComponentVariable* pVar)
+void ComponentVariableValue::UpdateComponentAndChildrenWithValue(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent)
 {
     // If it's not a pointer, set the value directly in the child component
-    CopyNonPointerValueIntoVariable( pComponent, pVar );
+    CopyNonPointerValueIntoVariable( pObject, pVar, pComponent );
 
     int numberofcomponents = 1;
     switch( pVar->m_Type )
@@ -97,27 +100,33 @@ void ComponentVariableValue::UpdateComponentAndChildrenWithValue(ComponentBase* 
 
 #if MYFW_EDITOR
     // Inform component it's value changed.
-    for( int i=0; i<numberofcomponents; i++ )
+    if( pComponent )
     {
-        //pComponent->OnValueChangedVariable( pVar->m_ControlID+i, false, true, 0, false, this );
-        pComponent->OnValueChangedVariable( pVar, i, false, true, 0, false, this );
+        for( int i=0; i<numberofcomponents; i++ )
+        {
+            //pComponent->OnValueChangedVariable( pVar->m_ControlID+i, false, true, 0, false, this );
+            pComponent->OnValueChangedVariable( pVar, i, false, true, 0, false, this );
+        }
     }
 #endif //MYFW_EDITOR
 }
 
-void ComponentVariableValue::CopyNonPointerValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar)
+void ComponentVariableValue::CopyNonPointerValueIntoVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent)
 {
     if( m_Type < ComponentVariableType_FirstPointerType )
     {
-        CopyValueIntoVariable( pComponent, pVar );
+        CopyValueIntoVariable( pObject, pVar, pComponent );
     }
 }
 
-void ComponentVariableValue::CopyValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar)
+void ComponentVariableValue::CopyValueIntoVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent)
 {
     MyAssert( m_Type == pVar->m_Type );
 
-    void* memoryaddr = ((char*)pComponent + pVar->m_Offset);
+    void* memoryaddr = ((char*)pObject + pVar->m_Offset);
+
+    // If this is an indirect pointer type, make sure we have a pointer to a component.
+    MyAssert( pVar->m_Type != ComponentVariableType_PointerIndirect || pComponent != nullptr );
 
     switch( pVar->m_Type )
     {

@@ -87,7 +87,7 @@ protected:
     };
 
 protected:
-    ImVector<MyNode> m_Nodes;
+    std::vector<MyNode*> m_Nodes;
     ImVector<MyNodeLink> m_Links;
     ImVector<NodeID> m_SelectedNodeIDs;
     int m_SelectedNodeLinkIndex;

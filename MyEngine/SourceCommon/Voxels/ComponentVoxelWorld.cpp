@@ -58,7 +58,7 @@ ComponentVoxelWorld::~ComponentVoxelWorld()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void ComponentVoxelWorld::RegisterVariables(CPPListHead* pList, ComponentVoxelWorld* pThis) //_VARIABLE_LIST
+void ComponentVoxelWorld::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentVoxelWorld* pThis) //_VARIABLE_LIST
 {
     //AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
 #if MYFW_USING_WX

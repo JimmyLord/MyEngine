@@ -12,12 +12,18 @@
 #include "MyNodeGraph.h"
 #include "MyNode.h"
 
+#include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentBase.h"
+#include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentVariable.h"
+
 const float NODE_SLOT_RADIUS = 4.0f;
 const float NODE_SLOT_COLLISION_RADIUS = 6.0f;
 
 const Vector2 NODE_WINDOW_PADDING( 8.0f, 8.0f );
 
-MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value, const ImVec4& color, int inputsCount, int outputsCount)
+#undef AddVar
+#define AddVar ComponentBase::AddVariable_Base
+
+MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value, const ColorByte& color, int inputsCount, int outputsCount)
 {
     m_pNodeGraph = pNodeGraph;
 
@@ -34,6 +40,20 @@ MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, c
     // Node properties.
     m_Value = value;
     m_Color = color;
+
+    AddVar( &m_VariablesList, "Value", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Value ), false, true, nullptr, nullptr, nullptr, nullptr );
+    AddVar( &m_VariablesList, "Color", ComponentVariableType_ColorByte, MyOffsetOf( this, &this->m_Color ), false, true, nullptr, nullptr, nullptr, nullptr );
+}
+
+MyNodeGraph::MyNode::~MyNode()
+{
+    ComponentVariable* pNextVar = nullptr;
+    for( ComponentVariable* pVar = m_VariablesList.GetHead(); pVar; pVar = pNextVar )
+    {
+        pNextVar = pVar->GetNext();
+
+        delete pVar;
+    }
 }
 
 ImVec2 MyNodeGraph::MyNode::GetInputSlotPos(SlotID slotID) const
@@ -116,8 +136,26 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         if( m_Expanded )
         {
             ImGui::SetCursorScreenPos( nodeRectMin + NODE_WINDOW_PADDING + ImVec2( 0, titleHeight ) );
-            ImGui::SliderFloat( "##value", &m_Value, 0.0f, 1.0f, "Alpha %.2f" );
-            ImGui::ColorEdit3( "##color", &m_Color.x );
+
+            for( ComponentVariable* pVar = m_VariablesList.GetHead(); pVar; pVar = pVar->GetNext() )
+            {
+                ComponentBase::AddVariableToWatchPanel( this, pVar, nullptr );
+//#pragma warning( push )
+//#pragma warning( disable : 4062 )
+//                switch( pVar->m_Type )
+//                {
+//                case ComponentVariableType_Float:
+//                    float speed = 0.1f;
+//                    if( pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit > 0 )
+//                        speed = (pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit) / 300.0f;
+//                    bool modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+//                    //TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+//                    break;
+//                }
+//#pragma warning( pop )
+            }
+            //ImGui::SliderFloat( "##value", &m_Value, 0.0f, 1.0f, "Alpha %.2f" );
+            //ImGui::ColorEdit3( "##color", &m_Color.x );
         }
         else
         {
@@ -233,7 +271,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         {
             NodeID nodeID = m_pNodeGraph->m_SelectedNodeIDs[i];
             int nodeIndex = m_pNodeGraph->FindNodeIndexByID( nodeID );
-            MyNode* pNode = &m_pNodeGraph->m_Nodes[nodeIndex];
+            MyNode* pNode = m_pNodeGraph->m_Nodes[nodeIndex];
             pNode->m_Pos += ImGui::GetIO().MouseDelta;
         }
     }

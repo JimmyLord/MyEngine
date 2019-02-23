@@ -83,7 +83,7 @@ Component2DCollisionObject::~Component2DCollisionObject()
 #endif
 }
 
-void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component2DCollisionObject* pThis) //_VARIABLE_LIST
+void Component2DCollisionObject::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, Component2DCollisionObject* pThis) //_VARIABLE_LIST
 {
     ComponentVariable* pVar;
 

@@ -35,7 +35,7 @@ ComponentObjectPool::~ComponentObjectPool()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void ComponentObjectPool::RegisterVariables(CPPListHead* pList, ComponentObjectPool* pThis) //_VARIABLE_LIST
+void ComponentObjectPool::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentObjectPool* pThis) //_VARIABLE_LIST
 {
     ComponentVariable* pVar;
 

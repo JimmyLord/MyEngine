@@ -67,7 +67,7 @@ typedef void (ComponentBase::*CVarFunc_SetPointerDesc)(ComponentVariable* pVar, 
 typedef bool (ComponentBase::*CVarFunc_ShouldVariableBeAdded)(ComponentVariable* pVar);
 typedef void (ComponentBase::*CVarFunc_VariableAddedToInterface)(ComponentVariable* pVar);
 
-class ComponentVariable : public CPPListNode
+class ComponentVariable : public TCPPListNode<ComponentVariable*>
 {
 public:
     const char* m_Label;
@@ -129,17 +129,17 @@ public:
 #endif
 
 #define MYFW_COMPONENT_DECLARE_VARIABLE_LIST(ComponentName) \
-    static CPPListHead m_ComponentVariableList_##ComponentName; /* ComponentVariable type */ \
+    static TCPPListHead<ComponentVariable*> m_ComponentVariableList_##ComponentName; /* ComponentVariable type */ \
     static int m_ComponentVariableListRefCount_##ComponentName; \
-    static void RegisterVariables(CPPListHead* pList, ComponentName* pThis); \
+    static void RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentName* pThis); \
     static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
-    static ComponentVariable* AddVariable(CPPListHead* pList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
+    static ComponentVariable* AddVariable(TCPPListHead<ComponentVariable*>* pList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariable_Base( pList, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-    static ComponentVariable* AddVariablePointer(CPPListHead* pList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
+    static ComponentVariable* AddVariablePointer(TCPPListHead<ComponentVariable*>* pList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariablePointer_Base( pList, label, saveload, displayinwatch, watchlabel, pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-    static ComponentVariable* AddVariableEnum(CPPListHead* pList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
+    static ComponentVariable* AddVariableEnum(TCPPListHead<ComponentVariable*>* pList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariableEnum_Base( pList, label, offset, saveload, displayinwatch, watchlabel, numenums, ppStrings, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-    static ComponentVariable* AddVariableFlags(CPPListHead* pList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
+    static ComponentVariable* AddVariableFlags(TCPPListHead<ComponentVariable*>* pList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariableFlags_Base( pList, label, offset, saveload, displayinwatch, watchlabel, numenums, ppStrings, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
     static bool ComponentVariablesHaveBeenRegistered() \
     { \
@@ -147,10 +147,10 @@ public:
         m_ComponentVariableListRefCount_##ComponentName++; \
         return (m_ComponentVariableListRefCount_##ComponentName != 1); \
     } \
-    virtual CPPListHead* GetComponentVariableList() { return &m_ComponentVariableList_##ComponentName; }
+    virtual TCPPListHead<ComponentVariable*>* GetComponentVariableList() { return &m_ComponentVariableList_##ComponentName; }
 
 #define MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST(ComponentName) \
-    CPPListHead ComponentName::m_ComponentVariableList_##ComponentName; \
+    TCPPListHead<ComponentVariable*> ComponentName::m_ComponentVariableList_##ComponentName; \
     int ComponentName::m_ComponentVariableListRefCount_##ComponentName;
 
 #define MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR() \

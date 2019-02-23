@@ -83,15 +83,19 @@ MyNodeGraph::MyNodeGraph()
 
     m_MouseNodeLinkStartPoint.Clear();
 
-    m_Nodes.push_back( MyNode( this, 100, "MainTex", ImVec2(40, 50), 0.5f, ImColor(255, 100, 100), 1, 1 ) );
-    m_Nodes.push_back( MyNode( this, 200, "BumpMap", ImVec2(40, 150), 0.42f, ImColor(200, 100, 200), 1, 1 ) );
-    m_Nodes.push_back( MyNode( this, 300, "Combine", ImVec2(270, 80), 1.0f, ImColor(0, 200, 100), 2, 2 ) );
+    m_Nodes.push_back( MyNew MyNode( this, 100, "MainTex", ImVec2(40, 50), 0.5f, ColorByte(255, 100, 100, 255), 1, 1 ) );
+    m_Nodes.push_back( MyNew MyNode( this, 200, "BumpMap", ImVec2(40, 150), 0.42f, ColorByte(200, 100, 200, 255), 1, 1 ) );
+    m_Nodes.push_back( MyNew MyNode( this, 300, "Combine", ImVec2(270, 80), 1.0f, ColorByte(0, 200, 100, 255), 2, 2 ) );
     m_Links.push_back( MyNodeLink( 100, 0, 300, 0 ) );
     m_Links.push_back( MyNodeLink( 200, 0, 300, 1 ) );
 }
 
 MyNodeGraph::~MyNodeGraph()
 {
+    for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+    {
+        delete m_Nodes[nodeIndex];
+    }
 }
 
 void MyNodeGraph::DrawGrid(Vector2 offset)
@@ -116,9 +120,9 @@ void MyNodeGraph::DrawGrid(Vector2 offset)
 
 int MyNodeGraph::FindNodeIndexByID(NodeID nodeID)
 {
-    for( int nodeIndex = 0; nodeIndex < m_Nodes.Size; nodeIndex++ )
+    for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
     {
-        if( m_Nodes[nodeIndex].m_ID == nodeID )
+        if( m_Nodes[nodeIndex]->m_ID == nodeID )
             return nodeIndex;
     }
 
@@ -127,7 +131,7 @@ int MyNodeGraph::FindNodeIndexByID(NodeID nodeID)
 
 bool MyNodeGraph::IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType)
 {
-    for( int linkIndex = 0; linkIndex < m_Links.Size; linkIndex++ )
+    for( int linkIndex = 0; linkIndex < m_Links.size(); linkIndex++ )
     {
         if( ( slotType == SlotType_Input &&
               m_Links[linkIndex].m_InputNodeID == nodeID &&
@@ -149,7 +153,7 @@ void MyNodeGraph::SetExpandedForAllSelectedNodes(bool expand)
     {
         NodeID nodeID = m_SelectedNodeIDs[i];
         int nodeIndex = FindNodeIndexByID( nodeID );
-        MyNode* pNode = &m_Nodes[nodeIndex];
+        MyNode* pNode = m_Nodes[nodeIndex];
         pNode->m_Expanded = expand;
     }
 }
@@ -164,9 +168,9 @@ void MyNodeGraph::Update()
     ImGui::BeginChild( "node list", ImVec2(100, 0) );
     ImGui::Text( "Nodes" );
     ImGui::Separator();
-    for( int nodeIndex = 0; nodeIndex < m_Nodes.Size; nodeIndex++ )
+    for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
     {
-        MyNode* pNode = &m_Nodes[nodeIndex];
+        MyNode* pNode = m_Nodes[nodeIndex];
         ImGui::PushID( pNode->m_ID );
         
         bool isSelected = false;
@@ -219,8 +223,8 @@ void MyNodeGraph::Update()
         for( int linkIndex = 0; linkIndex < m_Links.Size; linkIndex++ )
         {
             MyNodeLink* pLink = &m_Links[linkIndex];
-            MyNode* pOutputNode = &m_Nodes[FindNodeIndexByID(pLink->m_OutputNodeID)];
-            MyNode* pInputNode = &m_Nodes[FindNodeIndexByID(pLink->m_InputNodeID)];
+            MyNode* pOutputNode = m_Nodes[FindNodeIndexByID(pLink->m_OutputNodeID)];
+            MyNode* pInputNode = m_Nodes[FindNodeIndexByID(pLink->m_InputNodeID)];
             Vector2 p1 = offset + pOutputNode->GetOutputSlotPos( pLink->m_OutputSlotID );
             Vector2 p2 = offset + pInputNode->GetInputSlotPos( pLink->m_InputSlotID );
 
@@ -241,7 +245,7 @@ void MyNodeGraph::Update()
             Vector2 p1, p2;
 
             int inputNodeIndex = FindNodeIndexByID( m_MouseNodeLinkStartPoint.m_NodeID );
-            MyNode* pInputNode = &m_Nodes[inputNodeIndex];
+            MyNode* pInputNode = m_Nodes[inputNodeIndex];
             
             if( m_MouseNodeLinkStartPoint.m_SlotType == SlotType_Input )
             {
@@ -262,9 +266,9 @@ void MyNodeGraph::Update()
 
     // Draw nodes.
     {
-        for( int nodeIndex = 0; nodeIndex < m_Nodes.Size; nodeIndex++ )
+        for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
         {
-            MyNode* pNode = &m_Nodes[nodeIndex];
+            MyNode* pNode = m_Nodes[nodeIndex];
             pNode->Draw( pDrawList, offset, m_SelectedNodeIDs.contains( pNode->m_ID ), &m_MouseNodeLinkStartPoint );
 
             // Check for right-click context menu.
@@ -309,13 +313,13 @@ void MyNodeGraph::Update()
             {
                 m_SelectedNodeIDs.clear();
                 m_SelectedNodeLinkIndex = -1;
-                m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInList].m_ID );
+                m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInList]->m_ID );
             }
             else if( nodeIndexHoveredInScene != -1 )
             {
                 m_SelectedNodeIDs.clear();
                 m_SelectedNodeLinkIndex = -1;
-                m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInScene].m_ID );
+                m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInScene]->m_ID );
             }
         }
 
@@ -337,7 +341,7 @@ void MyNodeGraph::Update()
             
                 int nodeIndex = m_SelectedNodeIDs.size() > 0 ? FindNodeIndexByID( m_SelectedNodeIDs[0] ) : -1;
                 if( nodeIndex != -1 )
-                    pNode = &m_Nodes[nodeIndex];
+                    pNode = m_Nodes[nodeIndex];
             
                 Vector2 scenePos = ImGui::GetMousePosOnOpeningCurrentPopup() - offset;
                 if( pNode )
@@ -352,7 +356,7 @@ void MyNodeGraph::Update()
                 {
                     if( ImGui::MenuItem( "Add" ) )
                     {
-                        m_Nodes.push_back( MyNode( this, m_Nodes.Size, "New node", scenePos, 0.5f, ImColor(100, 100, 200), 2, 2 ) );
+                        m_Nodes.push_back( MyNew MyNode( this, m_Nodes.size(), "New node", scenePos, 0.5f, ColorByte(100, 100, 200, 255), 2, 2 ) );
                     }
                     if( ImGui::MenuItem( "Paste", nullptr, false, false ) ) {}
                 }
@@ -384,9 +388,9 @@ void MyNodeGraph::Update()
                     m_SelectedNodeIDs.clear();
                 }
 
-                for( int nodeIndex = 0; nodeIndex < m_Nodes.Size; nodeIndex++ )
+                for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
                 {
-                    MyNode* pNode = &m_Nodes[nodeIndex];
+                    MyNode* pNode = m_Nodes[nodeIndex];
 
                     AABB2D nodeAABB;
                     nodeAABB.Set( pNode->m_Pos, pNode->m_Pos + pNode->m_Size );

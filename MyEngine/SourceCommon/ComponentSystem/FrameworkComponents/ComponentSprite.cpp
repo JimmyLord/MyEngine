@@ -57,7 +57,7 @@ ComponentSprite::~ComponentSprite()
     //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnFileRenamed );
 }
 
-void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pThis) //_VARIABLE_LIST
+void ComponentSprite::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentSprite* pThis) //_VARIABLE_LIST
 {
     ComponentRenderable::RegisterVariables( pList, pThis );
 

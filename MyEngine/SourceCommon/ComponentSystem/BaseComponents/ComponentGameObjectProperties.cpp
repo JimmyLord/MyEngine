@@ -34,7 +34,7 @@ ComponentGameObjectProperties::~ComponentGameObjectProperties()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void ComponentGameObjectProperties::RegisterVariables(CPPListHead* pList, ComponentGameObjectProperties* pThis) //_VARIABLE_LIST
+void ComponentGameObjectProperties::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentGameObjectProperties* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
 #if __GNUC__

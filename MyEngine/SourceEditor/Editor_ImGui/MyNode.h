@@ -11,6 +11,7 @@
 #define __MyNode_H__
 
 #include "MyNodeGraph.h"
+#include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentVariable.h"
 
 class MyNodeGraph::MyNode
 {
@@ -28,9 +29,12 @@ public:
 
     // Node properties.
     float m_Value;
-    ImVec4 m_Color;
+    ColorByte m_Color;
+    TCPPListHead<ComponentVariable*> m_VariablesList;
 
-    MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value, const ImVec4& color, int inputsCount, int outputsCount);
+public:
+    MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value, const ColorByte& color, int inputsCount, int outputsCount);
+    virtual ~MyNode();
 
     ImVec2 GetInputSlotPos(SlotID slotID) const;
     ImVec2 GetOutputSlotPos(SlotID slotID) const;

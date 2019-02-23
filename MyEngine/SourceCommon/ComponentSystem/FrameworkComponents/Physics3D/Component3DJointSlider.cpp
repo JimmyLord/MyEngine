@@ -48,7 +48,7 @@ Component3DJointSlider::~Component3DJointSlider()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void Component3DJointSlider::RegisterVariables(CPPListHead* pList, Component3DJointSlider* pThis) //_VARIABLE_LIST
+void Component3DJointSlider::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, Component3DJointSlider* pThis) //_VARIABLE_LIST
 {
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,

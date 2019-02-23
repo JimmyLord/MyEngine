@@ -58,7 +58,7 @@ Component3DCollisionObject::~Component3DCollisionObject()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
 }
 
-void Component3DCollisionObject::RegisterVariables(CPPListHead* pList, Component3DCollisionObject* pThis) //_VARIABLE_LIST
+void Component3DCollisionObject::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, Component3DCollisionObject* pThis) //_VARIABLE_LIST
 {
     ComponentVariable* pVar;
 

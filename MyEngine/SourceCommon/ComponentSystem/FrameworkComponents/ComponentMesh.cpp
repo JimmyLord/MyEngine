@@ -91,7 +91,7 @@ ComponentMesh::~ComponentMesh()
     //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnFileRenamed );
 }
 
-void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) //_VARIABLE_LIST
+void ComponentMesh::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentMesh* pThis) //_VARIABLE_LIST
 {
     ComponentRenderable::RegisterVariables( pList, pThis );
 

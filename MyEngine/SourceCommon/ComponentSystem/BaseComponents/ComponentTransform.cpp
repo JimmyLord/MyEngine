@@ -43,7 +43,7 @@ ComponentTransform::~ComponentTransform()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
 }
 
-void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransform* pThis) //_VARIABLE_LIST
+void ComponentTransform::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentTransform* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
 #if __GNUC__

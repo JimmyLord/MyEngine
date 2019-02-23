@@ -52,17 +52,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     {
     case ComponentVariableType_Int:
         previousvalue = (double)m_OldValue.GetInt();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     case ComponentVariableType_Enum:
         previousvalue = (double)m_OldValue.GetEnum();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     case ComponentVariableType_Flags:
         previousvalue = (double)m_OldValue.GetFlags();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     //case PanelWatchType_UnsignedInt:
@@ -82,17 +82,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 
     case ComponentVariableType_Bool:
         previousvalue = (double)m_OldValue.GetBool();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     case ComponentVariableType_Float:
         previousvalue = (double)m_OldValue.GetFloat();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     case ComponentVariableType_Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
 
         // Determine which component of the control changed, assert if more than 1 changed.
         controlcomponent = -1;
@@ -110,7 +110,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 
     case ComponentVariableType_Vector3:
         //Vector3 previousvalue = m_OldValue.GetVector3();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         controlcomponent = -1;
         if( m_OldValue.GetVector3().x != m_NewValue.GetVector3().x )
         {
@@ -179,17 +179,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     {
     case ComponentVariableType_Int:
         previousvalue = (double)m_NewValue.GetInt();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     case ComponentVariableType_Enum:
         previousvalue = (double)m_NewValue.GetEnum();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     case ComponentVariableType_Flags:
         previousvalue = (double)m_NewValue.GetFlags();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     //case PanelWatchType_UnsignedInt:
@@ -209,17 +209,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
 
     case ComponentVariableType_Bool:
         previousvalue = (double)m_NewValue.GetBool();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     case ComponentVariableType_Float:
         previousvalue = (double)m_NewValue.GetFloat();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
         break;
 
     case ComponentVariableType_Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
 
         // Determine which component of the control changed, assert if more than 1 changed.
         controlcomponent = -1;
@@ -237,7 +237,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
 
     case ComponentVariableType_Vector3:
         //Vector3 previousvalue = m_OldValue.GetVector3();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
 
         // Determine which component of the control changed, assert if more than 1 changed.
         controlcomponent = -1;
@@ -1614,7 +1614,7 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
     m_pVar = pVar;
 
     m_NewPointer = *pNewValue;
-    m_OldPointer.GetValueFromVariable( pComponent, pVar );
+    m_OldPointer.GetValueFromVariable( pComponent, pVar, pComponent );
 }
 
 EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariablePointerChanged()
@@ -1823,7 +1823,7 @@ EditorCommand_DivorceOrMarryComponentVariable::EditorCommand_DivorceOrMarryCompo
 
     m_DivorceTheVariable = divorcethevariable;
 
-    m_OldValue.GetValueFromVariable( pComponent, pVar );
+    m_OldValue.GetValueFromVariable( pComponent, pVar, pComponent );
 }
 
 EditorCommand_DivorceOrMarryComponentVariable::~EditorCommand_DivorceOrMarryComponentVariable()
@@ -1857,10 +1857,10 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
         if( pParentComponent )
         {
             // Get parent objects value.
-            ComponentVariableValue newvalue( pParentComponent, m_pVar );
+            ComponentVariableValue newvalue( pParentComponent, m_pVar, pParentComponent );
 
             // Update and inform component and children.
-            newvalue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
+            newvalue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar, m_pComponent );
         }
 
 #if MYFW_USING_WX
@@ -1897,7 +1897,7 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
         //}
 
         // Update and inform component and children.
-        m_OldValue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
+        m_OldValue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar, m_pComponent );
 
 #if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();

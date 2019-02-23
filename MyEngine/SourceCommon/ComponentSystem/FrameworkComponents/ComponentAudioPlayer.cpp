@@ -44,7 +44,7 @@ ComponentAudioPlayer::~ComponentAudioPlayer()
     //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnFileRenamed );
 }
 
-void ComponentAudioPlayer::RegisterVariables(CPPListHead* pList, ComponentAudioPlayer* pThis) //_VARIABLE_LIST
+void ComponentAudioPlayer::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentAudioPlayer* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
 #if __GNUC__

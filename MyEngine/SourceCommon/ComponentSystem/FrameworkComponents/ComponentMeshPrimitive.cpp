@@ -44,7 +44,7 @@ ComponentMeshPrimitive::~ComponentMeshPrimitive()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void ComponentMeshPrimitive::RegisterVariables(CPPListHead* pList, ComponentMeshPrimitive* pThis) //_VARIABLE_LIST
+void ComponentMeshPrimitive::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentMeshPrimitive* pThis) //_VARIABLE_LIST
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 

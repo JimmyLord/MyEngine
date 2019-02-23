@@ -102,7 +102,7 @@ ComponentCamera::~ComponentCamera()
     SAFE_RELEASE( m_pDeferredSphereMesh );
 }
 
-void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
+void ComponentCamera::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentCamera* pThis) //_VARIABLE_LIST
 {
     ComponentVariable* pVar;
 

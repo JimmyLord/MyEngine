@@ -46,12 +46,12 @@ protected:
 
 public:
     ComponentVariableValue();
-    ComponentVariableValue(ComponentBase* pComponent, ComponentVariable* pVar);
+    ComponentVariableValue(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent);
 
-    void GetValueFromVariable(ComponentBase* pComponent, ComponentVariable* pVar);
-    void UpdateComponentAndChildrenWithValue(ComponentBase* pComponent, ComponentVariable* pVar);
-    void CopyNonPointerValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar);
-    void CopyValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar);
+    void GetValueFromVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent);
+    void UpdateComponentAndChildrenWithValue(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent);
+    void CopyNonPointerValueIntoVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent);
+    void CopyValueIntoVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent);
 
     int32               GetInt()             { MyAssert( m_Type == ComponentVariableType_Int );             return m_Int; }
     int32               GetEnum()            { MyAssert( m_Type == ComponentVariableType_Enum );            return m_Int; }

@@ -30,7 +30,7 @@ ComponentMeshOBJ::~ComponentMeshOBJ()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void ComponentMeshOBJ::RegisterVariables(CPPListHead* pList, ComponentMeshOBJ* pThis) //_VARIABLE_LIST
+void ComponentMeshOBJ::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentMeshOBJ* pThis) //_VARIABLE_LIST
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 

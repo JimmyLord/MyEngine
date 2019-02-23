@@ -50,7 +50,7 @@ Component2DJointPrismatic::~Component2DJointPrismatic()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void Component2DJointPrismatic::RegisterVariables(CPPListHead* pList, Component2DJointPrismatic* pThis) //_VARIABLE_LIST
+void Component2DJointPrismatic::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, Component2DJointPrismatic* pThis) //_VARIABLE_LIST
 {
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,

@@ -49,7 +49,7 @@ ComponentAnimationPlayer2D::~ComponentAnimationPlayer2D()
     SAFE_RELEASE( m_pAnimationFile );
 }
 
-void ComponentAnimationPlayer2D::RegisterVariables(CPPListHead* pList, ComponentAnimationPlayer2D* pThis) //_VARIABLE_LIST
+void ComponentAnimationPlayer2D::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentAnimationPlayer2D* pThis) //_VARIABLE_LIST
 {
     AddVar( pList, "Animation Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_AnimationIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
     AddVar( pList, "Animation Frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AnimationTime ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );

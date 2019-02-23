@@ -38,7 +38,7 @@ ComponentRenderable::~ComponentRenderable()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void ComponentRenderable::RegisterVariables(CPPListHead* pList, ComponentRenderable* pThis) //_VARIABLE_LIST
+void ComponentRenderable::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentRenderable* pThis) //_VARIABLE_LIST
 {
     AddVar( pList, "Visible", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Visible ), true, true, 0,
             (CVarFunc_ValueChanged)&ComponentRenderable::OnValueChanged,

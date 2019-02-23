@@ -53,7 +53,7 @@ ComponentLight::~ComponentLight()
     }
 }
 
-void ComponentLight::RegisterVariables(CPPListHead* pList, ComponentLight* pThis) //_VARIABLE_LIST
+void ComponentLight::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentLight* pThis) //_VARIABLE_LIST
 {
     // TODO: Lights don't do inheritance ATM since all vars are indirectly stored in a light object outside the class (m_pLight).
 
