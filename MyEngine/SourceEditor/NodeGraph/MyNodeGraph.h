@@ -13,6 +13,8 @@
 #include "../../Libraries/imgui/imgui.h"
 #include "../../Libraries/imgui/imgui_internal.h"
 
+class MyNodeTypeManager;
+
 const ImU32 COLOR_BG = IM_COL32( 60, 60, 70, 200 );
 const ImU32 COLOR_GRID = IM_COL32( 200, 200, 200, 40 );
 
@@ -36,6 +38,7 @@ const ImU32 COLOR_NODE_BG_SELECTED_BORDER = IM_COL32( 245, 142, 0, 128 );
 
 class MyNodeGraph
 {
+public:
     class MyNode;
     class MyNodeLink;
 
@@ -87,6 +90,8 @@ protected:
     };
 
 protected:
+    MyNodeTypeManager* m_pNodeTypeManager;
+
     std::vector<MyNode*> m_Nodes;
     ImVector<MyNodeLink> m_Links;
     ImVector<NodeID> m_SelectedNodeIDs;
@@ -104,10 +109,24 @@ protected:
     void SetExpandedForAllSelectedNodes(bool expand);
 
 public:
-    MyNodeGraph();
+    MyNodeGraph(MyNodeTypeManager* pNodeTypeManager);
     virtual ~MyNodeGraph();
 
     void Update();
+};
+
+//====================================================================================================
+
+class MyNodeTypeManager
+{
+protected:
+    MyNodeGraph* m_pNodeGraph;
+
+public:
+    MyNodeTypeManager() {}
+
+    virtual MyNodeGraph::MyNode* AddCreateNodeItemsToContextMenu(Vector2 pos, MyNodeGraph* pNodeGraph) = 0;
+    virtual MyNodeGraph::MyNode* CreateNode(const char* typeName, Vector2 pos, MyNodeGraph* pNodeGraph) = 0;
 };
 
 #endif //__MyNodeGraph_H__

@@ -131,7 +131,9 @@ public:
     static ComponentVariable* AddVariableEnum_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
     static ComponentVariable* AddVariableFlags_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
 
-    static void AddVariableToWatchPanel(void* pObject, ComponentVariable* pVar, ComponentBase* pComponent);
+    static void TestForVariableModificationAndCreateUndoCommand(void* pObject, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent);
+    static void AddVariableToWatchPanel(void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent);
+
 protected:
     virtual TCPPListHead<ComponentVariable*>* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: Make this pure virtual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component.
 #if MYFW_USING_WX
@@ -151,7 +153,6 @@ protected:
     ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
     bool m_LinkNextUndoCommandToPrevious;
 
-    void TestForVariableModificationAndCreateUndoCommand(ImGuiID id, bool modified, ComponentVariable* pVar);
 #endif
     void ExportVariablesToJSON(cJSON* jComponent);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);

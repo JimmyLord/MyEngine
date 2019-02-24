@@ -79,7 +79,8 @@ enum PanelWatch_Types
 class EditorCommand_ImGuiPanelWatchNumberValueChanged : public EditorCommand
 {
 protected:
-    ComponentBase* m_pCallbackObj;
+    void* m_pObject;
+    ComponentBase* m_pComponent;
     ComponentVariable* m_pVar;
 
     ComponentVariableValue m_NewValue;
@@ -87,12 +88,14 @@ protected:
     bool m_DirectlyChanged;
 
 public:
-    EditorCommand_ImGuiPanelWatchNumberValueChanged(ComponentBase* pCallbackObj, ComponentVariable* pVar, ComponentVariableValue newvalue, ComponentVariableValue oldvalue, bool directlychanged);
+    EditorCommand_ImGuiPanelWatchNumberValueChanged(void* pObject, ComponentVariable* pVar, ComponentVariableValue newValue, ComponentVariableValue oldValue, bool directlyChanged, ComponentBase* pComponent);
     virtual ~EditorCommand_ImGuiPanelWatchNumberValueChanged();
 
     virtual void Do();
     virtual void Undo();
     virtual EditorCommand* Repeat();
+
+    bool UsesThisObjectAndVariable(void* pObject, ComponentVariable* pVar) { return m_pObject == pObject && m_pVar == pVar; }
 };
 
 //====================================================================================================

@@ -28,12 +28,10 @@ public:
     bool m_Expanded;
 
     // Node properties.
-    float m_Value;
-    ColorByte m_Color;
     TCPPListHead<ComponentVariable*> m_VariablesList;
 
 public:
-    MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value, const ColorByte& color, int inputsCount, int outputsCount);
+    MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, int inputsCount, int outputsCount);
     virtual ~MyNode();
 
     ImVec2 GetInputSlotPos(SlotID slotID) const;
@@ -42,6 +40,9 @@ public:
     void Draw(ImDrawList* pDrawList, Vector2 offset, bool isSelected, MouseNodeLinkStartPoint* pMouseNodeLink);
     void HandleNodeSlot(ImDrawList* pDrawList, Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType, MouseNodeLinkStartPoint* pMouseNodeLink);
     bool HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType, MouseNodeLinkStartPoint* pMouseNodeLink);
+
+    virtual void DrawTitle();
+    virtual void DrawContents();
 };
 
 #endif //__MyNode_H__

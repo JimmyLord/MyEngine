@@ -23,7 +23,7 @@ const Vector2 NODE_WINDOW_PADDING( 8.0f, 8.0f );
 #undef AddVar
 #define AddVar ComponentBase::AddVariable_Base
 
-MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value, const ColorByte& color, int inputsCount, int outputsCount)
+MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, int inputsCount, int outputsCount)
 {
     m_pNodeGraph = pNodeGraph;
 
@@ -36,13 +36,6 @@ MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, c
     m_InputsCount = inputsCount;
     m_OutputsCount = outputsCount;
     m_Expanded = true;
-
-    // Node properties.
-    m_Value = value;
-    m_Color = color;
-
-    AddVar( &m_VariablesList, "Value", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Value ), false, true, nullptr, nullptr, nullptr, nullptr );
-    AddVar( &m_VariablesList, "Color", ComponentVariableType_ColorByte, MyOffsetOf( this, &this->m_Color ), false, true, nullptr, nullptr, nullptr, nullptr );
 }
 
 MyNodeGraph::MyNode::~MyNode()
@@ -114,11 +107,27 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         ImGui::SetCursorScreenPos( nodeRectMin + NODE_WINDOW_PADDING );
         if( ImGui::ArrowButton( "", m_Expanded ? ImGuiDir_Down : ImGuiDir_Right ) )
         {
+            if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) == false )
+            {
+                if( ImGui::GetIO().KeyCtrl == false )
+                {
+                    m_pNodeGraph->m_SelectedNodeIDs.clear();
+                    m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
+                }
+                else
+                {
+                    m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
+                }
+            }
+
             m_pNodeGraph->SetExpandedForAllSelectedNodes( !m_Expanded );
         }
         bool titleArrowIsHovered = ImGui::IsItemHovered();
         ImGui::SameLine();
-        ImGui::Text( m_Name );
+        DrawTitle();
+        ImGui::SameLine();
+
+        float titleWidth = ImGui::GetCursorScreenPos().x - nodeRectMin.x;
 
         // Add an invisible button over the entire title area, so it can be double-clicked to collapse/expand.
         // Added after ArrowButton and name, so it's overlap checks will happen after.
@@ -137,25 +146,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         {
             ImGui::SetCursorScreenPos( nodeRectMin + NODE_WINDOW_PADDING + ImVec2( 0, titleHeight ) );
 
-            for( ComponentVariable* pVar = m_VariablesList.GetHead(); pVar; pVar = pVar->GetNext() )
-            {
-                ComponentBase::AddVariableToWatchPanel( this, pVar, nullptr );
-//#pragma warning( push )
-//#pragma warning( disable : 4062 )
-//                switch( pVar->m_Type )
-//                {
-//                case ComponentVariableType_Float:
-//                    float speed = 0.1f;
-//                    if( pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit > 0 )
-//                        speed = (pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit) / 300.0f;
-//                    bool modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
-//                    //TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
-//                    break;
-//                }
-//#pragma warning( pop )
-            }
-            //ImGui::SliderFloat( "##value", &m_Value, 0.0f, 1.0f, "Alpha %.2f" );
-            //ImGui::ColorEdit3( "##color", &m_Color.x );
+            DrawContents();
         }
         else
         {
@@ -175,6 +166,11 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         {
             m_Size = ImGui::GetItemRectSize();
         }
+
+        if( m_TitleWidth < titleWidth )
+            m_TitleWidth = titleWidth;
+        if( m_Size.x < m_TitleWidth )
+            m_Size.x = m_TitleWidth;
     }
 
     // Create a large invisible button the size of the node, for selection/dragging purposes.
@@ -355,4 +351,18 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
     }
 
     return true; // Mouse is over circle.
+}
+
+void MyNodeGraph::MyNode::DrawTitle()
+{
+    ImGui::Text( m_Name );
+}
+
+void MyNodeGraph::MyNode::DrawContents()
+{
+    for( ComponentVariable* pVar = m_VariablesList.GetHead(); pVar; pVar = pVar->GetNext() )
+    {
+        ImGui::PushItemWidth( 120 );
+        ComponentBase::AddVariableToWatchPanel( this, pVar, nullptr );
+    }
 }

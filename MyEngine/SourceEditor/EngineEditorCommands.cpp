@@ -24,19 +24,17 @@
 // EditorCommand_ImGuiPanelWatchNumberValueChanged
 //====================================================================================================
 
-//EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(double difference, PanelWatch_Types type, void* pointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged* callbackfunc, void* callbackobj)
-//EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(ComponentBase* pCallbackObj, ComponentVariable* pVar, double difference, bool directlychanged)
-EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(ComponentBase* pCallbackObj, ComponentVariable* pVar, ComponentVariableValue newvalue, ComponentVariableValue oldvalue, bool directlychanged)
+EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(void* pObject, ComponentVariable* pVar, ComponentVariableValue newValue, ComponentVariableValue oldValue, bool directlyChanged, ComponentBase* pComponent)
 {
     m_Name = "EditorCommand_ImGuiPanelWatchNumberValueChanged";
 
-    m_pCallbackObj = pCallbackObj;
+    m_pObject = pObject;
+    m_pComponent = pComponent;
     m_pVar = pVar;
 
-    m_NewValue = newvalue;
-    m_OldValue = oldvalue;
-    //m_Difference = difference;
-    m_DirectlyChanged = directlychanged;
+    m_NewValue = newValue;
+    m_OldValue = oldValue;
+    m_DirectlyChanged = directlyChanged;
 }
 
 EditorCommand_ImGuiPanelWatchNumberValueChanged::~EditorCommand_ImGuiPanelWatchNumberValueChanged()
@@ -52,17 +50,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     {
     case ComponentVariableType_Int:
         previousvalue = (double)m_OldValue.GetInt();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType_Enum:
         previousvalue = (double)m_OldValue.GetEnum();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType_Flags:
         previousvalue = (double)m_OldValue.GetFlags();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     //case PanelWatchType_UnsignedInt:
@@ -82,17 +80,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 
     case ComponentVariableType_Bool:
         previousvalue = (double)m_OldValue.GetBool();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType_Float:
         previousvalue = (double)m_OldValue.GetFloat();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType_Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
         // Determine which component of the control changed, assert if more than 1 changed.
         controlcomponent = -1;
@@ -110,7 +108,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 
     case ComponentVariableType_Vector3:
         //Vector3 previousvalue = m_OldValue.GetVector3();
-        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         controlcomponent = -1;
         if( m_OldValue.GetVector3().x != m_NewValue.GetVector3().x )
         {
@@ -166,7 +164,10 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         MyAssert( false );
     }
 
-    m_pCallbackObj->OnValueChangedVariable( m_pVar, controlcomponent, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
+    if( m_pComponent )
+    {
+        m_pComponent->OnValueChangedVariable( m_pVar, controlcomponent, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
+    }
     m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
 }
 
@@ -179,17 +180,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     {
     case ComponentVariableType_Int:
         previousvalue = (double)m_NewValue.GetInt();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType_Enum:
         previousvalue = (double)m_NewValue.GetEnum();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType_Flags:
         previousvalue = (double)m_NewValue.GetFlags();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     //case PanelWatchType_UnsignedInt:
@@ -209,17 +210,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
 
     case ComponentVariableType_Bool:
         previousvalue = (double)m_NewValue.GetBool();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType_Float:
         previousvalue = (double)m_NewValue.GetFloat();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType_Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
         // Determine which component of the control changed, assert if more than 1 changed.
         controlcomponent = -1;
@@ -237,7 +238,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
 
     case ComponentVariableType_Vector3:
         //Vector3 previousvalue = m_OldValue.GetVector3();
-        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar, m_pCallbackObj );
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
         // Determine which component of the control changed, assert if more than 1 changed.
         controlcomponent = -1;
@@ -295,7 +296,10 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         MyAssert( false );
     }
 
-    m_pCallbackObj->OnValueChangedVariable( m_pVar, controlcomponent, m_DirectlyChanged, true, previousvalue, false, &m_OldValue );
+    if( m_pComponent )
+    {
+        m_pComponent->OnValueChangedVariable( m_pVar, controlcomponent, m_DirectlyChanged, true, previousvalue, false, &m_OldValue );
+    }
     m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
 }
 

@@ -75,19 +75,25 @@ bool IsNearBezierCurve(Vector2 position, Vector2 p0, Vector2 cp0, Vector2 cp1, V
     return false;
 }
 
-MyNodeGraph::MyNodeGraph()
+MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
 {
+    m_pNodeTypeManager = pNodeTypeManager;
+
     m_ScrollOffset.Set( 0.0f, 0.0f );
     m_GridVisible = true;
     m_SelectedNodeLinkIndex = -1;
 
     m_MouseNodeLinkStartPoint.Clear();
 
-    m_Nodes.push_back( MyNew MyNode( this, 100, "MainTex", ImVec2(40, 50), 0.5f, ColorByte(255, 100, 100, 255), 1, 1 ) );
-    m_Nodes.push_back( MyNew MyNode( this, 200, "BumpMap", ImVec2(40, 150), 0.42f, ColorByte(200, 100, 200, 255), 1, 1 ) );
-    m_Nodes.push_back( MyNew MyNode( this, 300, "Combine", ImVec2(270, 80), 1.0f, ColorByte(0, 200, 100, 255), 2, 2 ) );
-    m_Links.push_back( MyNodeLink( 100, 0, 300, 0 ) );
-    m_Links.push_back( MyNodeLink( 200, 0, 300, 1 ) );
+    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Float", Vector2(40, 50), this ) );
+    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Color", Vector2(40, 150), this ) );
+    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Component", Vector2(40, 250), this ) );
+    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Add", Vector2(270, 80), this ) );
+    //m_Nodes.push_back( MyNew MyNode( this, 100, "MainTex", ImVec2(40, 50), 0.5f, ColorByte(255, 100, 100, 255), 1, 1 ) );
+    //m_Nodes.push_back( MyNew MyNode( this, 200, "BumpMap", ImVec2(40, 150), 0.42f, ColorByte(200, 100, 200, 255), 1, 1 ) );
+    //m_Nodes.push_back( MyNew MyNode( this, 300, "Combine", ImVec2(270, 80), 1.0f, ColorByte(0, 200, 100, 255), 2, 2 ) );
+    //m_Links.push_back( MyNodeLink( 100, 0, 300, 0 ) );
+    //m_Links.push_back( MyNodeLink( 200, 0, 300, 1 ) );
 }
 
 MyNodeGraph::~MyNodeGraph()
@@ -349,15 +355,36 @@ void MyNodeGraph::Update()
                     ImGui::Text( "Node '%s'", pNode->m_Name );
                     ImGui::Separator();
                     if( ImGui::MenuItem( "Rename...", nullptr, false, false ) ) {}
-                    if( ImGui::MenuItem( "Delete", nullptr, false, false ) ) {}
+                    if( ImGui::MenuItem( "Delete", nullptr, false ) )
+                    {
+                        // Remove all connections to this node.
+                        for( int i=0; i<m_Links.size(); i++ )
+                        {
+                            if( m_Links[i].m_InputNodeID == pNode->m_ID || m_Links[i].m_OutputNodeID == pNode->m_ID )
+                            {
+                                m_Links.erase_unsorted( m_Links.Data + i );
+                                i--;
+                            }
+                        }
+
+                        // Delete the node.
+                        m_Nodes.erase( std::find( m_Nodes.begin(), m_Nodes.end(), pNode ) );                      
+                    }
                     if( ImGui::MenuItem( "Copy", nullptr, false, false ) ) {}
                 }
                 else
                 {
-                    if( ImGui::MenuItem( "Add" ) )
+                    MyNode* pNode = m_pNodeTypeManager->AddCreateNodeItemsToContextMenu( scenePos, this );
+                    if( pNode )
                     {
-                        m_Nodes.push_back( MyNew MyNode( this, m_Nodes.size(), "New node", scenePos, 0.5f, ColorByte(100, 100, 200, 255), 2, 2 ) );
+                        m_Nodes.push_back( pNode );
                     }
+
+                    //if( ImGui::MenuItem( "Add" ) )
+                    //{
+                    //    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Float", scenePos, this ) );
+                    //    //m_Nodes.push_back( MyNew MyNode( this, m_Nodes.size(), "New node", scenePos, 0.5f, ColorByte(100, 100, 200, 255), 2, 2 ) );
+                    //}
                     if( ImGui::MenuItem( "Paste", nullptr, false, false ) ) {}
                 }
             }
@@ -406,7 +433,7 @@ void MyNodeGraph::Update()
             }
         }
 
-        if( ImGui::IsMouseReleased( 0 ) )
+        if( ImGui::IsMouseReleased( 0 ) || m_MouseNodeLinkStartPoint.InUse() )
         {
             dragging = false;
         }
