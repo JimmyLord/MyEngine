@@ -112,6 +112,9 @@ public:
     MyNodeGraph(MyNodeTypeManager* pNodeTypeManager);
     virtual ~MyNodeGraph();
 
+    // Getters.
+    MyNode* FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultCount);
+
     void Update();
 };
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2017-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -48,34 +48,33 @@ enum ComponentVariableTypes
     ComponentVariableType_NumTypes,
 };
 
-#if !MYFW_USING_WX
-#define wxMenu void
-#endif //MYFW_USING_WX
+class ComponentVariableCallbackInterface : public CPPListNode
+{
+};
 
-typedef void (ComponentBase::*CVarFunc)(ComponentVariable* pVar);
-typedef void (ComponentBase::*CVarFunc_Int)(ComponentVariable* pVar, int someint);
-typedef void (ComponentBase::*CVarFunc_wxMenu)(ComponentVariable* pVar, wxMenu* pMenu);
-typedef void* (ComponentBase::*CVarFunc_DropTarget)(ComponentVariable* pVar, int x, int y);
-typedef void* (ComponentBase::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
-typedef void* (ComponentBase::*CVarFunc_Pointer)(ComponentVariable* pVar);
+typedef void (ComponentVariableCallbackInterface::*CVarFunc)(ComponentVariable* pVar);
+typedef void (ComponentVariableCallbackInterface::*CVarFunc_Int)(ComponentVariable* pVar, int someint);
+typedef void* (ComponentVariableCallbackInterface::*CVarFunc_DropTarget)(ComponentVariable* pVar, int x, int y);
+typedef void* (ComponentVariableCallbackInterface::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+typedef void* (ComponentVariableCallbackInterface::*CVarFunc_Pointer)(ComponentVariable* pVar);
 
-typedef void* (ComponentBase::*CVarFunc_GetPointerValue)(ComponentVariable* pVar);
-typedef void (ComponentBase::*CVarFunc_SetPointerValue)(ComponentVariable* pVar, const void* newvalue);
-typedef const char* (ComponentBase::*CVarFunc_GetPointerDesc)(ComponentVariable* pVar);
-typedef void (ComponentBase::*CVarFunc_SetPointerDesc)(ComponentVariable* pVar, const char* newdesc);
+typedef void* (ComponentVariableCallbackInterface::*CVarFunc_GetPointerValue)(ComponentVariable* pVar);
+typedef void (ComponentVariableCallbackInterface::*CVarFunc_SetPointerValue)(ComponentVariable* pVar, const void* newvalue);
+typedef const char* (ComponentVariableCallbackInterface::*CVarFunc_GetPointerDesc)(ComponentVariable* pVar);
+typedef void (ComponentVariableCallbackInterface::*CVarFunc_SetPointerDesc)(ComponentVariable* pVar, const char* newdesc);
 
-typedef bool (ComponentBase::*CVarFunc_ShouldVariableBeAdded)(ComponentVariable* pVar);
-typedef void (ComponentBase::*CVarFunc_VariableAddedToInterface)(ComponentVariable* pVar);
+typedef bool (ComponentVariableCallbackInterface::*CVarFunc_ShouldVariableBeAdded)(ComponentVariable* pVar);
+typedef void (ComponentVariableCallbackInterface::*CVarFunc_VariableAddedToInterface)(ComponentVariable* pVar);
 
 class ComponentVariable : public TCPPListNode<ComponentVariable*>
 {
 public:
     const char* m_Label;
     ComponentVariableTypes m_Type;
-    size_t m_Offset; // offset into class of the variable.
+    size_t m_Offset; // Offset into class of the variable.
     bool m_SaveLoad;
     bool m_DisplayInWatch;
-    const char* m_WatchLabel; // if 0 will use m_Label if needed.
+    const char* m_WatchLabel; // If nullptr will use m_Label if needed.
     int m_NumEnumStrings;
     const char** m_ppEnumStrings;
 
@@ -89,7 +88,7 @@ public:
 
     CVarFunc_ShouldVariableBeAdded m_pShouldVariableBeAddedCallbackFunc;
     CVarFunc_VariableAddedToInterface m_pVariableAddedToInterfaceCallbackFunc;
-    CVarFunc_wxMenu m_pOnRightClickCallbackFunc;
+    CVarFunc m_pOnRightClickCallbackFunc;
     CVarFunc_Int m_pOnPopupClickCallbackFunc;
 #endif //MYFW_EDITOR
 
@@ -99,7 +98,7 @@ public:
     CVarFunc_SetPointerDesc m_pSetPointerDescCallBackFunc;
 
     int m_ControlID;
-    int m_Index; // convenience, used when setting divorces status.
+    int m_Index; // Convenience, used when setting divorces status.
 
 public:
     ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel,
@@ -110,7 +109,7 @@ public:
 #if MYFW_EDITOR
     void AddCallback_ShouldVariableBeAdded(CVarFunc_ShouldVariableBeAdded pFunc);
     void AddCallback_VariableAddedToInterface(CVarFunc_VariableAddedToInterface pFunc);
-    void AddCallback_OnRightClick(CVarFunc_wxMenu pRightClickFunc, CVarFunc_Int pPopupClickFunc);
+    void AddCallback_OnRightClick(CVarFunc pRightClickFunc, CVarFunc_Int pPopupClickFunc);
 
     void SetEditorLimits(float lowerlimit, float upperlimit);
 #endif //MYFW_EDITOR
@@ -158,22 +157,5 @@ public:
 
 #define MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR() \
     ClearAllVariables();
-
-#if MYFW_USING_WX
-class ComponentBaseEventHandlerForComponentVariables : public wxEvtHandler
-{
-public:
-    ComponentBase* pComponent;
-    ComponentVariable* pVar;
-
-public:
-    ComponentBaseEventHandlerForComponentVariables()
-    {
-        pComponent = 0;
-        pVar = 0;
-    };
-    void OnPopupClick(wxEvent &evt);
-};
-#endif
 
 #endif //__ComponentBase_H__

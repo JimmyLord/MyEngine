@@ -2961,30 +2961,36 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     return false;
 }
 
-bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
+bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keyCode, int unicodeChar)
 {
-    // send keyboard events to all components that registered a callback.
+    // Create an event and send it to all event handlers.
+    MyEvent* pEvent = g_pEventManager->CreateNewEvent( "Keyboard" );
+    pEvent->AttachInt( "Action", action );
+    pEvent->AttachInt( "KeyCode", keyCode );
+    g_pEventManager->SendEventNow( pEvent );
+
+    // Send keyboard events to all components that registered a callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_OnKeys.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_OnKeys* pCallbackStruct = (ComponentCallbackStruct_OnKeys*)pNode;
 
-        if( (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( action, keycode, unicodechar ) )
+        if( (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( action, keyCode, unicodeChar ) )
             return true;
     }
 
-    // then regular scene input handlers.
+    // Then regular scene input handlers.
     for( CPPListNode* node = m_Components[BaseComponentType_InputHandler].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
         if( pComponent->GetBaseType() == BaseComponentType_InputHandler )
         {
-            if( pComponent->OnKeys( action, keycode, unicodechar ) == true )
+            if( pComponent->OnKeys( action, keyCode, unicodeChar ) == true )
                 return true;
         }
     }
 
-    //// then send input to all the scripts.
+    //// Then send input to all the scripts.
     //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     //{
     //    ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;

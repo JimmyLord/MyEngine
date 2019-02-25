@@ -1072,7 +1072,13 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                     pDesc = pGameObject->GetName();
                 }
 
-                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
+                float width = ImGui::GetWindowWidth() * 0.65f;
+                if( pObjectAsComponent == nullptr )
+                {
+                    width = 117.0f;
+                }
+
+                if( ImGui::Button( pDesc, ImVec2( width, 0 ) ) )
                 {
                     // TODO: Pop up a component picker window.
                 }
@@ -1090,6 +1096,11 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                         if( pObjectAsComponent )
                         {
                             pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
+                        else
+                        {
+                            ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
+                            (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, -1, -1 );
                         }
                     }
 
@@ -1117,7 +1128,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 }
 
                 float width = ImGui::GetWindowWidth() * 0.65f;
-                if( pComponent == nullptr )
+                if( pObjectAsComponent == nullptr )
                 {
                     width = 117.0f;
                 }
@@ -1140,6 +1151,11 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                         if( pObjectAsComponent )
                         {
                             pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
+                        else
+                        {
+                            ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
+                            (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, -1, -1 );
                         }
                     }
 
@@ -1417,7 +1433,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 // Call this pVar callback, not sure what's using it.
                 if( pVar->m_pOnRightClickCallbackFunc )
                 {
-                    (pObjectAsComponent->*(pVar->m_pOnRightClickCallbackFunc))( pVar, 0 ); //&menu );
+                    (pObjectAsComponent->*(pVar->m_pOnRightClickCallbackFunc))( pVar );
 
                     // TODO: Have the callback return how many menu items it added instead of assuming it added one.
                     contextMenuItemCount++;

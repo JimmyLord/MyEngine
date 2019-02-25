@@ -85,10 +85,10 @@ MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
 
     m_MouseNodeLinkStartPoint.Clear();
 
-    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Float", Vector2(40, 50), this ) );
-    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Color", Vector2(40, 150), this ) );
-    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Component", Vector2(40, 250), this ) );
-    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Add", Vector2(270, 80), this ) );
+    //m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Float", Vector2(40, 50), this ) );
+    //m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Color", Vector2(40, 150), this ) );
+    //m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "GameObject", Vector2(40, 250), this ) );
+    //m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Add", Vector2(270, 80), this ) );
     //m_Nodes.push_back( MyNew MyNode( this, 100, "MainTex", ImVec2(40, 50), 0.5f, ColorByte(255, 100, 100, 255), 1, 1 ) );
     //m_Nodes.push_back( MyNew MyNode( this, 200, "BumpMap", ImVec2(40, 150), 0.42f, ColorByte(200, 100, 200, 255), 1, 1 ) );
     //m_Nodes.push_back( MyNew MyNode( this, 300, "Combine", ImVec2(270, 80), 1.0f, ColorByte(0, 200, 100, 255), 2, 2 ) );
@@ -133,6 +133,25 @@ int MyNodeGraph::FindNodeIndexByID(NodeID nodeID)
     }
 
     return -1;
+}
+
+MyNodeGraph::MyNode* MyNodeGraph::FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultCount)
+{
+    int count = 0;
+    for( int i=0; i<m_Links.size(); i++ )
+    {
+        if( m_Links[i].m_OutputNodeID == nodeID && m_Links[i].m_OutputSlotID == slotID )
+        {
+            int nodeIndex = FindNodeIndexByID( m_Links[i].m_InputNodeID );
+
+            if( count == resultCount )
+                return m_Nodes[nodeIndex];
+
+            count++;
+        }
+    }
+
+    return nullptr;
 }
 
 bool MyNodeGraph::IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType)
@@ -380,11 +399,8 @@ void MyNodeGraph::Update()
                         m_Nodes.push_back( pNode );
                     }
 
-                    //if( ImGui::MenuItem( "Add" ) )
-                    //{
-                    //    m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Float", scenePos, this ) );
-                    //    //m_Nodes.push_back( MyNew MyNode( this, m_Nodes.size(), "New node", scenePos, 0.5f, ColorByte(100, 100, 200, 255), 2, 2 ) );
-                    //}
+                    ImGui::Separator();
+
                     if( ImGui::MenuItem( "Paste", nullptr, false, false ) ) {}
                 }
             }

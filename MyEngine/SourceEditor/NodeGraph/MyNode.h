@@ -13,7 +13,7 @@
 #include "MyNodeGraph.h"
 #include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentVariable.h"
 
-class MyNodeGraph::MyNode
+class MyNodeGraph::MyNode : public ComponentVariableCallbackInterface
 {
 public:
     MyNodeGraph* m_pNodeGraph;
@@ -43,6 +43,8 @@ public:
 
     virtual void DrawTitle();
     virtual void DrawContents();
+
+    virtual void Trigger() {}
 };
 
 #endif //__MyNode_H__

@@ -29,15 +29,28 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::AddCreateNodeItemsToContextMen
 {
     if( ImGui::BeginMenu( "Values" ) )
     {
-        if( ImGui::MenuItem( "Float" ) )     { ImGui::EndMenu(); return CreateNode( "Float", pos, pNodeGraph ); }
-        if( ImGui::MenuItem( "Color" ) )     { ImGui::EndMenu(); return CreateNode( "Color", pos, pNodeGraph ); }
-        if( ImGui::MenuItem( "Component" ) ) { ImGui::EndMenu(); return CreateNode( "Component", pos, pNodeGraph ); }
+        if( ImGui::MenuItem( "Float" ) )                { ImGui::EndMenu(); return CreateNode( "Float", pos, pNodeGraph ); }
+        if( ImGui::MenuItem( "Color" ) )                { ImGui::EndMenu(); return CreateNode( "Color", pos, pNodeGraph ); }
+        if( ImGui::MenuItem( "GameObject" ) )           { ImGui::EndMenu(); return CreateNode( "GameObject", pos, pNodeGraph ); }
+        if( ImGui::MenuItem( "Component" ) )            { ImGui::EndMenu(); return CreateNode( "Component", pos, pNodeGraph ); }
         ImGui::EndMenu();
     }
 
     if( ImGui::BeginMenu( "Math Operations" ) )
     {
-        if( ImGui::MenuItem( "Add" ) )       { ImGui::EndMenu(); return CreateNode( "Add", pos, pNodeGraph ); }
+        if( ImGui::MenuItem( "Add" ) )                  { ImGui::EndMenu(); return CreateNode( "Add", pos, pNodeGraph ); }
+        ImGui::EndMenu();
+    }
+
+    if( ImGui::BeginMenu( "Events" ) )
+    {
+        if( ImGui::MenuItem( "KeyPress" ) )             { ImGui::EndMenu(); return CreateNode( "KeyPress", pos, pNodeGraph ); }
+        ImGui::EndMenu();
+    }
+
+    if( ImGui::BeginMenu( "Actions" ) )
+    {
+        if( ImGui::MenuItem( "Disable GameObject" ) )   { ImGui::EndMenu(); return CreateNode( "DisableGameObject", pos, pNodeGraph ); }
         ImGui::EndMenu();
     }
 
@@ -46,14 +59,18 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::AddCreateNodeItemsToContextMen
 
 MyNodeGraph::MyNode* VisualScriptNodeTypeManager::CreateNode(const char* typeName, Vector2 pos, MyNodeGraph* pNodeGraph)
 {
-    if( strcmp( typeName, "Float" ) == 0 )
-        return MyNew VisualScriptNode_Float( pNodeGraph, rand(), "Float Holder", pos, 0.5f );
-    if( strcmp( typeName, "Color" ) == 0 )
-        return MyNew VisualScriptNode_Color( pNodeGraph, rand(), "Color Holder", pos, ColorByte(255, 255, 255, 255) );
-    if( strcmp( typeName, "Component" ) == 0 )
-        return MyNew VisualScriptNode_Component( pNodeGraph, rand(), "Component Holder", pos, nullptr );
-    if( strcmp( typeName, "Add" ) == 0 )
-        return MyNew VisualScriptNode_Add( pNodeGraph, rand(), "Add", pos );
+#define TypeIs(name) strcmp( typeName, name ) == 0 )
+
+    // TODO: Fix nonsense rand() for NodeID.
+    if( TypeIs( "Float" )             return MyNew VisualScriptNode_Float( pNodeGraph, rand(), "Float", pos, 0.5f );
+    if( TypeIs( "Color" )             return MyNew VisualScriptNode_Color( pNodeGraph, rand(), "Color", pos, ColorByte(255, 255, 255, 255) );
+    if( TypeIs( "GameObject" )        return MyNew VisualScriptNode_GameObject( pNodeGraph, rand(), "GameObject", pos, nullptr );
+    if( TypeIs( "Component" )         return MyNew VisualScriptNode_Component( pNodeGraph, rand(), "Component", pos, nullptr );
+    if( TypeIs( "Add" )               return MyNew VisualScriptNode_Add( pNodeGraph, rand(), "Add", pos );
+    if( TypeIs( "KeyPress" )          return MyNew VisualScriptNode_Event_KeyPress( pNodeGraph, rand(), "KeyPress", pos, 'Z' );
+    if( TypeIs( "DisableGameObject" ) return MyNew VisualScriptNode_Disable_GameObject( pNodeGraph, rand(), "DisableGameObject", pos, nullptr );
+
+#undef TypeIs
 
     MyAssert( false );
 

@@ -61,7 +61,7 @@ void ComponentVariable::AddCallback_VariableAddedToInterface(CVarFunc_VariableAd
     m_pVariableAddedToInterfaceCallbackFunc = pFunc;
 }
 
-void ComponentVariable::AddCallback_OnRightClick(CVarFunc_wxMenu pRightClickFunc, CVarFunc_Int pPopupClickFunc)
+void ComponentVariable::AddCallback_OnRightClick(CVarFunc pRightClickFunc, CVarFunc_Int pPopupClickFunc)
 {
     m_pOnRightClickCallbackFunc = pRightClickFunc;
     m_pOnPopupClickCallbackFunc = pPopupClickFunc;

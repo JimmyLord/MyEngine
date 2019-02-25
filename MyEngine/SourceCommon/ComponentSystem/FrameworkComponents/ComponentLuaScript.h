@@ -185,12 +185,9 @@ public:
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
 #if MYFW_USING_IMGUI
-    void OnRightClickCallback(ComponentVariable* pVar, void* pMenu);
+    void OnRightClickCallback(ComponentVariable* pVar);
 #endif
 #if MYFW_USING_WX
-    void OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu);
-    void OnPopupClickCallback(ComponentVariable* pVar, int id);
-
     // Watch panel callbacks for exposed variables.
     static void StaticOnDropExposedVar(void* pObjectPtr, int controlid, int x, int y) { ((ComponentLuaScript*)pObjectPtr)->OnDropExposedVar(controlid, x, y); }
     void OnDropExposedVar(int controlid, int x, int y);

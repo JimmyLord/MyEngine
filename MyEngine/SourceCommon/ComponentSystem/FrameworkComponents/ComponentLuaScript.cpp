@@ -80,10 +80,7 @@ void ComponentLuaScript::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
     // Script is not automatically saved/loaded
     ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, 0 );
 #if MYFW_USING_IMGUI
-    pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, 0 );
-#endif
-#if MYFW_USING_WX
-    pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, (CVarFunc_Int)&ComponentLuaScript::OnPopupClickCallback );
+    pVar->AddCallback_OnRightClick( (CVarFunc)&ComponentLuaScript::OnRightClickCallback, 0 );
 #endif
 
     // m_pLuaInlineScript_OnPlay is not automatically saved/loaded
@@ -568,7 +565,7 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
 }
 
 #if MYFW_USING_IMGUI
-void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar, void* pMenu)
+void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar)
 {
     if( m_pScriptFile )
     {
@@ -588,32 +585,6 @@ void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar, void* pMe
 #endif
 
 #if MYFW_USING_WX
-void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu)
-{
-    if( m_pScriptFile == 0 )
-    {
-        pMenu->Append( RightClick_CreateNewScriptFile, "Create new script" );
-    }
-    else
-    {
-        pMenu->Append( RightClick_LaunchScriptEditor, "Edit script" );
-    }
-}
-
-void ComponentLuaScript::OnPopupClickCallback(ComponentVariable* pVar, int id)
-{
-    switch( id )
-    {
-    case RightClick_CreateNewScriptFile:
-        CreateNewScriptFile();
-        break;
-
-    case RightClick_LaunchScriptEditor:
-        m_pScriptFile->OSLaunchFile( true );
-        break;
-    }
-}
-
 void* ComponentLuaScript::ProcessOnDropExposedVar(int controlid, int x, int y)
 {
     void* oldpointer = 0;

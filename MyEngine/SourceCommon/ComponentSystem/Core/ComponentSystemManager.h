@@ -109,7 +109,7 @@ struct FileUpdatedCallbackStruct
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS() \
     ComponentCallbackStruct_OnKeys m_CallbackStruct_OnKeys; \
-    bool OnKeysCallback(GameCoreButtonActions action, int keycode, int unicodechar);
+    bool OnKeysCallback(GameCoreButtonActions action, int keyCode, int unicodeChar);
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED() \
     ComponentCallbackStruct_OnFileRenamed m_CallbackStruct_OnFileRenamed; \
@@ -121,7 +121,7 @@ typedef void (ComponentBase::*ComponentCallbackFunc_OnSurfaceChanged)(uint32 x, 
 typedef void (ComponentBase::*ComponentCallbackFunc_Draw)(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnTouch)(int action, int id, float x, float y, float pressure, float size);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnButtons)(GameCoreButtonActions action, GameCoreButtonIDs id);
-typedef bool (ComponentBase::*ComponentCallbackFunc_OnKeys)(GameCoreButtonActions action, int keycode, int unicodechar);
+typedef bool (ComponentBase::*ComponentCallbackFunc_OnKeys)(GameCoreButtonActions action, int keyCode, int unicodeChar);
 typedef void (ComponentBase::*ComponentCallbackFunc_OnFileRenamed)(const char* fullpathbefore, const char* fullpathafter);
 
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( Tick );
@@ -253,7 +253,7 @@ public:
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
-    bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
+    bool OnKeys(GameCoreButtonActions action, int keyCode, int unicodeChar);
 
     // Callback helpers.
     MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( Tick );

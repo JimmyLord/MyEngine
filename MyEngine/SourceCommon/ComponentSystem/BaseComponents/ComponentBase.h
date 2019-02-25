@@ -38,10 +38,7 @@ struct ComponentDeletedCallbackStruct : CPPListNode
     ComponentDeletedCallbackFunc* pFunc;
 };
 
-class ComponentBase : public CPPListNode
-#if MYFW_USING_WX
-, public wxEvtHandler
-#endif
+class ComponentBase : public ComponentVariableCallbackInterface
 {
 public:
     enum EnabledState
@@ -136,24 +133,18 @@ public:
 
 protected:
     virtual TCPPListHead<ComponentVariable*>* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: Make this pure virtual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component.
-#if MYFW_USING_WX
-    void FillPropertiesWindowWithVariables();
-#endif
     bool DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariable* pVar);
-#if MYFW_USING_WX
-    void AddVariableToPropertiesWindow(ComponentVariable* pVar);
-    int FindVariablesControlIDByLabel(const char* label);
-#endif
+
 #if MYFW_USING_IMGUI
 public:
-    //virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false) {};
     virtual void AddAllVariablesToWatchPanel();
+
 protected:
     ComponentVariableValue m_ComponentVariableValueWhenControlSelected;
     ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
     bool m_LinkNextUndoCommandToPrevious;
+#endif //MYFW_USING_IMGUI
 
-#endif
     void ExportVariablesToJSON(cJSON* jComponent);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
 
@@ -180,9 +171,6 @@ public:
     };
 
     //virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar) { return true; }
-#if MYFW_USING_WX
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-#endif
 
     bool IsDivorced(int index);
     void SetDivorced(int index, bool divorced);
@@ -205,19 +193,7 @@ public:
 
     static ComponentVariable* FindComponentVariableByLabel(TCPPListHead<ComponentVariable*>* list, const char* label);
 
-#if MYFW_USING_WX
-    static void StaticOnDropVariable(void* pObjectPtr, int controlid, int x, int y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
-    void OnDropVariable(int controlid, int x, int y);
-#endif //MYFW_USING_WX
     void* OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y, bool addundocommand = false);
-
-#if MYFW_USING_WX
-    ComponentBaseEventHandlerForComponentVariables m_ComponentBaseEventHandlerForComponentVariables;
-    static void StaticOnRightClickVariable(void* pObjectPtr, int controlid) { ((ComponentBase*)pObjectPtr)->OnRightClickVariable(controlid); }
-    void OnRightClickVariable(int controlid);
-
-    ComponentVariable* FindComponentVariableForControl(int controlid);
-#endif //MYFW_USING_WX
 
     double GetCurrentValueFromVariable(ComponentVariable* pVar, int controlcomponent);
     void ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo);
@@ -229,35 +205,6 @@ public:
     void UpdateChildrenInGameObjectListWithNewValue(GameObject* pFirstGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
     void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
     void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
-
-#if MYFW_USING_WX
-    // to show/hide the components controls in watch panel
-    //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.
-    bool* m_pPanelWatchBlockVisible; // pointer to the bool above, must be set by each component.
-    int m_ControlID_ComponentTitleLabel;
-    static void StaticOnComponentTitleLabelClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentBase*)pObjectPtr)->OnComponentTitleLabelClicked( controlid, finishedchanging ); }
-    void OnComponentTitleLabelClicked(int controlid, bool finishedchanging);
-
-    // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentBase*)pObjectPtr)->OnLeftClick( count, true ); }
-    virtual void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false) {};
-
-    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
-    virtual void OnRightClick();
-    virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
-    void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
-
-    static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
-    void OnDrag();
-
-    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, int x, int y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
-    void OnDrop(int controlid, int x, int y);
-
-    // Scene right-click options
-    virtual void AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid) {}
-    virtual void OnRightClickOptionClicked(wxEvent &evt, int baseid) {}
-#endif //MYFW_USING_WX
 
     virtual bool IsReferencingFile(MyFileObject* pFile);
     void OnRightClickAction(int action);
