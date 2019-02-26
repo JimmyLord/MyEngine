@@ -139,14 +139,14 @@ protected:
 public:
     virtual void AddAllVariablesToWatchPanel();
 
+    static void ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPPListHead<ComponentVariable*>* pList, ComponentBase* pObjectAsComponent);
+    void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
+
 protected:
     ComponentVariableValue m_ComponentVariableValueWhenControlSelected;
     ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
     bool m_LinkNextUndoCommandToPrevious;
 #endif //MYFW_USING_IMGUI
-
-    void ExportVariablesToJSON(cJSON* jComponent);
-    void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
 
 #if MYFW_EDITOR
 protected:

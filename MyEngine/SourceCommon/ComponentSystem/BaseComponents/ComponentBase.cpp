@@ -139,7 +139,7 @@ cJSON* ComponentBase::ExportAsJSONObject(bool saveSceneID, bool saveID)
     if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() != 0 && m_DivorcedVariables != 0 )
         cJSON_AddNumberToObject( jComponent, "Divorced", m_DivorcedVariables );
 
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+    ExportVariablesToJSON( jComponent, this, GetComponentVariableList(), this ); //_VARIABLE_LIST
 
     return jComponent;
 }
@@ -1472,13 +1472,13 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
 }
 #endif
 
-void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
+void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPPListHead<ComponentVariable*>* pList, ComponentBase* pObjectAsComponent)
 {
     // TODO: remove this once GetComponentVariableList() is pure virtual
-    if( GetComponentVariableList() == 0 )
+    if( pList == 0 )
         return;
 
-    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = pList->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
@@ -1491,12 +1491,12 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
             switch( pVar->m_Type )
             {
             case ComponentVariableType_Int:
-                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(int*)((char*)this + pVar->m_Offset) );
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(int*)((char*)pObject + pVar->m_Offset) );
                 break;
 
             case ComponentVariableType_Enum:
                 {
-                    int enumvalue = *(int*)((char*)this + pVar->m_Offset);
+                    int enumvalue = *(int*)((char*)pObject + pVar->m_Offset);
 
                     // Save the enum string value.
                     if( enumvalue >= 0 && enumvalue < pVar->m_NumEnumStrings )
@@ -1513,7 +1513,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 
             case ComponentVariableType_Flags:
                 {
-                    unsigned int flags = *(unsigned int*)((char*)this + pVar->m_Offset);
+                    unsigned int flags = *(unsigned int*)((char*)pObject + pVar->m_Offset);
 
                     // Save the flags set as strings.
                     if( flags != 0 )
@@ -1537,56 +1537,56 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                 break;
 
             case ComponentVariableType_UnsignedInt:
-                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(unsigned int*)((char*)this + pVar->m_Offset) );
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(unsigned int*)((char*)pObject + pVar->m_Offset) );
                 break;
 
             //ComponentVariableType_Char,
             //ComponentVariableType_UnsignedChar,
 
             case ComponentVariableType_Bool:
-                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(bool*)((char*)this + pVar->m_Offset) );
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(bool*)((char*)pObject + pVar->m_Offset) );
                 break;
 
             case ComponentVariableType_Float:
-                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(float*)((char*)this + pVar->m_Offset) );
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(float*)((char*)pObject + pVar->m_Offset) );
                 break;
 
             //ComponentVariableType_Double,
             //ComponentVariableType_ColorFloat,
 
             case ComponentVariableType_ColorByte:
-                cJSONExt_AddUnsignedCharArrayToObject( jComponent, pVar->m_Label, (unsigned char*)((char*)this + pVar->m_Offset), 4 );
+                cJSONExt_AddUnsignedCharArrayToObject( jComponent, pVar->m_Label, (unsigned char*)((char*)pObject + pVar->m_Offset), 4 );
                 break;
 
             case ComponentVariableType_Vector2:
-                cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 2 );
+                cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset), 2 );
                 break;
 
             case ComponentVariableType_Vector3:
-                cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+                cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
             case ComponentVariableType_Vector2Int:
-                cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 2 );
+                cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 2 );
                 break;
 
             case ComponentVariableType_Vector3Int:
-                cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 3 );
+                cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
             case ComponentVariableType_GameObjectPtr:
                 {
-                    GameObject* pParentGameObject = *(GameObject**)((char*)this + pVar->m_Offset);
-                    if( pParentGameObject )
+                    GameObject* pGameObject = *(GameObject**)((char*)pObject + pVar->m_Offset);
+                    if( pGameObject )
                     {
-                        cJSON_AddNumberToObject( jComponent, pVar->m_Label, pParentGameObject->GetID() );
+                        cJSON_AddNumberToObject( jComponent, pVar->m_Label, pGameObject->GetID() );
                     }
                 }
                 break;
 
             case ComponentVariableType_ComponentPtr:
                 {
-                    ComponentBase* pComponent = *(ComponentBase**)((char*)this + pVar->m_Offset);
+                    ComponentBase* pComponent = *(ComponentBase**)((char*)pObject + pVar->m_Offset);
                     if( pComponent )
                     {
                         cJSON* jComponentRef = pComponent->ExportReferenceAsJSONObject();
@@ -1608,8 +1608,8 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                 MyAssert( pVar->m_pGetPointerDescCallBackFunc );
                 if( pVar->m_pGetPointerValueCallBackFunc && pVar->m_pGetPointerDescCallBackFunc )
                 {
-                    if( (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) )
-                        cJSON_AddStringToObject( jComponent, pVar->m_Label, (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar ) );
+                    if( (pObjectAsComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) )
+                        cJSON_AddStringToObject( jComponent, pVar->m_Label, (pObjectAsComponent->*pVar->m_pGetPointerDescCallBackFunc)( pVar ) );
                 }
                 break;
 

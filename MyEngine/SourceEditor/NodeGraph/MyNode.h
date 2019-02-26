@@ -21,8 +21,6 @@ public:
     NodeID m_ID;
     char m_Name[32];
     Vector2 m_Pos;
-    Vector2 m_Size;
-    float m_TitleWidth;
     int m_InputsCount;
     int m_OutputsCount;
     bool m_Expanded;
@@ -30,9 +28,15 @@ public:
     // Node properties.
     TCPPListHead<ComponentVariable*> m_VariablesList;
 
+    // Temp values, no need to save.
+    Vector2 m_Size;
+    float m_TitleWidth;
+
 public:
     MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, int inputsCount, int outputsCount);
     virtual ~MyNode();
+
+    virtual const char* GetType() = 0;
 
     ImVec2 GetInputSlotPos(SlotID slotID) const;
     ImVec2 GetOutputSlotPos(SlotID slotID) const;
@@ -45,6 +49,9 @@ public:
     virtual void DrawContents();
 
     virtual void Trigger() {}
+
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject(cJSON* jNode);
 };
 
 #endif //__MyNode_H__

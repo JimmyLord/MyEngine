@@ -18,11 +18,12 @@
 class ComponentBase;
 
 // Visual Script node types.
-class VisualScriptNode_Float;
-class VisualScriptNode_Color;
-class VisualScriptNode_GameObject;
-class VisualScriptNode_Component;
-class VisualScriptNode_Add;
+class VisualScriptNode_Value_Float;
+class VisualScriptNode_Value_Color;
+class VisualScriptNode_Value_GameObject;
+class VisualScriptNode_Value_Component;
+class VisualScriptNode_MathOp_Add;
+class VisualScriptNode_Condition_GreaterEqual;
 class VisualScriptNode_Event_KeyPress;
 class VisualScriptNode_Disable_GameObject;
 
@@ -53,21 +54,25 @@ public:
 #define VSNAddVar ComponentBase::AddVariable_Base
 
 //====================================================================================================
-// VisualScriptNode_Float
+// VisualScriptNode_Value_Float
 //====================================================================================================
 
-class VisualScriptNode_Float : public VisualScriptNode
+class VisualScriptNode_Value_Float : public VisualScriptNode
 {
 protected:
     float m_Float;
 
 public:
-    VisualScriptNode_Float(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value)
+    VisualScriptNode_Value_Float(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_Float = value;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), false, true, nullptr, nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), true, true, nullptr, nullptr, nullptr, nullptr );
     }
+
+    const char* GetType() { return "Value_Float"; }
+
+    float GetValue() { return m_Float; }
 
     virtual void DrawTitle() override
     {
@@ -79,21 +84,23 @@ public:
 };
 
 //====================================================================================================
-// VisualScriptNode_Color
+// VisualScriptNode_Value_Color
 //====================================================================================================
 
-class VisualScriptNode_Color : public VisualScriptNode
+class VisualScriptNode_Value_Color : public VisualScriptNode
 {
 protected:
     ColorByte m_Color;
 
 public:
-    VisualScriptNode_Color(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, const ColorByte& color)
+    VisualScriptNode_Value_Color(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, const ColorByte& color)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_Color = color;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_ColorByte, MyOffsetOf( this, &this->m_Color ), false, true, nullptr, nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_ColorByte, MyOffsetOf( this, &this->m_Color ), true, true, nullptr, nullptr, nullptr, nullptr );
     }
+
+    const char* GetType() { return "Value_Color"; }
 
     virtual void DrawTitle() override
     {
@@ -112,23 +119,25 @@ public:
 };
 
 //====================================================================================================
-// VisualScriptNode_GameObject
+// VisualScriptNode_Value_GameObject
 //====================================================================================================
 
-class VisualScriptNode_GameObject : public VisualScriptNode
+class VisualScriptNode_Value_GameObject : public VisualScriptNode
 {
 protected:
     GameObject* m_pGameObject;
 
 public:
-    VisualScriptNode_GameObject(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, GameObject* pGameObject)
+    VisualScriptNode_Value_GameObject(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, GameObject* pGameObject)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_pGameObject = pGameObject;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), false, true, nullptr,
-            (CVarFunc_ValueChanged)&VisualScriptNode_GameObject::OnValueChanged,
-            (CVarFunc_DropTarget)&VisualScriptNode_GameObject::OnDrop, nullptr );
+        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, nullptr,
+            (CVarFunc_ValueChanged)&VisualScriptNode_Value_GameObject::OnValueChanged,
+            (CVarFunc_DropTarget)&VisualScriptNode_Value_GameObject::OnDrop, nullptr );
     }
+
+    const char* GetType() { return "Value_GameObject"; }
 
     void* OnDrop(ComponentVariable* pVar, int x, int y)
     {
@@ -149,23 +158,25 @@ public:
 };
 
 //====================================================================================================
-// VisualScriptNode_Component
+// VisualScriptNode_Value_Component
 //====================================================================================================
 
-class VisualScriptNode_Component : public VisualScriptNode
+class VisualScriptNode_Value_Component : public VisualScriptNode
 {
 protected:
     ComponentBase* m_pComponent;
 
 public:
-    VisualScriptNode_Component(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, ComponentBase* pComponent)
+    VisualScriptNode_Value_Component(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, ComponentBase* pComponent)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_pComponent = pComponent;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), false, true, nullptr,
-            (CVarFunc_ValueChanged)&VisualScriptNode_Component::OnValueChanged,
-            (CVarFunc_DropTarget)&VisualScriptNode_Component::OnDrop, nullptr );
+        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), true, true, nullptr,
+            (CVarFunc_ValueChanged)&VisualScriptNode_Value_Component::OnValueChanged,
+            (CVarFunc_DropTarget)&VisualScriptNode_Value_Component::OnDrop, nullptr );
     }
+
+    const char* GetType() { return "Value_Component"; }
 
     void* OnDrop(ComponentVariable* pVar, int x, int y)
     {
@@ -186,21 +197,74 @@ public:
 };
 
 //====================================================================================================
-// VisualScriptNode_Add
+// VisualScriptNode_MathOp_Add
 //====================================================================================================
 
-class VisualScriptNode_Add : public VisualScriptNode
+class VisualScriptNode_MathOp_Add : public VisualScriptNode
 {
 protected:
 public:
-    VisualScriptNode_Add(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos)
+    VisualScriptNode_MathOp_Add(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos)
     : VisualScriptNode( pNodeGraph, id, name, pos, 2, 1 ) {}
+
+    const char* GetType() { return "MathOp_Add"; }
 
     virtual void DrawContents() override
     {
         MyNode::DrawContents();
 
         ImGui::Text( "+" );
+    }
+};
+
+
+//====================================================================================================
+// VisualScriptNode_VisualScriptNode_Condition_GreaterEqual
+//====================================================================================================
+
+class VisualScriptNode_Condition_GreaterEqual : public VisualScriptNode
+{
+protected:
+public:
+    VisualScriptNode_Condition_GreaterEqual(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos)
+    : VisualScriptNode( pNodeGraph, id, name, pos, 3, 2 ) {}
+
+    const char* GetType() { return "Condition_GreaterEqual"; }
+
+    virtual void DrawContents() override
+    {
+        MyNode::DrawContents();
+
+        ImGui::Text( ">=" );
+    }
+
+    virtual void Trigger() override
+    {
+        MyNode* pNode1 = m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 );
+        MyNode* pNode2 = m_pNodeGraph->FindNodeConnectedToInput( m_ID, 2 );
+
+        if( pNode1 == nullptr || pNode2 == nullptr )
+            return;
+
+        float value1 = ((VisualScriptNode_Value_Float*)pNode1)->GetValue();
+        float value2 = ((VisualScriptNode_Value_Float*)pNode2)->GetValue();
+
+        if( value1 >= value2 )
+        {
+            int count = 0;
+            while( MyNode* pNode = m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
+            {
+                pNode->Trigger();
+            }
+        }
+        else
+        {
+            int count = 0;
+            while( MyNode* pNode = m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 1, count++ ) )
+            {
+                pNode->Trigger();
+            }
+        }
     }
 };
 
@@ -218,10 +282,12 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_KeyCode = keyCode;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), false, true, nullptr, nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, nullptr, nullptr, nullptr, nullptr );
 
         g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_KeyPress::StaticOnEvent );
     }
+
+    const char* GetType() { return "Event_KeyPress"; }
 
     virtual void DrawTitle() override
     {
@@ -249,9 +315,7 @@ public:
         if( action == GCBA_Down && keyCode == m_KeyCode )
         {
             int count = 0;
-
-            MyNode* pNode;
-            while( pNode = m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
+            while( MyNode* pNode = m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
             {
                 pNode->Trigger();
             }
@@ -275,10 +339,12 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 1, 0 )
     {
         m_pGameObject = pGameObject;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), false, true, nullptr,
-            (CVarFunc_ValueChanged)&VisualScriptNode_GameObject::OnValueChanged,
-            (CVarFunc_DropTarget)&VisualScriptNode_GameObject::OnDrop, nullptr );
+        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, nullptr,
+            (CVarFunc_ValueChanged)&VisualScriptNode_Disable_GameObject::OnValueChanged,
+            (CVarFunc_DropTarget)&VisualScriptNode_Disable_GameObject::OnDrop, nullptr );
     }
+
+    const char* GetType() { return "Disable_GameObject"; }
 
     virtual void DrawTitle() override
     {

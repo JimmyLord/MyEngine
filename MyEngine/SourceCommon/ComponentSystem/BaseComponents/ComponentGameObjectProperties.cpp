@@ -144,7 +144,7 @@ cJSON* ComponentGameObjectProperties::ExportAsJSONObject(bool savesceneid, bool 
     }
 
     // Not calling ComponentBase::ExportAsJSONObject, so export manually.
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+    ExportVariablesToJSON( jComponent, this, GetComponentVariableList(), this ); //_VARIABLE_LIST
 
     return jComponent;
 }

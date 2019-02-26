@@ -113,9 +113,14 @@ public:
     virtual ~MyNodeGraph();
 
     // Getters.
-    MyNode* FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultCount);
+    MyNode* FindNodeConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
+    MyNode* FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
 
     void Update();
+
+    void Save();
+    cJSON* ExportAsJSONObject();
+    void ImportFromJSONObject(cJSON* jNodeGraph);
 };
 
 //====================================================================================================

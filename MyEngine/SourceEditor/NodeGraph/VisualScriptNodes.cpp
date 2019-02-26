@@ -42,6 +42,12 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::AddCreateNodeItemsToContextMen
         ImGui::EndMenu();
     }
 
+    if( ImGui::BeginMenu( "Conditions" ) )
+    {
+        if( ImGui::MenuItem( "GreaterEqual" ) )         { ImGui::EndMenu(); return CreateNode( "GreaterEqual", pos, pNodeGraph ); }
+        ImGui::EndMenu();
+    }
+
     if( ImGui::BeginMenu( "Events" ) )
     {
         if( ImGui::MenuItem( "KeyPress" ) )             { ImGui::EndMenu(); return CreateNode( "KeyPress", pos, pNodeGraph ); }
@@ -62,11 +68,12 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::CreateNode(const char* typeNam
 #define TypeIs(name) strcmp( typeName, name ) == 0 )
 
     // TODO: Fix nonsense rand() for NodeID.
-    if( TypeIs( "Float" )             return MyNew VisualScriptNode_Float( pNodeGraph, rand(), "Float", pos, 0.5f );
-    if( TypeIs( "Color" )             return MyNew VisualScriptNode_Color( pNodeGraph, rand(), "Color", pos, ColorByte(255, 255, 255, 255) );
-    if( TypeIs( "GameObject" )        return MyNew VisualScriptNode_GameObject( pNodeGraph, rand(), "GameObject", pos, nullptr );
-    if( TypeIs( "Component" )         return MyNew VisualScriptNode_Component( pNodeGraph, rand(), "Component", pos, nullptr );
-    if( TypeIs( "Add" )               return MyNew VisualScriptNode_Add( pNodeGraph, rand(), "Add", pos );
+    if( TypeIs( "Float" )             return MyNew VisualScriptNode_Value_Float( pNodeGraph, rand(), "Float", pos, 0.5f );
+    if( TypeIs( "Color" )             return MyNew VisualScriptNode_Value_Color( pNodeGraph, rand(), "Color", pos, ColorByte(255, 255, 255, 255) );
+    if( TypeIs( "GameObject" )        return MyNew VisualScriptNode_Value_GameObject( pNodeGraph, rand(), "GameObject", pos, nullptr );
+    if( TypeIs( "Component" )         return MyNew VisualScriptNode_Value_Component( pNodeGraph, rand(), "Component", pos, nullptr );
+    if( TypeIs( "Add" )               return MyNew VisualScriptNode_MathOp_Add( pNodeGraph, rand(), "Add", pos );
+    if( TypeIs( "GreaterEqual" )      return MyNew VisualScriptNode_Condition_GreaterEqual( pNodeGraph, rand(), "GreaterEqual", pos );
     if( TypeIs( "KeyPress" )          return MyNew VisualScriptNode_Event_KeyPress( pNodeGraph, rand(), "KeyPress", pos, 'Z' );
     if( TypeIs( "DisableGameObject" ) return MyNew VisualScriptNode_Disable_GameObject( pNodeGraph, rand(), "DisableGameObject", pos, nullptr );
 

@@ -366,3 +366,24 @@ void MyNodeGraph::MyNode::DrawContents()
         ComponentBase::AddVariableToWatchPanel( this, pVar, nullptr );
     }
 }
+
+cJSON* MyNodeGraph::MyNode::ExportAsJSONObject()
+{
+    cJSON* jNode = cJSON_CreateObject();
+
+    cJSON_AddStringToObject( jNode, "Type", GetType() );
+    cJSON_AddStringToObject( jNode, "Name", m_Name );
+    cJSON_AddNumberToObject( jNode, "ID", m_ID );
+    cJSONExt_AddFloatArrayToObject( jNode, "Pos", &m_Pos.x, 2 );
+    cJSON_AddNumberToObject( jNode, "InputsCount", m_InputsCount );
+    cJSON_AddNumberToObject( jNode, "OutputsCount", m_OutputsCount );
+    cJSON_AddBoolToObject( jNode, "Expanded", m_Expanded );
+
+    ComponentBase::ExportVariablesToJSON( jNode, this, &m_VariablesList, nullptr );
+
+    return jNode;
+}
+
+void MyNodeGraph::MyNode::ImportFromJSONObject(cJSON* jNode)
+{
+}

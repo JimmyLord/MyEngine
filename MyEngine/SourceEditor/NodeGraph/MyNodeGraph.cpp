@@ -135,7 +135,26 @@ int MyNodeGraph::FindNodeIndexByID(NodeID nodeID)
     return -1;
 }
 
-MyNodeGraph::MyNode* MyNodeGraph::FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultCount)
+MyNodeGraph::MyNode* MyNodeGraph::FindNodeConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex)
+{
+    int count = 0;
+    for( int i=0; i<m_Links.size(); i++ )
+    {
+        if( m_Links[i].m_InputNodeID == nodeID && m_Links[i].m_InputSlotID == slotID )
+        {
+            int nodeIndex = FindNodeIndexByID( m_Links[i].m_OutputNodeID );
+
+            if( count == resultIndex )
+                return m_Nodes[nodeIndex];
+
+            count++;
+        }
+    }
+
+    return nullptr;
+}
+
+MyNodeGraph::MyNode* MyNodeGraph::FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultIndex)
 {
     int count = 0;
     for( int i=0; i<m_Links.size(); i++ )
@@ -144,7 +163,7 @@ MyNodeGraph::MyNode* MyNodeGraph::FindNodeConnectedToOutput(NodeID nodeID, SlotI
         {
             int nodeIndex = FindNodeIndexByID( m_Links[i].m_InputNodeID );
 
-            if( count == resultCount )
+            if( count == resultIndex )
                 return m_Nodes[nodeIndex];
 
             count++;
@@ -224,6 +243,8 @@ void MyNodeGraph::Update()
     ImGui::Text( "Hold middle mouse button to scroll (%.2f,%.2f)", m_ScrollOffset.x, m_ScrollOffset.y );
     ImGui::SameLine( ImGui::GetWindowWidth() - 300 );
     ImGui::Checkbox( "Show grid", &m_GridVisible );
+    ImGui::SameLine();
+    if( ImGui::Button( "Save" ) ) Save();
     ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 1, 1 ) );
     ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
     ImGui::PushStyleColor( ImGuiCol_ChildWindowBg, COLOR_BG );
@@ -482,4 +503,57 @@ void MyNodeGraph::Update()
     ImGui::PopStyleColor(); // ImGuiCol_ChildWindowBg
     ImGui::PopStyleVar(2); // ImGuiStyleVar_FramePadding and ImGuiStyleVar_WindowPadding
     ImGui::EndGroup();
+}
+
+void MyNodeGraph::Save()
+{
+    cJSON* jNodeGraph = ExportAsJSONObject();
+
+    char* jsonString = cJSON_Print( jNodeGraph );
+
+    cJSON_Delete( jNodeGraph );
+
+    char* filename = "test.MyVisualScript";
+
+    FILE* pFile;
+#if MYFW_WINDOWS
+    fopen_s( &pFile, filename, "wb" );
+#else
+    pFile = fopen( filename, "wb" );
+#endif
+    fprintf( pFile, "%s", jsonString );
+    fclose( pFile );
+
+    cJSONExt_free( jsonString );
+}
+
+cJSON* MyNodeGraph::ExportAsJSONObject()
+{
+    cJSON* jNodeGraph = cJSON_CreateObject();
+
+    cJSON* jNodeArray = cJSON_AddArrayToObject( jNodeGraph, "Nodes" );
+    for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+    {
+        cJSON_AddItemToArray( jNodeArray, m_Nodes[nodeIndex]->ExportAsJSONObject() );
+    }
+
+    cJSON* jLinkArray = cJSON_AddArrayToObject( jNodeGraph, "Links" );
+    for( int linkIndex = 0; linkIndex < m_Links.size(); linkIndex++ )
+    {
+        MyNodeLink* pLink = &m_Links[linkIndex];
+
+        cJSON* jLink = cJSON_CreateObject();
+        cJSON_AddItemToArray( jLinkArray, jLink );
+
+        cJSON_AddNumberToObject( jLink, "InputNodeID", pLink->m_InputNodeID );
+        cJSON_AddNumberToObject( jLink, "InputSlotID", pLink->m_InputSlotID );
+        cJSON_AddNumberToObject( jLink, "OutputNodeID", pLink->m_OutputNodeID );
+        cJSON_AddNumberToObject( jLink, "OutputSlotID", pLink->m_OutputSlotID );
+    }
+
+    return jNodeGraph;
+}
+
+void MyNodeGraph::ImportFromJSONObject(cJSON* jNodeGraph)
+{
 }
