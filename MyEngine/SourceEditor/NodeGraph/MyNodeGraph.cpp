@@ -11,6 +11,7 @@
 
 #include "MyNodeGraph.h"
 #include "MyNode.h"
+#include "../../SourceCommon/Core/EngineCore.h"
 
 // Based on this: https://gist.github.com/ocornut/7e9b3ec566a333d725d4
 //   but rewritten and expanded.
@@ -64,7 +65,7 @@ bool IsNearBezierCurve(Vector2 position, Vector2 p0, Vector2 cp0, Vector2 cp1, V
     }
 
     // More iterations based on distance, with some magic numbers.
-    int iterations = (int)( (p0 - p1).LengthSquared() / 129600 );
+    int iterations = static_cast<int>( (p0 - p1).LengthSquared() / 129600 );
     if( iterations < 4 )
         iterations = 4;
 
@@ -98,10 +99,22 @@ MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
 
 MyNodeGraph::~MyNodeGraph()
 {
+    Clear();
+}
+
+void MyNodeGraph::Clear()
+{
     for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
     {
         delete m_Nodes[nodeIndex];
     }
+    m_Nodes.clear();
+
+    m_Links.clear();
+
+    m_SelectedNodeIDs.clear();
+
+    m_SelectedNodeLinkIndex = -1;
 }
 
 void MyNodeGraph::DrawGrid(Vector2 offset)
@@ -245,6 +258,8 @@ void MyNodeGraph::Update()
     ImGui::Checkbox( "Show grid", &m_GridVisible );
     ImGui::SameLine();
     if( ImGui::Button( "Save" ) ) Save();
+    ImGui::SameLine();
+    if( ImGui::Button( "Load" ) ) Load();
     ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 1, 1 ) );
     ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
     ImGui::PushStyleColor( ImGuiCol_ChildWindowBg, COLOR_BG );
@@ -527,6 +542,49 @@ void MyNodeGraph::Save()
     cJSONExt_free( jsonString );
 }
 
+void MyNodeGraph::Load()
+{
+    Clear();
+
+    FILE* fileHandle;
+#if MYFW_WINDOWS
+    errno_t err = fopen_s( &fileHandle, "test.MyVisualScript", "rb" );
+#else
+    fileHandle = fopen( fullpath, "rb" );
+#endif
+
+    char* jsonString = nullptr;
+    cJSON* jNodeGraph = nullptr;
+
+    if( fileHandle )
+    {
+        fseek( fileHandle, 0, SEEK_END );
+        long length = ftell( fileHandle );
+        if( length > 0 )
+        {
+            fseek( fileHandle, 0, SEEK_SET );
+
+            MyStackAllocator::MyStackPointer stackpointer;
+            jsonString = static_cast<char*>( g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( length+1, &stackpointer ) );
+            fread( jsonString, length, 1, fileHandle );
+            jsonString[length] = '\0';
+
+            jNodeGraph = cJSON_Parse( jsonString );
+
+            g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( stackpointer );
+        }
+
+        fclose( fileHandle );
+    }
+
+    if( jNodeGraph )
+    {
+        ImportFromJSONObject( jNodeGraph );
+    }
+
+    cJSON_Delete( jNodeGraph );
+}
+
 cJSON* MyNodeGraph::ExportAsJSONObject()
 {
     cJSON* jNodeGraph = cJSON_CreateObject();
@@ -556,4 +614,36 @@ cJSON* MyNodeGraph::ExportAsJSONObject()
 
 void MyNodeGraph::ImportFromJSONObject(cJSON* jNodeGraph)
 {
+    cJSON* jNodeArray = cJSON_GetObjectItem( jNodeGraph, "Nodes" );
+    for( int nodeIndex = 0; nodeIndex < cJSON_GetArraySize( jNodeArray ); nodeIndex++ )
+    {
+        cJSON* jNode = cJSON_GetArrayItem( jNodeArray, nodeIndex );
+        
+        cJSON* jType = cJSON_GetObjectItem( jNode, "Type" );
+        if( jType )
+        {
+            MyNode* pNode = m_pNodeTypeManager->CreateNode( jType->valuestring, Vector2( 0, 0 ), this );
+
+            if( pNode )
+            {
+                m_Nodes.push_back( pNode );
+                pNode->ImportFromJSONObject( jNode );
+            }
+        }
+    }
+
+    cJSON* jLinkArray = cJSON_GetObjectItem( jNodeGraph, "Links" );
+    for( int linkIndex = 0; linkIndex < cJSON_GetArraySize( jLinkArray ); linkIndex++ )
+    {
+        cJSON* jLink = cJSON_GetArrayItem( jLinkArray, linkIndex );
+
+        MyNodeLink link;
+
+        cJSONExt_GetInt( jLink, "InputNodeID", reinterpret_cast<int*>( &link.m_InputNodeID ) );
+        cJSONExt_GetInt( jLink, "InputSlotID", reinterpret_cast<int*>( &link.m_InputSlotID ) );
+        cJSONExt_GetInt( jLink, "OutputNodeID", reinterpret_cast<int*>( &link.m_OutputNodeID ) );
+        cJSONExt_GetInt( jLink, "OutputSlotID", reinterpret_cast<int*>( &link.m_OutputSlotID ) );
+
+        m_Links.push_back( link );
+    }
 }

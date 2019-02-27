@@ -310,9 +310,6 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
         pMouseNodeLink->Set( nodeID, slotID, slotType );
     }
 
-    if( slotType == SlotType_Input )
-        int a= 1;
-
     // Don't allow link to same node. TODO: Check for circlular links between multiple nodes.
     if( nodeID == pMouseNodeLink->m_NodeID )
     {
@@ -386,4 +383,12 @@ cJSON* MyNodeGraph::MyNode::ExportAsJSONObject()
 
 void MyNodeGraph::MyNode::ImportFromJSONObject(cJSON* jNode)
 {
+    cJSONExt_GetString( jNode, "Name", m_Name, 32 );
+    cJSONExt_GetInt( jNode, "ID", reinterpret_cast<int*>( &m_ID ) );
+    cJSONExt_GetFloatArray( jNode, "Pos", &m_Pos.x, 2 );
+    cJSONExt_GetInt( jNode, "InputsCount", reinterpret_cast<int*>( &m_InputsCount ) );
+    cJSONExt_GetInt( jNode, "OutputsCount", reinterpret_cast<int*>( &m_OutputsCount ) );
+    cJSONExt_GetBool( jNode, "Expanded", &m_Expanded );
+
+    ComponentBase::ImportVariablesFromJSON( jNode, this, &m_VariablesList, nullptr, SCENEID_MainScene );
 }

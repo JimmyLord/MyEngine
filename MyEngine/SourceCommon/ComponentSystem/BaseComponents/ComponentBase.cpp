@@ -165,7 +165,7 @@ void ComponentBase::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
     // TODO: this will break if more variables are added to a component or it's parents.
     cJSONExt_GetUnsignedInt( jComponent, "Divorced", &m_DivorcedVariables );
 
-    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
+    ImportVariablesFromJSON( jComponent, this, GetComponentVariableList(), this, m_SceneIDLoadedFrom ); //_VARIABLE_LIST
 }
 
 void ComponentBase::FinishImportingFromJSONObject(cJSON* jComponent)
@@ -1015,7 +1015,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
         case ComponentVariableType_ColorByte:
             {
                 ColorFloat colorFloat = ((ColorByte*)((char*)pObject + pVar->m_Offset))->AsColorFloat();
-                bool modified = ImGui::ColorEdit4( pVar->m_Label, &colorFloat.r );
+                bool modified = ImGui::ColorEdit4( pVar->m_WatchLabel, &colorFloat.r );
                 if( modified )
                 {
                     *(ColorByte*)((char*)pObject + pVar->m_Offset) = colorFloat.AsColorByte();
@@ -1108,7 +1108,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 }
 
                 ImGui::SameLine();
-                ImGui::Text( pVar->m_Label );
+                ImGui::Text( pVar->m_WatchLabel );
 
                 ImGui::EndGroup();
             }
@@ -1163,7 +1163,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 }
 
                 ImGui::SameLine();
-                ImGui::Text( pVar->m_Label );
+                ImGui::Text( pVar->m_WatchLabel );
 
                 ImGui::EndGroup();
             }
@@ -1215,7 +1215,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 }
 
                 ImGui::SameLine();
-                ImGui::Text( pVar->m_Label );
+                ImGui::Text( pVar->m_WatchLabel );
 
                 ImGui::EndGroup();
             }
@@ -1262,7 +1262,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 }
 
                 ImGui::SameLine();
-                ImGui::Text( pVar->m_Label );
+                ImGui::Text( pVar->m_WatchLabel );
 
                 ImGui::EndGroup();
 
@@ -1310,7 +1310,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 if( pCue != 0 )
                     desc = pCue->GetName();
 
-                ImGui::Text( "FilePtr: %s: %s (TODO)", pVar->m_Label, desc );
+                ImGui::Text( "FilePtr: %s: %s (TODO)", pVar->m_WatchLabel, desc );
                 //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pCue, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
             break;
@@ -1384,7 +1384,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 }
 
                 ImGui::SameLine();
-                ImGui::Text( pVar->m_Label );
+                ImGui::Text( pVar->m_WatchLabel );
 
                 ImGui::EndGroup();
             }
@@ -1462,7 +1462,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
         }
     }
 
-    if( pVar->m_Label != 0 )
+    if( pVar->m_Label != nullptr )
         ImGui::PopID(); // For ImGui::PushID( pVar->m_Label );
 
     if( pObjectAsComponent && pVar->m_pVariableAddedToInterfaceCallbackFunc )
@@ -1622,13 +1622,13 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
     }
 }
 
-void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport)
+void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TCPPListHead<ComponentVariable*>* pList, ComponentBase* pObjectAsComponent, SceneID sceneIDLoadedFrom, const char* singleLabelToImport)
 {
     // TODO: remove this once GetComponentVariableList() is pure virtual
-    if( GetComponentVariableList() == 0 )
+    if( pList == 0 )
         return;
 
-    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = pList->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
@@ -1637,7 +1637,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
             continue;
 
         // if we are looking for a single label to import, check if this is it.
-        if( singlelabeltoimport != 0 && strcmp( singlelabeltoimport, pVar->m_Label ) != 0 )
+        if( singleLabelToImport != 0 && strcmp( singleLabelToImport, pVar->m_Label ) != 0 )
             continue;
 
         //if( pVar->m_Offset != -1 )
@@ -1645,12 +1645,12 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
             switch( pVar->m_Type )
             {
             case ComponentVariableType_Int:
-                cJSONExt_GetInt( jsonobj, pVar->m_Label, (int*)((char*)this + pVar->m_Offset) );
+                cJSONExt_GetInt( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset) );
                 break;
 
             case ComponentVariableType_Enum:
                 {
-                    cJSON* obj = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
+                    cJSON* obj = cJSON_GetObjectItem( jComponent, pVar->m_Label );
 
                     if( obj )
                     {
@@ -1661,7 +1661,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                             {
                                 if( strcmp( pVar->m_ppEnumStrings[i], obj->valuestring ) == 0 )
                                 {
-                                    *(int*)((char*)this + pVar->m_Offset) = i;
+                                    *(int*)((char*)pObject + pVar->m_Offset) = i;
                                     break;
                                 }
                             }
@@ -1669,7 +1669,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                         else
                         {
                             // if a string wasn't found, then treat the value as an int.
-                            *(int*)((char*)this + pVar->m_Offset) = obj->valueint;
+                            *(int*)((char*)pObject + pVar->m_Offset) = obj->valueint;
                         }
                     }
                 }
@@ -1677,7 +1677,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
 
             case ComponentVariableType_Flags:
                 {
-                    cJSON* jFlagsArray = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
+                    cJSON* jFlagsArray = cJSON_GetObjectItem( jComponent, pVar->m_Label );
 
                     // load each array value as a string.
                     if( jFlagsArray )
@@ -1688,7 +1688,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                             // TODO: remove eventually
                             // support for old scene files that didn't store visibility flags in arrays
                             // just load valueint as a single flag.
-                            *(unsigned int*)((char*)this + pVar->m_Offset) = 1<<(jFlagsArray->valueint-1);
+                            *(unsigned int*)((char*)pObject + pVar->m_Offset) = 1<<(jFlagsArray->valueint-1);
                         }
                         else
                         {
@@ -1726,69 +1726,69 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                                 }
                             }
 
-                            *(unsigned int*)((char*)this + pVar->m_Offset) = flags;
+                            *(unsigned int*)((char*)pObject + pVar->m_Offset) = flags;
                         }
                     }
                 }
                 break;
 
             case ComponentVariableType_UnsignedInt:
-                cJSONExt_GetUnsignedInt( jsonobj, pVar->m_Label, (unsigned int*)((char*)this + pVar->m_Offset) );
+                cJSONExt_GetUnsignedInt( jComponent, pVar->m_Label, (unsigned int*)((char*)pObject + pVar->m_Offset) );
                 break;
 
             //ComponentVariableType_Char,
             //ComponentVariableType_UnsignedChar,
 
             case ComponentVariableType_Bool:
-                cJSONExt_GetBool( jsonobj, pVar->m_Label, (bool*)((char*)this + pVar->m_Offset) );
+                cJSONExt_GetBool( jComponent, pVar->m_Label, (bool*)((char*)pObject + pVar->m_Offset) );
                 break;
 
             case ComponentVariableType_Float:
-                cJSONExt_GetFloat( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset) );
+                cJSONExt_GetFloat( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset) );
                 break;
 
             //ComponentVariableType_Double,
             //ComponentVariableType_ColorFloat,
 
             case ComponentVariableType_ColorByte:
-                cJSONExt_GetUnsignedCharArray( jsonobj, pVar->m_Label, (unsigned char*)((char*)this + pVar->m_Offset), 4 );
+                cJSONExt_GetUnsignedCharArray( jComponent, pVar->m_Label, (unsigned char*)((char*)pObject + pVar->m_Offset), 4 );
                 break;
 
             case ComponentVariableType_Vector2:
-                cJSONExt_GetFloatArray( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 2 );
+                cJSONExt_GetFloatArray( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset), 2 );
                 break;
 
             case ComponentVariableType_Vector3:
-                cJSONExt_GetFloatArray( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+                cJSONExt_GetFloatArray( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
             case ComponentVariableType_Vector2Int:
-                cJSONExt_GetIntArray( jsonobj, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 2 );
+                cJSONExt_GetIntArray( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 2 );
                 break;
 
             case ComponentVariableType_Vector3Int:
-                cJSONExt_GetIntArray( jsonobj, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 3 );
+                cJSONExt_GetIntArray( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
             case ComponentVariableType_GameObjectPtr:
                 {
                     unsigned int parentid = 0;
-                    cJSONExt_GetUnsignedInt( jsonobj, pVar->m_Label, &parentid );
+                    cJSONExt_GetUnsignedInt( jComponent, pVar->m_Label, &parentid );
                     if( parentid != 0 )
                     {
-                        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( m_SceneIDLoadedFrom, parentid );
-                        *(GameObject**)((char*)this + pVar->m_Offset) = pParentGameObject;
+                        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneIDLoadedFrom, parentid );
+                        *(GameObject**)((char*)pObject + pVar->m_Offset) = pParentGameObject;
                     }
                 }
                 break;
 
             case ComponentVariableType_ComponentPtr:
                 {
-                    cJSON* jComponentRef = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
+                    cJSON* jComponentRef = cJSON_GetObjectItem( jComponent, pVar->m_Label );
                     if( jComponentRef )
                     {
-                        ComponentBase* pComponent = g_pComponentSystemManager->FindComponentByJSONRef( jComponentRef, m_SceneIDLoadedFrom );
-                        *(ComponentBase**)((char*)this + pVar->m_Offset) = pComponent;
+                        ComponentBase* pComponent = g_pComponentSystemManager->FindComponentByJSONRef( jComponentRef, sceneIDLoadedFrom );
+                        *(ComponentBase**)((char*)pObject + pVar->m_Offset) = pComponent;
                     }
                 }
                 break;
@@ -1803,9 +1803,9 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                 MyAssert( pVar->m_pSetPointerDescCallBackFunc );
                 if( pVar->m_pSetPointerDescCallBackFunc )
                 {
-                    cJSON* obj = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
+                    cJSON* obj = cJSON_GetObjectItem( jComponent, pVar->m_Label );
                     if( obj )
-                        (this->*pVar->m_pSetPointerDescCallBackFunc)( pVar, obj->valuestring );
+                        (pObjectAsComponent->*pVar->m_pSetPointerDescCallBackFunc)( pVar, obj->valuestring );
                 }
                 break;
 

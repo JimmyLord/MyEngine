@@ -67,7 +67,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_Float = value;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), true, true, nullptr, nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Float", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), true, true, "", nullptr, nullptr, nullptr );
     }
 
     const char* GetType() { return "Value_Float"; }
@@ -97,7 +97,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_Color = color;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_ColorByte, MyOffsetOf( this, &this->m_Color ), true, true, nullptr, nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Color", ComponentVariableType_ColorByte, MyOffsetOf( this, &this->m_Color ), true, true, "", nullptr, nullptr, nullptr );
     }
 
     const char* GetType() { return "Value_Color"; }
@@ -132,7 +132,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_pGameObject = pGameObject;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, nullptr,
+        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
             (CVarFunc_ValueChanged)&VisualScriptNode_Value_GameObject::OnValueChanged,
             (CVarFunc_DropTarget)&VisualScriptNode_Value_GameObject::OnDrop, nullptr );
     }
@@ -171,7 +171,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_pComponent = pComponent;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), true, true, nullptr,
+        VSNAddVar( &m_VariablesList, "Component", ComponentVariableType_ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), true, true, "",
             (CVarFunc_ValueChanged)&VisualScriptNode_Value_Component::OnValueChanged,
             (CVarFunc_DropTarget)&VisualScriptNode_Value_Component::OnDrop, nullptr );
     }
@@ -282,7 +282,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_KeyCode = keyCode;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, nullptr, nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "KeyCode", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, "", nullptr, nullptr, nullptr );
 
         g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_KeyPress::StaticOnEvent );
     }
@@ -339,7 +339,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 1, 0 )
     {
         m_pGameObject = pGameObject;
-        VSNAddVar( &m_VariablesList, " ", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, nullptr,
+        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
             (CVarFunc_ValueChanged)&VisualScriptNode_Disable_GameObject::OnValueChanged,
             (CVarFunc_DropTarget)&VisualScriptNode_Disable_GameObject::OnDrop, nullptr );
     }

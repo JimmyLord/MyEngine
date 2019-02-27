@@ -140,7 +140,7 @@ public:
     virtual void AddAllVariablesToWatchPanel();
 
     static void ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPPListHead<ComponentVariable*>* pList, ComponentBase* pObjectAsComponent);
-    void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
+    static void ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TCPPListHead<ComponentVariable*>* pList, ComponentBase* pObjectAsComponent, SceneID sceneIDLoadedFrom, const char* singleLabelToImport = 0);
 
 protected:
     ComponentVariableValue m_ComponentVariableValueWhenControlSelected;

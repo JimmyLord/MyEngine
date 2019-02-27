@@ -80,6 +80,13 @@ protected:
         NodeID m_InputNodeID;
         SlotID m_InputSlotID;
 
+        MyNodeLink()
+        {
+            m_OutputNodeID = NodeID_Undefined;
+            m_OutputSlotID = SlotID_Undefined;
+            m_InputNodeID = NodeID_Undefined;
+            m_InputSlotID = SlotID_Undefined;
+        }
         MyNodeLink(NodeID outputNodeID, SlotID outputSlotID, NodeID inputNodeID, SlotID inputSlotID)
         {
             m_OutputNodeID = outputNodeID;
@@ -112,6 +119,8 @@ public:
     MyNodeGraph(MyNodeTypeManager* pNodeTypeManager);
     virtual ~MyNodeGraph();
 
+    void Clear();
+
     // Getters.
     MyNode* FindNodeConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
     MyNode* FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
@@ -119,6 +128,7 @@ public:
     void Update();
 
     void Save();
+    void Load();
     cJSON* ExportAsJSONObject();
     void ImportFromJSONObject(cJSON* jNodeGraph);
 };

@@ -391,7 +391,7 @@ void ComponentVoxelWorld::ImportFromJSONObject(cJSON* jComponent, SceneID scenei
 {
     ComponentRenderable::ImportFromJSONObject( jComponent, sceneid );
 
-    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
+    ImportVariablesFromJSON( jComponent, this, GetComponentVariableList(), this, m_SceneIDLoadedFrom ); //_VARIABLE_LIST
 
     cJSON* jSaveFile = cJSON_GetObjectItem( jComponent, "Save File" );
     if( jSaveFile )

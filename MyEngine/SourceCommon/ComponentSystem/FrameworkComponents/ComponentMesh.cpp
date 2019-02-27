@@ -340,7 +340,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
     //cJSONExt_GetInt( jComponent, "PrimitiveType", &m_GLPrimitiveType );
     //cJSONExt_GetInt( jComponent, "PointSize", &m_PointSize );
 
-    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
+    ImportVariablesFromJSON( jComponent, this, GetComponentVariableList(), this, m_SceneIDLoadedFrom ); //_VARIABLE_LIST
 }
 
 ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)

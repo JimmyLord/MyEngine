@@ -248,7 +248,7 @@ void ComponentAudioPlayer::ImportFromJSONObject(cJSON* jComponent, SceneID scene
         }
     }
 
-    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
+    ImportVariablesFromJSON( jComponent, this, GetComponentVariableList(), this, m_SceneIDLoadedFrom ); //_VARIABLE_LIST
 }
 
 ComponentAudioPlayer& ComponentAudioPlayer::operator=(const ComponentAudioPlayer& other)

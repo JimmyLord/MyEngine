@@ -153,7 +153,7 @@ void ComponentGameObjectProperties::ImportFromJSONObject(cJSON* jComponent, Scen
 {
     ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 
-    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
+    ImportVariablesFromJSON( jComponent, this, GetComponentVariableList(), this, m_SceneIDLoadedFrom ); //_VARIABLE_LIST
 }
 
 ComponentGameObjectProperties& ComponentGameObjectProperties::operator=(const ComponentGameObjectProperties& other)
