@@ -11,6 +11,7 @@
 
 #include "MyNodeGraph.h"
 #include "MyNode.h"
+#include "NodeGraphEditorCommands.h"
 #include "../../SourceCommon/Core/EngineCore.h"
 
 // Based on this: https://gist.github.com/ocornut/7e9b3ec566a333d725d4
@@ -148,6 +149,40 @@ int MyNodeGraph::FindNodeIndexByID(NodeID nodeID)
     return -1;
 }
 
+MyNodeGraph::MyNodeLink* MyNodeGraph::FindLinkConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex)
+{
+    int count = 0;
+    for( int i=0; i<m_Links.size(); i++ )
+    {
+        if( m_Links[i].m_InputNodeID == nodeID && m_Links[i].m_InputSlotID == slotID )
+        {
+            if( count == resultIndex )
+                return &m_Links[i];
+
+            count++;
+        }
+    }
+
+    return nullptr;
+}
+
+MyNodeGraph::MyNodeLink* MyNodeGraph::FindLinkConnectedToOutput(NodeID nodeID, SlotID slotID, int resultIndex)
+{
+    int count = 0;
+    for( int i=0; i<m_Links.size(); i++ )
+    {
+        if( m_Links[i].m_OutputNodeID == nodeID && m_Links[i].m_OutputSlotID == slotID )
+        {
+            if( count == resultIndex )
+                return &m_Links[i];
+
+            count++;
+        }
+    }
+
+    return nullptr;
+}
+
 MyNodeGraph::MyNode* MyNodeGraph::FindNodeConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex)
 {
     int count = 0;
@@ -184,6 +219,16 @@ MyNodeGraph::MyNode* MyNodeGraph::FindNodeConnectedToOutput(NodeID nodeID, SlotI
     }
 
     return nullptr;
+}
+
+void MyNodeGraph::AddExistingNode(MyNode* pNode)
+{
+    m_Nodes.push_back( pNode );
+}
+
+void MyNodeGraph::RemoveExistingNode(MyNode* pNode)
+{
+    m_Nodes.erase( std::find( m_Nodes.begin(), m_Nodes.end(), pNode ) );
 }
 
 bool MyNodeGraph::IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType)
@@ -412,18 +457,7 @@ void MyNodeGraph::Update()
                     if( ImGui::MenuItem( "Rename...", nullptr, false, false ) ) {}
                     if( ImGui::MenuItem( "Delete", nullptr, false ) )
                     {
-                        // Remove all connections to this node.
-                        for( int i=0; i<m_Links.size(); i++ )
-                        {
-                            if( m_Links[i].m_InputNodeID == pNode->m_ID || m_Links[i].m_OutputNodeID == pNode->m_ID )
-                            {
-                                m_Links.erase_unsorted( m_Links.Data + i );
-                                i--;
-                            }
-                        }
-
-                        // Delete the node.
-                        m_Nodes.erase( std::find( m_Nodes.begin(), m_Nodes.end(), pNode ) );                      
+                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_DeleteNode( this, pNode ) );
                     }
                     if( ImGui::MenuItem( "Copy", nullptr, false, false ) ) {}
                 }
@@ -432,7 +466,7 @@ void MyNodeGraph::Update()
                     MyNode* pNode = m_pNodeTypeManager->AddCreateNodeItemsToContextMenu( scenePos, this );
                     if( pNode )
                     {
-                        m_Nodes.push_back( pNode );
+                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_AddNode( this, pNode ) );
                     }
 
                     ImGui::Separator();
@@ -639,10 +673,10 @@ void MyNodeGraph::ImportFromJSONObject(cJSON* jNodeGraph)
 
         MyNodeLink link;
 
-        cJSONExt_GetInt( jLink, "InputNodeID", reinterpret_cast<int*>( &link.m_InputNodeID ) );
-        cJSONExt_GetInt( jLink, "InputSlotID", reinterpret_cast<int*>( &link.m_InputSlotID ) );
-        cJSONExt_GetInt( jLink, "OutputNodeID", reinterpret_cast<int*>( &link.m_OutputNodeID ) );
-        cJSONExt_GetInt( jLink, "OutputSlotID", reinterpret_cast<int*>( &link.m_OutputSlotID ) );
+        cJSONExt_GetEnum( jLink, "InputNodeID", link.m_InputNodeID );
+        cJSONExt_GetEnum( jLink, "InputSlotID", link.m_InputSlotID );
+        cJSONExt_GetEnum( jLink, "OutputNodeID", link.m_OutputNodeID );
+        cJSONExt_GetEnum( jLink, "OutputSlotID", link.m_OutputSlotID );
 
         m_Links.push_back( link );
     }

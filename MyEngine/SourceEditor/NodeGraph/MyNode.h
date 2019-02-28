@@ -38,6 +38,8 @@ public:
 
     virtual const char* GetType() = 0;
 
+    MyNodeGraph* GetNodeGraph();
+
     ImVec2 GetInputSlotPos(SlotID slotID) const;
     ImVec2 GetOutputSlotPos(SlotID slotID) const;
 

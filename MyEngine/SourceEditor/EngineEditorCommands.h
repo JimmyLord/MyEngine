@@ -16,6 +16,8 @@
 class Component2DCollisionObject;
 class ComponentAudioPlayer;
 class ComponentRenderable;
+class ExposedVariableDesc;
+
 class EditorCommand_ImGuiPanelWatchNumberValueChanged;
 class EditorCommand_ImGuiPanelWatchColorChanged;
 class EditorCommand_ImGuiPanelWatchPointerChanged;
@@ -46,7 +48,6 @@ class EditorCommand_ComponentVariableIndirectPointerChanged;
 class EditorCommand_ReorderOrReparentGameObjects;
 class EditorCommand_RestorePrefabComponent;
 class EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh;
-class ExposedVariableDesc;
 
 #if MYFW_USING_IMGUI
 typedef void PanelWatchCallbackValueChanged(void* pObjectPtr, int controlID, bool directlyChanged, bool finishedChanging, double oldValue, bool valueWasChangedByDragging);

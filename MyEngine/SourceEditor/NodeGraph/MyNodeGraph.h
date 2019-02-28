@@ -44,6 +44,8 @@ public:
 
     friend class MyNode;
     friend class MyNodeLink;
+    friend class EditorCommand_NodeGraph_AddNode;
+    friend class EditorCommand_NodeGraph_DeleteNode;
 
 protected:
     typedef uint32 NodeID;
@@ -110,27 +112,35 @@ protected:
     MouseNodeLinkStartPoint m_MouseNodeLinkStartPoint;
 
 protected:
+    void Clear();
+
     void DrawGrid(Vector2 offset);
     int FindNodeIndexByID(NodeID nodeID);
     bool IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType);
     void SetExpandedForAllSelectedNodes(bool expand);
 
+    void Save();
+    void Load();
+
+    cJSON* ExportAsJSONObject();
+    void ImportFromJSONObject(cJSON* jNodeGraph);
+
+    // Used by EditorCommand_NodeGraph_AddNode and EditorCommand_NodeGraph_DeleteNode for undo/redo.
+    void AddExistingNode(MyNode* pNode);
+    void RemoveExistingNode(MyNode* pNode);
+
 public:
     MyNodeGraph(MyNodeTypeManager* pNodeTypeManager);
     virtual ~MyNodeGraph();
 
-    void Clear();
-
-    // Getters.
-    MyNode* FindNodeConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
-    MyNode* FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
-
     void Update();
 
-    void Save();
-    void Load();
-    cJSON* ExportAsJSONObject();
-    void ImportFromJSONObject(cJSON* jNodeGraph);
+    // Getters.
+    MyNodeLink* FindLinkConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
+    MyNodeLink* FindLinkConnectedToOutput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
+
+    MyNode* FindNodeConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
+    MyNode* FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
 };
 
 //====================================================================================================

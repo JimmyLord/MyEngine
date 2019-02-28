@@ -1970,6 +1970,7 @@
     </ClCompile>
     <ClCompile Include="SourceEditor\NodeGraph\MyNode.cpp" />
     <ClCompile Include="SourceEditor\NodeGraph\MyNodeGraph.cpp" />
+    <ClCompile Include="SourceEditor\NodeGraph\NodeGraphEditorCommands.cpp" />
     <ClCompile Include="SourceEditor\NodeGraph\VisualScriptNodes.cpp" />
     <ClCompile Include="SourceEditor\PlatformSpecific\FileOpenDialog.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -2406,6 +2407,7 @@
     </ClInclude>
     <ClInclude Include="SourceEditor\NodeGraph\MyNode.h" />
     <ClInclude Include="SourceEditor\NodeGraph\MyNodeGraph.h" />
+    <ClInclude Include="SourceEditor\NodeGraph\NodeGraphEditorCommands.h" />
     <ClInclude Include="SourceEditor\NodeGraph\VisualScriptNodes.h" />
     <ClInclude Include="SourceEditor\PlatformSpecific\FileOpenDialog.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

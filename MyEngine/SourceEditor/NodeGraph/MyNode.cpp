@@ -49,6 +49,11 @@ MyNodeGraph::MyNode::~MyNode()
     }
 }
 
+MyNodeGraph* MyNodeGraph::MyNode::GetNodeGraph()
+{
+    return m_pNodeGraph;
+}
+
 ImVec2 MyNodeGraph::MyNode::GetInputSlotPos(SlotID slotID) const
 {
     return ImVec2( m_Pos.x, m_Pos.y + m_Size.y * ((float)slotID + 1) / ((float)m_InputsCount + 1) );
@@ -384,10 +389,10 @@ cJSON* MyNodeGraph::MyNode::ExportAsJSONObject()
 void MyNodeGraph::MyNode::ImportFromJSONObject(cJSON* jNode)
 {
     cJSONExt_GetString( jNode, "Name", m_Name, 32 );
-    cJSONExt_GetInt( jNode, "ID", reinterpret_cast<int*>( &m_ID ) );
+    cJSONExt_GetEnum( jNode, "ID", m_ID );
     cJSONExt_GetFloatArray( jNode, "Pos", &m_Pos.x, 2 );
-    cJSONExt_GetInt( jNode, "InputsCount", reinterpret_cast<int*>( &m_InputsCount ) );
-    cJSONExt_GetInt( jNode, "OutputsCount", reinterpret_cast<int*>( &m_OutputsCount ) );
+    cJSONExt_GetInt( jNode, "InputsCount", static_cast<int*>( &m_InputsCount ) );
+    cJSONExt_GetInt( jNode, "OutputsCount", static_cast<int*>( &m_OutputsCount ) );
     cJSONExt_GetBool( jNode, "Expanded", &m_Expanded );
 
     ComponentBase::ImportVariablesFromJSON( jNode, this, &m_VariablesList, nullptr, SCENEID_MainScene );
