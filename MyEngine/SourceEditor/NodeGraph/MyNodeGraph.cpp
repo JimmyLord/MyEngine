@@ -265,7 +265,13 @@ void MyNodeGraph::Update()
     bool openContextMenu = false;
     int nodeIndexHoveredInList = -1;
     int nodeIndexHoveredInScene = -1;
-    
+
+    // Handle key presses.
+    if( ImGui::IsKeyPressed( MYKEYCODE_DELETE, false ) )
+    {
+        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+    }
+
     // Draw a list of nodes on the left side.
     ImGui::BeginChild( "node list", ImVec2(100, 0) );
     ImGui::Text( "Nodes" );
@@ -438,7 +444,7 @@ void MyNodeGraph::Update()
                 // Remove the link.
                 if( ImGui::MenuItem( "Remove" ) )
                 {
-                    m_Links.erase_unsorted( m_Links.Data + m_SelectedNodeLinkIndex );
+                    g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndex ) );
                 }
             }
             else 
@@ -457,7 +463,7 @@ void MyNodeGraph::Update()
                     if( ImGui::MenuItem( "Rename...", nullptr, false, false ) ) {}
                     if( ImGui::MenuItem( "Delete", nullptr, false ) )
                     {
-                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_DeleteNode( this, pNode ) );
+                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
                     }
                     if( ImGui::MenuItem( "Copy", nullptr, false, false ) ) {}
                 }

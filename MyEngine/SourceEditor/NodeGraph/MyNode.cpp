@@ -11,9 +11,10 @@
 
 #include "MyNodeGraph.h"
 #include "MyNode.h"
-
+#include "NodeGraphEditorCommands.h"
 #include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentBase.h"
 #include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentVariable.h"
+#include "../../SourceCommon/Core/EngineCore.h"
 
 const float NODE_SLOT_RADIUS = 4.0f;
 const float NODE_SLOT_COLLISION_RADIUS = 6.0f;
@@ -333,7 +334,7 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
             // If mouse is released, create a link.
             if( ImGui::IsMouseReleased( 0 ) )
             {
-                m_pNodeGraph->m_Links.push_back( MyNodeLink( nodeID, slotID, pMouseNodeLink->m_NodeID, pMouseNodeLink->m_SlotID ) );
+                g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_CreateLink( m_pNodeGraph, MyNodeLink( nodeID, slotID, pMouseNodeLink->m_NodeID, pMouseNodeLink->m_SlotID ) ) );
             }
         }
         else if( pMouseNodeLink->m_SlotType == SlotType_Output && slotType == SlotType_Input )
@@ -343,7 +344,7 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
             // If mouse is released, create a link.
             if( ImGui::IsMouseReleased( 0 ) )
             {
-                m_pNodeGraph->m_Links.push_back( MyNodeLink( pMouseNodeLink->m_NodeID, pMouseNodeLink->m_SlotID, nodeID, slotID ) );
+                g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_CreateLink( m_pNodeGraph, MyNodeLink( pMouseNodeLink->m_NodeID, pMouseNodeLink->m_SlotID, nodeID, slotID ) ) );
             }
         }
         else

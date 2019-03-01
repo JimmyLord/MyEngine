@@ -45,7 +45,9 @@ public:
     friend class MyNode;
     friend class MyNodeLink;
     friend class EditorCommand_NodeGraph_AddNode;
-    friend class EditorCommand_NodeGraph_DeleteNode;
+    friend class EditorCommand_NodeGraph_DeleteNodes;
+    friend class EditorCommand_NodeGraph_CreateLink;
+    friend class EditorCommand_NodeGraph_DeleteLink;
 
 protected:
     typedef uint32 NodeID;
@@ -125,7 +127,7 @@ protected:
     cJSON* ExportAsJSONObject();
     void ImportFromJSONObject(cJSON* jNodeGraph);
 
-    // Used by EditorCommand_NodeGraph_AddNode and EditorCommand_NodeGraph_DeleteNode for undo/redo.
+    // Used by EditorCommand_NodeGraph_AddNode and EditorCommand_NodeGraph_DeleteNodes for undo/redo.
     void AddExistingNode(MyNode* pNode);
     void RemoveExistingNode(MyNode* pNode);
 

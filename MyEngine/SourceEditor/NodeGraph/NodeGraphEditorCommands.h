@@ -15,7 +15,9 @@
 class MyNodeGraph::MyNode;
 
 class EditorCommand_NodeGraph_AddNode;
-class EditorCommand_NodeGraph_DeleteNode;
+class EditorCommand_NodeGraph_DeleteNodes;
+class EditorCommand_NodeGraph_CreateLink;
+class EditorCommand_NodeGraph_DeleteLink;
 
 //====================================================================================================
 // EditorCommand_NodeGraph_AddNode
@@ -38,20 +40,61 @@ public:
 };
 
 //====================================================================================================
-// EditorCommand_NodeGraph_DeleteNode
+// EditorCommand_NodeGraph_DeleteNodes
 //====================================================================================================
 
-class EditorCommand_NodeGraph_DeleteNode : public EditorCommand
+class EditorCommand_NodeGraph_DeleteNodes : public EditorCommand
 {
 protected:
     MyNodeGraph* m_pNodeGraph;
-    MyNodeGraph::MyNode* m_pNode;
+    std::vector<MyNodeGraph::MyNode*> m_pNodes;
     std::vector<MyNodeGraph::MyNodeLink> m_Links;
-    bool m_DeleteNodeWhenDestroyed;
+    bool m_DeleteNodesWhenDestroyed;
 
 public:
-    EditorCommand_NodeGraph_DeleteNode(MyNodeGraph* pNodeGraph, MyNodeGraph::MyNode* pNode);
-    virtual ~EditorCommand_NodeGraph_DeleteNode();
+    EditorCommand_NodeGraph_DeleteNodes(MyNodeGraph* pNodeGraph, ImVector<MyNodeGraph::NodeID>& selectedNodeIDs);
+    virtual ~EditorCommand_NodeGraph_DeleteNodes();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+// EditorCommand_NodeGraph_CreateLink
+//====================================================================================================
+
+class EditorCommand_NodeGraph_CreateLink : public EditorCommand
+{
+protected:
+    MyNodeGraph* m_pNodeGraph;
+    MyNodeGraph::MyNodeLink m_NodeLink;
+    int m_NodeLinkIndex;
+
+public:
+    EditorCommand_NodeGraph_CreateLink(MyNodeGraph* pNodeGraph, MyNodeGraph::MyNodeLink nodeLink);
+    virtual ~EditorCommand_NodeGraph_CreateLink();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+// EditorCommand_NodeGraph_DeleteLink
+//====================================================================================================
+
+class EditorCommand_NodeGraph_DeleteLink : public EditorCommand
+{
+protected:
+    MyNodeGraph* m_pNodeGraph;
+    MyNodeGraph::MyNodeLink m_NodeLink;
+    int m_NodeLinkIndex;
+    bool m_DeleteLinkWhenDestroyed;
+
+public:
+    EditorCommand_NodeGraph_DeleteLink(MyNodeGraph* pNodeGraph, int nodeLinkIndex);
+    virtual ~EditorCommand_NodeGraph_DeleteLink();
 
     virtual void Do();
     virtual void Undo();

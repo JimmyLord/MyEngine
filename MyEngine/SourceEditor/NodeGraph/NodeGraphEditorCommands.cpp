@@ -58,68 +58,94 @@ EditorCommand* EditorCommand_NodeGraph_AddNode::Repeat()
 }
 
 //====================================================================================================
-// EditorCommand_NodeGraph_DeleteNode
+// EditorCommand_NodeGraph_DeleteNodes
 //====================================================================================================
 
-EditorCommand_NodeGraph_DeleteNode::EditorCommand_NodeGraph_DeleteNode(MyNodeGraph* pNodeGraph, MyNodeGraph::MyNode* pNode)
+EditorCommand_NodeGraph_DeleteNodes::EditorCommand_NodeGraph_DeleteNodes(MyNodeGraph* pNodeGraph, ImVector<MyNodeGraph::NodeID>& selectedNodeIDs)
 {
-    m_Name = "EditorCommand_NodeGraph_DeleteNode";
+    m_Name = "EditorCommand_NodeGraph_DeleteNodes";
 
-    MyAssert( pNode != nullptr );
-    MyAssert( pNode->GetNodeGraph() == pNodeGraph );
+    MyAssert( selectedNodeIDs.size() != 0 );
 
     m_pNodeGraph = pNodeGraph;
-    m_pNode = pNode;
-
-    for( int slotIndex=0; slotIndex<m_pNode->m_InputsCount; slotIndex++ )
+    for( int i=0; i<selectedNodeIDs.Size; i++ )
     {
-        int count = 0;
-        while( MyNodeGraph::MyNodeLink* pNodeLink = m_pNodeGraph->FindLinkConnectedToInput( m_pNode->m_ID, slotIndex, count++ ) )
+        MyNodeGraph::NodeID nodeID = selectedNodeIDs[i];
+
+        int nodeIndex = m_pNodeGraph->FindNodeIndexByID( nodeID );
+        MyNodeGraph::MyNode* pNode = m_pNodeGraph->m_Nodes[nodeIndex];
+        MyAssert( pNode->GetNodeGraph() == m_pNodeGraph );
+
+        m_pNodes.push_back( pNode );
+    }
+
+    for( uint32 nodeIndex=0; nodeIndex<m_pNodes.size(); nodeIndex++ )
+    {
+        MyNodeGraph::MyNode* pNode = m_pNodes[nodeIndex];
+
+        for( int slotIndex=0; slotIndex<pNode->m_InputsCount; slotIndex++ )
         {
-            m_Links.push_back( *pNodeLink );
+            int count = 0;
+            while( MyNodeGraph::MyNodeLink* pNodeLink = m_pNodeGraph->FindLinkConnectedToInput( pNode->m_ID, slotIndex, count++ ) )
+            {
+                m_Links.push_back( *pNodeLink );
+            }
+        }
+
+        for( int slotIndex=0; slotIndex<pNode->m_OutputsCount; slotIndex++ )
+        {
+            int count = 0;
+            while( MyNodeGraph::MyNodeLink* pNodeLink = m_pNodeGraph->FindLinkConnectedToOutput( pNode->m_ID, slotIndex, count++ ) )
+            {
+                m_Links.push_back( *pNodeLink );
+            }
         }
     }
 
-    for( int slotIndex=0; slotIndex<m_pNode->m_OutputsCount; slotIndex++ )
+    m_DeleteNodesWhenDestroyed = true;
+}
+
+EditorCommand_NodeGraph_DeleteNodes::~EditorCommand_NodeGraph_DeleteNodes()
+{
+    if( m_DeleteNodesWhenDestroyed )
     {
-        int count = 0;
-        while( MyNodeGraph::MyNodeLink* pNodeLink = m_pNodeGraph->FindLinkConnectedToOutput( m_pNode->m_ID, slotIndex, count++ ) )
+        for( uint32 nodeIndex=0; nodeIndex<m_pNodes.size(); nodeIndex++ )
         {
-            m_Links.push_back( *pNodeLink );
+            delete m_pNodes[nodeIndex];
+        }
+    }
+}
+
+void EditorCommand_NodeGraph_DeleteNodes::Do()
+{
+    // Remove Nodes.
+    for( uint32 nodeIndex=0; nodeIndex<m_pNodes.size(); nodeIndex++ )
+    {
+        MyNodeGraph::MyNode* pNode = m_pNodes[nodeIndex];
+
+        m_pNodeGraph->RemoveExistingNode( pNode );
+
+        // Remove all connections to this node.
+        for( int i=0; i<m_pNodeGraph->m_Links.size(); i++ )
+        {
+            if( m_pNodeGraph->m_Links[i].m_InputNodeID == pNode->m_ID || m_pNodeGraph->m_Links[i].m_OutputNodeID == pNode->m_ID )
+            {
+                m_pNodeGraph->m_Links.erase_unsorted( m_pNodeGraph->m_Links.Data + i );
+                i--;
+            }
         }
     }
 
-    m_DeleteNodeWhenDestroyed = true;
+    m_DeleteNodesWhenDestroyed = true;
 }
 
-EditorCommand_NodeGraph_DeleteNode::~EditorCommand_NodeGraph_DeleteNode()
+void EditorCommand_NodeGraph_DeleteNodes::Undo()
 {
-    if( m_DeleteNodeWhenDestroyed )
+    // Restore Nodes.
+    for( uint32 nodeIndex=0; nodeIndex<m_pNodes.size(); nodeIndex++ )
     {
-        delete m_pNode;
+        m_pNodeGraph->AddExistingNode( m_pNodes[nodeIndex] );
     }
-}
-
-void EditorCommand_NodeGraph_DeleteNode::Do()
-{
-    m_pNodeGraph->RemoveExistingNode( m_pNode );
-
-    // Remove all connections to this node.
-    for( int i=0; i<m_pNodeGraph->m_Links.size(); i++ )
-    {
-        if( m_pNodeGraph->m_Links[i].m_InputNodeID == m_pNode->m_ID || m_pNodeGraph->m_Links[i].m_OutputNodeID == m_pNode->m_ID )
-        {
-            m_pNodeGraph->m_Links.erase_unsorted( m_pNodeGraph->m_Links.Data + i );
-            i--;
-        }
-    }
-
-    m_DeleteNodeWhenDestroyed = true;
-}
-
-void EditorCommand_NodeGraph_DeleteNode::Undo()
-{
-    m_pNodeGraph->AddExistingNode( m_pNode );
 
     // Restore all links.
     for( uint32 i=0; i<m_Links.size(); i++ )
@@ -127,10 +153,80 @@ void EditorCommand_NodeGraph_DeleteNode::Undo()
         m_pNodeGraph->m_Links.push_back( m_Links[i] );
     }
 
-    m_DeleteNodeWhenDestroyed = false;
+    m_DeleteNodesWhenDestroyed = false;
 }
 
-EditorCommand* EditorCommand_NodeGraph_DeleteNode::Repeat()
+EditorCommand* EditorCommand_NodeGraph_DeleteNodes::Repeat()
+{
+    // Do nothing.
+
+    return nullptr;
+}
+
+//====================================================================================================
+// EditorCommand_NodeGraph_CreateLink
+//====================================================================================================
+
+EditorCommand_NodeGraph_CreateLink::EditorCommand_NodeGraph_CreateLink(MyNodeGraph* pNodeGraph, MyNodeGraph::MyNodeLink nodeLink)
+{
+    m_Name = "EditorCommand_NodeGraph_CreateLink";
+
+    m_pNodeGraph = pNodeGraph;
+    m_NodeLink = nodeLink;
+    m_NodeLinkIndex = -1;
+}
+
+EditorCommand_NodeGraph_CreateLink::~EditorCommand_NodeGraph_CreateLink()
+{
+}
+
+void EditorCommand_NodeGraph_CreateLink::Do()
+{
+    m_NodeLinkIndex = m_pNodeGraph->m_Links.size();
+    m_pNodeGraph->m_Links.push_back( m_NodeLink );
+}
+
+void EditorCommand_NodeGraph_CreateLink::Undo()
+{
+    m_pNodeGraph->m_Links.erase_unsorted( m_pNodeGraph->m_Links.Data + m_NodeLinkIndex );
+}
+
+EditorCommand* EditorCommand_NodeGraph_CreateLink::Repeat()
+{
+    // Do nothing.
+
+    return nullptr;
+}
+
+//====================================================================================================
+// EditorCommand_NodeGraph_DeleteLink
+//====================================================================================================
+
+EditorCommand_NodeGraph_DeleteLink::EditorCommand_NodeGraph_DeleteLink(MyNodeGraph* pNodeGraph, int nodeLinkIndex)
+{
+    m_Name = "EditorCommand_NodeGraph_DeleteLink";
+
+    m_pNodeGraph = pNodeGraph;
+    m_NodeLinkIndex = nodeLinkIndex;
+
+    m_NodeLink = m_pNodeGraph->m_Links[nodeLinkIndex];
+}
+
+EditorCommand_NodeGraph_DeleteLink::~EditorCommand_NodeGraph_DeleteLink()
+{
+}
+
+void EditorCommand_NodeGraph_DeleteLink::Do()
+{
+    m_pNodeGraph->m_Links.erase_unsorted( m_pNodeGraph->m_Links.Data + m_NodeLinkIndex );
+}
+
+void EditorCommand_NodeGraph_DeleteLink::Undo()
+{
+    m_pNodeGraph->m_Links.insert( m_pNodeGraph->m_Links.Data + m_NodeLinkIndex, m_NodeLink );
+}
+
+EditorCommand* EditorCommand_NodeGraph_DeleteLink::Repeat()
 {
     // Do nothing.
 
