@@ -121,6 +121,9 @@
     <Filter Include="Source - Editor\NodeGraph">
       <UniqueIdentifier>{16919f65-9caf-4a4b-ae91-40b3d6fd2c67}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source - Editor\Documents">
+      <UniqueIdentifier>{86f533fb-4525-4c9a-8a30-6ec081d6c633}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -488,6 +491,9 @@
     </ClCompile>
     <ClCompile Include="SourceEditor\NodeGraph\NodeGraphEditorCommands.cpp">
       <Filter>Source - Editor\NodeGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Documents\EditorDocument.cpp">
+      <Filter>Source - Editor\Documents</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -907,6 +913,9 @@
     </ClInclude>
     <ClInclude Include="SourceEditor\NodeGraph\NodeGraphEditorCommands.h">
       <Filter>Source - Editor\NodeGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Documents\EditorDocument.h">
+      <Filter>Source - Editor\Documents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

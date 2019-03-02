@@ -20,20 +20,21 @@
 #include "ComponentSystem/FrameworkComponents/ComponentMeshOBJ.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
+#include "GUI/EditorIcons.h"
+#include "GUI/ImGuiExtensions.h"
 #include "../SourceEditor/EditorMenuCommands.h"
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EngineEditorCommands.h"
-#include "../SourceEditor/GameObjectTemplateManager.h"
-#include "../SourceEditor/NodeGraph/MyNodeGraph.h"
-#include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
-#include "../SourceEditor/TransformGizmo.h"
 #include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorLogWindow_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/EngineCommandStack.h"
+#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/Documents/EditorDocument.h"
+#include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/Interfaces/EditorInterface.h"
-#include "../../SourceCommon/GUI/EditorIcons.h"
-#include "../../SourceCommon/GUI/ImGuiExtensions.h"
+#include "../SourceEditor/NodeGraph/MyNodeGraph.h"
+#include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
+#include "../SourceEditor/TransformGizmo.h"
 
 //====================================================================================================
 // Various enums and matching strings (some unused)
@@ -144,6 +145,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_GameWindowSize.Set( 0, 0 );
     m_EditorWindowSize.Set( 0, 0 );
 
+    m_pActiveDocument = nullptr;
     m_GameWindowFocused = false;
     m_GameWindowVisible = false;
     m_EditorWindowHovered = false;
@@ -198,35 +200,6 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    if( keyAction != -1 )
-    {
-        if( io.WantTextInput == false )
-        {
-            if( CheckForHotkeys( keyAction, keyCode ) )
-            {
-                // If a hotkey was pressed, unset that key so 'held' and 'up' messages won't get sent.
-                g_pEngineCore->ForceKeyRelease( keyCode );
-                return true;
-            }
-        }
-        else
-        {
-            // Cancel rename operation if an ImGui input box has focus and escape is pressed.
-            if( keyCode == MYKEYCODE_ESC )
-            {
-                m_pGameObjectWhoseNameIsBeingEdited = nullptr;
-                m_pMaterialWhoseNameIsBeingEdited = nullptr;
-                return true;
-            }
-        }
-
-        // Cancel any drag/drop ops when escape is pressed.
-        if( keyCode == MYKEYCODE_ESC )
-        {
-            ImGuiExt::ClearDragDrop();
-        }
-    }
-
     if( mouseAction == GCBA_Down && id == 0 )
     {
         // For renaming, if the mouse is clicked anywhere, end/confirm the current rename operation.
@@ -250,6 +223,17 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
     // Read the absolute x/y from the ImGui structure, since non-mouse messages will have x,y of -1,-1.
     float mouseabsx = io.MousePos.x;
     float mouseabsy = io.MousePos.y;
+
+    // Deal with sending input events to the active document.
+    {
+        if( m_pActiveDocument != nullptr )
+        {
+            if( m_pActiveDocument->HandleInput( keyAction, keyCode, mouseAction, id, localx, localy, pressure ) )
+            {
+                return true;
+            }
+        }
+    }
 
     // Deal with sending input events to the game window.
     {
@@ -324,6 +308,36 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
 
             // Clear modifier key and mouse button states.
             g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyAction, keyCode, mouseAction, id, localx, localy, pressure );
+        }
+    }
+
+    // If neither the game or editor windows used the input, then check for global hotkeys or cancel certain ops.
+    if( keyAction != -1 )
+    {
+        if( io.WantTextInput == false )
+        {
+            if( CheckForHotkeys( keyAction, keyCode ) )
+            {
+                // If a hotkey was pressed, unset that key so 'held' and 'up' messages won't get sent.
+                g_pEngineCore->ForceKeyRelease( keyCode );
+                return true;
+            }
+        }
+        else
+        {
+            // Cancel rename operation if an ImGui input box has focus and escape is pressed.
+            if( keyCode == MYKEYCODE_ESC )
+            {
+                m_pGameObjectWhoseNameIsBeingEdited = nullptr;
+                m_pMaterialWhoseNameIsBeingEdited = nullptr;
+                return true;
+            }
+        }
+
+        // Cancel any drag/drop ops when escape is pressed.
+        if( keyCode == MYKEYCODE_ESC )
+        {
+            ImGuiExt::ClearDragDrop();
         }
     }
 
@@ -447,6 +461,8 @@ void EditorMainFrame_ImGui::Update(float deltaTime)
 
 void EditorMainFrame_ImGui::AddEverything()
 {
+    m_pActiveDocument = nullptr;
+
     m_pCurrentLayout = m_pLayoutManager->GetCurrentLayout();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -542,11 +558,10 @@ void EditorMainFrame_ImGui::AddEverything()
     static VisualScriptNodeTypeManager nodeTypeManager;
     static MyNodeGraph nodeGraph( &nodeTypeManager );
     ImGui::SetNextWindowSize( ImVec2(700, 600), ImGuiSetCond_FirstUseEver );
-    if( ImGui::Begin( "MyImGuiNodeGraph" ) )
+    if( nodeGraph.Update( true, "MyImGuiNodeGraph", true ) )
     {
-        nodeGraph.Update();
+        m_pActiveDocument = &nodeGraph;
     }
-    ImGui::End();
 
     m_RenamePressedThisFrame = false;
 

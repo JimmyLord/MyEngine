@@ -13,11 +13,12 @@
 #include "../SourceEditor/EditorMainFrame.h"
 
 class ComponentAnimationPlayer2D;
-class EngineCore;
+class EditorDocument;
 class EditorLogWindow_ImGui;
 class EditorMemoryWindow_ImGui;
 class EditorLayoutManager_ImGui;
 class EditorLayout;
+class EngineCore;
 class GameObject;
 class PrefabObject;
 
@@ -100,6 +101,7 @@ protected:
     Vector2 m_GameWindowSize;
     Vector2 m_EditorWindowSize;
 
+    EditorDocument* m_pActiveDocument;
     bool m_GameWindowFocused;
     bool m_GameWindowVisible;
     bool m_EditorWindowHovered;

@@ -10,6 +10,7 @@
 #ifndef __MyNodeGraph_H__
 #define __MyNodeGraph_H__
 
+#include "../SourceEditor/Documents/EditorDocument.h"
 #include "../../Libraries/imgui/imgui.h"
 #include "../../Libraries/imgui/imgui_internal.h"
 
@@ -36,7 +37,7 @@ const ImU32 COLOR_NODE_BG_TITLE = IM_COL32( 60, 20, 150, 230 );
 const ImU32 COLOR_NODE_BG = IM_COL32( 25, 0, 79, 230 );
 const ImU32 COLOR_NODE_BG_SELECTED_BORDER = IM_COL32( 245, 142, 0, 128 );
 
-class MyNodeGraph
+class MyNodeGraph : public EditorDocument
 {
 public:
     class MyNode;
@@ -135,6 +136,8 @@ public:
     MyNodeGraph(MyNodeTypeManager* pNodeTypeManager);
     virtual ~MyNodeGraph();
 
+    // Returns true if in focus.
+    bool Update(bool createWindow, const char* title, bool addStarIfChangesPending);
     void Update();
 
     // Getters.

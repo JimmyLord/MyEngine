@@ -79,6 +79,8 @@ bool IsNearBezierCurve(Vector2 position, Vector2 p0, Vector2 cp0, Vector2 cp1, V
 
 MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
 {
+    m_pCommandStack = MyNew CommandStack();
+
     m_pNodeTypeManager = pNodeTypeManager;
 
     m_ScrollOffset.Set( 0.0f, 0.0f );
@@ -101,6 +103,8 @@ MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
 MyNodeGraph::~MyNodeGraph()
 {
     Clear();
+
+    delete m_pCommandStack;
 }
 
 void MyNodeGraph::Clear()
@@ -260,8 +264,36 @@ void MyNodeGraph::SetExpandedForAllSelectedNodes(bool expand)
     }
 }
 
+// Returns true if in focus.
+bool MyNodeGraph::Update(bool createWindow, const char* title, bool addStarIfChangesPending)
+{
+    bool inFocus = false;
+
+    char tempTitle[512];
+    if( addStarIfChangesPending && m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
+    {
+        sprintf_s( tempTitle, 512, "%s*###%s", title, title );
+    }
+    else
+    {
+        sprintf_s( tempTitle, 512, "%s###%s", title, title );
+    }
+
+    if( ImGui::Begin( tempTitle ) )
+    {
+        Update();
+
+        inFocus = ImGui::IsRootWindowOrAnyChildFocused();
+    }
+    ImGui::End();
+
+    return inFocus;
+}
+
 void MyNodeGraph::Update()
 {
+    m_pCommandStack->IncrementFrameCount();
+
     bool openContextMenu = false;
     int nodeIndexHoveredInList = -1;
     int nodeIndexHoveredInScene = -1;
@@ -269,7 +301,7 @@ void MyNodeGraph::Update()
     // Handle key presses.
     if( ImGui::IsKeyPressed( MYKEYCODE_DELETE, false ) )
     {
-        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
     }
 
     // Draw a list of nodes on the left side.
@@ -308,9 +340,19 @@ void MyNodeGraph::Update()
     ImGui::SameLine( ImGui::GetWindowWidth() - 300 );
     ImGui::Checkbox( "Show grid", &m_GridVisible );
     ImGui::SameLine();
-    if( ImGui::Button( "Save" ) ) Save();
+    if( ImGui::Button( "Save" ) || m_SaveRequested )
+    {
+        m_SaveRequested = false;
+        m_UndoStackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
+        Save();
+    }
     ImGui::SameLine();
-    if( ImGui::Button( "Load" ) ) Load();
+    if( ImGui::Button( "Load" ) )
+    {
+        m_pCommandStack->ClearStacks();
+        m_UndoStackDepthAtLastSave = 0;
+        Load();
+    }
     ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 1, 1 ) );
     ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
     ImGui::PushStyleColor( ImGuiCol_ChildWindowBg, COLOR_BG );
@@ -429,9 +471,14 @@ void MyNodeGraph::Update()
             }
             else if( nodeIndexHoveredInScene != -1 )
             {
-                m_SelectedNodeIDs.clear();
-                m_SelectedNodeLinkIndex = -1;
-                m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInScene]->m_ID );
+                bool isSelected = m_SelectedNodeIDs.contains(m_Nodes[nodeIndexHoveredInScene]->m_ID );
+
+                if( isSelected == false || m_SelectedNodeIDs.size() == 1 )
+                {
+                    m_SelectedNodeIDs.clear();
+                    m_SelectedNodeLinkIndex = -1;
+                    m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInScene]->m_ID );
+                }
             }
         }
 
@@ -444,7 +491,7 @@ void MyNodeGraph::Update()
                 // Remove the link.
                 if( ImGui::MenuItem( "Remove" ) )
                 {
-                    g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndex ) );
+                    m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndex ) );
                 }
             }
             else 
@@ -456,14 +503,23 @@ void MyNodeGraph::Update()
                     pNode = m_Nodes[nodeIndex];
             
                 Vector2 scenePos = ImGui::GetMousePosOnOpeningCurrentPopup() - offset;
-                if( pNode )
+                if( m_SelectedNodeIDs.size() > 1 )
+                {
+                    ImGui::Text( "%d Nodes Selected", m_SelectedNodeIDs.size() );
+                    ImGui::Separator();
+                    if( ImGui::MenuItem( "Delete Nodes", nullptr, false ) )
+                    {
+                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+                    }
+                }
+                else if( pNode )
                 {
                     ImGui::Text( "Node '%s'", pNode->m_Name );
                     ImGui::Separator();
                     if( ImGui::MenuItem( "Rename...", nullptr, false, false ) ) {}
                     if( ImGui::MenuItem( "Delete", nullptr, false ) )
                     {
-                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
                     }
                     if( ImGui::MenuItem( "Copy", nullptr, false, false ) ) {}
                 }
@@ -472,7 +528,7 @@ void MyNodeGraph::Update()
                     MyNode* pNode = m_pNodeTypeManager->AddCreateNodeItemsToContextMenu( scenePos, this );
                     if( pNode )
                     {
-                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_AddNode( this, pNode ) );
+                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_AddNode( this, pNode ) );
                     }
 
                     ImGui::Separator();

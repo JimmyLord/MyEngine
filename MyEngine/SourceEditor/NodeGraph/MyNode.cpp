@@ -334,7 +334,7 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
             // If mouse is released, create a link.
             if( ImGui::IsMouseReleased( 0 ) )
             {
-                g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_CreateLink( m_pNodeGraph, MyNodeLink( nodeID, slotID, pMouseNodeLink->m_NodeID, pMouseNodeLink->m_SlotID ) ) );
+                m_pNodeGraph->m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_CreateLink( m_pNodeGraph, MyNodeLink( nodeID, slotID, pMouseNodeLink->m_NodeID, pMouseNodeLink->m_SlotID ) ) );
             }
         }
         else if( pMouseNodeLink->m_SlotType == SlotType_Output && slotType == SlotType_Input )
@@ -344,7 +344,7 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
             // If mouse is released, create a link.
             if( ImGui::IsMouseReleased( 0 ) )
             {
-                g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_NodeGraph_CreateLink( m_pNodeGraph, MyNodeLink( pMouseNodeLink->m_NodeID, pMouseNodeLink->m_SlotID, nodeID, slotID ) ) );
+                m_pNodeGraph->m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_CreateLink( m_pNodeGraph, MyNodeLink( pMouseNodeLink->m_NodeID, pMouseNodeLink->m_SlotID, nodeID, slotID ) ) );
             }
         }
         else
