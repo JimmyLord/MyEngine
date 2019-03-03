@@ -618,24 +618,43 @@ void MyNodeGraph::Update()
 
 void MyNodeGraph::Save()
 {
-    cJSON* jNodeGraph = ExportAsJSONObject();
+    {
+        cJSON* jNodeGraph = ExportAsJSONObject();
 
-    char* jsonString = cJSON_Print( jNodeGraph );
+        char* jsonString = cJSON_Print( jNodeGraph );
 
-    cJSON_Delete( jNodeGraph );
+        cJSON_Delete( jNodeGraph );
 
-    char* filename = "test.MyVisualScript";
+        char* filename = "test.MyVisualScript";
 
-    FILE* pFile;
+        FILE* pFile;
 #if MYFW_WINDOWS
-    fopen_s( &pFile, filename, "wb" );
+        fopen_s( &pFile, filename, "wb" );
 #else
-    pFile = fopen( filename, "wb" );
+        pFile = fopen( filename, "wb" );
 #endif
-    fprintf( pFile, "%s", jsonString );
-    fclose( pFile );
+        fprintf( pFile, "%s", jsonString );
+        fclose( pFile );
 
-    cJSONExt_free( jsonString );
+        cJSONExt_free( jsonString );
+    }
+
+    {
+        const char* luaString = ExportAsLuaString();
+
+        char* filename = "test.Lua";
+
+        FILE* pFile;
+#if MYFW_WINDOWS
+        fopen_s( &pFile, filename, "wb" );
+#else
+        pFile = fopen( filename, "wb" );
+#endif
+        fprintf( pFile, "%s", luaString );
+        fclose( pFile );
+
+        delete[] luaString;
+    }
 }
 
 void MyNodeGraph::Load()
@@ -679,6 +698,20 @@ void MyNodeGraph::Load()
     }
 
     cJSON_Delete( jNodeGraph );
+}
+
+const char* MyNodeGraph::ExportAsLuaString()
+{
+    uint32 bufferSize = 1000;
+    char* string = new char[bufferSize];
+
+    uint32 offset = 0;
+    for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+    {
+        offset += m_Nodes[nodeIndex]->ExportAsLuaString( string, offset, bufferSize );
+    }
+
+    return string;
 }
 
 cJSON* MyNodeGraph::ExportAsJSONObject()

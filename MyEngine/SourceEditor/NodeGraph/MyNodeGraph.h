@@ -125,6 +125,7 @@ protected:
     void Save();
     void Load();
 
+    const char* ExportAsLuaString();
     cJSON* ExportAsJSONObject();
     void ImportFromJSONObject(cJSON* jNodeGraph);
 
