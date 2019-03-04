@@ -52,7 +52,7 @@ public:
 
     virtual void Trigger() {}
 
-    virtual uint32 ExportAsLuaString(char* string, uint32 offset, int bytesAllocated) { return 0; }
+    virtual uint32 ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated) { return 0; }
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jNode);
 };

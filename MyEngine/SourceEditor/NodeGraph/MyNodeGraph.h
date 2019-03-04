@@ -114,6 +114,9 @@ protected:
 
     MouseNodeLinkStartPoint m_MouseNodeLinkStartPoint;
 
+    bool m_ShowingLuaString;
+    const char* m_pLuaString;
+
 protected:
     void Clear();
 

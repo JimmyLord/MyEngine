@@ -175,7 +175,7 @@ public:
 
     // EngineCore Getters/Setters.
     ComponentSystemManager* GetComponentSystemManager() { return m_pComponentSystemManager; }
-    MyStackAllocator GetSingleFrameMemoryStack() { return m_SingleFrameMemoryStack; }
+    MyStackAllocator* GetSingleFrameMemoryStack() { return &m_SingleFrameMemoryStack; }
 
     BulletWorld* GetBulletWorld() { return m_pBulletWorld; }
 

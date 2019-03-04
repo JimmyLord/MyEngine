@@ -77,14 +77,14 @@ void MyUniform1fv(GLint location, GLsizei count, const luabridge::LuaRef value)
     }
 
     MyStackAllocator::MyStackPointer stackpointer;
-    float* values = (float*)g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( sizeof(float)*1*count, &stackpointer );
+    float* values = (float*)g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( sizeof(float)*1*count, &stackpointer );
 
     for( int i=0; i<count*1; i++ )
         values[i] = value[i+1]; // LUA array starts at index 1.
 
     glUniform1fv( location, count, values );
 
-    g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( stackpointer );
+    g_pEngineCore->GetSingleFrameMemoryStack()->RewindStack( stackpointer );
 }
 
 void MyUniform2fv(GLint location, GLsizei count, const luabridge::LuaRef value)
@@ -96,14 +96,14 @@ void MyUniform2fv(GLint location, GLsizei count, const luabridge::LuaRef value)
     }
 
     MyStackAllocator::MyStackPointer stackpointer;
-    Vector2* values = (Vector2*)g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( sizeof(Vector2)*count, &stackpointer );
+    Vector2* values = (Vector2*)g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( sizeof(Vector2)*count, &stackpointer );
 
     for( int i=0; i<count; i++ )
         values[i] = value[i+1]; // LUA array starts at index 1.
 
     glUniform2fv( location, count, &values[0].x );
 
-    g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( stackpointer );
+    g_pEngineCore->GetSingleFrameMemoryStack()->RewindStack( stackpointer );
 
     //if( count*2 > value.length() )
     //{
@@ -131,14 +131,14 @@ void MyUniform3fv(GLint location, GLsizei count, const luabridge::LuaRef value)
     }
 
     MyStackAllocator::MyStackPointer stackpointer;
-    Vector3* values = (Vector3*)g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( sizeof(Vector3)*count, &stackpointer );
+    Vector3* values = (Vector3*)g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( sizeof(Vector3)*count, &stackpointer );
 
     for( int i=0; i<count; i++ )
         values[i] = value[i+1]; // LUA array starts at index 1.
 
     glUniform3fv( location, count, &values[0].x );
 
-    g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( stackpointer );
+    g_pEngineCore->GetSingleFrameMemoryStack()->RewindStack( stackpointer );
 
     //if( count*3 > value.length() )
     //{
@@ -166,14 +166,14 @@ void MyUniform4fv(GLint location, GLsizei count, const luabridge::LuaRef value)
     }
 
     MyStackAllocator::MyStackPointer stackpointer;
-    Vector4* values = (Vector4*)g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( sizeof(Vector4)*count, &stackpointer );
+    Vector4* values = (Vector4*)g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( sizeof(Vector4)*count, &stackpointer );
 
     for( int i=0; i<count; i++ )
         values[i] = value[i+1]; // LUA array starts at index 1.
 
     glUniform4fv( location, count, &values[0].x );
 
-    g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( stackpointer );
+    g_pEngineCore->GetSingleFrameMemoryStack()->RewindStack( stackpointer );
 
     //if( count*4 > value.length() )
     //{

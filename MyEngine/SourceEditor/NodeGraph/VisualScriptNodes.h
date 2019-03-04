@@ -50,7 +50,9 @@ public:
     {
     }
 
-    virtual uint32 EmitLua(char* string, uint32 offset, int bytesAllocated) { return 0; }
+    virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) { return 0; }
+
+    virtual float GetValueFloat() { return FLT_MAX; }
 };
 
 #define VSNAddVar ComponentBase::AddVariable_Base
@@ -73,8 +75,7 @@ public:
     }
 
     const char* GetType() { return "Value_Float"; }
-
-    float GetValue() { return m_Float; }
+    virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
     virtual void DrawTitle() override
     {
@@ -84,14 +85,7 @@ public:
             ImGui::Text( "%s: %0.2f", m_Name, m_Float );
     }
 
-    virtual uint32 EmitLua(char* string, uint32 offset, int bytesAllocated)
-    {
-        int startOffset = offset;
-
-        offset += sprintf_s( &string[offset], bytesAllocated - offset, "(%f)", m_Float );
-
-        return offset - startOffset;
-    }
+    virtual float GetValueFloat() override { return m_Float; }
 };
 
 //====================================================================================================
@@ -219,6 +213,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 2, 1 ) {}
 
     const char* GetType() { return "MathOp_Add"; }
+    virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
     virtual void DrawContents() override
     {
@@ -226,8 +221,21 @@ public:
 
         ImGui::Text( "+" );
     }
-};
 
+    virtual float GetValueFloat() override
+    {
+        VisualScriptNode* pNode1 = static_cast<VisualScriptNode*>( m_pNodeGraph->FindNodeConnectedToInput( m_ID, 0 ) );
+        VisualScriptNode* pNode2 = static_cast<VisualScriptNode*>( m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 ) );
+
+        if( pNode1 == nullptr || pNode2 == nullptr )
+            return FLT_MAX;
+
+        float value1 = pNode1->GetValueFloat();
+        float value2 = pNode2->GetValueFloat();
+
+        return value1 + value2;
+    }
+};
 
 //====================================================================================================
 // VisualScriptNode_VisualScriptNode_Condition_GreaterEqual
@@ -241,6 +249,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 3, 2 ) {}
 
     const char* GetType() { return "Condition_GreaterEqual"; }
+    virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
     virtual void DrawContents() override
     {
@@ -251,14 +260,14 @@ public:
 
     virtual void Trigger() override
     {
-        MyNode* pNode1 = m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 );
-        MyNode* pNode2 = m_pNodeGraph->FindNodeConnectedToInput( m_ID, 2 );
+        VisualScriptNode* pNode1 = static_cast<VisualScriptNode*>( m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 ) );
+        VisualScriptNode* pNode2 = static_cast<VisualScriptNode*>( m_pNodeGraph->FindNodeConnectedToInput( m_ID, 2 ) );
 
         if( pNode1 == nullptr || pNode2 == nullptr )
             return;
 
-        float value1 = ((VisualScriptNode_Value_Float*)pNode1)->GetValue();
-        float value2 = ((VisualScriptNode_Value_Float*)pNode2)->GetValue();
+        float value1 = pNode1->GetValueFloat();
+        float value2 = pNode2->GetValueFloat();
 
         if( value1 >= value2 )
         {
@@ -276,51 +285,6 @@ public:
                 pNode->Trigger();
             }
         }
-    }
-
-    virtual uint32 EmitLua(char* string, uint32 offset, int bytesAllocated)
-    {
-        int startOffset = offset;
-
-        MyNode* pNode1 = m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 );
-        MyNode* pNode2 = m_pNodeGraph->FindNodeConnectedToInput( m_ID, 2 );
-
-        if( pNode1 == nullptr || pNode2 == nullptr )
-            return 0;
-
-        // if( condition ) then
-        {
-            offset += sprintf_s( &string[offset], bytesAllocated - offset, "\t" ); // TODO: Track indent size.
-            offset += sprintf_s( &string[offset], bytesAllocated - offset, "if( " );
-            offset += ((VisualScriptNode_Value_Float*)pNode1)->EmitLua( string, offset, bytesAllocated );
-            offset += sprintf_s( &string[offset], bytesAllocated - offset," >= " );
-            offset += ((VisualScriptNode_Value_Float*)pNode2)->EmitLua( string, offset, bytesAllocated );
-
-            offset += sprintf_s( &string[offset], bytesAllocated - offset," ) then\n" );
-
-            int count = 0;
-            while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
-            {
-                offset += pNode->EmitLua( string, offset, bytesAllocated );
-            }
-        }
-
-        // else
-        {
-            offset += sprintf_s( &string[offset], bytesAllocated - offset, "\t" ); // TODO: Track indent size.
-            offset += sprintf_s( &string[offset], bytesAllocated - offset, "else\n" );
-
-            int count = 0;
-            while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
-            {
-                offset += pNode->EmitLua( string, offset, bytesAllocated );
-            }
-        }
-
-        offset += sprintf_s( &string[offset], bytesAllocated - offset, "\t" ); // TODO: Track indent size.
-        offset += sprintf_s( &string[offset], bytesAllocated - offset, "end\n" );
-
-        return offset - startOffset;
     }
 };
 
@@ -344,6 +308,7 @@ public:
     }
 
     const char* GetType() { return "Event_KeyPress"; }
+    virtual uint32 ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated) override;
 
     virtual void DrawTitle() override
     {
@@ -379,23 +344,6 @@ public:
 
         return false;
     }
-
-    virtual uint32 ExportAsLuaString(char* string, uint32 offset, int bytesAllocated)
-    {
-        int startOffset = offset;
-
-        offset += sprintf_s( &string[offset], bytesAllocated - offset, "OnButtons = function(action, id)\n" );
-
-        int count = 0;
-        while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
-        {
-            offset += pNode->EmitLua( string, offset, bytesAllocated );
-        }
-
-        offset += sprintf_s( &string[offset], bytesAllocated - offset,"end,\n" );
-
-        return offset - startOffset;
-    }
 };
 
 //====================================================================================================
@@ -418,6 +366,7 @@ public:
     }
 
     const char* GetType() { return "Disable_GameObject"; }
+    virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
     virtual void DrawTitle() override
     {
@@ -431,14 +380,6 @@ public:
                 ImGui::Text( "%s: %s", m_Name, m_pGameObject->GetName() );
             else
                 ImGui::Text( "%s: not set" );
-        }
-    }
-
-    virtual void Trigger() override
-    {
-        if( m_pGameObject )
-        {
-            m_pGameObject->SetEnabled( !m_pGameObject->IsEnabled(), true );
         }
     }
 
@@ -459,18 +400,12 @@ public:
         return nullptr;
     }
 
-    virtual uint32 EmitLua(char* string, uint32 offset, int bytesAllocated)
+    virtual void Trigger() override
     {
-        int startOffset = offset;
-
-        offset += sprintf_s( &string[offset], bytesAllocated - offset, "\t\t" ); // TODO: Track indent size.
-
-        if( m_pGameObject->IsEnabled() )
-            offset += sprintf_s( &string[offset], bytesAllocated - offset, "%s:SetEnabled( false );\n", m_pGameObject->GetName() );
-        else
-            offset += sprintf_s( &string[offset], bytesAllocated - offset, "%s:SetEnabled( true );\n", m_pGameObject->GetName() );
-
-        return offset - startOffset;
+        if( m_pGameObject )
+        {
+            m_pGameObject->SetEnabled( !m_pGameObject->IsEnabled(), true );
+        }
     }
 };
 

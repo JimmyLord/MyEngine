@@ -341,7 +341,7 @@ cJSON* VoxelChunk::ExportAsJSONObject(bool exportforworld)
 
     // save the blocks.
     MyStackAllocator::MyStackPointer stackpointer;
-    char* blockstring = (char*)g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z + 1, &stackpointer );
+    char* blockstring = (char*)g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z + 1, &stackpointer );
 
     for( int z=0; z<m_ChunkSize.z; z++ )
     {
@@ -364,7 +364,7 @@ cJSON* VoxelChunk::ExportAsJSONObject(bool exportforworld)
 
     cJSON_AddStringToObject( jVoxelMesh, "Blocks", blockstring );
 
-    g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( stackpointer );
+    g_pEngineCore->GetSingleFrameMemoryStack()->RewindStack( stackpointer );
 
     return jVoxelMesh;
 }
@@ -657,7 +657,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
     MyStackAllocator::MyStackPointer memstart = 0;
     if( pPreallocatedVerts == 0 )
     {
-        memstart = g_pEngineCore->GetSingleFrameMemoryStack().GetCurrentLocation();
+        memstart = g_pEngineCore->GetSingleFrameMemoryStack()->GetCurrentLocation();
     }
 
     // Loop through blocks and add a cube for each one that's enabled
@@ -676,7 +676,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
         Vertex_XYZUVNorm_RGBA* pVerts = pPreallocatedVerts;
         if( pPreallocatedVerts == 0 )
         {
-            pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( vertbuffersize );
+            pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( vertbuffersize );
         }
 
         // pVerts gets advanced by code below, so store a copy.
@@ -1285,7 +1285,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
 
     if( pPreallocatedVerts == 0 )
     {
-        g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( memstart );
+        g_pEngineCore->GetSingleFrameMemoryStack()->RewindStack( memstart );
     }
 
 #if MYFW_PROFILING_ENABLED
@@ -1338,10 +1338,10 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
             unsigned int numquads = vertcount / 4;
             unsigned int indexbuffersize = numquads * 6;
         
-            MyStackAllocator::MyStackPointer memstart = g_pEngineCore->GetSingleFrameMemoryStack().GetCurrentLocation();
+            MyStackAllocator::MyStackPointer memstart = g_pEngineCore->GetSingleFrameMemoryStack()->GetCurrentLocation();
 
             unsigned int bytestoallocate = indexbuffersize * sizeof(unsigned short);
-            unsigned short* pIndices = (unsigned short*)g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( bytestoallocate );
+            unsigned short* pIndices = (unsigned short*)g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( bytestoallocate );
 
             for( unsigned int i=0; i<numquads; i++ )
             {
@@ -1355,7 +1355,7 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
 
             m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( bytestoallocate, pIndices );
             
-            g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( memstart );
+            g_pEngineCore->GetSingleFrameMemoryStack()->RewindStack( memstart );
         }
 
         m_SubmeshList[0]->m_NumIndicesToDraw = vertcount / 4 * 6;

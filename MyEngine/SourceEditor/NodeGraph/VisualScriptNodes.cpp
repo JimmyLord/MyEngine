@@ -16,6 +16,7 @@
 
 #include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentBase.h"
 #include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentVariable.h"
+#include "../../SourceCommon/Core/EngineCore.h"
 
 #undef AddVar
 #define AddVar ComponentBase::AddVariable_Base
@@ -85,3 +86,158 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::CreateNode(const char* typeNam
 
     return nullptr;
 }
+
+//====================================================================================================
+// Macros to emit code.
+//====================================================================================================
+
+#define EmitTabs(numTabs) \
+do \
+{ \
+    for( int i=0; i<static_cast<int>( numTabs ); i++ ) \
+    { \
+        offset += sprintf_s( &string[offset], bytesAllocated - offset, "\t" ); \
+    } \
+} while( false )
+
+#define Emit(numTabs, ...) \
+do \
+{ \
+    for( int i=0; i<static_cast<int>( numTabs ); i++ ) \
+    { \
+        offset += sprintf_s( &string[offset], bytesAllocated - offset, "\t" ); \
+    } \
+    offset += sprintf_s( &string[offset], bytesAllocated - offset, __VA_ARGS__ ); \
+} while( false )
+
+#define EQ(...) \
+do \
+{ \
+    offset += sprintf_s( &string[offset], bytesAllocated - offset, __VA_ARGS__ ); \
+} while( false )
+
+#define EmitNode(node, numTabs) do { offset += node->EmitLua( string, offset, bytesAllocated, numTabs ); } while ( false )
+#define ENQ(node) do { offset += node->EmitLua( string, offset, bytesAllocated, 0 ); } while ( false )
+
+char* EmitNodeTemp(VisualScriptNode* pNode)
+{
+    char* temp = static_cast<char*>( g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( 32 ) );
+    pNode->EmitLua( temp, 0, 32, 0 );
+    return temp;
+};
+
+//====================================================================================================
+// Nodes and overrides for emitting Lua script.
+//====================================================================================================
+
+uint32 VisualScriptNode_Value_Float::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
+{
+    int startOffset = offset;
+    Emit( 0, "(%f)", m_Float );
+    return offset - startOffset;
+}
+
+uint32 VisualScriptNode_MathOp_Add::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
+{
+    int startOffset = offset;
+
+    VisualScriptNode* pNode1 = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToInput( m_ID, 0 );
+    VisualScriptNode* pNode2 = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 );
+
+    if( pNode1 == nullptr || pNode2 == nullptr )
+        return 0;
+
+    // if( condition ) then
+    char* node1String = EmitNodeTemp( pNode1 );
+    char* node2String = EmitNodeTemp( pNode2 );
+    Emit( tabDepth, "( %s + %s )", node1String, node2String );
+
+    return offset - startOffset;
+}
+
+uint32 VisualScriptNode_Condition_GreaterEqual::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
+{
+    int startOffset = offset;
+
+    VisualScriptNode* pNode1 = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 );
+    VisualScriptNode* pNode2 = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToInput( m_ID, 2 );
+
+    if( pNode1 == nullptr || pNode2 == nullptr )
+        return 0;
+
+    {
+        // if( condition ) then
+        char* node1String = EmitNodeTemp( pNode1 );
+        char* node2String = EmitNodeTemp( pNode2 );
+        Emit( tabDepth, "if( %s <= %s ) then\n", node1String, node2String );
+        //EmitTabs( tabDepth ); EQ( "if( " ); ENQ( pNode1 ); EQ( " >= " ); ENQ( pNode2 ); EQ( " ) then\n" );
+
+        int count = 0;
+        while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
+        {
+            EmitNode( pNode, tabDepth+1 );
+        }
+    }
+
+    // If there are any nodes connected to the 2nd output, then emit an else.
+    if( m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0 ) )
+    {
+        // else
+        Emit( tabDepth, "else\n" );
+
+        int count = 0;
+        while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 1, count++ ) )
+        {
+            EmitNode( pNode, tabDepth+1 );
+        }
+    }
+
+    Emit( tabDepth, "end\n" );
+
+    return offset - startOffset;
+}
+
+uint32 VisualScriptNode_Event_KeyPress::ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated)
+{
+    int startOffset = offset;
+
+    uint32 tabDepth = 0;
+
+    Emit( tabDepth, "OnButtons = function(action, id)\n" );
+
+    int count = 0;
+    while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
+    {
+        EmitNode( pNode, tabDepth+1 );
+    }
+
+    Emit( tabDepth, "end,\n" );
+
+    return offset - startOffset;
+}
+
+uint32 VisualScriptNode_Disable_GameObject::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
+{
+    int startOffset = offset;
+
+    if( m_pGameObject == nullptr )
+    {
+        return 0;
+    }
+
+    if( m_pGameObject->IsEnabled() )
+    {
+        Emit( tabDepth, "%s:SetEnabled( false );\n", m_pGameObject->GetName() );
+    }
+    else
+    {
+        Emit( tabDepth, "%s:SetEnabled( true );\n", m_pGameObject->GetName() );
+    }
+
+    return offset - startOffset;
+}
+
+#undef Emit
+#undef EQ
+#undef EmitNode
+#undef ENQ

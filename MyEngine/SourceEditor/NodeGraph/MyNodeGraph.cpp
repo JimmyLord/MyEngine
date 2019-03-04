@@ -89,6 +89,8 @@ MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
 
     m_MouseNodeLinkStartPoint.Clear();
 
+    m_pLuaString = nullptr;
+
     //m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Float", Vector2(40, 50), this ) );
     //m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Color", Vector2(40, 150), this ) );
     //m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "GameObject", Vector2(40, 250), this ) );
@@ -105,6 +107,8 @@ MyNodeGraph::~MyNodeGraph()
     Clear();
 
     delete m_pCommandStack;
+    
+    delete[] m_pLuaString;
 }
 
 void MyNodeGraph::Clear()
@@ -336,7 +340,12 @@ void MyNodeGraph::Update()
     ImGui::BeginGroup();
 
     // Create a child canvas for the node graph.
-    ImGui::Text( "Hold middle mouse button to scroll (%.2f,%.2f)", m_ScrollOffset.x, m_ScrollOffset.y );
+    ImGui::Text( "Scroll (%.2f,%.2f)", m_ScrollOffset.x, m_ScrollOffset.y );
+    ImGui::SameLine();
+    if( ImGui::Checkbox( "Lua", &m_ShowingLuaString ) )
+    {
+        m_pLuaString = ExportAsLuaString();
+    }
     ImGui::SameLine( ImGui::GetWindowWidth() - 300 );
     ImGui::Checkbox( "Show grid", &m_GridVisible );
     ImGui::SameLine();
@@ -353,266 +362,278 @@ void MyNodeGraph::Update()
         m_UndoStackDepthAtLastSave = 0;
         Load();
     }
-    ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 1, 1 ) );
-    ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
-    ImGui::PushStyleColor( ImGuiCol_ChildWindowBg, COLOR_BG );
-    ImGui::BeginChild( "scrolling region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove );
-    ImGui::PushItemWidth( 120.0f );
 
-    Vector2 offset = m_ScrollOffset + ImGui::GetCursorScreenPos();
-    ImDrawList* pDrawList = ImGui::GetWindowDrawList();
-
-    // Draw grid.
-    DrawGrid( offset );
-
-    // Split draw into 2 channels (0 for background, 1 for foreground).
-    pDrawList->ChannelsSplit( 2 );
-
-    int nodeLinkIndexHoveredInScene = -1;
-
-    // Draw the links between nodes.
+    if( m_ShowingLuaString )
     {
-        // Draw established links.
-        pDrawList->ChannelsSetCurrent( 0 ); // Background.
-        for( int linkIndex = 0; linkIndex < m_Links.Size; linkIndex++ )
+        if( m_pLuaString )
         {
-            MyNodeLink* pLink = &m_Links[linkIndex];
-            MyNode* pOutputNode = m_Nodes[FindNodeIndexByID(pLink->m_OutputNodeID)];
-            MyNode* pInputNode = m_Nodes[FindNodeIndexByID(pLink->m_InputNodeID)];
-            Vector2 p1 = offset + pOutputNode->GetOutputSlotPos( pLink->m_OutputSlotID );
-            Vector2 p2 = offset + pInputNode->GetInputSlotPos( pLink->m_InputSlotID );
-
-            ImU32 color = COLOR_LINK_NORMAL;
-
-            if( nodeLinkIndexHoveredInScene == -1 && IsNearBezierCurve( ImGui::GetIO().MousePos, p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2 ) )
-            {
-                nodeLinkIndexHoveredInScene = linkIndex;
-                color = COLOR_LINK_HIGHLIGHTED;
-            }
-
-            pDrawList->AddBezierCurve( p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2, color, 3.0f );
-        }
-
-        // Draw link being dragged by mouse.
-        if( m_MouseNodeLinkStartPoint.InUse() )
-        {
-            Vector2 p1, p2;
-
-            int inputNodeIndex = FindNodeIndexByID( m_MouseNodeLinkStartPoint.m_NodeID );
-            MyNode* pInputNode = m_Nodes[inputNodeIndex];
-            
-            if( m_MouseNodeLinkStartPoint.m_SlotType == SlotType_Input )
-            {
-                p1 = ImGui::GetIO().MousePos;
-                p2 = offset + pInputNode->GetInputSlotPos( m_MouseNodeLinkStartPoint.m_SlotID );
-            }
-            else
-            {
-                p1 = offset + pInputNode->GetOutputSlotPos( m_MouseNodeLinkStartPoint.m_SlotID );
-                p2 = ImGui::GetIO().MousePos;
-            }
-
-            pDrawList->AddBezierCurve( p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2, m_MouseNodeLinkStartPoint.m_Color, 3.0f );
-
-            m_MouseNodeLinkStartPoint.m_Color = COLOR_LINK_IN_PROGRESS_DEFAULT;
+            ImGui::TextWrapped( m_pLuaString );
         }
     }
-
-    // Draw nodes.
+    else
     {
-        for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+        ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 1, 1 ) );
+        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
+        ImGui::PushStyleColor( ImGuiCol_ChildWindowBg, COLOR_BG );
+        ImGui::BeginChild( "scrolling region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove );
+        ImGui::PushItemWidth( 120.0f );
+
+        Vector2 offset = m_ScrollOffset + ImGui::GetCursorScreenPos();
+        ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+
+        // Draw grid.
+        DrawGrid( offset );
+
+        // Split draw into 2 channels (0 for background, 1 for foreground).
+        pDrawList->ChannelsSplit( 2 );
+
+        int nodeLinkIndexHoveredInScene = -1;
+
+        // Draw the links between nodes.
         {
-            MyNode* pNode = m_Nodes[nodeIndex];
-            pNode->Draw( pDrawList, offset, m_SelectedNodeIDs.contains( pNode->m_ID ), &m_MouseNodeLinkStartPoint );
-
-            // Check for right-click context menu.
-            if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
+            // Draw established links.
+            pDrawList->ChannelsSetCurrent( 0 ); // Background.
+            for( int linkIndex = 0; linkIndex < m_Links.Size; linkIndex++ )
             {
-                nodeIndexHoveredInScene = nodeIndex;
-                openContextMenu = true;
-            }
-        }
-    }
+                MyNodeLink* pLink = &m_Links[linkIndex];
+                MyNode* pOutputNode = m_Nodes[FindNodeIndexByID(pLink->m_OutputNodeID)];
+                MyNode* pInputNode = m_Nodes[FindNodeIndexByID(pLink->m_InputNodeID)];
+                Vector2 p1 = offset + pOutputNode->GetOutputSlotPos( pLink->m_OutputSlotID );
+                Vector2 p2 = offset + pInputNode->GetInputSlotPos( pLink->m_InputSlotID );
 
-    // Merge the draw list channels.
-    pDrawList->ChannelsMerge();
+                ImU32 color = COLOR_LINK_NORMAL;
 
-    // Clear the temporary link when the mouse is released.
-    if( ImGui::IsMouseReleased( 0 ) )
-    {
-        m_MouseNodeLinkStartPoint.Clear();
-    }
-
-    // Deal with context menus.
-    {
-        // If we right-click an empty part of the grid, unselect everything and open context menu.
-        if( !ImGui::IsAnyItemHovered() && ImGui::IsMouseHoveringWindow() && ImGui::IsMouseReleased( 1 ) )
-        {
-            m_SelectedNodeIDs.clear();
-            m_SelectedNodeLinkIndex = -1;
-            nodeIndexHoveredInList = NodeID_Undefined;
-            nodeIndexHoveredInScene = SlotID_Undefined;
-            openContextMenu = true;
-        }
-
-        if( openContextMenu )
-        {
-            ImGui::OpenPopup("context menu");
-
-            if( nodeLinkIndexHoveredInScene != -1 )
-            {
-                m_SelectedNodeLinkIndex = nodeLinkIndexHoveredInScene;
-            }
-            else if( nodeIndexHoveredInList != -1 )
-            {
-                m_SelectedNodeIDs.clear();
-                m_SelectedNodeLinkIndex = -1;
-                m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInList]->m_ID );
-            }
-            else if( nodeIndexHoveredInScene != -1 )
-            {
-                bool isSelected = m_SelectedNodeIDs.contains(m_Nodes[nodeIndexHoveredInScene]->m_ID );
-
-                if( isSelected == false || m_SelectedNodeIDs.size() == 1 )
+                if( nodeLinkIndexHoveredInScene == -1 && IsNearBezierCurve( ImGui::GetIO().MousePos, p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2 ) )
                 {
-                    m_SelectedNodeIDs.clear();
-                    m_SelectedNodeLinkIndex = -1;
-                    m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInScene]->m_ID );
+                    nodeLinkIndexHoveredInScene = linkIndex;
+                    color = COLOR_LINK_HIGHLIGHTED;
                 }
-            }
-        }
 
-        // Draw context menu.
-        ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2(8, 8) );
-        if( ImGui::BeginPopup( "context menu" ) )
-        {
-            if( m_SelectedNodeLinkIndex != -1 )
-            {
-                // Remove the link.
-                if( ImGui::MenuItem( "Remove" ) )
-                {
-                    m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndex ) );
-                }
+                pDrawList->AddBezierCurve( p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2, color, 3.0f );
             }
-            else 
+
+            // Draw link being dragged by mouse.
+            if( m_MouseNodeLinkStartPoint.InUse() )
             {
-                MyNode* pNode = nullptr;
+                Vector2 p1, p2;
+
+                int inputNodeIndex = FindNodeIndexByID( m_MouseNodeLinkStartPoint.m_NodeID );
+                MyNode* pInputNode = m_Nodes[inputNodeIndex];
             
-                int nodeIndex = m_SelectedNodeIDs.size() > 0 ? FindNodeIndexByID( m_SelectedNodeIDs[0] ) : -1;
-                if( nodeIndex != -1 )
-                    pNode = m_Nodes[nodeIndex];
-            
-                Vector2 scenePos = ImGui::GetMousePosOnOpeningCurrentPopup() - offset;
-                if( m_SelectedNodeIDs.size() > 1 )
+                if( m_MouseNodeLinkStartPoint.m_SlotType == SlotType_Input )
                 {
-                    ImGui::Text( "%d Nodes Selected", m_SelectedNodeIDs.size() );
-                    ImGui::Separator();
-                    if( ImGui::MenuItem( "Delete Nodes", nullptr, false ) )
-                    {
-                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
-                    }
-                }
-                else if( pNode )
-                {
-                    ImGui::Text( "Node '%s'", pNode->m_Name );
-                    ImGui::Separator();
-                    if( ImGui::MenuItem( "Rename...", nullptr, false, false ) ) {}
-                    if( ImGui::MenuItem( "Delete", nullptr, false ) )
-                    {
-                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
-                    }
-                    if( ImGui::MenuItem( "Copy", nullptr, false, false ) ) {}
+                    p1 = ImGui::GetIO().MousePos;
+                    p2 = offset + pInputNode->GetInputSlotPos( m_MouseNodeLinkStartPoint.m_SlotID );
                 }
                 else
                 {
-                    MyNode* pNode = m_pNodeTypeManager->AddCreateNodeItemsToContextMenu( scenePos, this );
-                    if( pNode )
-                    {
-                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_AddNode( this, pNode ) );
-                    }
+                    p1 = offset + pInputNode->GetOutputSlotPos( m_MouseNodeLinkStartPoint.m_SlotID );
+                    p2 = ImGui::GetIO().MousePos;
+                }
 
-                    ImGui::Separator();
+                pDrawList->AddBezierCurve( p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2, m_MouseNodeLinkStartPoint.m_Color, 3.0f );
 
-                    if( ImGui::MenuItem( "Paste", nullptr, false, false ) ) {}
+                m_MouseNodeLinkStartPoint.m_Color = COLOR_LINK_IN_PROGRESS_DEFAULT;
+            }
+        }
+
+        // Draw nodes.
+        {
+            for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+            {
+                MyNode* pNode = m_Nodes[nodeIndex];
+                pNode->Draw( pDrawList, offset, m_SelectedNodeIDs.contains( pNode->m_ID ), &m_MouseNodeLinkStartPoint );
+
+                // Check for right-click context menu.
+                if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
+                {
+                    nodeIndexHoveredInScene = nodeIndex;
+                    openContextMenu = true;
                 }
             }
-            ImGui::EndPopup();
         }
-        ImGui::PopStyleVar();
-    }
 
-    // Handle scrolling and multi-node box select.
-    {
-        static bool dragging = false;
+        // Merge the draw list channels.
+        pDrawList->ChannelsMerge();
 
-        if( dragging )
+        // Clear the temporary link when the mouse is released.
+        if( ImGui::IsMouseReleased( 0 ) )
         {
-            // Multi-node box select.
-            if( ImGui::IsMouseDragging( 0, 0.0f ) )
+            m_MouseNodeLinkStartPoint.Clear();
+        }
+
+        // Deal with context menus.
+        {
+            // If we right-click an empty part of the grid, unselect everything and open context menu.
+            if( !ImGui::IsAnyItemHovered() && ImGui::IsMouseHoveringWindow() && ImGui::IsMouseReleased( 1 ) )
             {
-                AABB2D mouseAABB;
-                ImVec2 windowPos = ImGui::GetWindowPos();
-                Vector2 mouse1 = ImGui::GetMousePos() - windowPos + m_ScrollOffset;
-                Vector2 mouse2 = ImGui::GetIO().MouseClickedPos[0] - windowPos + m_ScrollOffset;
-                mouseAABB.SetUnsorted( mouse1, mouse2 );
+                m_SelectedNodeIDs.clear();
+                m_SelectedNodeLinkIndex = -1;
+                nodeIndexHoveredInList = NodeID_Undefined;
+                nodeIndexHoveredInScene = SlotID_Undefined;
+                openContextMenu = true;
+            }
 
-                pDrawList->AddRectFilled( ImGui::GetMousePos(), ImGui::GetIO().MouseClickedPos[0], COLOR_DRAG_SELECTOR );
+            if( openContextMenu )
+            {
+                ImGui::OpenPopup("context menu");
 
-                if( ImGui::GetIO().KeyCtrl == false )
+                if( nodeLinkIndexHoveredInScene != -1 )
+                {
+                    m_SelectedNodeLinkIndex = nodeLinkIndexHoveredInScene;
+                }
+                else if( nodeIndexHoveredInList != -1 )
                 {
                     m_SelectedNodeIDs.clear();
+                    m_SelectedNodeLinkIndex = -1;
+                    m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInList]->m_ID );
                 }
-
-                for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+                else if( nodeIndexHoveredInScene != -1 )
                 {
-                    MyNode* pNode = m_Nodes[nodeIndex];
+                    bool isSelected = m_SelectedNodeIDs.contains(m_Nodes[nodeIndexHoveredInScene]->m_ID );
 
-                    AABB2D nodeAABB;
-                    nodeAABB.Set( pNode->m_Pos, pNode->m_Pos + pNode->m_Size );
-
-                    if( nodeAABB.IsOverlapped( mouseAABB ) )
+                    if( isSelected == false || m_SelectedNodeIDs.size() == 1 )
                     {
-                        if( m_SelectedNodeIDs.contains( pNode->m_ID ) == false )
+                        m_SelectedNodeIDs.clear();
+                        m_SelectedNodeLinkIndex = -1;
+                        m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInScene]->m_ID );
+                    }
+                }
+            }
+
+            // Draw context menu.
+            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2(8, 8) );
+            if( ImGui::BeginPopup( "context menu" ) )
+            {
+                if( m_SelectedNodeLinkIndex != -1 )
+                {
+                    // Remove the link.
+                    if( ImGui::MenuItem( "Remove" ) )
+                    {
+                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndex ) );
+                    }
+                }
+                else 
+                {
+                    MyNode* pNode = nullptr;
+            
+                    int nodeIndex = m_SelectedNodeIDs.size() > 0 ? FindNodeIndexByID( m_SelectedNodeIDs[0] ) : -1;
+                    if( nodeIndex != -1 )
+                        pNode = m_Nodes[nodeIndex];
+            
+                    Vector2 scenePos = ImGui::GetMousePosOnOpeningCurrentPopup() - offset;
+                    if( m_SelectedNodeIDs.size() > 1 )
+                    {
+                        ImGui::Text( "%d Nodes Selected", m_SelectedNodeIDs.size() );
+                        ImGui::Separator();
+                        if( ImGui::MenuItem( "Delete Nodes", nullptr, false ) )
                         {
-                            m_SelectedNodeIDs.push_back( pNode->m_ID );
+                            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+                        }
+                    }
+                    else if( pNode )
+                    {
+                        ImGui::Text( "Node '%s'", pNode->m_Name );
+                        ImGui::Separator();
+                        if( ImGui::MenuItem( "Rename...", nullptr, false, false ) ) {}
+                        if( ImGui::MenuItem( "Delete", nullptr, false ) )
+                        {
+                            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+                        }
+                        if( ImGui::MenuItem( "Copy", nullptr, false, false ) ) {}
+                    }
+                    else
+                    {
+                        MyNode* pNode = m_pNodeTypeManager->AddCreateNodeItemsToContextMenu( scenePos, this );
+                        if( pNode )
+                        {
+                            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_AddNode( this, pNode ) );
+                        }
+
+                        ImGui::Separator();
+
+                        if( ImGui::MenuItem( "Paste", nullptr, false, false ) ) {}
+                    }
+                }
+                ImGui::EndPopup();
+            }
+            ImGui::PopStyleVar();
+        }
+
+        // Handle scrolling and multi-node box select.
+        {
+            static bool dragging = false;
+
+            if( dragging )
+            {
+                // Multi-node box select.
+                if( ImGui::IsMouseDragging( 0, 0.0f ) )
+                {
+                    AABB2D mouseAABB;
+                    ImVec2 windowPos = ImGui::GetWindowPos();
+                    Vector2 mouse1 = ImGui::GetMousePos() - windowPos + m_ScrollOffset;
+                    Vector2 mouse2 = ImGui::GetIO().MouseClickedPos[0] - windowPos + m_ScrollOffset;
+                    mouseAABB.SetUnsorted( mouse1, mouse2 );
+
+                    pDrawList->AddRectFilled( ImGui::GetMousePos(), ImGui::GetIO().MouseClickedPos[0], COLOR_DRAG_SELECTOR );
+
+                    if( ImGui::GetIO().KeyCtrl == false )
+                    {
+                        m_SelectedNodeIDs.clear();
+                    }
+
+                    for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+                    {
+                        MyNode* pNode = m_Nodes[nodeIndex];
+
+                        AABB2D nodeAABB;
+                        nodeAABB.Set( pNode->m_Pos, pNode->m_Pos + pNode->m_Size );
+
+                        if( nodeAABB.IsOverlapped( mouseAABB ) )
+                        {
+                            if( m_SelectedNodeIDs.contains( pNode->m_ID ) == false )
+                            {
+                                m_SelectedNodeIDs.push_back( pNode->m_ID );
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if( ImGui::IsMouseReleased( 0 ) || m_MouseNodeLinkStartPoint.InUse() )
-        {
-            dragging = false;
-        }
-
-        // If the node graph area is hovered, but no items are active:
-        if( ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() )
-        {
-            if( ImGui::IsMouseDragging( 0, 0.0f ) )
+            if( ImGui::IsMouseReleased( 0 ) || m_MouseNodeLinkStartPoint.InUse() )
             {
-                dragging = true;
+                dragging = false;
             }
 
-            // Scroll view with middle mouse.
-            if( ImGui::IsMouseDragging( 2, 0.0f ) )
+            // If the node graph area is hovered, but no items are active:
+            if( ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() )
             {
-                m_ScrollOffset = m_ScrollOffset + ImGui::GetIO().MouseDelta;
-            }
+                if( ImGui::IsMouseDragging( 0, 0.0f ) )
+                {
+                    dragging = true;
+                }
 
-            // Clear selected nodes if left-mouse is pressed, control isn't held and we're not dragging a new link.
-            if( ImGui::IsMouseClicked( 0 ) && ImGui::GetIO().KeyCtrl == false && m_MouseNodeLinkStartPoint.InUse() == false )
-            {
-                m_SelectedNodeIDs.clear();
+                // Scroll view with middle mouse.
+                if( ImGui::IsMouseDragging( 2, 0.0f ) )
+                {
+                    m_ScrollOffset = m_ScrollOffset + ImGui::GetIO().MouseDelta;
+                }
+
+                // Clear selected nodes if left-mouse is pressed, control isn't held and we're not dragging a new link.
+                if( ImGui::IsMouseClicked( 0 ) && ImGui::GetIO().KeyCtrl == false && m_MouseNodeLinkStartPoint.InUse() == false )
+                {
+                    m_SelectedNodeIDs.clear();
+                }
             }
         }
+
+        // End of child canvas.
+        ImGui::PopItemWidth();
+        ImGui::EndChild(); // "scrolling region"
+        ImGui::PopStyleColor(); // ImGuiCol_ChildWindowBg
+        ImGui::PopStyleVar(2); // ImGuiStyleVar_FramePadding and ImGuiStyleVar_WindowPadding
     }
 
-    // End of child canvas.
-    ImGui::PopItemWidth();
-    ImGui::EndChild(); // "scrolling region"
-    ImGui::PopStyleColor(); // ImGuiCol_ChildWindowBg
-    ImGui::PopStyleVar(2); // ImGuiStyleVar_FramePadding and ImGuiStyleVar_WindowPadding
     ImGui::EndGroup();
 }
 
@@ -639,8 +660,10 @@ void MyNodeGraph::Save()
         cJSONExt_free( jsonString );
     }
 
+    // Save Lua file.
     {
-        const char* luaString = ExportAsLuaString();
+        //const char* luaString = ExportAsLuaString();
+        m_pLuaString = ExportAsLuaString();
 
         char* filename = "test.Lua";
 
@@ -650,10 +673,10 @@ void MyNodeGraph::Save()
 #else
         pFile = fopen( filename, "wb" );
 #endif
-        fprintf( pFile, "%s", luaString );
+        fprintf( pFile, "%s", m_pLuaString );
         fclose( pFile );
 
-        delete[] luaString;
+        //delete[] luaString;
     }
 }
 
@@ -680,13 +703,13 @@ void MyNodeGraph::Load()
             fseek( fileHandle, 0, SEEK_SET );
 
             MyStackAllocator::MyStackPointer stackpointer;
-            jsonString = static_cast<char*>( g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( length+1, &stackpointer ) );
+            jsonString = static_cast<char*>( g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( length+1, &stackpointer ) );
             fread( jsonString, length, 1, fileHandle );
             jsonString[length] = '\0';
 
             jNodeGraph = cJSON_Parse( jsonString );
 
-            g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( stackpointer );
+            g_pEngineCore->GetSingleFrameMemoryStack()->RewindStack( stackpointer );
         }
 
         fclose( fileHandle );
