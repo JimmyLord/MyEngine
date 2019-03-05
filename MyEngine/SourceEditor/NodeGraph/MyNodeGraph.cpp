@@ -344,6 +344,7 @@ void MyNodeGraph::Update()
     ImGui::SameLine();
     if( ImGui::Checkbox( "Lua", &m_ShowingLuaString ) )
     {
+        delete[] m_pLuaString;
         m_pLuaString = ExportAsLuaString();
     }
     ImGui::SameLine( ImGui::GetWindowWidth() - 300 );
@@ -663,6 +664,7 @@ void MyNodeGraph::Save()
     // Save Lua file.
     {
         //const char* luaString = ExportAsLuaString();
+        delete[] m_pLuaString;
         m_pLuaString = ExportAsLuaString();
 
         char* filename = "test.Lua";
@@ -733,6 +735,7 @@ const char* MyNodeGraph::ExportAsLuaString()
     {
         offset += m_Nodes[nodeIndex]->ExportAsLuaString( string, offset, bufferSize );
     }
+    string[offset] = '\0';
 
     return string;
 }

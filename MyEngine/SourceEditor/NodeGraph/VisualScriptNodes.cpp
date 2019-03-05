@@ -91,15 +91,6 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::CreateNode(const char* typeNam
 // Macros to emit code.
 //====================================================================================================
 
-#define EmitTabs(numTabs) \
-do \
-{ \
-    for( int i=0; i<static_cast<int>( numTabs ); i++ ) \
-    { \
-        offset += sprintf_s( &string[offset], bytesAllocated - offset, "\t" ); \
-    } \
-} while( false )
-
 #define Emit(numTabs, ...) \
 do \
 { \
@@ -110,18 +101,17 @@ do \
     offset += sprintf_s( &string[offset], bytesAllocated - offset, __VA_ARGS__ ); \
 } while( false )
 
-#define EQ(...) \
+#define EmitNode(node, numTabs) \
 do \
 { \
-    offset += sprintf_s( &string[offset], bytesAllocated - offset, __VA_ARGS__ ); \
-} while( false )
-
-#define EmitNode(node, numTabs) do { offset += node->EmitLua( string, offset, bytesAllocated, numTabs ); } while ( false )
-#define ENQ(node) do { offset += node->EmitLua( string, offset, bytesAllocated, 0 ); } while ( false )
+    offset += node->EmitLua( string, offset, bytesAllocated, numTabs ); \
+} \
+while ( false )
 
 char* EmitNodeTemp(VisualScriptNode* pNode)
 {
     char* temp = static_cast<char*>( g_pEngineCore->GetSingleFrameMemoryStack()->AllocateBlock( 32 ) );
+    temp[0] = '\0';
     pNode->EmitLua( temp, 0, 32, 0 );
     return temp;
 };
@@ -137,6 +127,9 @@ uint32 VisualScriptNode_Value_Float::EmitLua(char* string, uint32 offset, uint32
     return offset - startOffset;
 }
 
+//====================================================================================================
+//====================================================================================================
+
 uint32 VisualScriptNode_MathOp_Add::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
 {
     int startOffset = offset;
@@ -145,15 +138,21 @@ uint32 VisualScriptNode_MathOp_Add::EmitLua(char* string, uint32 offset, uint32 
     VisualScriptNode* pNode2 = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 );
 
     if( pNode1 == nullptr || pNode2 == nullptr )
-        return 0;
+    {
+        const char* errorMessage = "ERROR_MathOp_Add";
+        Emit( 0, errorMessage );
+        return strlen( errorMessage );
+    }
 
-    // if( condition ) then
     char* node1String = EmitNodeTemp( pNode1 );
     char* node2String = EmitNodeTemp( pNode2 );
-    Emit( tabDepth, "( %s + %s )", node1String, node2String );
+    Emit( 0, "( %s + %s )", node1String, node2String );
 
     return offset - startOffset;
 }
+
+//====================================================================================================
+//====================================================================================================
 
 uint32 VisualScriptNode_Condition_GreaterEqual::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
 {
@@ -163,14 +162,17 @@ uint32 VisualScriptNode_Condition_GreaterEqual::EmitLua(char* string, uint32 off
     VisualScriptNode* pNode2 = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToInput( m_ID, 2 );
 
     if( pNode1 == nullptr || pNode2 == nullptr )
-        return 0;
-
     {
-        // if( condition ) then
+        const char* errorMessage = "ERROR_Condition_GreaterEqual";
+        Emit( 0, errorMessage );
+        return strlen( errorMessage );
+    }
+
+    // Always emit an "if( condition ) then" block.
+    {
         char* node1String = EmitNodeTemp( pNode1 );
         char* node2String = EmitNodeTemp( pNode2 );
         Emit( tabDepth, "if( %s <= %s ) then\n", node1String, node2String );
-        //EmitTabs( tabDepth ); EQ( "if( " ); ENQ( pNode1 ); EQ( " >= " ); ENQ( pNode2 ); EQ( " ) then\n" );
 
         int count = 0;
         while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
@@ -179,10 +181,9 @@ uint32 VisualScriptNode_Condition_GreaterEqual::EmitLua(char* string, uint32 off
         }
     }
 
-    // If there are any nodes connected to the 2nd output, then emit an else.
+    // If there are any nodes connected to the 2nd output, then emit an else block.
     if( m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0 ) )
     {
-        // else
         Emit( tabDepth, "else\n" );
 
         int count = 0;
@@ -196,6 +197,9 @@ uint32 VisualScriptNode_Condition_GreaterEqual::EmitLua(char* string, uint32 off
 
     return offset - startOffset;
 }
+
+//====================================================================================================
+//====================================================================================================
 
 uint32 VisualScriptNode_Event_KeyPress::ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated)
 {
@@ -216,13 +220,18 @@ uint32 VisualScriptNode_Event_KeyPress::ExportAsLuaString(char* string, uint32 o
     return offset - startOffset;
 }
 
+//====================================================================================================
+//====================================================================================================
+
 uint32 VisualScriptNode_Disable_GameObject::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
 {
     int startOffset = offset;
 
     if( m_pGameObject == nullptr )
     {
-        return 0;
+        const char* errorMessage = "ERROR_Disable_GameObject";
+        Emit( 0, errorMessage );
+        return strlen( errorMessage );
     }
 
     if( m_pGameObject->IsEnabled() )
@@ -236,8 +245,3 @@ uint32 VisualScriptNode_Disable_GameObject::EmitLua(char* string, uint32 offset,
 
     return offset - startOffset;
 }
-
-#undef Emit
-#undef EQ
-#undef EmitNode
-#undef ENQ
