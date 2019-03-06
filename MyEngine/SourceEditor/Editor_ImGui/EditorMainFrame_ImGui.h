@@ -43,6 +43,10 @@ enum EditorWindowTypes
 class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:
+    // Documents.
+    std::vector<EditorDocument*> m_pOpenDocuments;
+    EditorDocument* m_pActiveDocument;
+
     // Layouts.
     EditorLayoutManager_ImGui* m_pLayoutManager;
     EditorLayout* m_pCurrentLayout;
@@ -101,7 +105,6 @@ protected:
     Vector2 m_GameWindowSize;
     Vector2 m_EditorWindowSize;
 
-    EditorDocument* m_pActiveDocument;
     bool m_GameWindowFocused;
     bool m_GameWindowVisible;
     bool m_EditorWindowHovered;

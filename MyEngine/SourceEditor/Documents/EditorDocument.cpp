@@ -11,6 +11,19 @@
 
 #include "EditorDocument.h"
 
+EditorDocument::EditorDocument()
+{
+    m_pCommandStack = nullptr;
+    m_UndoStackDepthAtLastSave = 0;
+    m_SaveRequested = false;
+
+     m_Filename[0] = '\0';
+}
+
+EditorDocument::~EditorDocument()
+{
+}
+
 bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -46,6 +59,24 @@ bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, in
         }
         if( C  && keyCode == 'S' ) { m_SaveRequested = true; return true; }
     }
+
+    return false;
+}
+
+void EditorDocument::SetFilename(const char* filename)
+{
+    strcpy_s( m_Filename, MAX_PATH, filename );
+}
+
+const char* EditorDocument::GetFilename()
+{
+    return m_Filename;
+}
+
+bool EditorDocument::HasUnsavedChanges()
+{
+    if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
+        return true;
 
     return false;
 }

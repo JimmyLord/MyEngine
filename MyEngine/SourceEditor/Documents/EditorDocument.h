@@ -17,11 +17,18 @@ protected:
     uint32 m_UndoStackDepthAtLastSave;
     bool m_SaveRequested;
 
+    char m_Filename[MAX_PATH];
+
 public:
-    EditorDocument() {}
-    virtual ~EditorDocument() {}
+    EditorDocument();
+    virtual ~EditorDocument();
 
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+
+    void SetFilename(const char* filename);
+    const char* GetFilename();
+
+    bool HasUnsavedChanges();
 };
 
 #endif //__EditorDocument_H__

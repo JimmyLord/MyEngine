@@ -86,6 +86,9 @@ const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
 
 EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
+    // Documents.
+    m_pActiveDocument = nullptr;
+
     // Layouts.
     m_pLayoutManager = MyNew EditorLayoutManager_ImGui();
     m_pCurrentLayout = nullptr;
@@ -145,7 +148,6 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_GameWindowSize.Set( 0, 0 );
     m_EditorWindowSize.Set( 0, 0 );
 
-    m_pActiveDocument = nullptr;
     m_GameWindowFocused = false;
     m_GameWindowVisible = false;
     m_EditorWindowHovered = false;
@@ -554,13 +556,26 @@ void EditorMainFrame_ImGui::AddEverything()
         ImGui::End();
     }
 
-    //MyNodeTypeManager* pNodeTypeManager = MyNew VisualScriptNodeTypeManager();
-    static VisualScriptNodeTypeManager nodeTypeManager;
-    static MyNodeGraph nodeGraph( &nodeTypeManager );
-    ImGui::SetNextWindowSize( ImVec2(700, 600), ImGuiSetCond_FirstUseEver );
-    if( nodeGraph.Update( true, "MyImGuiNodeGraph", true ) )
+    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
     {
-        m_pActiveDocument = &nodeGraph;
+        ImGui::SetNextWindowSize( ImVec2(700, 600), ImGuiSetCond_FirstUseEver );
+        bool documentStillOpen = true;
+        if( static_cast<MyNodeGraph*>( m_pOpenDocuments[i] )->CreateWindowAndUpdate( &documentStillOpen ) )
+        {
+            m_pActiveDocument = m_pOpenDocuments[i];
+
+            if( documentStillOpen == false )
+            {
+                if( m_pActiveDocument->HasUnsavedChanges() )
+                {
+                }
+                else
+                {
+                    m_pActiveDocument = nullptr;
+                    m_pOpenDocuments.erase( m_pOpenDocuments.begin() + i );
+                }
+            }
+        }
     }
 
     m_RenamePressedThisFrame = false;
@@ -930,7 +945,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
     if( ImGui::BeginMainMenuBar() )
     {
-        if( ImGui::BeginMenu( "File" ) )
+        if( ImGui::BeginMenu( "Scene" ) )
         {
             if( ImGui::MenuItem( "New Scene" ) )
             {
@@ -1010,7 +1025,24 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             if( ImGui::MenuItem( "Quit" ) ) { RequestCloseWindow(); }
 
-            ImGui::EndMenu();
+            ImGui::EndMenu(); // "Scene"
+        }
+
+        if( ImGui::BeginMenu( "Document" ) )
+        {
+            if( ImGui::BeginMenu( "New Document..." ) )
+            {
+                if( ImGui::MenuItem( "Visual Script" ) )
+                {
+                    static VisualScriptNodeTypeManager nodeTypeManager;
+                    MyNodeGraph* pVisualScript = MyNew MyNodeGraph( &nodeTypeManager );
+                    m_pOpenDocuments.push_back( pVisualScript );
+                }
+
+                ImGui::EndMenu(); // "New Document..."
+            }
+            
+            ImGui::EndMenu(); // "Document"
         }
 
         if( ImGui::BeginMenu( "Edit" ) )

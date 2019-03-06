@@ -89,6 +89,7 @@ MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
 
     m_MouseNodeLinkStartPoint.Clear();
 
+    m_ShowingLuaString = false;
     m_pLuaString = nullptr;
 
     //m_Nodes.push_back( m_pNodeTypeManager->CreateNode( "Float", Vector2(40, 50), this ) );
@@ -269,22 +270,35 @@ void MyNodeGraph::SetExpandedForAllSelectedNodes(bool expand)
 }
 
 // Returns true if in focus.
-bool MyNodeGraph::Update(bool createWindow, const char* title, bool addStarIfChangesPending)
+bool MyNodeGraph::CreateWindowAndUpdate(bool* pDocumentStillOpen)
 {
     bool inFocus = false;
 
-    char tempTitle[512];
-    if( addStarIfChangesPending && m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
+    const char* filename = GetFilename();
+    if( filename[0] == '\0' )
+        filename = "Untitled";
+
+    char tempTitle[MAX_PATH*2+5];
+    if( HasUnsavedChanges() )
     {
-        sprintf_s( tempTitle, 512, "%s*###%s", title, title );
+        sprintf_s( tempTitle, 512, "%s*###%d", filename, this );
     }
     else
     {
-        sprintf_s( tempTitle, 512, "%s###%s", title, title );
+        sprintf_s( tempTitle, 512, "%s###%d", filename, this );
     }
 
-    if( ImGui::Begin( tempTitle ) )
+    if( ImGui::Begin( tempTitle, pDocumentStillOpen ) )
     {
+        if( ImGui::BeginPopupContextItem() )
+        {
+            if( ImGui::MenuItem( "Close" ) )
+            {
+                *pDocumentStillOpen = false;
+            }
+            ImGui::EndPopup();
+        }
+
         Update();
 
         inFocus = ImGui::IsRootWindowOrAnyChildFocused();
@@ -640,14 +654,20 @@ void MyNodeGraph::Update()
 
 void MyNodeGraph::Save()
 {
+    // Save NodeGraph as JSON string.
     {
+        const char* filename = GetFilename();
+        if( filename[0] == '\0' )
+        {
+            // TODO: Pop-up a file picker dialog.
+            return;
+        }
+
         cJSON* jNodeGraph = ExportAsJSONObject();
 
         char* jsonString = cJSON_Print( jNodeGraph );
 
         cJSON_Delete( jNodeGraph );
-
-        char* filename = "test.MyVisualScript";
 
         FILE* pFile;
 #if MYFW_WINDOWS

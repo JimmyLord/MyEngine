@@ -141,7 +141,7 @@ public:
     virtual ~MyNodeGraph();
 
     // Returns true if in focus.
-    bool Update(bool createWindow, const char* title, bool addStarIfChangesPending);
+    bool CreateWindowAndUpdate(bool* pDocumentStillOpen);
     void Update();
 
     // Getters.
