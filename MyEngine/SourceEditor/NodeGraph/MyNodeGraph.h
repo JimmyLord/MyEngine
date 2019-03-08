@@ -125,8 +125,8 @@ protected:
     bool IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType);
     void SetExpandedForAllSelectedNodes(bool expand);
 
-    void Save();
-    void Load();
+    virtual void Save() override; // from EditorDocument.
+    virtual void Load() override; // from EditorDocument.
 
     const char* ExportAsLuaString();
     cJSON* ExportAsJSONObject();

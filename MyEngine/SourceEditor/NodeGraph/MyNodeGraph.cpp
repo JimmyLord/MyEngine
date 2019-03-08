@@ -366,15 +366,11 @@ void MyNodeGraph::Update()
     ImGui::SameLine();
     if( ImGui::Button( "Save" ) || m_SaveRequested )
     {
-        m_SaveRequested = false;
-        m_UndoStackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
         Save();
     }
     ImGui::SameLine();
     if( ImGui::Button( "Load" ) )
     {
-        m_pCommandStack->ClearStacks();
-        m_UndoStackDepthAtLastSave = 0;
         Load();
     }
 
@@ -654,6 +650,8 @@ void MyNodeGraph::Update()
 
 void MyNodeGraph::Save()
 {
+    EditorDocument::Save();
+
     // Save NodeGraph as JSON string.
     {
         const char* filename = GetFilename();
@@ -704,6 +702,8 @@ void MyNodeGraph::Save()
 
 void MyNodeGraph::Load()
 {
+    EditorDocument::Load();
+
     Clear();
 
     FILE* fileHandle;

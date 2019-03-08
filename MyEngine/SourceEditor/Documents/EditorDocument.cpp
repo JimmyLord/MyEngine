@@ -11,6 +11,8 @@
 
 #include "EditorDocument.h"
 
+#include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
+
 EditorDocument::EditorDocument()
 {
     m_pCommandStack = nullptr;
@@ -22,6 +24,92 @@ EditorDocument::EditorDocument()
 
 EditorDocument::~EditorDocument()
 {
+}
+
+void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands command)
+{
+    switch( command )
+    {
+    case EditorDocumentMenuCommand_Undo:
+        {
+            if( m_pCommandStack->GetUndoStackSize() > 0 )
+                m_pCommandStack->Undo( 1 );
+        }
+        break;
+
+    case EditorDocumentMenuCommand_Redo:
+        {
+            if( m_pCommandStack->GetRedoStackSize() > 0 )
+                m_pCommandStack->Redo( 1 );
+        }
+        break;
+
+    case EditorDocumentMenuCommand_Save:
+        {
+            Save();
+        }
+        break;
+
+    case EditorDocumentMenuCommand_SaveAs:
+        {
+        }
+        break;
+
+    case EditorDocumentMenuCommand_SaveAll:
+        {
+        }
+        break;
+    }
+}
+
+void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value)
+{
+}
+
+// Static
+EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
+{
+    EditorDocument* pNewDocument = nullptr;
+
+    if( ImGui::BeginMenu( "Document" ) )
+    {
+        if( ImGui::BeginMenu( "New Document..." ) )
+        {
+            if( ImGui::MenuItem( "Visual Script" ) )
+            {
+                static VisualScriptNodeTypeManager nodeTypeManager;
+                pNewDocument = MyNew MyNodeGraph( &nodeTypeManager );
+            }
+            ImGui::EndMenu(); // "New Document..."
+        }
+
+        ImGui::Separator();
+
+        char tempstr[MAX_PATH + 10];
+        if( pDocument )
+        {
+            if( pDocument->GetFilename()[0] == '\0' )
+            {
+                sprintf_s( tempstr, MAX_PATH + 10, "Save Untitled as...", "Untitled" );
+            }
+            else
+            {
+                sprintf_s( tempstr, MAX_PATH + 10, "Save %s", pDocument->GetFilename() );
+            }
+        }
+        else
+        {
+            sprintf_s( tempstr, MAX_PATH + 10, "Save: Nothing to save" );
+        }
+        if( ImGui::MenuItem( tempstr, "Ctrl-S", false, pDocument != nullptr ) )
+        {
+            pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Save );
+        }
+
+        ImGui::EndMenu(); // "Document"
+    }
+
+    return pNewDocument;
 }
 
 bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
@@ -36,31 +124,25 @@ bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, in
         bool S  = !io.KeyCtrl && !io.KeyAlt &&  io.KeyShift && !io.KeySuper; // Shift
         bool CS =  io.KeyCtrl && !io.KeyAlt &&  io.KeyShift && !io.KeySuper; // Ctrl-Shift
 
-        if( C  && keyCode == 'Z' )
-        {
-            if( m_pCommandStack->GetUndoStackSize() > 0 )
-                m_pCommandStack->Undo( 1 );
-
-            return true;
-        }
-        if( C  && keyCode == 'Y' )
-        {
-            if( m_pCommandStack->GetRedoStackSize() > 0 )
-                m_pCommandStack->Redo( 1 );
-
-            return true;
-        }
-        if( CS && keyCode == 'Z' )
-        {
-            if( m_pCommandStack->GetRedoStackSize() > 0 )
-                m_pCommandStack->Redo( 1 );
-
-            return true;
-        }
-        if( C  && keyCode == 'S' ) { m_SaveRequested = true; return true; }
+        if( C  && keyCode == 'Z' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Undo ); return true; }
+        if( C  && keyCode == 'Y' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Redo ); return true; }
+        if( CS && keyCode == 'Z' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Redo ); return true; }
+        if( C  && keyCode == 'S' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Save ); return true; }
+        if( CS && keyCode == 'S' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_SaveAll ); return true; }
     }
 
     return false;
+}
+
+void EditorDocument::Save()
+{
+    m_UndoStackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
+}
+
+void EditorDocument::Load()
+{
+    m_pCommandStack->ClearStacks();
+    m_UndoStackDepthAtLastSave = 0;
 }
 
 void EditorDocument::SetFilename(const char* filename)

@@ -13,17 +13,34 @@
 class EditorDocument
 {
 protected:
+    enum EditorDocumentMenuCommands
+    {
+        EditorDocumentMenuCommand_Undo,
+        EditorDocumentMenuCommand_Redo,
+        EditorDocumentMenuCommand_Save,
+        EditorDocumentMenuCommand_SaveAs,
+        EditorDocumentMenuCommand_SaveAll,
+    };
+
+protected:
     CommandStack* m_pCommandStack;
     uint32 m_UndoStackDepthAtLastSave;
     bool m_SaveRequested;
 
     char m_Filename[MAX_PATH];
 
+protected:
+    void EditorDocumentMenuCommand(EditorDocumentMenuCommands command);
+    void EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value);
+
 public:
     EditorDocument();
     virtual ~EditorDocument();
 
+    static EditorDocument* AddDocumentMenu(EditorDocument* pDocument);
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+    virtual void Save();
+    virtual void Load();
 
     void SetFilename(const char* filename);
     const char* GetFilename();

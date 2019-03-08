@@ -88,6 +88,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
     // Documents.
     m_pActiveDocument = nullptr;
+    m_pLastActiveDocument = nullptr;
 
     // Layouts.
     m_pLayoutManager = MyNew EditorLayoutManager_ImGui();
@@ -463,8 +464,6 @@ void EditorMainFrame_ImGui::Update(float deltaTime)
 
 void EditorMainFrame_ImGui::AddEverything()
 {
-    m_pActiveDocument = nullptr;
-
     m_pCurrentLayout = m_pLayoutManager->GetCurrentLayout();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -556,6 +555,9 @@ void EditorMainFrame_ImGui::AddEverything()
         ImGui::End();
     }
 
+    // Clear m_pActiveDocument, a new one will be set if a document is in focus.
+    m_pActiveDocument = nullptr;
+
     for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
     {
         ImGui::SetNextWindowSize( ImVec2(700, 600), ImGuiSetCond_FirstUseEver );
@@ -563,6 +565,7 @@ void EditorMainFrame_ImGui::AddEverything()
         if( static_cast<MyNodeGraph*>( m_pOpenDocuments[i] )->CreateWindowAndUpdate( &documentStillOpen ) )
         {
             m_pActiveDocument = m_pOpenDocuments[i];
+            m_pLastActiveDocument = m_pOpenDocuments[i];
 
             if( documentStillOpen == false )
             {
@@ -572,6 +575,10 @@ void EditorMainFrame_ImGui::AddEverything()
                 else
                 {
                     m_pActiveDocument = nullptr;
+                    if( m_pLastActiveDocument == m_pActiveDocument )
+                    {
+                        m_pLastActiveDocument = nullptr;
+                    }
                     m_pOpenDocuments.erase( m_pOpenDocuments.begin() + i );
                 }
             }
@@ -1028,21 +1035,11 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             ImGui::EndMenu(); // "Scene"
         }
 
-        if( ImGui::BeginMenu( "Document" ) )
+        // Add a menu for editor documents.
+        EditorDocument* pNewDocument = EditorDocument::AddDocumentMenu( m_pLastActiveDocument );
+        if( pNewDocument != nullptr )
         {
-            if( ImGui::BeginMenu( "New Document..." ) )
-            {
-                if( ImGui::MenuItem( "Visual Script" ) )
-                {
-                    static VisualScriptNodeTypeManager nodeTypeManager;
-                    MyNodeGraph* pVisualScript = MyNew MyNodeGraph( &nodeTypeManager );
-                    m_pOpenDocuments.push_back( pVisualScript );
-                }
-
-                ImGui::EndMenu(); // "New Document..."
-            }
-            
-            ImGui::EndMenu(); // "Document"
+            m_pOpenDocuments.push_back( pNewDocument );
         }
 
         if( ImGui::BeginMenu( "Edit" ) )
