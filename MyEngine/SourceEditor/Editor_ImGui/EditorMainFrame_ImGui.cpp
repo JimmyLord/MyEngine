@@ -175,6 +175,11 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
 EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
 {
+    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
+    {
+        delete m_pOpenDocuments[i];
+    }
+
     m_pAnimPlayerComponent->SetEnabled( false );
     SAFE_DELETE( m_pAnimPlayerComponent );
 
@@ -579,6 +584,7 @@ void EditorMainFrame_ImGui::AddEverything()
                     {
                         m_pLastActiveDocument = nullptr;
                     }
+                    delete m_pOpenDocuments[i];
                     m_pOpenDocuments.erase( m_pOpenDocuments.begin() + i );
                 }
             }

@@ -15,9 +15,9 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "ComponentSystem/Core/PrefabManager.h"
 #include "Core/EngineCore.h"
-#include "PlatformSpecific/FileOpenDialog.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
+#include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
 void LoadScene(const char* sceneName, bool unloadScenes)
 {

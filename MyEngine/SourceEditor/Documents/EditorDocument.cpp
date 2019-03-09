@@ -12,6 +12,7 @@
 #include "EditorDocument.h"
 
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
+#include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
 EditorDocument::EditorDocument()
 {
@@ -46,7 +47,32 @@ void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands comman
 
     case EditorDocumentMenuCommand_Save:
         {
-            Save();
+            if( m_Filename[0] == '\0' )
+            {
+                const char* filename = FileSaveDialog( "DataSource\\VisualScripts\\", "VisualScript Files\0*.myvisualscript\0All\0*.*\0" );
+                if( filename[0] != 0 )
+                {
+                    int len = (int)strlen( filename );
+
+                    // Append '.myvisualscript' to end of filename if it wasn't already there.
+                    char path[MAX_PATH];
+                    if( strcmp( &filename[len-15], ".myvisualscript" ) == 0 )
+                    {
+                        strcpy_s( path, MAX_PATH, filename );
+                    }
+                    else
+                    {
+                        sprintf_s( path, MAX_PATH, "%s.myvisualscript", filename );
+                    }
+
+                    strcpy_s( m_Filename, MAX_PATH, path );
+                }
+            }
+
+            if( m_Filename[0] != '\0' )
+            {
+                Save();
+            }
         }
         break;
 
