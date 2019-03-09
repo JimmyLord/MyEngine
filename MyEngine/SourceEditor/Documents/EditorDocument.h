@@ -17,6 +17,7 @@ protected:
     {
         EditorDocumentMenuCommand_Undo,
         EditorDocumentMenuCommand_Redo,
+        EditorDocumentMenuCommand_Load,
         EditorDocumentMenuCommand_Save,
         EditorDocumentMenuCommand_SaveAs,
         EditorDocumentMenuCommand_SaveAll,
@@ -27,7 +28,8 @@ protected:
     uint32 m_UndoStackDepthAtLastSave;
     bool m_SaveRequested;
 
-    char m_Filename[MAX_PATH];
+    char m_RelativePath[MAX_PATH];
+    const char* m_Filename; // Pointer to the end part of m_RelativePath;
 
 protected:
     void EditorDocumentMenuCommand(EditorDocumentMenuCommands command);
@@ -42,7 +44,8 @@ public:
     virtual void Save();
     virtual void Load();
 
-    void SetFilename(const char* filename);
+    void SetRelativePath(const char* relativePath);
+    const char* GetRelativePath();
     const char* GetFilename();
 
     bool HasUnsavedChanges();

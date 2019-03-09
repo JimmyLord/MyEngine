@@ -654,7 +654,7 @@ void MyNodeGraph::Save()
 
     // Save NodeGraph as JSON string.
     {
-        const char* filename = GetFilename();
+        const char* filename = GetRelativePath();
         if( filename[0] == '\0' )
         {
             // TODO: Pop-up a file picker dialog.

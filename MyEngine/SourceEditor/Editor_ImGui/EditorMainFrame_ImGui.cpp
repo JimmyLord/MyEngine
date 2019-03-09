@@ -579,11 +579,11 @@ void EditorMainFrame_ImGui::AddEverything()
                 }
                 else
                 {
-                    m_pActiveDocument = nullptr;
                     if( m_pLastActiveDocument == m_pActiveDocument )
                     {
                         m_pLastActiveDocument = nullptr;
                     }
+                    m_pActiveDocument = nullptr;
                     delete m_pOpenDocuments[i];
                     m_pOpenDocuments.erase( m_pOpenDocuments.begin() + i );
                 }

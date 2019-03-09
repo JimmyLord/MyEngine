@@ -20,7 +20,8 @@ EditorDocument::EditorDocument()
     m_UndoStackDepthAtLastSave = 0;
     m_SaveRequested = false;
 
-     m_Filename[0] = '\0';
+     m_RelativePath[0] = '\0';
+     m_Filename = m_RelativePath;
 }
 
 EditorDocument::~EditorDocument()
@@ -45,6 +46,22 @@ void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands comman
         }
         break;
 
+    case EditorDocumentMenuCommand_Load:
+        {
+            const char* filename = FileOpenDialog( "DataSource\\VisualScripts\\", "VisualScript Files\0*.myvisualscript\0All\0*.*\0" );
+            if( filename[0] != '\0' )
+            {
+                char path[MAX_PATH];
+                strcpy_s( path, MAX_PATH, filename );
+                const char* relativePath = ::GetRelativePath( path );
+                int bp = 1;
+                //LoadScene( relativePath, true );
+
+                //g_pEditorPrefs->AddRecentScene( relativePath );
+            }
+        }
+        break;
+
     case EditorDocumentMenuCommand_Save:
         {
             if( m_Filename[0] == '\0' )
@@ -65,11 +82,20 @@ void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands comman
                         sprintf_s( path, MAX_PATH, "%s.myvisualscript", filename );
                     }
 
-                    strcpy_s( m_Filename, MAX_PATH, path );
+                    // Only set the filename and save if the path is relative.
+                    const char* relativePath = ::GetRelativePath( path );
+                    if( relativePath )
+                    {
+                        SetRelativePath( relativePath );
+                    }
+                    else
+                    {
+                        LOGError( LOGTag, "Document not saved, path must be relative to the editor." );
+                    }
                 }
             }
 
-            if( m_Filename[0] != '\0' )
+            if( m_RelativePath[0] != '\0' )
             {
                 Save();
             }
@@ -109,27 +135,38 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
             ImGui::EndMenu(); // "New Document..."
         }
 
+        if( ImGui::MenuItem( "Load Document..." ) )
+        {
+            //if( pDocument->HasUnsavedChanges() )
+            //    pDocument->m_ShowLoadSceneWarning = true;
+            //else
+                pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Load );
+        }
+
         ImGui::Separator();
 
-        char tempstr[MAX_PATH + 10];
-        if( pDocument )
         {
-            if( pDocument->GetFilename()[0] == '\0' )
+            char tempstr[MAX_PATH + 10];
+            if( pDocument )
             {
-                sprintf_s( tempstr, MAX_PATH + 10, "Save Untitled as...", "Untitled" );
+                if( pDocument->GetFilename()[0] == '\0' )
+                {
+                    sprintf_s( tempstr, MAX_PATH + 10, "Save Untitled as...", "Untitled" );
+                }
+                else
+                {
+                    sprintf_s( tempstr, MAX_PATH + 10, "Save %s", pDocument->GetFilename() );
+                }
             }
             else
             {
-                sprintf_s( tempstr, MAX_PATH + 10, "Save %s", pDocument->GetFilename() );
+                sprintf_s( tempstr, MAX_PATH + 10, "Save: Nothing to save" );
             }
-        }
-        else
-        {
-            sprintf_s( tempstr, MAX_PATH + 10, "Save: Nothing to save" );
-        }
-        if( ImGui::MenuItem( tempstr, "Ctrl-S", false, pDocument != nullptr ) )
-        {
-            pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Save );
+
+            if( ImGui::MenuItem( tempstr, "Ctrl-S", false, pDocument != nullptr ) )
+            {
+                pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Save );
+            }
         }
 
         ImGui::EndMenu(); // "Document"
@@ -171,9 +208,34 @@ void EditorDocument::Load()
     m_UndoStackDepthAtLastSave = 0;
 }
 
-void EditorDocument::SetFilename(const char* filename)
+void EditorDocument::SetRelativePath(const char* relativePath)
 {
-    strcpy_s( m_Filename, MAX_PATH, filename );
+    strcpy_s( m_RelativePath, MAX_PATH, relativePath );
+
+    // Get the filename from the relative path.
+    if( m_RelativePath[0] == '\0' )
+    {
+        m_Filename = m_RelativePath;
+    }
+
+    for( int i=strlen( m_RelativePath ); i>=0; i-- )
+    {
+        if( m_RelativePath[i] == '\\' || m_RelativePath[i] == '/' )
+        {
+            m_Filename = &m_RelativePath[i+1];
+            break;
+        }
+
+        if( i == 0 )
+        {
+            m_Filename = m_RelativePath;
+        }
+    }
+}
+
+const char* EditorDocument::GetRelativePath()
+{
+    return m_RelativePath;
 }
 
 const char* EditorDocument::GetFilename()
