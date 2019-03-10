@@ -32,8 +32,8 @@ protected:
     const char* m_Filename; // Pointer to the end part of m_RelativePath;
 
 protected:
-    void EditorDocumentMenuCommand(EditorDocumentMenuCommands command);
-    void EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value);
+    EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command);
+    EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value);
 
 public:
     EditorDocument();

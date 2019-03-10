@@ -363,16 +363,6 @@ void MyNodeGraph::Update()
     }
     ImGui::SameLine( ImGui::GetWindowWidth() - 300 );
     ImGui::Checkbox( "Show grid", &m_GridVisible );
-    ImGui::SameLine();
-    if( ImGui::Button( "Save" ) || m_SaveRequested )
-    {
-        Save();
-    }
-    ImGui::SameLine();
-    if( ImGui::Button( "Load" ) )
-    {
-        Load();
-    }
 
     if( m_ShowingLuaString )
     {
@@ -582,8 +572,8 @@ void MyNodeGraph::Update()
                 {
                     AABB2D mouseAABB;
                     ImVec2 windowPos = ImGui::GetWindowPos();
-                    Vector2 mouse1 = ImGui::GetMousePos() - windowPos + m_ScrollOffset;
-                    Vector2 mouse2 = ImGui::GetIO().MouseClickedPos[0] - windowPos + m_ScrollOffset;
+                    Vector2 mouse1 = ImGui::GetMousePos() - windowPos - m_ScrollOffset;
+                    Vector2 mouse2 = ImGui::GetIO().MouseClickedPos[0] - windowPos - m_ScrollOffset;
                     mouseAABB.SetUnsorted( mouse1, mouse2 );
 
                     pDrawList->AddRectFilled( ImGui::GetMousePos(), ImGui::GetIO().MouseClickedPos[0], COLOR_DRAG_SELECTOR );
@@ -657,7 +647,6 @@ void MyNodeGraph::Save()
         const char* filename = GetRelativePath();
         if( filename[0] == '\0' )
         {
-            // TODO: Pop-up a file picker dialog.
             return;
         }
 
@@ -708,7 +697,7 @@ void MyNodeGraph::Load()
 
     FILE* fileHandle;
 #if MYFW_WINDOWS
-    errno_t err = fopen_s( &fileHandle, "test.MyVisualScript", "rb" );
+    errno_t err = fopen_s( &fileHandle, m_RelativePath, "rb" );
 #else
     fileHandle = fopen( fullpath, "rb" );
 #endif

@@ -14,6 +14,8 @@
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
 #include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
+static VisualScriptNodeTypeManager g_NodeTypeManager;
+
 EditorDocument::EditorDocument()
 {
     m_pCommandStack = nullptr;
@@ -28,7 +30,7 @@ EditorDocument::~EditorDocument()
 {
 }
 
-void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands command)
+EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands command)
 {
     switch( command )
     {
@@ -54,44 +56,53 @@ void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands comman
                 char path[MAX_PATH];
                 strcpy_s( path, MAX_PATH, filename );
                 const char* relativePath = ::GetRelativePath( path );
-                int bp = 1;
-                //LoadScene( relativePath, true );
 
-                //g_pEditorPrefs->AddRecentScene( relativePath );
+                EditorDocument* pNewDocument = MyNew MyNodeGraph( &g_NodeTypeManager );
+                pNewDocument->SetRelativePath( relativePath );
+                pNewDocument->Load();
+
+                return pNewDocument;
             }
         }
         break;
 
     case EditorDocumentMenuCommand_Save:
         {
-            if( m_Filename[0] == '\0' )
+            if( m_RelativePath[0] != '\0' )
             {
-                const char* filename = FileSaveDialog( "DataSource\\VisualScripts\\", "VisualScript Files\0*.myvisualscript\0All\0*.*\0" );
-                if( filename[0] != 0 )
+                Save();
+                break;
+            }
+        }
+        // no break
+
+    case EditorDocumentMenuCommand_SaveAs:
+        {
+            const char* filename = FileSaveDialog( "DataSource\\VisualScripts\\", "VisualScript Files\0*.myvisualscript\0All\0*.*\0" );
+            if( filename[0] != 0 )
+            {
+                int len = (int)strlen( filename );
+
+                // Append '.myvisualscript' to end of filename if it wasn't already there.
+                char path[MAX_PATH];
+                if( strcmp( &filename[len-15], ".myvisualscript" ) == 0 )
                 {
-                    int len = (int)strlen( filename );
+                    strcpy_s( path, MAX_PATH, filename );
+                }
+                else
+                {
+                    sprintf_s( path, MAX_PATH, "%s.myvisualscript", filename );
+                }
 
-                    // Append '.myvisualscript' to end of filename if it wasn't already there.
-                    char path[MAX_PATH];
-                    if( strcmp( &filename[len-15], ".myvisualscript" ) == 0 )
-                    {
-                        strcpy_s( path, MAX_PATH, filename );
-                    }
-                    else
-                    {
-                        sprintf_s( path, MAX_PATH, "%s.myvisualscript", filename );
-                    }
-
-                    // Only set the filename and save if the path is relative.
-                    const char* relativePath = ::GetRelativePath( path );
-                    if( relativePath )
-                    {
-                        SetRelativePath( relativePath );
-                    }
-                    else
-                    {
-                        LOGError( LOGTag, "Document not saved, path must be relative to the editor." );
-                    }
+                // Only set the filename and save if the path is relative.
+                const char* relativePath = ::GetRelativePath( path );
+                if( relativePath )
+                {
+                    SetRelativePath( relativePath );
+                }
+                else
+                {
+                    LOGError( LOGTag, "Document not saved, path must be relative to the editor." );
                 }
             }
 
@@ -102,20 +113,18 @@ void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands comman
         }
         break;
 
-    case EditorDocumentMenuCommand_SaveAs:
-        {
-        }
-        break;
-
     case EditorDocumentMenuCommand_SaveAll:
         {
         }
         break;
     }
+
+    return nullptr;
 }
 
-void EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value)
+EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value)
 {
+    return nullptr;
 }
 
 // Static
@@ -129,8 +138,7 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
         {
             if( ImGui::MenuItem( "Visual Script" ) )
             {
-                static VisualScriptNodeTypeManager nodeTypeManager;
-                pNewDocument = MyNew MyNodeGraph( &nodeTypeManager );
+                pNewDocument = MyNew MyNodeGraph( &g_NodeTypeManager );
             }
             ImGui::EndMenu(); // "New Document..."
         }
@@ -140,7 +148,7 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
             //if( pDocument->HasUnsavedChanges() )
             //    pDocument->m_ShowLoadSceneWarning = true;
             //else
-                pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Load );
+                pNewDocument = pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Load );
         }
 
         ImGui::Separator();
@@ -166,6 +174,16 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
             if( ImGui::MenuItem( tempstr, "Ctrl-S", false, pDocument != nullptr ) )
             {
                 pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Save );
+            }
+
+            if( ImGui::MenuItem( "Save As...", nullptr, false, pDocument != nullptr ) )
+            {
+                pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAs );
+            }
+
+            if( ImGui::MenuItem( "Save All", "Ctrl-Shift-S", false, pDocument != nullptr ) )
+            {
+                pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAll );
             }
         }
 
