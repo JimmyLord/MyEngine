@@ -95,9 +95,11 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pCurrentLayout = nullptr;
 
     // Warnings.
-    m_ShowNewSceneWarning = false;
-    m_ShowLoadSceneWarning = false;
-    m_ShowCloseEditorWarning = false;
+    m_ShowWarning_NewScene = false;
+    m_ShowWarning_LoadScene = false;
+    m_ShowWarning_CloseDocument = false;
+    m_DocumentIndexToCloseAfterWarning = -1;
+    m_ShowWarning_CloseEditor = false;
 
     // Render surfaces.
     m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
@@ -442,10 +444,26 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
 
 void EditorMainFrame_ImGui::RequestCloseWindow()
 {
-    if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
-        m_ShowCloseEditorWarning = true;
+    m_ShowWarning_CloseEditor = false;
+
+    // If any Editor Document has unsaved changes, then pop up a warning.
+    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
+    {
+        if( m_pOpenDocuments[i]->HasUnsavedChanges() )
+        {
+            m_ShowWarning_CloseEditor = true;
+        }
+    }
+
+    // If the Scene command stack isn't clear, then pop up a warning.
+    if( m_ShowWarning_CloseEditor || m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
+    {
+        m_ShowWarning_CloseEditor = true;
+    }
     else
+    {
         g_pGameCore->SetGameConfirmedCloseIsOkay();
+    }
 }
 
 void EditorMainFrame_ImGui::OnModeTogglePlayStop(bool nowInEditorMode)
@@ -571,22 +589,21 @@ void EditorMainFrame_ImGui::AddEverything()
         {
             m_pActiveDocument = m_pOpenDocuments[i];
             m_pLastActiveDocument = m_pOpenDocuments[i];
+        }
 
-            if( documentStillOpen == false )
+        if( documentStillOpen == false )
+        {
+            if( m_pOpenDocuments[i]->HasUnsavedChanges() )
             {
-                if( m_pActiveDocument->HasUnsavedChanges() )
-                {
-                }
-                else
-                {
-                    if( m_pLastActiveDocument == m_pActiveDocument )
-                    {
-                        m_pLastActiveDocument = nullptr;
-                    }
-                    m_pActiveDocument = nullptr;
-                    delete m_pOpenDocuments[i];
-                    m_pOpenDocuments.erase( m_pOpenDocuments.begin() + i );
-                }
+                m_ShowWarning_CloseDocument = true;
+                m_DocumentIndexToCloseAfterWarning = i;
+            }
+            else
+            {
+                m_pActiveDocument = nullptr;
+                m_pLastActiveDocument = nullptr;
+                delete m_pOpenDocuments[i];
+                m_pOpenDocuments.erase( m_pOpenDocuments.begin() + i );
             }
         }
     }
@@ -963,14 +980,14 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "New Scene" ) )
             {
                 if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
-                    m_ShowNewSceneWarning = true;
+                    m_ShowWarning_NewScene = true;
                 else
                     EditorMenuCommand( EditorMenuCommand_File_NewScene );
             }
             if( ImGui::MenuItem( "Load Scene..." ) )
             {
                 if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
-                    m_ShowLoadSceneWarning = true;
+                    m_ShowWarning_LoadScene = true;
                 else
                     EditorMenuCommand( EditorMenuCommand_File_LoadScene );
             }
@@ -989,7 +1006,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                     {
                         if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
                         {
-                            m_ShowLoadSceneWarning = true;
+                            m_ShowWarning_LoadScene = true;
                             m_SceneToLoadAfterWarning = recentFilename;
                         }
                         else
@@ -1276,9 +1293,9 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
 void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
 {
-    if( m_ShowNewSceneWarning )
+    if( m_ShowWarning_NewScene )
     {
-        m_ShowNewSceneWarning = false;
+        m_ShowWarning_NewScene = false;
         ImGui::OpenPopup( "New Scene Warning" );
     }
     if( ImGui::BeginPopupModal( "New Scene Warning" ) )
@@ -1300,9 +1317,9 @@ void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
         ImGui::EndPopup();
     }
 
-    if( m_ShowLoadSceneWarning )
+    if( m_ShowWarning_LoadScene )
     {
-        m_ShowLoadSceneWarning = false;
+        m_ShowWarning_LoadScene = false;
         ImGui::OpenPopup( "Load Scene Warning" );
     }
     if( ImGui::BeginPopupModal( "Load Scene Warning" ) )
@@ -1331,9 +1348,37 @@ void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
         ImGui::EndPopup();
     }
 
-    if( m_ShowCloseEditorWarning )
+    if( m_ShowWarning_CloseDocument )
     {
-        m_ShowCloseEditorWarning = false;
+        m_ShowWarning_CloseDocument = false;
+        ImGui::OpenPopup( "Close Document Warning" );
+    }
+    if( ImGui::BeginPopupModal( "Close Document Warning" ) )
+    {
+        ImGui::Text( "Some changes aren't saved." );
+        ImGui::Dummy( ImVec2( 0, 10 ) );
+        
+        if( ImGui::Button( "Quit / Lose changes" ) )
+        {
+            m_pActiveDocument = nullptr;
+            m_pLastActiveDocument = nullptr;
+            delete m_pOpenDocuments[m_DocumentIndexToCloseAfterWarning];
+            m_pOpenDocuments.erase( m_pOpenDocuments.begin() + m_DocumentIndexToCloseAfterWarning );
+
+            ImGui::CloseCurrentPopup();
+        }
+
+        if( ImGui::Button( "Cancel / Return to editor" ) )
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
+    if( m_ShowWarning_CloseEditor )
+    {
+        m_ShowWarning_CloseEditor = false;
         ImGui::OpenPopup( "Close Editor Warning" );
     }
     if( ImGui::BeginPopupModal( "Close Editor Warning" ) )

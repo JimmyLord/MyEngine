@@ -53,10 +53,12 @@ protected:
     EditorLayout* m_pCurrentLayout;
 
     // Warnings.
-    bool m_ShowNewSceneWarning;
-    bool m_ShowLoadSceneWarning;
+    bool m_ShowWarning_NewScene;
+    bool m_ShowWarning_LoadScene;
     std::string m_SceneToLoadAfterWarning;
-    bool m_ShowCloseEditorWarning;
+    bool m_ShowWarning_CloseDocument;
+    int m_DocumentIndexToCloseAfterWarning;
+    bool m_ShowWarning_CloseEditor;
 
     // Render surfaces.
     FBODefinition* m_pGameFBO;
