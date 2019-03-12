@@ -251,6 +251,7 @@ public:
     RequestedSceneInfo* RequestSceneInternal(const char* fullpath);
     void SwitchScene(const char* fullpath);
     void SaveScene(const char* fullpath, SceneID sceneid);
+    void SaveAllScenes();
     void ExportBox2DScene(const char* fullpath, SceneID sceneid);
     void UnloadScene(SceneID sceneid, bool clearEditorObjects);
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playWhenFinishedLoading);

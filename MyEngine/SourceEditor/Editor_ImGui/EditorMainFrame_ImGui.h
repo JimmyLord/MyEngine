@@ -44,7 +44,6 @@ class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:
     // Documents.
-    std::vector<EditorDocument*> m_pOpenDocuments;
     EditorDocument* m_pActiveDocument;
     EditorDocument* m_pLastActiveDocument;
 

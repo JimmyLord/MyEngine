@@ -113,10 +113,10 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
         }
         break;
 
-    case EditorDocumentMenuCommand_SaveAll:
-        {
-        }
-        break;
+    //case EditorDocumentMenuCommand_SaveAll:
+    //    {
+    //    }
+    //    break;
     }
 
     return nullptr;
@@ -145,21 +145,19 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
 
         if( ImGui::MenuItem( "Load Document..." ) )
         {
-            //if( pDocument->HasUnsavedChanges() )
-            //    pDocument->m_ShowLoadSceneWarning = true;
-            //else
-                pNewDocument = pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Load );
+            pNewDocument = pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Load );
         }
 
         ImGui::Separator();
 
+        // Save.
         {
             char tempstr[MAX_PATH + 10];
             if( pDocument )
             {
                 if( pDocument->GetFilename()[0] == '\0' )
                 {
-                    sprintf_s( tempstr, MAX_PATH + 10, "Save Untitled as...", "Untitled" );
+                    sprintf_s( tempstr, MAX_PATH + 10, "Save Untitled as..." );
                 }
                 else
                 {
@@ -168,23 +166,23 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
             }
             else
             {
-                sprintf_s( tempstr, MAX_PATH + 10, "Save: Nothing to save" );
+                sprintf_s( tempstr, MAX_PATH + 10, "Save" );
             }
 
             if( ImGui::MenuItem( tempstr, "Ctrl-S", false, pDocument != nullptr ) )
             {
                 pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Save );
             }
+        }
 
-            if( ImGui::MenuItem( "Save As...", nullptr, false, pDocument != nullptr ) )
-            {
-                pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAs );
-            }
+        if( ImGui::MenuItem( "Save As...", nullptr, false, pDocument != nullptr ) )
+        {
+            pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAs );
+        }
 
-            if( ImGui::MenuItem( "Save All", "Ctrl-Shift-S", false, pDocument != nullptr ) )
-            {
-                pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAll );
-            }
+        if( ImGui::MenuItem( "Save All", "Ctrl-Shift-S", false, pDocument != nullptr ) )
+        {
+            pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAll );
         }
 
         ImGui::EndMenu(); // "Document"
@@ -209,7 +207,7 @@ bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, in
         if( C  && keyCode == 'Y' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Redo ); return true; }
         if( CS && keyCode == 'Z' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Redo ); return true; }
         if( C  && keyCode == 'S' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Save ); return true; }
-        if( CS && keyCode == 'S' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_SaveAll ); return true; }
+        //if( CS && keyCode == 'S' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_SaveAll ); return true; }
     }
 
     return false;

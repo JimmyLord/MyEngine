@@ -177,11 +177,6 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
 EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
 {
-    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
-    {
-        delete m_pOpenDocuments[i];
-    }
-
     m_pAnimPlayerComponent->SetEnabled( false );
     SAFE_DELETE( m_pAnimPlayerComponent );
 
@@ -409,6 +404,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
         if( C  && keyCode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
         if( N  && keyCode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
         if( C  && keyCode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
+        if( CS && keyCode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return true; }
         if( CS && keyCode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
         if( CS && keyCode == 'P' )   { pEditorPrefs->GetImGuiStylePrefs()->Display();                               return true; }
         if( C  && keyCode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
@@ -447,12 +443,9 @@ void EditorMainFrame_ImGui::RequestCloseWindow()
     m_ShowWarning_CloseEditor = false;
 
     // If any Editor Document has unsaved changes, then pop up a warning.
-    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
+    if( g_pEngineCore->GetEditorState()->DoAnyOpenDocumentsHaveUnsavedChanges() )
     {
-        if( m_pOpenDocuments[i]->HasUnsavedChanges() )
-        {
-            m_ShowWarning_CloseEditor = true;
-        }
+        m_ShowWarning_CloseEditor = true;
     }
 
     // If the Scene command stack isn't clear, then pop up a warning.
@@ -581,19 +574,22 @@ void EditorMainFrame_ImGui::AddEverything()
     // Clear m_pActiveDocument, a new one will be set if a document is in focus.
     m_pActiveDocument = nullptr;
 
-    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
+    std::vector<EditorDocument*>* pOpenDocuments = &g_pEngineCore->GetEditorState()->m_pOpenDocuments;
+    for( uint32 i=0; i<pOpenDocuments->size(); i++ )
     {
+        EditorDocument* pDocument = (*pOpenDocuments)[i];
+
         ImGui::SetNextWindowSize( ImVec2(700, 600), ImGuiSetCond_FirstUseEver );
         bool documentStillOpen = true;
-        if( static_cast<MyNodeGraph*>( m_pOpenDocuments[i] )->CreateWindowAndUpdate( &documentStillOpen ) )
+        if( static_cast<MyNodeGraph*>( pDocument )->CreateWindowAndUpdate( &documentStillOpen ) )
         {
-            m_pActiveDocument = m_pOpenDocuments[i];
-            m_pLastActiveDocument = m_pOpenDocuments[i];
+            m_pActiveDocument = pDocument;
+            m_pLastActiveDocument = pDocument;
         }
 
         if( documentStillOpen == false )
         {
-            if( m_pOpenDocuments[i]->HasUnsavedChanges() )
+            if( pDocument->HasUnsavedChanges() )
             {
                 m_ShowWarning_CloseDocument = true;
                 m_DocumentIndexToCloseAfterWarning = i;
@@ -602,8 +598,8 @@ void EditorMainFrame_ImGui::AddEverything()
             {
                 m_pActiveDocument = nullptr;
                 m_pLastActiveDocument = nullptr;
-                delete m_pOpenDocuments[i];
-                m_pOpenDocuments.erase( m_pOpenDocuments.begin() + i );
+                delete pDocument;
+                pOpenDocuments->erase( pOpenDocuments->begin() + i );
             }
         }
     }
@@ -1040,6 +1036,10 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 EditorMenuCommand( EditorMenuCommand_File_SaveSceneAs );
             }
+            if( ImGui::MenuItem( "Save All" ) )
+            {
+                EditorMenuCommand( EditorMenuCommand_File_SaveAll );
+            }
 
             ImGui::Separator();
 
@@ -1062,7 +1062,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         EditorDocument* pNewDocument = EditorDocument::AddDocumentMenu( m_pLastActiveDocument );
         if( pNewDocument != nullptr )
         {
-            m_pOpenDocuments.push_back( pNewDocument );
+            g_pEngineCore->GetEditorState()->m_pOpenDocuments.push_back( pNewDocument );
         }
 
         if( ImGui::BeginMenu( "Edit" ) )
@@ -1358,12 +1358,14 @@ void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
         ImGui::Text( "Some changes aren't saved." );
         ImGui::Dummy( ImVec2( 0, 10 ) );
         
-        if( ImGui::Button( "Quit / Lose changes" ) )
+        if( ImGui::Button( "Close / Lose changes" ) )
         {
             m_pActiveDocument = nullptr;
             m_pLastActiveDocument = nullptr;
-            delete m_pOpenDocuments[m_DocumentIndexToCloseAfterWarning];
-            m_pOpenDocuments.erase( m_pOpenDocuments.begin() + m_DocumentIndexToCloseAfterWarning );
+
+            std::vector<EditorDocument*>* pOpenDocuments = &g_pEngineCore->GetEditorState()->m_pOpenDocuments;
+            delete (*pOpenDocuments)[m_DocumentIndexToCloseAfterWarning];
+            pOpenDocuments->erase( pOpenDocuments->begin() + m_DocumentIndexToCloseAfterWarning );
 
             ImGui::CloseCurrentPopup();
         }

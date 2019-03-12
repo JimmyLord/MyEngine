@@ -260,47 +260,15 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_File_SaveScene:
         {
-            if( g_pEngineCore->IsInEditorMode() == false )
-            {
-                LOGInfo( LOGTag, "Can't save when gameplay is active... use \"Save As\"\n" );
-            }
-            else
-            {
-                for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
-                {
-                    if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
-                        continue;
-
-                    SceneID sceneid = (SceneID)i;
-                    SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
-
-                    if( sceneid != SCENEID_Unmanaged && sceneid != SCENEID_EngineObjects )
-                    {
-                        if( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
-                        {
-                            EditorMenuCommand( EditorMenuCommand_File_SaveSceneAs );
-                        }
-                        else
-                        {
-                            LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->m_FullPath );
-
-#if MYFW_USING_IMGUI
-                            g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
-#endif
-                            g_pMaterialManager->SaveAllMaterials();
-                            g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
-                            g_pGameCore->GetSoundManager()->SaveAllCues();
-
-                            g_pEngineCore->SaveScene( pSceneInfo->m_FullPath, sceneid );
-                        }
-                    }
-                }
-            }
+            g_pEngineCore->GetEditorState()->SaveAllMiscFiles();
+            g_pEngineCore->SaveAllScenes();
         }
         break;
 
     case EditorMenuCommand_File_SaveSceneAs:
         {
+            g_pEngineCore->GetEditorState()->SaveAllMiscFiles();
+
             const char* filename = FileSaveDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
             if( filename[0] != 0 )
             {
@@ -324,14 +292,17 @@ void EditorMenuCommand(EditorMenuCommands command)
 #if MYFW_USING_IMGUI
                 g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
 #endif
-                g_pMaterialManager->SaveAllMaterials();
-                //g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs(); // TODO:
-                g_pGameCore->GetSoundManager()->SaveAllCues();
-
                 g_pEngineCore->SaveScene( relativePath, SCENEID_MainScene );
 
                 g_pEditorPrefs->AddRecentScene( relativePath );
             }
+        }
+        break;
+
+    case EditorMenuCommand_File_SaveAll:
+        {
+            g_pEngineCore->SaveAllScenes();
+            g_pEngineCore->GetEditorState()->SaveAllOpenDocuments();
         }
         break;
 

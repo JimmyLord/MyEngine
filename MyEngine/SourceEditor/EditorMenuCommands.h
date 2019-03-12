@@ -21,6 +21,7 @@ enum EditorMenuCommands
     EditorMenuCommand_File_LoadAdditionalScene,
     EditorMenuCommand_File_SaveScene,
     EditorMenuCommand_File_SaveSceneAs,
+    EditorMenuCommand_File_SaveAll,
     EditorMenuCommand_File_Export_Box2DScene,
     EditorMenuCommand_Edit_Undo,
     EditorMenuCommand_Edit_Redo,

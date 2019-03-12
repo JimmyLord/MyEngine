@@ -15,6 +15,7 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Documents/EditorDocument.h"
 
 #if MYFW_EDITOR
 
@@ -116,6 +117,50 @@ EditorState::~EditorState()
     {
         SAFE_RELEASE( m_pEditorIcons[i] );
     }
+
+    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
+    {
+        delete m_pOpenDocuments[i];
+    }
+}
+
+void EditorState::SaveAllMiscFiles()
+{
+    g_pMaterialManager->SaveAllMaterials();
+    g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
+    g_pGameCore->GetSoundManager()->SaveAllCues();
+}
+
+void EditorState::SaveAllOpenDocuments()
+{
+    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
+    {
+        if( m_pOpenDocuments[i]->HasUnsavedChanges() )
+        {
+            const char* filename = m_pOpenDocuments[i]->GetFilename();
+            if( filename[0] == '\0' )
+            {
+                LOGInfo( LOGTag, "WARNING: Untitled document not saved.\n" );
+            }
+            else
+            {
+                m_pOpenDocuments[i]->Save();
+            }
+        }
+    }
+}
+
+bool EditorState::DoAnyOpenDocumentsHaveUnsavedChanges()
+{
+    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
+    {
+        if( m_pOpenDocuments[i]->HasUnsavedChanges() )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 ComponentCamera* EditorState::GetEditorCamera()

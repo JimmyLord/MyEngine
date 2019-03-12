@@ -1651,6 +1651,42 @@ void EngineCore::SaveScene(const char* fullpath, SceneID sceneid)
     cJSONExt_free( savestring );
 }
 
+void EngineCore::SaveAllScenes()
+{
+    if( g_pEngineCore->IsInEditorMode() == false )
+    {
+        LOGInfo( LOGTag, "Scenes aren't saved when gameplay is active... use \"Save As\"\n" );
+    }
+    else
+    {
+        for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
+        {
+            if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+                continue;
+
+            SceneID sceneid = (SceneID)i;
+            SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
+
+            if( sceneid != SCENEID_Unmanaged && sceneid != SCENEID_EngineObjects )
+            {
+                if( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
+                {
+                    LOGInfo( LOGTag, "Untitled scene not saved.\n" );
+                }
+                else
+                {
+                    LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->m_FullPath );
+
+#if MYFW_USING_IMGUI
+                    g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
+#endif
+                    g_pEngineCore->SaveScene( pSceneInfo->m_FullPath, sceneid );
+                }
+            }
+        }
+    }
+}
+
 void EngineCore::ExportBox2DScene(const char* fullpath, SceneID sceneid)
 {
     char* savestring = g_pComponentSystemManager->ExportBox2DSceneToJSON( sceneid );

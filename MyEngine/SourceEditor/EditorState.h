@@ -12,6 +12,7 @@
 
 class ComponentBase;
 class ComponentCamera;
+class EditorDocument;
 class GameObject;
 class TransformGizmo;
 
@@ -56,6 +57,8 @@ extern const char* EditorIconFilenames[EditorIcon_NumIcons];
 class EditorState
 {
 public:
+    std::vector<EditorDocument*> m_pOpenDocuments;
+
     MyRect m_EditorWindowRect;
 
     unsigned int m_ModifierKeyStates;
@@ -98,6 +101,10 @@ public:
 public:
     EditorState();
     ~EditorState();
+
+    void SaveAllMiscFiles();
+    void SaveAllOpenDocuments();
+    bool DoAnyOpenDocumentsHaveUnsavedChanges();
 
     ComponentCamera* GetEditorCamera();
 

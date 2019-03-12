@@ -20,7 +20,7 @@ protected:
         EditorDocumentMenuCommand_Load,
         EditorDocumentMenuCommand_Save,
         EditorDocumentMenuCommand_SaveAs,
-        EditorDocumentMenuCommand_SaveAll,
+        //EditorDocumentMenuCommand_SaveAll,
     };
 
 protected:
