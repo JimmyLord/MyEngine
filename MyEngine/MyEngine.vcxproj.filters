@@ -495,6 +495,9 @@
     <ClCompile Include="SourceEditor\Documents\EditorDocument.cpp">
       <Filter>Source - Editor\Documents</Filter>
     </ClCompile>
+    <ClCompile Include="SourceEditor\NodeGraph\VisualScriptNodeTypeManager.cpp">
+      <Filter>Source - Editor\NodeGraph</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -916,6 +919,9 @@
     </ClInclude>
     <ClInclude Include="SourceEditor\Documents\EditorDocument.h">
       <Filter>Source - Editor\Documents</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\NodeGraph\VisualScriptNodeTypeManager.h">
+      <Filter>Source - Editor\NodeGraph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

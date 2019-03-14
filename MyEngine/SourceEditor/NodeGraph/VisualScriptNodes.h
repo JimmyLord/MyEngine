@@ -28,24 +28,13 @@ class VisualScriptNode_Event_KeyPress;
 class VisualScriptNode_Disable_GameObject;
 
 //====================================================================================================
-// VisualScriptNodeTypeManager
+// VisualScriptNode
 //====================================================================================================
-
-class VisualScriptNodeTypeManager : public MyNodeTypeManager
-{
-protected:
-
-public:
-    VisualScriptNodeTypeManager();
-
-    virtual MyNodeGraph::MyNode* AddCreateNodeItemsToContextMenu(Vector2 pos, MyNodeGraph* pNodeGraph) override;
-    virtual MyNodeGraph::MyNode* CreateNode(const char* typeName, Vector2 pos, MyNodeGraph* pNodeGraph) override;
-};
 
 class VisualScriptNode : public MyNodeGraph::MyNode
 {
 public:
-    VisualScriptNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, int inputsCount, int outputsCount)
+    VisualScriptNode(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, int inputsCount, int outputsCount)
     : MyNode( pNodeGraph, id, name, pos, inputsCount, outputsCount )
     {
     }
@@ -67,7 +56,7 @@ protected:
     float m_Float;
 
 public:
-    VisualScriptNode_Value_Float(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, float value)
+    VisualScriptNode_Value_Float(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, float value)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_Float = value;
@@ -98,7 +87,7 @@ protected:
     ColorByte m_Color;
 
 public:
-    VisualScriptNode_Value_Color(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, const ColorByte& color)
+    VisualScriptNode_Value_Color(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, const ColorByte& color)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_Color = color;
@@ -133,7 +122,7 @@ protected:
     GameObject* m_pGameObject;
 
 public:
-    VisualScriptNode_Value_GameObject(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, GameObject* pGameObject)
+    VisualScriptNode_Value_GameObject(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, GameObject* pGameObject)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_pGameObject = pGameObject;
@@ -172,7 +161,7 @@ protected:
     ComponentBase* m_pComponent;
 
 public:
-    VisualScriptNode_Value_Component(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, ComponentBase* pComponent)
+    VisualScriptNode_Value_Component(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, ComponentBase* pComponent)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_pComponent = pComponent;
@@ -209,7 +198,7 @@ class VisualScriptNode_MathOp_Add : public VisualScriptNode
 {
 protected:
 public:
-    VisualScriptNode_MathOp_Add(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos)
+    VisualScriptNode_MathOp_Add(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
     : VisualScriptNode( pNodeGraph, id, name, pos, 2, 1 ) {}
 
     const char* GetType() { return "MathOp_Add"; }
@@ -245,7 +234,7 @@ class VisualScriptNode_Condition_GreaterEqual : public VisualScriptNode
 {
 protected:
 public:
-    VisualScriptNode_Condition_GreaterEqual(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos)
+    VisualScriptNode_Condition_GreaterEqual(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
     : VisualScriptNode( pNodeGraph, id, name, pos, 3, 2 ) {}
 
     const char* GetType() { return "Condition_GreaterEqual"; }
@@ -298,7 +287,7 @@ protected:
     int m_KeyCode;
 
 public:
-    VisualScriptNode_Event_KeyPress(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, int keyCode)
+    VisualScriptNode_Event_KeyPress(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, int keyCode)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_KeyCode = keyCode;
@@ -356,7 +345,7 @@ protected:
     GameObject* m_pGameObject;
 
 public:
-    VisualScriptNode_Disable_GameObject(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, GameObject* pGameObject)
+    VisualScriptNode_Disable_GameObject(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, GameObject* pGameObject)
     : VisualScriptNode( pNodeGraph, id, name, pos, 1, 0 )
     {
         m_pGameObject = pGameObject;

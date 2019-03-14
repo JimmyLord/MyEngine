@@ -14,9 +14,10 @@
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
+#include "../SourceEditor/NodeGraph/VisualScriptNodeTypeManager.h"
 #include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
-static VisualScriptNodeTypeManager g_NodeTypeManager;
+static VisualScriptNodeTypeManager g_VisualScriptNodeTypeManager;
 
 EditorDocument::EditorDocument()
 {
@@ -59,7 +60,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
                 strcpy_s( path, MAX_PATH, filename );
                 const char* relativePath = ::GetRelativePath( path );
 
-                EditorDocument* pNewDocument = MyNew MyNodeGraph( &g_NodeTypeManager );
+                EditorDocument* pNewDocument = MyNew MyNodeGraph( &g_VisualScriptNodeTypeManager );
                 pNewDocument->SetRelativePath( relativePath );
                 pNewDocument->Load();
 
@@ -145,7 +146,7 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
         {
             if( ImGui::MenuItem( "Visual Script" ) )
             {
-                pNewDocument = MyNew MyNodeGraph( &g_NodeTypeManager );
+                pNewDocument = MyNew MyNodeGraph( &g_VisualScriptNodeTypeManager );
             }
             ImGui::EndMenu(); // "New Document..."
         }
@@ -169,7 +170,7 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
 
                 if( ImGui::MenuItem( relativePath.c_str() ) )
                 {
-                    pNewDocument = MyNew MyNodeGraph( &g_NodeTypeManager );
+                    pNewDocument = MyNew MyNodeGraph( &g_VisualScriptNodeTypeManager );
                     pNewDocument->SetRelativePath( relativePath.c_str() );
                     pNewDocument->Load();
 

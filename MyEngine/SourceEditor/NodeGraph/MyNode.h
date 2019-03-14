@@ -42,6 +42,7 @@ public:
 
     ImVec2 GetInputSlotPos(SlotID slotID) const;
     ImVec2 GetOutputSlotPos(SlotID slotID) const;
+    NodeID GetID() { return m_ID; }
 
     void Draw(ImDrawList* pDrawList, Vector2 offset, bool isSelected, MouseNodeLinkStartPoint* pMouseNodeLink);
     void HandleNodeSlot(ImDrawList* pDrawList, Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType, MouseNodeLinkStartPoint* pMouseNodeLink);

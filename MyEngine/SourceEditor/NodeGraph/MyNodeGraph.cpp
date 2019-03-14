@@ -81,6 +81,8 @@ MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
 {
     m_pCommandStack = MyNew CommandStack();
 
+    m_NextNodeID = 0;
+
     m_pNodeTypeManager = pNodeTypeManager;
 
     m_ScrollOffset.Set( 0.0f, 0.0f );
@@ -228,6 +230,11 @@ MyNodeGraph::MyNode* MyNodeGraph::FindNodeConnectedToOutput(NodeID nodeID, SlotI
     }
 
     return nullptr;
+}
+
+uint32 MyNodeGraph::GetNextNodeIDAndIncrement()
+{
+    return m_NextNodeID++;
 }
 
 void MyNodeGraph::AddExistingNode(MyNode* pNode)
@@ -786,12 +793,18 @@ void MyNodeGraph::ImportFromJSONObject(cJSON* jNodeGraph)
         cJSON* jType = cJSON_GetObjectItem( jNode, "Type" );
         if( jType )
         {
+            // Create the node, but avoid incrementing m_NextNodeID.
+            NodeID oldNextNodeID = m_NextNodeID;
             MyNode* pNode = m_pNodeTypeManager->CreateNode( jType->valuestring, Vector2( 0, 0 ), this );
+            m_NextNodeID = oldNextNodeID;
 
             if( pNode )
             {
                 m_Nodes.push_back( pNode );
                 pNode->ImportFromJSONObject( jNode );
+
+                if( pNode->GetID() > m_NextNodeID )
+                    m_NextNodeID = pNode->GetID() + 1;
             }
         }
     }

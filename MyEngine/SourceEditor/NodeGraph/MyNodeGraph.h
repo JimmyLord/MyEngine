@@ -50,8 +50,9 @@ public:
     friend class EditorCommand_NodeGraph_CreateLink;
     friend class EditorCommand_NodeGraph_DeleteLink;
 
-protected:
     typedef uint32 NodeID;
+
+protected:
     typedef uint32 SlotID;
 
     static const NodeID NodeID_Undefined = UINT_MAX;
@@ -104,6 +105,8 @@ protected:
 protected:
     MyNodeTypeManager* m_pNodeTypeManager;
 
+    NodeID m_NextNodeID;
+
     std::vector<MyNode*> m_Nodes;
     ImVector<MyNodeLink> m_Links;
     ImVector<NodeID> m_SelectedNodeIDs;
@@ -150,6 +153,8 @@ public:
 
     MyNode* FindNodeConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
     MyNode* FindNodeConnectedToOutput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
+
+    NodeID GetNextNodeIDAndIncrement();
 };
 
 //====================================================================================================
