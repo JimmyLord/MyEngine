@@ -56,6 +56,7 @@ class EditorPrefs
 public:
     const static int MAX_RECENT_LUA_SCRIPTS = 10;
     const static int MAX_RECENT_SCENES = 10;
+    const static int MAX_RECENT_DOCUMENTS = 10;
 
 private:
     FILE* m_pSaveFile; // Stored temporarily between SaveStart and Save Finish.
@@ -82,6 +83,7 @@ protected:
     bool m_Debug_DrawPhysicsDebugShapes;
     std::vector<std::string> m_Lua_RecentScripts;
     std::vector<std::string> m_File_RecentScenes;
+    std::vector<std::string> m_Document_RecentDocuments;
 
 #if MYFW_USING_IMGUI
     ImGuiStylePrefs* m_pImGuiStylePrefs;
@@ -132,6 +134,8 @@ public:
     std::string Get_Lua_RecentScript(int index) { return m_Lua_RecentScripts[index]; }
     uint32 Get_File_NumRecentScenes() { return (uint32)m_File_RecentScenes.size(); }
     std::string Get_File_RecentScene(int index) { return m_File_RecentScenes[index]; }
+    uint32 Get_Document_NumRecentDocuments() { return (uint32)m_Document_RecentDocuments.size(); }
+    std::string Get_Document_RecentDocument(int index) { return m_Document_RecentDocuments[index]; }    
 
     void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
     void Toggle_View_EditorCamDeferred() { m_View_EditorCamDeferred = !m_View_EditorCamDeferred; }
@@ -146,6 +150,7 @@ public:
 
     void AddRecentLuaScript(const char* relativePath);
     void AddRecentScene(const char* relativePath);
+    void AddRecentDocument(const char* relativePath);
 
     void FillGridSettingsWindow();
 

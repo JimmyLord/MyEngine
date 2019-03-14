@@ -16,6 +16,7 @@
 #include "ComponentSystem/Core/PrefabManager.h"
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 

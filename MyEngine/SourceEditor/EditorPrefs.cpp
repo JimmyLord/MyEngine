@@ -135,6 +135,17 @@ void EditorPrefs::LoadPrefs()
         }
     }
 
+    // Document menu options.
+    cJSON* jRecentDocumentsArray = cJSON_GetObjectItem( m_jEditorPrefs, "Document_RecentDocuments" );
+    if( jRecentDocumentsArray )
+    {
+        for( int i=0; i<cJSON_GetArraySize( jRecentDocumentsArray ); i++ )
+        {
+            cJSON* jDocument = cJSON_GetArrayItem( jRecentDocumentsArray, i );
+            m_Document_RecentDocuments.push_back( jDocument->valuestring );
+        }
+    }
+
     // View menu options.
     cJSONExt_GetBool( m_jEditorPrefs, "View_ShowEditorIcons", &m_View_ShowEditorIcons );
     cJSONExt_GetBool( m_jEditorPrefs, "View_EditorCamDeferred", &m_View_EditorCamDeferred );
@@ -280,6 +291,15 @@ cJSON* EditorPrefs::SaveStart()
         }
         cJSON_AddItemToObject( jPrefs, "File_RecentScenes", jRecentScenesArray );
 
+        // Document menu options.
+        cJSON* jRecentDocumentsArray = cJSON_CreateArray();
+        for( unsigned int i=0; i<m_Document_RecentDocuments.size(); i++ )
+        {
+            cJSON* jDocument = cJSON_CreateString( m_Document_RecentDocuments[i].c_str() );
+            cJSON_AddItemToArray( jRecentDocumentsArray, jDocument );
+        }
+        cJSON_AddItemToObject( jPrefs, "Document_RecentDocuments", jRecentDocumentsArray );
+
         // View menu options
         //cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
         //cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
@@ -384,6 +404,24 @@ void EditorPrefs::AddRecentScene(const char* relativePath)
     // Remove any paths past the end.
     while( m_File_RecentScenes.size() > MAX_RECENT_SCENES )
         m_File_RecentScenes.pop_back();
+}
+
+void EditorPrefs::AddRecentDocument(const char* relativePath)
+{
+    // Remove a single matching item.
+    auto it = std::find( m_Document_RecentDocuments.begin(), m_Document_RecentDocuments.end(), relativePath );
+    if( it != m_Document_RecentDocuments.end() )
+    {
+        m_Document_RecentDocuments.erase( it );
+    }
+
+    // Insert the path at the start of the list.
+    it = m_Document_RecentDocuments.begin();
+    m_Document_RecentDocuments.insert( it, relativePath );
+
+    // Remove any paths past the end.
+    while( m_Document_RecentDocuments.size() > MAX_RECENT_DOCUMENTS )
+        m_Document_RecentDocuments.pop_back();
 }
 
 void EditorPrefs::FillGridSettingsWindow()

@@ -11,6 +11,8 @@
 
 #include "EditorDocument.h"
 
+#include "Core/EngineCore.h"
+#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
 #include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
@@ -61,6 +63,8 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
                 pNewDocument->SetRelativePath( relativePath );
                 pNewDocument->Load();
 
+                g_pEditorPrefs->AddRecentDocument( relativePath );
+
                 return pNewDocument;
             }
         }
@@ -68,6 +72,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
 
     case EditorDocumentMenuCommand_Save:
         {
+            // If a filename is set, save.  Otherwise, drop down into EditorDocumentMenuCommand_SaveAs and ask for a name.
             if( m_RelativePath[0] != '\0' )
             {
                 Save();
@@ -78,20 +83,21 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
 
     case EditorDocumentMenuCommand_SaveAs:
         {
-            const char* filename = FileSaveDialog( "DataSource\\VisualScripts\\", "VisualScript Files\0*.myvisualscript\0All\0*.*\0" );
-            if( filename[0] != 0 )
+            // Request a file path from the OS.
+            const char* path = FileSaveDialog( "DataSource\\VisualScripts\\", "VisualScript Files\0*.myvisualscript\0All\0*.*\0" );
+            if( path[0] != 0 )
             {
-                int len = (int)strlen( filename );
+                int len = (int)strlen( path );
 
                 // Append '.myvisualscript' to end of filename if it wasn't already there.
-                char path[MAX_PATH];
-                if( strcmp( &filename[len-15], ".myvisualscript" ) == 0 )
+                char fullPath[MAX_PATH];
+                if( strcmp( &path[len-15], ".myvisualscript" ) == 0 )
                 {
-                    strcpy_s( path, MAX_PATH, filename );
+                    strcpy_s( fullPath, MAX_PATH, path );
                 }
                 else
                 {
-                    sprintf_s( path, MAX_PATH, "%s.myvisualscript", filename );
+                    sprintf_s( fullPath, MAX_PATH, "%s.myvisualscript", path );
                 }
 
                 // Only set the filename and save if the path is relative.
@@ -109,6 +115,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
             if( m_RelativePath[0] != '\0' )
             {
                 Save();
+                g_pEditorPrefs->AddRecentDocument( m_RelativePath );
             }
         }
         break;
@@ -148,6 +155,30 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
             pNewDocument = pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Load );
         }
 
+        if( ImGui::BeginMenu( "Load Recent Document..." ) )
+        {
+            uint32 numRecentDocuments = g_pEngineCore->GetEditorPrefs()->Get_Document_NumRecentDocuments();
+            if( numRecentDocuments == 0 )
+            {
+                ImGui::Text( "no recent documents..." );
+            }
+
+            for( uint32 i=0; i<numRecentDocuments; i++ )
+            {
+                std::string relativePath = g_pEngineCore->GetEditorPrefs()->Get_Document_RecentDocument( i );
+
+                if( ImGui::MenuItem( relativePath.c_str() ) )
+                {
+                    pNewDocument = MyNew MyNodeGraph( &g_NodeTypeManager );
+                    pNewDocument->SetRelativePath( relativePath.c_str() );
+                    pNewDocument->Load();
+
+                    g_pEditorPrefs->AddRecentDocument( relativePath.c_str() );
+                }
+            }
+            ImGui::EndMenu();
+        }
+
         ImGui::Separator();
 
         // Save.
@@ -180,10 +211,10 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
             pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAs );
         }
 
-        if( ImGui::MenuItem( "Save All", "Ctrl-Shift-S", false, pDocument != nullptr ) )
-        {
-            pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAll );
-        }
+        //if( ImGui::MenuItem( "Save All", "Ctrl-Shift-S", false, pDocument != nullptr ) )
+        //{
+        //    pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAll );
+        //}
 
         ImGui::EndMenu(); // "Document"
     }
