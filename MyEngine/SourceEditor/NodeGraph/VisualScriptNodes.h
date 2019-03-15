@@ -355,6 +355,7 @@ public:
     }
 
     const char* GetType() { return "Disable_GameObject"; }
+    virtual uint32 ExportAsLuaVariablesString(char* string, uint32 offset, uint32 bytesAllocated) override;
     virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
     virtual void DrawTitle() override

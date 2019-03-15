@@ -157,6 +157,20 @@ uint32 VisualScriptNode_Event_KeyPress::ExportAsLuaString(char* string, uint32 o
 //====================================================================================================
 //====================================================================================================
 
+uint32 VisualScriptNode_Disable_GameObject::ExportAsLuaVariablesString(char* string, uint32 offset, uint32 bytesAllocated)
+{
+    if( m_pGameObject == nullptr )
+        return 0;
+
+    int startOffset = offset;
+
+    uint32 tabDepth = 1;
+
+    Emit( tabDepth, "this.GO_%s = g_pComponentSystemManager:FindGameObjectByName( %s );\n", m_pGameObject->GetName(), m_pGameObject->GetName() );
+
+    return offset - startOffset;
+}
+
 uint32 VisualScriptNode_Disable_GameObject::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
 {
     int startOffset = offset;
@@ -170,11 +184,11 @@ uint32 VisualScriptNode_Disable_GameObject::EmitLua(char* string, uint32 offset,
 
     if( m_pGameObject->IsEnabled() )
     {
-        Emit( tabDepth, "%s:SetEnabled( false );\n", m_pGameObject->GetName() );
+        Emit( tabDepth, "this.GO_%s:SetEnabled( false );\n", m_pGameObject->GetName() );
     }
     else
     {
-        Emit( tabDepth, "%s:SetEnabled( true );\n", m_pGameObject->GetName() );
+        Emit( tabDepth, "this.GO_%s:SetEnabled( true );\n", m_pGameObject->GetName() );
     }
 
     return offset - startOffset;

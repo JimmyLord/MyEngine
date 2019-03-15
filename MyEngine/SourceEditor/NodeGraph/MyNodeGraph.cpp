@@ -747,10 +747,26 @@ const char* MyNodeGraph::ExportAsLuaString()
     char* string = new char[bufferSize];
 
     uint32 offset = 0;
-    for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+    
+    // Lua Variables in OnPlay().
     {
-        offset += m_Nodes[nodeIndex]->ExportAsLuaString( string, offset, bufferSize );
+        offset += sprintf_s( &string[offset], bufferSize - offset, "OnPlay = function()\n" );
+        for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+        {
+            offset += m_Nodes[nodeIndex]->ExportAsLuaVariablesString( string, offset, bufferSize );
+        }
+        string[offset] = '\0';
+        offset += sprintf_s( &string[offset], bufferSize - offset, "end,\n\n" );
     }
+
+    // Rest of nodes in Lua.
+    {
+        for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+        {
+            offset += m_Nodes[nodeIndex]->ExportAsLuaString( string, offset, bufferSize );
+        }
+    }
+
     string[offset] = '\0';
 
     return string;
