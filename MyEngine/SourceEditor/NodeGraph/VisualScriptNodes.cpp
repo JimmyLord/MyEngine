@@ -166,7 +166,7 @@ uint32 VisualScriptNode_Disable_GameObject::ExportAsLuaVariablesString(char* str
 
     uint32 tabDepth = 1;
 
-    Emit( tabDepth, "this.GO_%s = g_pComponentSystemManager:FindGameObjectByName( %s );\n", m_pGameObject->GetName(), m_pGameObject->GetName() );
+    Emit( tabDepth, "this.GO_%s = g_pComponentSystemManager:FindGameObjectByName( \"%s\" );\n", m_pGameObject->GetName(), m_pGameObject->GetName() );
 
     return offset - startOffset;
 }

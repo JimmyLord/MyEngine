@@ -375,7 +375,7 @@ void MyNodeGraph::Update()
     {
         if( m_pLuaString )
         {
-            ImGui::TextWrapped( m_pLuaString );
+            ImGui::Text( m_pLuaString );
         }
     }
     else
@@ -681,13 +681,25 @@ void MyNodeGraph::Save()
         delete[] m_pLuaString;
         m_pLuaString = ExportAsLuaString();
 
-        char* filename = "test.Lua";
+        const int len = 32;
+        char filenameWithLuaExtension[len];
+        const char* filenameWithExtension = this->GetFilename();
+        int i=0;
+        while( filenameWithExtension[i] != '\0' && filenameWithExtension[i] != '.' && i<len-1 )
+        {
+            filenameWithLuaExtension[i] = filenameWithExtension[i];
+            i++;
+        }
+        filenameWithLuaExtension[i] = '\0';
+
+        char fullPath[MAX_PATH];
+        sprintf_s( fullPath, MAX_PATH, "Data/ScriptsGenerated/%s.lua", filenameWithLuaExtension );
 
         FILE* pFile;
 #if MYFW_WINDOWS
-        fopen_s( &pFile, filename, "wb" );
+        fopen_s( &pFile, fullPath, "wb" );
 #else
-        pFile = fopen( filename, "wb" );
+        pFile = fopen( fullPath, "wb" );
 #endif
         fprintf( pFile, "%s", m_pLuaString );
         fclose( pFile );
@@ -747,24 +759,46 @@ const char* MyNodeGraph::ExportAsLuaString()
     char* string = new char[bufferSize];
 
     uint32 offset = 0;
-    
-    // Lua Variables in OnPlay().
-    {
-        offset += sprintf_s( &string[offset], bufferSize - offset, "OnPlay = function()\n" );
-        for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
-        {
-            offset += m_Nodes[nodeIndex]->ExportAsLuaVariablesString( string, offset, bufferSize );
-        }
-        string[offset] = '\0';
-        offset += sprintf_s( &string[offset], bufferSize - offset, "end,\n\n" );
-    }
 
-    // Rest of nodes in Lua.
+    // Class start.
     {
-        for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+        const int len = 32;
+        char justTheFilename[len];
+        const char* filenameWithExtension = this->GetFilename();
+        int i=0;
+        while( filenameWithExtension[i] != '\0' && filenameWithExtension[i] != '.' && i<len-1 )
         {
-            offset += m_Nodes[nodeIndex]->ExportAsLuaString( string, offset, bufferSize );
+            justTheFilename[i] = filenameWithExtension[i];
+            i++;
         }
+        justTheFilename[i] = '\0';
+
+        offset += sprintf_s( &string[offset], bufferSize - offset, "%s = \n", justTheFilename );
+        offset += sprintf_s( &string[offset], bufferSize - offset, "{\n" );
+        offset += sprintf_s( &string[offset], bufferSize - offset, "\n" );
+
+        // Lua Variables in OnPlay().
+        {
+            offset += sprintf_s( &string[offset], bufferSize - offset, "OnPlay = function()\n" );
+            for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+            {
+                offset += m_Nodes[nodeIndex]->ExportAsLuaVariablesString( string, offset, bufferSize );
+            }
+            string[offset] = '\0';
+            offset += sprintf_s( &string[offset], bufferSize - offset, "end,\n\n" );
+        }
+
+        // Rest of nodes in Lua.
+        {
+            for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+            {
+                offset += m_Nodes[nodeIndex]->ExportAsLuaString( string, offset, bufferSize );
+            }
+        }
+
+        // Class end.
+        offset += sprintf_s( &string[offset], bufferSize - offset, "\n" );
+        offset += sprintf_s( &string[offset], bufferSize - offset, "}\n" );
     }
 
     string[offset] = '\0';
