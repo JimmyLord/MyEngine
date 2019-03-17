@@ -853,7 +853,7 @@ void MyNodeGraph::ImportFromJSONObject(cJSON* jNodeGraph)
                 m_Nodes.push_back( pNode );
                 pNode->ImportFromJSONObject( jNode );
 
-                if( pNode->GetID() > m_NextNodeID )
+                if( pNode->GetID() >= m_NextNodeID )
                     m_NextNodeID = pNode->GetID() + 1;
             }
         }
