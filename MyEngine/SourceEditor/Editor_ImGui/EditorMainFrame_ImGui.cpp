@@ -245,6 +245,14 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
         // If this is a keyAction and the game window is in focus.
         if( keyAction != -1 && m_GameWindowFocused )
         {
+            // Check for Ctrl-Space keypress while the game is running and in focus to return to editor mode.
+            // TODO: Set this as an option, since some games might actually want to use the ctrl-space combination.
+            if( m_KeyDownCtrl && keyCode == ' ' && keyAction == GCBA_Down )
+            {
+                EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );
+                return true;
+            }
+
             return false; // Let event continue to the game window.
         }
 
