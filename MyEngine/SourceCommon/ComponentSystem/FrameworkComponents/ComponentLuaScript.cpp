@@ -1443,6 +1443,9 @@ void ComponentLuaScript::LoadScript()
 
                         // Call the OnLoad function in the Lua script.
                         CallFunctionEvenIfGameplayInactive( "OnLoad" );
+
+                        // TODO: If OnKeys() exists, then register for keyboard events.
+                        g_pEventManager->RegisterForEvents( "Keyboard", this, &ComponentLuaScript::StaticOnEvent );
                     }
                     else
                     {
@@ -1992,6 +1995,19 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
             }
         }
     }
+}
+
+bool ComponentLuaScript::OnEvent(MyEvent* pEvent) // StaticOnEvent
+{
+    MyAssert( pEvent->IsType( "Keyboard" ) );
+
+    int action = pEvent->GetInt( "Action" );
+    int keyCode = pEvent->GetInt( "KeyCode" );
+
+    if( CallFunction( "OnKeys", action, keyCode ) )
+        return true;
+
+    return false;
 }
 
 #endif //MYFW_USING_LUA

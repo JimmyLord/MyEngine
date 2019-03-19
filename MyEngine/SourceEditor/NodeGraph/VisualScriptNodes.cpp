@@ -141,7 +141,10 @@ uint32 VisualScriptNode_Event_KeyPress::ExportAsLuaString(char* string, uint32 o
 
     uint32 tabDepth = 0;
 
-    Emit( tabDepth, "OnButtons = function(action, id)\n" );
+    Emit( tabDepth, "OnKeys = function(action, keyCode)\n" );
+
+    tabDepth++;
+    Emit( tabDepth, "if( action == BUTTONACTION_Down and keyCode == %d ) then\n", m_KeyCode );
 
     int count = 0;
     while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
@@ -149,7 +152,10 @@ uint32 VisualScriptNode_Event_KeyPress::ExportAsLuaString(char* string, uint32 o
         EmitNode( pNode, tabDepth+1 );
     }
 
-    Emit( tabDepth, "end,\n" );
+    Emit( tabDepth, "end\n" ); // end 'if' statement.
+    tabDepth--;
+
+    Emit( tabDepth, "end,\n" ); // end function.
 
     return offset - startOffset;
 }

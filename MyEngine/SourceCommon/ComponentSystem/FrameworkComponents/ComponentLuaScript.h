@@ -129,6 +129,10 @@ public:
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentLuaScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     void OnGameObjectDeleted(GameObject* pGameObject);
 
+    // Event callbacks.
+    static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentLuaScript*)pObjectPtr)->OnEvent( pEvent ); }
+    bool OnEvent(MyEvent* pEvent);
+
     bool IsScriptLoaded() { return m_ScriptLoaded; }
 
 protected:

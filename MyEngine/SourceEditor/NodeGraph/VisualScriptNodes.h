@@ -293,7 +293,9 @@ public:
         m_KeyCode = keyCode;
         VSNAddVar( &m_VariablesList, "KeyCode", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, "", nullptr, nullptr, nullptr );
 
-        g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_KeyPress::StaticOnEvent );
+        // Don't allow node graph to be triggered directly.
+        // This will now get triggered through lua script when attached to an object.
+        //g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_KeyPress::StaticOnEvent );
     }
 
     const char* GetType() { return "Event_KeyPress"; }
@@ -329,6 +331,8 @@ public:
             {
                 pNode->Trigger();
             }
+
+            return true;
         }
 
         return false;
