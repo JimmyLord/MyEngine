@@ -266,7 +266,7 @@ void EditorDocument::SetRelativePath(const char* relativePath)
         m_Filename = m_RelativePath;
     }
 
-    for( int i=strlen( m_RelativePath ); i>=0; i-- )
+    for( int i=(int)strlen( m_RelativePath ); i>=0; i-- )
     {
         if( m_RelativePath[i] == '\\' || m_RelativePath[i] == '/' )
         {

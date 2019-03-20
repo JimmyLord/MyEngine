@@ -75,7 +75,7 @@ uint32 VisualScriptNode_MathOp_Add::EmitLua(char* string, uint32 offset, uint32 
     {
         const char* errorMessage = "ERROR_MathOp_Add";
         Emit( 0, errorMessage );
-        return strlen( errorMessage );
+        return (uint32)strlen( errorMessage );
     }
 
     char* node1String = EmitNodeTemp( pNode1 );
@@ -99,7 +99,7 @@ uint32 VisualScriptNode_Condition_GreaterEqual::EmitLua(char* string, uint32 off
     {
         const char* errorMessage = "ERROR_Condition_GreaterEqual";
         Emit( 0, errorMessage );
-        return strlen( errorMessage );
+        return (uint32)strlen( errorMessage );
     }
 
     // Always emit an "if( condition ) then" block.
@@ -135,7 +135,7 @@ uint32 VisualScriptNode_Condition_GreaterEqual::EmitLua(char* string, uint32 off
 //====================================================================================================
 //====================================================================================================
 
-uint32 VisualScriptNode_Event_KeyPress::ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated)
+uint32 VisualScriptNode_Event_Keyboard::ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated)
 {
     int startOffset = offset;
 
@@ -185,17 +185,10 @@ uint32 VisualScriptNode_Disable_GameObject::EmitLua(char* string, uint32 offset,
     {
         const char* errorMessage = "ERROR_Disable_GameObject";
         Emit( 0, errorMessage );
-        return strlen( errorMessage );
+        return (uint32)strlen( errorMessage );
     }
 
-    if( m_pGameObject->IsEnabled() )
-    {
-        Emit( tabDepth, "this.GO_%s:SetEnabled( false );\n", m_pGameObject->GetName() );
-    }
-    else
-    {
-        Emit( tabDepth, "this.GO_%s:SetEnabled( true );\n", m_pGameObject->GetName() );
-    }
+    Emit( tabDepth, "this.GO_%s:SetEnabled( not this.GO_%s:IsEnabled() );\n", m_pGameObject->GetName(), m_pGameObject->GetName() );
 
     return offset - startOffset;
 }

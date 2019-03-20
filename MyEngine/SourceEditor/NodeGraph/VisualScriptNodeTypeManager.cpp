@@ -52,7 +52,7 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::AddCreateNodeItemsToContextMen
 
     if( ImGui::BeginMenu( "Events" ) )
     {
-        if( ImGui::MenuItem( "KeyPress" ) )             { ImGui::EndMenu(); return CreateNode( "Event_KeyPress", pos, pNodeGraph ); }
+        if( ImGui::MenuItem( "KeyPress" ) )             { ImGui::EndMenu(); return CreateNode( "Event_Keyboard", pos, pNodeGraph ); }
         ImGui::EndMenu();
     }
 
@@ -77,12 +77,12 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::CreateNode(const char* typeNam
     if( TypeIs( "Value_Component" )         return MyNew VisualScriptNode_Value_Component(          pNodeGraph, newNodeID, "Component",         pos, nullptr );
     if( TypeIs( "MathOp_Add" )              return MyNew VisualScriptNode_MathOp_Add(               pNodeGraph, newNodeID, "Add",               pos );
     if( TypeIs( "Condition_GreaterEqual" )  return MyNew VisualScriptNode_Condition_GreaterEqual(   pNodeGraph, newNodeID, "GreaterEqual",      pos );
-    if( TypeIs( "Event_KeyPress" )          return MyNew VisualScriptNode_Event_KeyPress(           pNodeGraph, newNodeID, "KeyPress",          pos, 'Z' );
+    if( TypeIs( "Event_Keyboard" )          return MyNew VisualScriptNode_Event_Keyboard(           pNodeGraph, newNodeID, "Event Keys",        pos, 'Z' );
     if( TypeIs( "Disable_GameObject" )      return MyNew VisualScriptNode_Disable_GameObject(       pNodeGraph, newNodeID, "DisableGameObject", pos, nullptr );
 
 #undef TypeIs
 
-    MyAssert( false );
+    LOGInfo( LOGTag, "EventType not found: %s", typeName );
 
     return nullptr;
 }

@@ -404,8 +404,8 @@ void MyNodeGraph::Update()
             for( int linkIndex = 0; linkIndex < m_Links.Size; linkIndex++ )
             {
                 MyNodeLink* pLink = &m_Links[linkIndex];
-                MyNode* pOutputNode = m_Nodes[FindNodeIndexByID(pLink->m_OutputNodeID)];
-                MyNode* pInputNode = m_Nodes[FindNodeIndexByID(pLink->m_InputNodeID)];
+                MyNode* pOutputNode = m_Nodes[FindNodeIndexByID( pLink->m_OutputNodeID )];
+                MyNode* pInputNode = m_Nodes[FindNodeIndexByID( pLink->m_InputNodeID )];
                 Vector2 p1 = offset + pOutputNode->GetOutputSlotPos( pLink->m_OutputSlotID );
                 Vector2 p2 = offset + pInputNode->GetInputSlotPos( pLink->m_InputSlotID );
 
@@ -871,6 +871,16 @@ void MyNodeGraph::ImportFromJSONObject(cJSON* jNodeGraph)
         cJSONExt_GetEnum( jLink, "OutputNodeID", link.m_OutputNodeID );
         cJSONExt_GetEnum( jLink, "OutputSlotID", link.m_OutputSlotID );
 
-        m_Links.push_back( link );
+        int inputNodeIndex = FindNodeIndexByID( link.m_InputNodeID );
+        int outputNodeIndex = FindNodeIndexByID( link.m_OutputNodeID );
+
+        if( inputNodeIndex == -1 || outputNodeIndex == -1 )
+        {
+            LOGInfo( LOGTag, "Broken link found when loading nodegraph" );
+        }
+        else
+        {
+            m_Links.push_back( link );
+        }
     }
 }

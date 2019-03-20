@@ -25,7 +25,8 @@ class VisualScriptNode_Value_GameObject;
 class VisualScriptNode_Value_Component;
 class VisualScriptNode_MathOp_Add;
 class VisualScriptNode_Condition_GreaterEqual;
-class VisualScriptNode_Event_KeyPress;
+class VisualScriptNode_Condition_Keyboard;
+class VisualScriptNode_Event_Keyboard;
 class VisualScriptNode_Disable_GameObject;
 
 //====================================================================================================

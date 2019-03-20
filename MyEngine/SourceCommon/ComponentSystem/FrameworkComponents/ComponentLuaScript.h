@@ -219,6 +219,20 @@ public:
 #endif //MYFW_EDITOR
 
 public:
+    bool DoesFunctionExist(const char* pFuncName)
+    {
+        if( m_ScriptLoaded == false ) return false;
+        if( m_ErrorInScript ) return false;
+
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
+        MyAssert( LuaObject.isNil() == false );
+
+        if( LuaObject[pFuncName].isFunction() == false )
+            return false;
+
+        return true;
+    }
+
     bool CallFunctionEvenIfGameplayInactive(const char* pFuncName)
     {
         if( m_ScriptLoaded == false ) return false;

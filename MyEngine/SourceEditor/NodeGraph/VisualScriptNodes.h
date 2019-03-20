@@ -24,7 +24,8 @@ class VisualScriptNode_Value_GameObject;
 class VisualScriptNode_Value_Component;
 class VisualScriptNode_MathOp_Add;
 class VisualScriptNode_Condition_GreaterEqual;
-class VisualScriptNode_Event_KeyPress;
+class VisualScriptNode_Condition_Keyboard;
+class VisualScriptNode_Event_Keyboard;
 class VisualScriptNode_Disable_GameObject;
 
 //====================================================================================================
@@ -278,16 +279,16 @@ public:
 };
 
 //====================================================================================================
-// VisualScriptNode_Event_KeyPress
+// VisualScriptNode_Event_Keyboard
 //====================================================================================================
 
-class VisualScriptNode_Event_KeyPress : public VisualScriptNode
+class VisualScriptNode_Event_Keyboard : public VisualScriptNode
 {
 protected:
     int m_KeyCode;
 
 public:
-    VisualScriptNode_Event_KeyPress(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, int keyCode)
+    VisualScriptNode_Event_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, int keyCode)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
         m_KeyCode = keyCode;
@@ -295,10 +296,10 @@ public:
 
         // Don't allow node graph to be triggered directly.
         // This will now get triggered through lua script when attached to an object.
-        //g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_KeyPress::StaticOnEvent );
+        //g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
     }
 
-    const char* GetType() { return "Event_KeyPress"; }
+    const char* GetType() { return "Event_Keyboard"; }
     virtual uint32 ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated) override;
 
     virtual void DrawTitle() override
@@ -316,7 +317,7 @@ public:
         ImGui::Text( "Key: %c", m_KeyCode );
     }
 
-    static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((VisualScriptNode_Event_KeyPress*)pObjectPtr)->OnEvent( pEvent ); }
+    static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((VisualScriptNode_Event_Keyboard*)pObjectPtr)->OnEvent( pEvent ); }
     bool OnEvent(MyEvent* pEvent)
     {
         MyAssert( pEvent->IsType( "Keyboard" ) );

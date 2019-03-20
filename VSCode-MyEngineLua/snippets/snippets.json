@@ -697,6 +697,7 @@
     //            .addData( "name", &GameObject::m_Name ) // char*
     //            .addData( "id", &GameObject::m_ID ) // unsigned int
     //            .addFunction( "Editor_AddNewComponent", (ComponentBase* (GameObject::*)(const char* componentName)) &GameObject::AddNewComponent ) // ComponentBase* GameObject::AddNewComponent(const char* componentName)
+    //            .addFunction( "IsEnabled", &GameObject::IsEnabled ) // void GameObject::IsEnabled()
     //            .addFunction( "SetEnabled", &GameObject::SetEnabled ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
     //            .addFunction( "SetName", &GameObject::SetName ) // void GameObject::SetName(const char* name)
     //            .addFunction( "SetParentGameObject", &GameObject::SetParentGameObject ) // void SetParentGameObject(GameObject* pNewParentGameObject);
