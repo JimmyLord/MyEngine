@@ -46,6 +46,7 @@ public:
 };
 
 #define VSNAddVar ComponentBase::AddVariable_Base
+#define VSNAddVarEnum ComponentBase::AddVariableEnum_Base
 
 //====================================================================================================
 // VisualScriptNode_Value_Float
@@ -248,13 +249,13 @@ public:
         ImGui::Text( ">=" );
     }
 
-    virtual void Trigger() override
+    virtual bool Trigger(MyEvent* pEvent) override
     {
         VisualScriptNode* pNode1 = static_cast<VisualScriptNode*>( m_pNodeGraph->FindNodeConnectedToInput( m_ID, 1 ) );
         VisualScriptNode* pNode2 = static_cast<VisualScriptNode*>( m_pNodeGraph->FindNodeConnectedToInput( m_ID, 2 ) );
 
         if( pNode1 == nullptr || pNode2 == nullptr )
-            return;
+            return false;
 
         float value1 = pNode1->GetValueFloat();
         float value2 = pNode2->GetValueFloat();
@@ -275,6 +276,74 @@ public:
                 pNode->Trigger();
             }
         }
+
+        return false;
+    }
+};
+
+//====================================================================================================
+// VisualScriptNode_Condition_Keyboard
+//====================================================================================================
+
+class VisualScriptNode_Condition_Keyboard : public VisualScriptNode
+{
+protected:
+    int m_ButtonAction;
+    int m_KeyCode;
+
+public:
+    VisualScriptNode_Condition_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, int buttonAction, int keyCode)
+    : VisualScriptNode( pNodeGraph, id, name, pos, 1, 1 )
+    {
+        MyAssert( GCBA_Down == 0 );
+        MyAssert( GCBA_Up == 1 );
+        MyAssert( GCBA_Held == 2 );
+
+        m_ButtonAction = buttonAction;
+        m_KeyCode = keyCode;
+
+        VSNAddVarEnum( &m_VariablesList, "Action", MyOffsetOf( this, &this->m_ButtonAction ), true, true, "", 3, g_GameCoreButtonActionStrings, nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "KeyCode", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, "", nullptr, nullptr, nullptr );
+    }
+
+    const char* GetType() { return "Condition_Keyboard"; }
+    virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
+
+    virtual void DrawTitle() override
+    {
+        if( m_Expanded )
+            MyNode::DrawTitle();
+        else
+            ImGui::Text( "%s: %c %s", m_Name, m_KeyCode, g_GameCoreButtonActionStrings[m_ButtonAction] );
+    }
+
+    virtual void DrawContents() override
+    {
+        MyNode::DrawContents();
+
+        ImGui::Text( "Key: %c", m_KeyCode );
+    }
+
+    virtual bool Trigger(MyEvent* pEvent) override
+    {
+        MyAssert( pEvent->IsType( "Keyboard" ) );
+
+        int action = pEvent->GetInt( "Action" );
+        int keyCode = pEvent->GetInt( "KeyCode" );
+
+        if( action == m_ButtonAction && keyCode == m_KeyCode )
+        {
+            int count = 0;
+            while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
+            {
+                if( pNode->Trigger() == true )
+                    return true;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 };
 
@@ -285,18 +354,19 @@ public:
 class VisualScriptNode_Event_Keyboard : public VisualScriptNode
 {
 protected:
-    int m_KeyCode;
 
 public:
-    VisualScriptNode_Event_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, int keyCode)
+    VisualScriptNode_Event_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
-        m_KeyCode = keyCode;
-        VSNAddVar( &m_VariablesList, "KeyCode", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, "", nullptr, nullptr, nullptr );
-
         // Don't allow node graph to be triggered directly.
         // This will now get triggered through lua script when attached to an object.
-        //g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
+        g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
+    }
+
+    ~VisualScriptNode_Event_Keyboard()
+    {
+        g_pEventManager->UnregisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
     }
 
     const char* GetType() { return "Event_Keyboard"; }
@@ -304,17 +374,12 @@ public:
 
     virtual void DrawTitle() override
     {
-        if( m_Expanded )
-            MyNode::DrawTitle();
-        else
-            ImGui::Text( "%s: %c", m_Name, m_KeyCode );
+        MyNode::DrawTitle();
     }
 
     virtual void DrawContents() override
     {
         MyNode::DrawContents();
-
-        ImGui::Text( "Key: %c", m_KeyCode );
     }
 
     static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((VisualScriptNode_Event_Keyboard*)pObjectPtr)->OnEvent( pEvent ); }
@@ -322,18 +387,11 @@ public:
     {
         MyAssert( pEvent->IsType( "Keyboard" ) );
 
-        int action = pEvent->GetInt( "Action" );
-        int keyCode = pEvent->GetInt( "KeyCode" );
-
-        if( action == GCBA_Down && keyCode == m_KeyCode )
+        int count = 0;
+        while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
         {
-            int count = 0;
-            while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
-            {
-                pNode->Trigger();
-            }
-
-            return true;
+            if( pNode->Trigger( pEvent ) == true )
+                return true;
         }
 
         return false;
@@ -395,12 +453,14 @@ public:
         return nullptr;
     }
 
-    virtual void Trigger() override
+    virtual bool Trigger(MyEvent* pEvent) override
     {
         if( m_pGameObject )
         {
             m_pGameObject->SetEnabled( !m_pGameObject->IsEnabled(), true );
         }
+
+        return false;
     }
 };
 

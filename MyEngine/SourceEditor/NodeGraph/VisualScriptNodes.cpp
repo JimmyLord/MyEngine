@@ -135,16 +135,11 @@ uint32 VisualScriptNode_Condition_GreaterEqual::EmitLua(char* string, uint32 off
 //====================================================================================================
 //====================================================================================================
 
-uint32 VisualScriptNode_Event_Keyboard::ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated)
+uint32 VisualScriptNode_Condition_Keyboard::EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth)
 {
     int startOffset = offset;
 
-    uint32 tabDepth = 0;
-
-    Emit( tabDepth, "OnKeys = function(action, keyCode)\n" );
-
-    tabDepth++;
-    Emit( tabDepth, "if( action == BUTTONACTION_Down and keyCode == %d ) then\n", m_KeyCode );
+    Emit( tabDepth, "if( action == %s and keyCode == %d ) then\n", g_GameCoreButtonActionLuaStrings[m_ButtonAction], m_KeyCode );
 
     int count = 0;
     while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
@@ -153,7 +148,26 @@ uint32 VisualScriptNode_Event_Keyboard::ExportAsLuaString(char* string, uint32 o
     }
 
     Emit( tabDepth, "end\n" ); // end 'if' statement.
-    tabDepth--;
+
+    return offset - startOffset;
+}
+
+//====================================================================================================
+//====================================================================================================
+
+uint32 VisualScriptNode_Event_Keyboard::ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated)
+{
+    int startOffset = offset;
+
+    uint32 tabDepth = 0;
+
+    Emit( tabDepth, "OnKeys = function(action, keyCode)\n" );
+
+    int count = 0;
+    while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
+    {
+        EmitNode( pNode, tabDepth+1 );
+    }
 
     Emit( tabDepth, "end,\n" ); // end function.
 

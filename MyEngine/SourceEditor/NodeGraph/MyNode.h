@@ -21,8 +21,8 @@ public:
     NodeID m_ID;
     char m_Name[32];
     Vector2 m_Pos;
-    int m_InputsCount;
-    int m_OutputsCount;
+    uint32 m_InputsCount;
+    uint32 m_OutputsCount;
     bool m_Expanded;
 
     // Node properties.
@@ -40,6 +40,8 @@ public:
 
     MyNodeGraph* GetNodeGraph();
 
+    uint32 MyNode::GetInputSlotCount() const;
+    uint32 MyNode::GetOutputSlotCount() const;
     ImVec2 GetInputSlotPos(SlotID slotID) const;
     ImVec2 GetOutputSlotPos(SlotID slotID) const;
     NodeID GetID() { return m_ID; }
@@ -51,7 +53,7 @@ public:
     virtual void DrawTitle();
     virtual void DrawContents();
 
-    virtual void Trigger() {}
+    virtual bool Trigger(MyEvent* pEvent = nullptr) { return false; }
 
     virtual uint32 ExportAsLuaVariablesString(char* string, uint32 offset, uint32 bytesAllocated) { return 0; }
     virtual uint32 ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated) { return 0; }

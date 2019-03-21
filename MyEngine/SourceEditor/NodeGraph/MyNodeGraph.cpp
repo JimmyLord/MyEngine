@@ -876,7 +876,15 @@ void MyNodeGraph::ImportFromJSONObject(cJSON* jNodeGraph)
 
         if( inputNodeIndex == -1 || outputNodeIndex == -1 )
         {
-            LOGInfo( LOGTag, "Broken link found when loading nodegraph" );
+            LOGError( LOGTag, "Broken link found when loading nodegraph" );
+        }
+        else if( link.m_InputSlotID >= m_Nodes[inputNodeIndex]->GetInputSlotCount() )
+        {
+            LOGError( LOGTag, "Too many input links found when loading nodegraph" );
+        }
+        else if( link.m_OutputSlotID >= m_Nodes[outputNodeIndex]->GetOutputSlotCount() )
+        {
+            LOGError( LOGTag, "Too many output links found when loading nodegraph" );
         }
         else
         {

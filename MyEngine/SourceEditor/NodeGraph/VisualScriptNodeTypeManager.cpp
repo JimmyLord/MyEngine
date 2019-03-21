@@ -47,12 +47,13 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::AddCreateNodeItemsToContextMen
     if( ImGui::BeginMenu( "Conditions" ) )
     {
         if( ImGui::MenuItem( "GreaterEqual" ) )         { ImGui::EndMenu(); return CreateNode( "Condition_GreaterEqual", pos, pNodeGraph ); }
+        if( ImGui::MenuItem( "Keyboard" ) )             { ImGui::EndMenu(); return CreateNode( "Condition_Keyboard", pos, pNodeGraph ); }
         ImGui::EndMenu();
     }
 
     if( ImGui::BeginMenu( "Events" ) )
     {
-        if( ImGui::MenuItem( "KeyPress" ) )             { ImGui::EndMenu(); return CreateNode( "Event_Keyboard", pos, pNodeGraph ); }
+        if( ImGui::MenuItem( "Keyboard" ) )             { ImGui::EndMenu(); return CreateNode( "Event_Keyboard", pos, pNodeGraph ); }
         ImGui::EndMenu();
     }
 
@@ -77,7 +78,8 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::CreateNode(const char* typeNam
     if( TypeIs( "Value_Component" )         return MyNew VisualScriptNode_Value_Component(          pNodeGraph, newNodeID, "Component",         pos, nullptr );
     if( TypeIs( "MathOp_Add" )              return MyNew VisualScriptNode_MathOp_Add(               pNodeGraph, newNodeID, "Add",               pos );
     if( TypeIs( "Condition_GreaterEqual" )  return MyNew VisualScriptNode_Condition_GreaterEqual(   pNodeGraph, newNodeID, "GreaterEqual",      pos );
-    if( TypeIs( "Event_Keyboard" )          return MyNew VisualScriptNode_Event_Keyboard(           pNodeGraph, newNodeID, "Event Keys",        pos, 'Z' );
+    if( TypeIs( "Condition_Keyboard" )      return MyNew VisualScriptNode_Condition_Keyboard(       pNodeGraph, newNodeID, "If Key",            pos, GCBA_Down, 'Z' );
+    if( TypeIs( "Event_Keyboard" )          return MyNew VisualScriptNode_Event_Keyboard(           pNodeGraph, newNodeID, "Event Keys",        pos );
     if( TypeIs( "Disable_GameObject" )      return MyNew VisualScriptNode_Disable_GameObject(       pNodeGraph, newNodeID, "DisableGameObject", pos, nullptr );
 
 #undef TypeIs

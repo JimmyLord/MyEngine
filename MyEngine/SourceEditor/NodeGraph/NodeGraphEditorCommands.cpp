@@ -83,7 +83,7 @@ EditorCommand_NodeGraph_DeleteNodes::EditorCommand_NodeGraph_DeleteNodes(MyNodeG
     {
         MyNodeGraph::MyNode* pNode = m_pNodes[nodeIndex];
 
-        for( int slotIndex=0; slotIndex<pNode->m_InputsCount; slotIndex++ )
+        for( uint32 slotIndex=0; slotIndex<pNode->m_InputsCount; slotIndex++ )
         {
             int count = 0;
             while( MyNodeGraph::MyNodeLink* pNodeLink = m_pNodeGraph->FindLinkConnectedToInput( pNode->m_ID, slotIndex, count++ ) )
@@ -92,7 +92,7 @@ EditorCommand_NodeGraph_DeleteNodes::EditorCommand_NodeGraph_DeleteNodes(MyNodeG
             }
         }
 
-        for( int slotIndex=0; slotIndex<pNode->m_OutputsCount; slotIndex++ )
+        for( uint32 slotIndex=0; slotIndex<pNode->m_OutputsCount; slotIndex++ )
         {
             int count = 0;
             while( MyNodeGraph::MyNodeLink* pNodeLink = m_pNodeGraph->FindLinkConnectedToOutput( pNode->m_ID, slotIndex, count++ ) )

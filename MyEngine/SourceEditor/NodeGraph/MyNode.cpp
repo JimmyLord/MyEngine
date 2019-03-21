@@ -55,13 +55,25 @@ MyNodeGraph* MyNodeGraph::MyNode::GetNodeGraph()
     return m_pNodeGraph;
 }
 
+uint32 MyNodeGraph::MyNode::GetInputSlotCount() const
+{
+    return m_InputsCount;
+}
+
+uint32 MyNodeGraph::MyNode::GetOutputSlotCount() const
+{
+    return m_OutputsCount;
+}
+
 ImVec2 MyNodeGraph::MyNode::GetInputSlotPos(SlotID slotID) const
 {
+    MyAssert( slotID < m_InputsCount );
     return ImVec2( m_Pos.x, m_Pos.y + m_Size.y * ((float)slotID + 1) / ((float)m_InputsCount + 1) );
 }
     
 ImVec2 MyNodeGraph::MyNode::GetOutputSlotPos(SlotID slotID) const
 {
+    MyAssert( slotID < m_OutputsCount );
     return ImVec2( m_Pos.x + m_Size.x, m_Pos.y + m_Size.y * ((float)slotID + 1) / ((float)m_OutputsCount + 1) );
 }
 
@@ -252,13 +264,13 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
 
     // Draw a circle for each link slot and check slots for mouse hover/click.
     {
-        for( int slotIndex = 0; slotIndex < m_OutputsCount; slotIndex++ )
+        for( uint32 slotIndex = 0; slotIndex < m_OutputsCount; slotIndex++ )
         {
             Vector2 slotPos = offset + GetOutputSlotPos( slotIndex );
             HandleNodeSlot( pDrawList, slotPos, m_ID, slotIndex, SlotType_Output, pMouseNodeLink );
         }
 
-        for( int slotIndex = 0; slotIndex < m_InputsCount; slotIndex++ )
+        for( uint32 slotIndex = 0; slotIndex < m_InputsCount; slotIndex++ )
         {
             Vector2 slotPos = offset + GetInputSlotPos( slotIndex );
             HandleNodeSlot( pDrawList, slotPos, m_ID, slotIndex, SlotType_Input, pMouseNodeLink );
@@ -378,8 +390,8 @@ cJSON* MyNodeGraph::MyNode::ExportAsJSONObject()
     cJSON_AddStringToObject( jNode, "Name", m_Name );
     cJSON_AddNumberToObject( jNode, "ID", m_ID );
     cJSONExt_AddFloatArrayToObject( jNode, "Pos", &m_Pos.x, 2 );
-    cJSON_AddNumberToObject( jNode, "InputsCount", m_InputsCount );
-    cJSON_AddNumberToObject( jNode, "OutputsCount", m_OutputsCount );
+    //cJSON_AddNumberToObject( jNode, "InputsCount", m_InputsCount );
+    //cJSON_AddNumberToObject( jNode, "OutputsCount", m_OutputsCount );
     cJSON_AddBoolToObject( jNode, "Expanded", m_Expanded );
 
     ComponentBase::ExportVariablesToJSON( jNode, this, &m_VariablesList, nullptr );
@@ -392,8 +404,8 @@ void MyNodeGraph::MyNode::ImportFromJSONObject(cJSON* jNode)
     cJSONExt_GetString( jNode, "Name", m_Name, 32 );
     cJSONExt_GetEnum( jNode, "ID", m_ID );
     cJSONExt_GetFloatArray( jNode, "Pos", &m_Pos.x, 2 );
-    cJSONExt_GetInt( jNode, "InputsCount", static_cast<int*>( &m_InputsCount ) );
-    cJSONExt_GetInt( jNode, "OutputsCount", static_cast<int*>( &m_OutputsCount ) );
+    //cJSONExt_GetUnsignedInt( jNode, "InputsCount", &m_InputsCount );
+    //cJSONExt_GetUnsignedInt( jNode, "OutputsCount", &m_OutputsCount );
     cJSONExt_GetBool( jNode, "Expanded", &m_Expanded );
 
     ComponentBase::ImportVariablesFromJSON( jNode, this, &m_VariablesList, nullptr, SCENEID_MainScene );
