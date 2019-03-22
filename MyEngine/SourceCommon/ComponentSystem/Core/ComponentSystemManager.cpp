@@ -38,10 +38,11 @@
 
 ComponentSystemManager* g_pComponentSystemManager = 0;
 
-ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager)
+ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager, GameCore* pGameCore)
 {
     g_pComponentSystemManager = this;
 
+    m_pGameCore = pGameCore;
     m_pComponentTypeManager = typemanager;
 #if MYFW_EDITOR
     m_pSceneHandler = MyNew SceneHandler();
@@ -53,9 +54,9 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pEventManager->RegisterForEvents( "GameObjectEnable", this, &ComponentSystemManager::StaticOnEvent );
 
 #if MYFW_EDITOR
-    g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
-    g_pFileManager->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
-    g_pFileManager->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
+    m_pGameCore->GetManagers()->m_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
+    m_pGameCore->GetManagers()->m_pFileManager->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
+    m_pGameCore->GetManagers()->m_pFileManager->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
     g_pGameCore->GetSoundManager()->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
     g_pGameCore->GetSoundManager()->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 

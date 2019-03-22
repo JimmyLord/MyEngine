@@ -38,6 +38,8 @@ public:
 class EditorLayoutManager_ImGui
 {
 protected:
+    EditorMainFrame_ImGui* m_pEditorMainFrame_ImGui;
+
     EditorLayoutTypes m_CurrentLayoutIndex;
     EditorLayoutTypes m_RequestedLayoutIndex;
 
@@ -51,10 +53,11 @@ protected:
     EditorLayout m_CustomLayouts[EditorLayout_NumLayouts];
 
 public:
-    EditorLayoutManager_ImGui();
+    EditorLayoutManager_ImGui(EditorMainFrame_ImGui* pEditorMainFrame_ImGui);
     ~EditorLayoutManager_ImGui();
 
     // Getters.
+    EditorMainFrame_ImGui* GetEditorMainFrame_ImGui() { return m_pEditorMainFrame_ImGui; }
     EditorLayout* GetLayout(EditorLayoutTypes i) { return &m_CustomLayouts[i]; }
     EditorLayout* GetCurrentLayout();
     EditorLayoutTypes GetSelectedLayout_EditorMode() { return m_SelectedLayout_EditorMode; }

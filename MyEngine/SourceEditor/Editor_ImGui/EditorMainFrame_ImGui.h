@@ -43,6 +43,9 @@ enum EditorWindowTypes
 class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:
+    // Pointer to EngineCore
+    EngineCore* m_pEngineCore;
+
     // Documents.
     EditorDocument* m_pActiveDocument;
     EditorDocument* m_pLastActiveDocument;
@@ -130,11 +133,12 @@ protected:
     CommandStack* m_pCommandStack;
 
 public:
-    EditorMainFrame_ImGui();
+    EditorMainFrame_ImGui(EngineCore* pEngineCore);
     ~EditorMainFrame_ImGui();
 
+    // Getters.
+    EngineCore* GetEngineCore() { return m_pEngineCore; }
     EditorLayoutManager_ImGui* GetLayoutManager() { return m_pLayoutManager; }
-
     Vector2 GetEditorWindowCenterPosition();
     bool IsGameWindowFocused() { return m_GameWindowFocused; }
 

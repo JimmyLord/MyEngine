@@ -135,6 +135,8 @@ MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnFileRenamed );
 class ComponentSystemManager
 {
 protected:
+    GameCore* m_pGameCore;
+
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
 
     // List of files used including a scene id and the source file (if applicable)
@@ -156,7 +158,7 @@ protected:
 #endif //MYFW_EDITOR
 
 public:
-    ComponentSystemManager(ComponentTypeManager* typemanager);
+    ComponentSystemManager(ComponentTypeManager* typemanager, GameCore* pGameCore);
     virtual ~ComponentSystemManager();
 
 #if MYFW_USING_LUA

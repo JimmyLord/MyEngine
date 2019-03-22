@@ -36,11 +36,19 @@
 
 EngineCore* g_pEngineCore = nullptr;
 
-EngineCore::EngineCore()
+EngineCore::EngineCore(Renderer_Base* pRenderer, bool createAndOwnGlobalManagers)
+: GameCore( pRenderer, createAndOwnGlobalManagers )
 {
     g_pEngineCore = this;
 
     m_pComponentSystemManager = nullptr;
+
+    m_pImGuiManager = nullptr;
+    m_pBulletWorld = nullptr;
+
+#if MYFW_USING_LUA
+    m_pLuaGameState = nullptr;
+#endif //MYFW_USING_LUA
 
 #if MYFW_EDITOR
     m_EditorMode = true;
@@ -82,12 +90,6 @@ EngineCore::EngineCore()
         m_pSceneFilesLoading[i].m_pFile = nullptr;
         m_pSceneFilesLoading[i].m_SceneID = SCENEID_NotSet;
     }
-
-    m_pBulletWorld = nullptr;
-
-#if MYFW_USING_LUA
-    m_pLuaGameState = nullptr;
-#endif //MYFW_USING_LUA
 
     m_PauseTimeToAdvance = 0;
 
@@ -132,15 +134,20 @@ EngineCore::EngineCore()
 
     for( int i=0; i<32; i++ )
     {
-        m_GameObjectFlagStrings[i] = 0;
+        m_GameObjectFlagStrings[i] = nullptr;
     }
 }
 
 EngineCore::~EngineCore()
 {
+    Cleanup();
+}
+
+void EngineCore::Cleanup()
+{
     SaveEditorPrefs();
 
-    SAFE_DELETE( g_pImGuiManager );
+    SAFE_DELETE( m_pImGuiManager );
 
     SAFE_DELETE( g_pRTQGlobals );
 
@@ -153,12 +160,12 @@ EngineCore::~EngineCore()
         SAFE_DELETE( m_pEditorInterfaces[i] );
 #endif //MYFW_EDITOR
 
-    g_pFileManager->FreeFile( m_pShaderFile_TintColor );
-    g_pFileManager->FreeFile( m_pShaderFile_TintColorWithAlpha );
-    g_pFileManager->FreeFile( m_pShaderFile_SelectedObjects );
-    g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
-    g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceColor );
-    g_pFileManager->FreeFile( m_pShaderFile_FresnelTint );
+    if( m_pShaderFile_TintColor )           g_pFileManager->FreeFile( m_pShaderFile_TintColor );          m_pShaderFile_TintColor = nullptr;
+    if( m_pShaderFile_TintColorWithAlpha )  g_pFileManager->FreeFile( m_pShaderFile_TintColorWithAlpha ); m_pShaderFile_TintColorWithAlpha = nullptr;
+    if( m_pShaderFile_SelectedObjects )     g_pFileManager->FreeFile( m_pShaderFile_SelectedObjects );    m_pShaderFile_SelectedObjects = nullptr;
+    if( m_pShaderFile_ClipSpaceTexture )    g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );   m_pShaderFile_ClipSpaceTexture = nullptr;
+    if( m_pShaderFile_ClipSpaceColor )      g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceColor );     m_pShaderFile_ClipSpaceColor = nullptr;
+    if( m_pShaderFile_FresnelTint )         g_pFileManager->FreeFile( m_pShaderFile_FresnelTint );        m_pShaderFile_FresnelTint = nullptr;
     SAFE_RELEASE( m_pShader_TintColor );
     SAFE_RELEASE( m_pShader_TintColorWithAlpha );
     SAFE_RELEASE( m_pShader_SelectedObjects );
@@ -190,6 +197,7 @@ EngineCore::~EngineCore()
     for( int i=0; i<32; i++ )
     {
         delete[] m_GameObjectFlagStrings[i];
+        m_GameObjectFlagStrings[i] = nullptr;
     }
 
     m_SingleFrameMemoryStack.Cleanup();
@@ -198,6 +206,9 @@ EngineCore::~EngineCore()
 void EngineCore::SaveEditorPrefs()
 {
 #if MYFW_EDITOR
+    if( m_pEditorPrefs == nullptr )
+        return;
+
     cJSON* jPrefs = m_pEditorPrefs->SaveStart();
 
     //// Save Layout strings.
@@ -275,8 +286,8 @@ void EngineCore::InitializeManagers()
     if( g_pRTQGlobals == nullptr )
         g_pRTQGlobals = MyNew RenderTextQuickGlobals;
 
-    if( g_pImGuiManager == nullptr )
-        g_pImGuiManager = MyNew ImGuiManager;
+    if( m_pImGuiManager == nullptr )
+        m_pImGuiManager = MyNew ImGuiManager;
 }
 
 void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
@@ -377,7 +388,7 @@ void EngineCore::OneTimeInit()
     m_pMaterial_FresnelTint = MyNew MaterialDefinition( m_pShader_FresnelTint );
 
     // Initialize our component system.
-    m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager() );
+    m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager(), this );
 
     // Initialize lua state and register any variables needed.
 #if MYFW_USING_LUA
@@ -402,15 +413,15 @@ void EngineCore::OneTimeInit()
 
 //    CreateDefaultSceneObjects();
 
-    if( g_pImGuiManager )
+    if( m_pImGuiManager )
     {
-        g_pImGuiManager->Init( (float)GetWindowWidth(), (float)GetWindowHeight() );
+        m_pImGuiManager->Init( (float)GetWindowWidth(), (float)GetWindowHeight() );
 #if MYFW_EDITOR
-        m_pEditorMainFrame = MyNew EditorMainFrame_ImGui();
+        m_pEditorMainFrame = MyNew EditorMainFrame_ImGui( this );
 
         // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
-        // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
-        g_pImGuiManager->StartFrame();
+        // Tick happens before game(0) window is drawn, m_pImGuiManager's draw only happens on editor(1) window.
+        //m_pImGuiManager->StartFrame();
 #endif //MYFW_EDITOR
     }
 
@@ -474,7 +485,7 @@ float EngineCore::Tick(float deltaTime)
     // If a change in editor perspective was requested, change it before the start of the frame.
     ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->GetLayoutManager()->ApplyLayoutChange();
 
-    g_pImGuiManager->StartFrame();
+    m_pImGuiManager->StartFrame();
 #endif
 
     //ImGui::Begin( "Editor Debug" );
@@ -485,7 +496,7 @@ float EngineCore::Tick(float deltaTime)
     //ImGui::Text( "FrameCount: %d", ImGui::GetFrameCount() );
     //ImGui::Text( "Time: %f", ImGui::GetTime() );
     //ImGui::End();
-    //g_pImGuiManager->OnFocusLost();
+    //m_pImGuiManager->OnFocusLost();
 
 #if MYFW_PROFILING_ENABLED
     static double Timing_LastFrameTime = 0;
@@ -495,9 +506,9 @@ float EngineCore::Tick(float deltaTime)
 
     m_pLuaGameState->Tick();
 
-    if( g_pImGuiManager )
+    if( m_pImGuiManager )
     {
-        g_pImGuiManager->StartTick( deltaTime );
+        m_pImGuiManager->StartTick( deltaTime );
     }
 
 #if MYFW_EDITOR
@@ -745,7 +756,7 @@ void EngineCore::OnFocusLost()
     m_pEditorState->OnFocusLost();
 #endif
 
-    g_pImGuiManager->OnFocusLost();
+    m_pImGuiManager->OnFocusLost();
 }
 
 void EngineCore::OnDrawFrameStart(unsigned int canvasid)
@@ -753,9 +764,9 @@ void EngineCore::OnDrawFrameStart(unsigned int canvasid)
     GameCore::OnDrawFrameStart( canvasid );
 
 #if !MYFW_EDITOR
-    if( g_pImGuiManager )
+    if( m_pImGuiManager )
     {
-        g_pImGuiManager->StartFrame();
+        m_pImGuiManager->StartFrame();
     }
 #endif //!MYFW_EDITOR
 }
@@ -791,9 +802,9 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.1f, 0.2f, 1.0f ) );
         g_pRenderer->ClearBuffers( true, true, false );
 
-        if( g_pImGuiManager )
+        if( m_pImGuiManager )
         {
-            g_pImGuiManager->EndFrame( (float)windowWidth, (float)windowHeight, true );
+            m_pImGuiManager->EndFrame( (float)windowWidth, (float)windowHeight, true );
         }
 
         return;
@@ -979,14 +990,14 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     }
 #endif //MYFW_PROFILING_ENABLED
 
-    if( g_pImGuiManager )
+    if( m_pImGuiManager )
     {
-        g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
+        m_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
 
 #if MYFW_EDITOR
         // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
-        // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
-        g_pImGuiManager->StartFrame();
+        // Tick happens before game(0) window is drawn, m_pImGuiManager's draw only happens on editor(1) window.
+        m_pImGuiManager->StartFrame();
 #endif
     }
 }
@@ -1003,8 +1014,8 @@ void EngineCore::OnDrawFrameDone()
     //if( g_GLCanvasIDActive == 1 )
 #endif
     //{
-    //    if( g_pImGuiManager )
-    //        g_pImGuiManager->ClearInput();
+    //    if( m_pImGuiManager )
+    //        m_pImGuiManager->ClearInput();
     //}
 }
 
@@ -1106,14 +1117,14 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     if( g_pGameCore->IsMouseLocked() == false )
     {
         float toplefty = y;
-        if( g_pImGuiManager->HandleInput( -1, -1, action, id, x, toplefty, pressure ) )
+        if( m_pImGuiManager->HandleInput( -1, -1, action, id, x, toplefty, pressure ) )
             return true;
     }
     else
     {
         // In standalone game, if the mouse is locked, imgui needs to reset inputs.
         // TODO: This should be done once when the mouse is locked, not each frame.
-        g_pImGuiManager->OnFocusLost();
+        m_pImGuiManager->OnFocusLost();
     }
 #endif
 
@@ -1229,7 +1240,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 #endif
     {
 #if !MYFW_EDITOR
-        if( g_pImGuiManager->HandleInput( action, keycode, -1, -1, -1, -1, -1 ) )
+        if( m_pImGuiManager->HandleInput( action, keycode, -1, -1, -1, -1, -1 ) )
             return true;
 #endif
 
@@ -1246,7 +1257,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 
 bool EngineCore::OnChar(unsigned int c)
 {
-    g_pImGuiManager->OnChar( c );
+    m_pImGuiManager->OnChar( c );
 
     return false;
 }
@@ -1284,7 +1295,7 @@ void EngineCore::OnModePlay()
     {
         g_pMaterialManager->SaveAllMaterials();
         //m_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
-        m_pSoundManager->SaveAllCues();
+        m_Managers.m_pSoundManager->SaveAllCues();
 
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
@@ -1434,7 +1445,7 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
 bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     // Fill the imgui io structure.
-    g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+    m_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     // Pass all inputs to our imgui frame, which will deliver it to the correct window (game, editor or widget).
     bool inputUsed = ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );

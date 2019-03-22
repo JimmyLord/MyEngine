@@ -12,31 +12,36 @@
 
 class ImGuiManager;
 
-extern ImGuiManager* g_pImGuiManager;
-
 class ImGuiManager
 {
 protected:
+    // Shared ImGui Resources.
+    static bool m_DeviceObjectsAreValid;
+    static int m_ShaderHandle;
+    static int m_VertHandle;
+    static int m_FragHandle;
+    static int m_UniformLocationTex;
+    static int m_UniformLocationProjMtx;
+    static int m_AttribLocationPosition;
+    static int m_AttribLocationUV;
+    static int m_AttribLocationColor;
+    static unsigned int m_VboHandle;
+    static unsigned int m_VaoHandle;
+    static unsigned int m_ElementsHandle;
+    static TextureDefinition* m_pFontTexture;
+
+protected:
+    static bool CreateDeviceObjects();
+    static void CreateFont();
+    static bool CreateFontAndTexture();
+    static void InvalidateDeviceObjects();
+
+protected:
+    // Instance ImGui Resources.
     void ClearInput();
 
     ImGuiContext* m_pImGuiContext;
-    bool m_DeviceObjectsAreValid;
-
     bool m_FrameStarted;
-
-    TextureDefinition* m_pFontTexture;
-    int m_ShaderHandle;
-    int m_VertHandle;
-    int m_FragHandle;
-    int m_UniformLocationTex;
-    int m_UniformLocationProjMtx;
-    int m_AttribLocationPosition;
-    int m_AttribLocationUV;
-    int m_AttribLocationColor;
-    unsigned int m_VboHandle;
-    unsigned int m_VaoHandle;
-    unsigned int m_ElementsHandle;
-
     ImGuiMouseCursor m_LastMouseCursor;
 
 public:
@@ -56,11 +61,6 @@ public:
     void EndFrame(float width, float height, bool draw);
 
     void RenderDrawLists(ImDrawData* draw_data);
-
-    void CreateFont();
-    bool CreateFontAndTexture();
-    bool CreateDeviceObjects();
-    void InvalidateDeviceObjects();
 
     bool UpdateMouseCursor();
 };

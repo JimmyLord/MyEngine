@@ -11,7 +11,8 @@
 
 #include "EditorLayoutManager_ImGui.h"
 #include "ImGuiStylePrefs.h"
-#include "../SourceEditor/EditorPrefs.h"
+#include "../../SourceCommon/Core/EngineCore.h"
+#include "../../SourceEditor/EditorPrefs.h"
 
 const char* g_DefaultEditorLayoutImGuiIniStrings[EditorLayout_NumLayouts] =
 {
@@ -29,8 +30,10 @@ const char* g_EditorLayoutMenuLabels[EditorLayout_NumLayouts] =
     "Full Frame Game",
 };
 
-EditorLayoutManager_ImGui::EditorLayoutManager_ImGui()
+EditorLayoutManager_ImGui::EditorLayoutManager_ImGui(EditorMainFrame_ImGui* pEditorMainFrame_ImGui)
 {
+    m_pEditorMainFrame_ImGui = pEditorMainFrame_ImGui;
+
     // Initialize the default layouts before loading any customized ones from disk.
     {
         // "Is window open" booleans.
@@ -221,8 +224,9 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
         SyncCurrentImGuiIni();
 
         // Reset the imgui context.
-        g_pImGuiManager->Shutdown( false );
-        g_pImGuiManager->Init( (float)g_pEditorPrefs->GetWindowWidth(), (float)g_pEditorPrefs->GetWindowHeight() );
+        ImGuiManager* pImGuiManager = m_pEditorMainFrame_ImGui->GetEngineCore()->GetImGuiManager();
+        pImGuiManager->Shutdown( false );
+        pImGuiManager->Init( (float)g_pEditorPrefs->GetWindowWidth(), (float)g_pEditorPrefs->GetWindowHeight() );
 
         // Reapply current imgui color/etc style.
         g_pEditorPrefs->GetImGuiStylePrefs()->ReapplyCurrentPreset();

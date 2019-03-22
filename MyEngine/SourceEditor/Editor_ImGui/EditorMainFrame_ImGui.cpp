@@ -84,14 +84,16 @@ const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
 // Public methods
 //====================================================================================================
 
-EditorMainFrame_ImGui::EditorMainFrame_ImGui()
+EditorMainFrame_ImGui::EditorMainFrame_ImGui(EngineCore* pEngineCore)
 {
+    m_pEngineCore = pEngineCore;
+
     // Documents.
     m_pActiveDocument = nullptr;
     m_pLastActiveDocument = nullptr;
 
     // Layouts.
-    m_pLayoutManager = MyNew EditorLayoutManager_ImGui();
+    m_pLayoutManager = MyNew EditorLayoutManager_ImGui( this );
     m_pCurrentLayout = nullptr;
 
     // Warnings.

@@ -15,30 +15,25 @@
 #include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 #include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Texture_OpenGL.h"
 
-ImGuiManager* g_pImGuiManager = 0;
+bool ImGuiManager::m_DeviceObjectsAreValid = false;
+int ImGuiManager::m_ShaderHandle = 0;
+int ImGuiManager::m_VertHandle = 0;
+int ImGuiManager::m_FragHandle = 0;
+int ImGuiManager::m_UniformLocationTex = -1;
+int ImGuiManager::m_UniformLocationProjMtx = -1;
+int ImGuiManager::m_AttribLocationPosition = -1;
+int ImGuiManager::m_AttribLocationUV = -1;
+int ImGuiManager::m_AttribLocationColor = -1;
+unsigned int ImGuiManager::m_VboHandle = 0;
+unsigned int ImGuiManager::m_VaoHandle = 0;
+unsigned int ImGuiManager::m_ElementsHandle = 0;
+TextureDefinition* ImGuiManager::m_pFontTexture = nullptr;
 
 ImGuiManager::ImGuiManager()
 {
     m_pImGuiContext = 0;
-    m_DeviceObjectsAreValid = false;
 
     m_FrameStarted = false;
-
-    m_pFontTexture = nullptr;
-    
-    m_ShaderHandle = 0;
-    m_VertHandle = 0;
-    m_FragHandle = 0;
-    
-    m_UniformLocationTex = 0;
-    m_UniformLocationProjMtx = 0;
-    m_AttribLocationPosition = 0;
-    m_AttribLocationUV = 0;
-    m_AttribLocationColor = 0;
-    
-    m_VboHandle = 0;
-    m_VaoHandle = 0;
-    m_ElementsHandle = 0;
 
     m_LastMouseCursor = ImGuiMouseCursor_COUNT;
 }
@@ -531,21 +526,29 @@ void ImGuiManager::InvalidateDeviceObjects()
     if( m_VaoHandle ) glDeleteVertexArrays( 1, &m_VaoHandle );
     if( m_VboHandle ) glDeleteBuffers( 1, &m_VboHandle );
     if( m_ElementsHandle ) glDeleteBuffers( 1, &m_ElementsHandle );
-    m_VaoHandle = m_VboHandle = m_ElementsHandle = 0;
 
     if( m_ShaderHandle && m_VertHandle ) glDetachShader( m_ShaderHandle, m_VertHandle );
     if( m_VertHandle ) glDeleteShader( m_VertHandle );
-    m_VertHandle = 0;
 
     if( m_ShaderHandle && m_FragHandle ) glDetachShader( m_ShaderHandle, m_FragHandle );
     if( m_FragHandle ) glDeleteShader( m_FragHandle );
-    m_FragHandle = 0;
 
     if( m_ShaderHandle ) glDeleteProgram( m_ShaderHandle );
-    m_ShaderHandle = 0;
 
     m_pFontTexture->Release();
     ImGui::GetIO().Fonts->TexID = 0;
+
+    m_ShaderHandle = 0;
+    m_VertHandle = 0;
+    m_FragHandle = 0;
+    m_UniformLocationTex = -1;
+    m_UniformLocationProjMtx = -1;
+    m_AttribLocationPosition = -1;
+    m_AttribLocationUV = -1;
+    m_AttribLocationColor = -1;
+    m_VboHandle = 0;
+    m_VaoHandle = 0;
+    m_ElementsHandle = 0;
     m_pFontTexture = nullptr;
 }
 

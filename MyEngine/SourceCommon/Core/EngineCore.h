@@ -85,6 +85,7 @@ protected:
     ComponentSystemManager* m_pComponentSystemManager;
     MyStackAllocator m_SingleFrameMemoryStack;
 
+    ImGuiManager* m_pImGuiManager;
     BulletWorld* m_pBulletWorld;
 
 #if MYFW_USING_LUA
@@ -170,13 +171,14 @@ protected:
 #endif //MYFW_EDITOR
 
 public:
-    EngineCore();
+    EngineCore(Renderer_Base* pRenderer = nullptr, bool createAndOwnGlobalManagers = true);
     virtual ~EngineCore();
+    virtual void Cleanup();
 
-    // EngineCore Getters/Setters.
+    // EngineCore Getters.
     ComponentSystemManager* GetComponentSystemManager() { return m_pComponentSystemManager; }
     MyStackAllocator* GetSingleFrameMemoryStack() { return &m_SingleFrameMemoryStack; }
-
+    ImGuiManager* GetImGuiManager() { return m_pImGuiManager; }
     BulletWorld* GetBulletWorld() { return m_pBulletWorld; }
 
     bool IsInEditorMode() { return m_EditorMode; }
@@ -196,6 +198,8 @@ public:
     MaterialDefinition* GetMaterial_ClipSpaceTexture() { return m_pMaterial_ClipSpaceTexture; }
     MaterialDefinition* GetMaterial_ClipSpaceColor()   { return m_pMaterial_ClipSpaceColor; }
     MaterialDefinition* GetMaterial_FresnelTint()      { return m_pMaterial_FresnelTint; }
+
+    // EngineCore Setters.
 
     // EngineCore Methods.
     void SaveEditorPrefs();

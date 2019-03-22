@@ -1001,7 +1001,7 @@ GL_REPEAT                     = 0x2901;\
     luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" ); // FileManager*
     luabridge::setGlobal( m_pLuaState, g_pTextureManager, "g_pTextureManager" ); // TextureManager*
     luabridge::setGlobal( m_pLuaState, g_pMaterialManager, "g_pMaterialManager" ); // MaterialManager*
-    luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "g_pSoundManager" ); // SoundManager*
+    luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "SoundManager" ); // SoundManager*
 }
 
 #endif //MYFW_USING_LUA
