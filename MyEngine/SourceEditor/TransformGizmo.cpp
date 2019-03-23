@@ -577,6 +577,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Translate1Axis[0], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f ); //, ColorByte(255, 100, 100, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -595,6 +596,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Translate1Axis[1], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f ); //, ColorByte(100, 255, 100, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -613,6 +615,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Translate1Axis[2], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f ); //, ColorByte(100, 100, 255, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -637,6 +640,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[0], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,1), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -655,6 +659,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[1], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,1), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -673,6 +678,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[2], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,1), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -699,6 +705,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[0], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreateBox( scaleboxsize.x, scaleboxsize.y, scaleboxsize.z, 0, 1, 0, 1, Justify_Center, Vector3( 3, 0, 0 ) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -717,6 +724,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[1], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreateBox( scaleboxsize.x, scaleboxsize.y, scaleboxsize.z, 0, 1, 0, 1, Justify_Center, Vector3( 0, 3, 0 ) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -735,6 +743,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[2], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreateBox( scaleboxsize.x, scaleboxsize.y, scaleboxsize.z, 0, 1, 0, 1, Justify_Center, Vector3( 0, 0, 3 ) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -757,6 +766,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Scale3Axis, 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreateBox( scaleboxsize.x, scaleboxsize.y, scaleboxsize.z, 0, 1, 0, 1, Justify_Center, Vector3(0,0,0) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -784,6 +794,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Rotate1Axis[0], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->Create2DArc( Vector3(0), 10, 80, startradius, endradius, 5 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -802,6 +813,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Rotate1Axis[1], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->Create2DArc( Vector3(0), 10, 80, startradius, endradius, 5 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
@@ -820,6 +832,7 @@ void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState
             pComponentMesh->SetMaterial( m_pMaterial_Rotate1Axis[2], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->Create2DArc( Vector3(0), 10, 80, startradius, endradius, 5 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();

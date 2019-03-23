@@ -351,11 +351,6 @@ void EngineCore::OneTimeInit()
 #endif
     }
 
-    if( m_pDebugTextMesh == nullptr )
-    {
-        m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont );
-    }
-
     SetEditorInterface( EditorInterfaceType_SceneManagement );
 #endif //MYFW_EDITOR
 
@@ -389,6 +384,11 @@ void EngineCore::OneTimeInit()
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager(), this );
+
+    if( m_pDebugTextMesh == nullptr )
+    {
+        m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont, m_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
+    }
 
     // Initialize lua state and register any variables needed.
 #if MYFW_USING_LUA
@@ -1421,6 +1421,7 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
     if( m_pMesh_MaterialBall == nullptr )
     {
         m_pMesh_MaterialBall = MyNew MyMesh();
+        m_pMesh_MaterialBall->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
         m_pMesh_MaterialBall->SetLoadDefaultMaterials( false );
         MyAssert( m_pSphereMeshFile == nullptr );
         m_pSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
@@ -1478,6 +1479,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
             pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_Editor | Layer_EditorUnselectable );
             pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();

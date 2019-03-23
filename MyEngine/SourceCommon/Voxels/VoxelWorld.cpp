@@ -17,14 +17,14 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "Core/EngineCore.h"
 
-VoxelWorld::VoxelWorld()
+VoxelWorld::VoxelWorld(VertexFormatManager* pVertexFormatManager)
 {
     m_NumChunkPointersAllocated = 0;
     m_VoxelBlockEnabledBitsSingleAllocation = 0;
     m_VoxelBlockSingleAllocation = 0;
     m_VoxelChunkSingleAllocation = 0;
     m_MeshBuilderVertsSingleAllocation = 0;
-    m_pActiveWorldChunkPtrs = 0;
+    m_pActiveWorldChunkPtrs = nullptr;
 
     m_WorldSize.Set( 0, 0, 0 );
     m_ChunkSize.Set( 16, 16, 16 );
@@ -33,14 +33,15 @@ VoxelWorld::VoxelWorld()
     m_WorldOffset.Set( 0, 0, 0 );
     m_DesiredOffset.Set( 0, 0, 0 );
 
-    m_pMaterial = 0;
-    m_pSharedIndexBuffer = 0;
+    m_pVertexFormatManager = pVertexFormatManager;
+    m_pMaterial = nullptr;
+    m_pSharedIndexBuffer = nullptr;
 
-    m_pMapGenCallbackFunc = 0;
+    m_pMapGenCallbackFunc = nullptr;
 
     m_MaxWorldSize.Set( 0, 0, 0 );
-    m_pSaveFile = 0;
-    m_jJSONSavedMapData = 0;
+    m_pSaveFile = nullptr;
+    m_jJSONSavedMapData = nullptr;
 
     for( int i=0; i<MAX_GENERATORS; i++ )
     {

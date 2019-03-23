@@ -686,6 +686,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                 strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
             {
                 MyMesh* pMesh = MyNew MyMesh();
+                pMesh->SetMeshManagerAndAddToMeshList( GetGameCore()->GetManagers()->m_pMeshManager );
                 pMesh->SetSourceFile( pFile );
 
                 pFileInfo->SetMesh( pMesh );

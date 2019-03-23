@@ -867,6 +867,7 @@ ComponentBase* GameObject::AddNewComponent(int componentType, SceneID sceneID, C
         return 0;
 
     ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( componentType );
+    pComponent->SetComponentSystemManager( pComponentSystemManager );
 
     if( componentType == ComponentType_Transform )
     {

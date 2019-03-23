@@ -40,7 +40,7 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_MaxWorldSize.Set( 0, 0, 0 );
     m_pSaveFile = 0;
 
-    m_pVoxelWorld = MyNew VoxelWorld;
+    m_pVoxelWorld = MyNew VoxelWorld( m_pComponentSystemManager->GetGameCore()->GetManagers()->m_pVertexFormatManager );
     m_pVoxelWorld->Initialize( Vector3Int( 7, 5, 7 ) );
 
     //m_pVoxelWorld->UpdateVisibility( this );

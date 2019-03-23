@@ -628,6 +628,7 @@ void ComponentCamera::DrawScene()
             m_pDeferredMaterial_PointLight = new MaterialDefinition( m_pDeferredShader_PointLight );
 
             m_pDeferredQuadMesh = new MyMesh();
+            m_pDeferredQuadMesh->SetMeshManagerAndAddToMeshList( g_pMeshManager );
             m_pDeferredQuadMesh->CreateClipSpaceQuad( Vector2( m_pGBuffer->GetWidth()/(float)m_pGBuffer->GetTextureWidth(), m_pGBuffer->GetHeight()/(float)m_pGBuffer->GetTextureHeight() ) );
             m_pDeferredQuadMesh->SetMaterial( m_pDeferredMaterial_AmbientDirectional, 0 );
             m_pDeferredQuadMesh->RegisterSetupCustomUniformsCallback( this, StaticSetupCustomUniformsCallback );
@@ -635,6 +636,7 @@ void ComponentCamera::DrawScene()
             MyAssert( m_pDeferredSphereMesh == 0 );
             MyAssert( m_pDeferredSphereMeshFile == 0 );
             m_pDeferredSphereMesh = MyNew MyMesh();
+            m_pDeferredSphereMesh->SetMeshManagerAndAddToMeshList( m_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
             m_pDeferredSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
 #if MYFW_EDITOR
             m_pDeferredSphereMeshFile->MemoryPanel_Hide();

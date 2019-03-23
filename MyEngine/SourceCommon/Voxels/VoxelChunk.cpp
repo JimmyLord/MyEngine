@@ -16,6 +16,7 @@
 #include "Core/EngineCore.h"
 
 VoxelChunk::VoxelChunk()
+: MyMesh()
 {
     m_pWorld = 0;
 
@@ -75,7 +76,7 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffs
         int indexbytes = 2; // TODO: take out hard-coded unsigned short as index type
 
         // Vertex_XYZUVNorm_RGBA
-        VertexFormat_Dynamic_Desc* pVertFormat = g_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, true, 0 );
+        VertexFormat_Dynamic_Desc* pVertFormat = m_pWorld->m_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, true, 0 );
         if( m_pWorld == 0 )
         {
             CreateOneSubmeshWithBuffers( pVertFormat, 0, indexbytes, 0, true );

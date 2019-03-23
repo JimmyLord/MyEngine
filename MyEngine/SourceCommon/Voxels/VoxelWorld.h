@@ -46,6 +46,7 @@ protected:
     VoxelChunk** m_pActiveWorldChunkPtrs;
     unsigned int m_NumChunkPointersAllocated;
 
+    VertexFormatManager* m_pVertexFormatManager;
     MaterialDefinition* m_pMaterial;
     BufferDefinition* m_pSharedIndexBuffer;
 
@@ -85,7 +86,7 @@ protected:
     void SortChunkList(CPPListHead* pChunkList);
 
 public:
-    VoxelWorld();
+    VoxelWorld(VertexFormatManager* pVertexFormatManager);
     virtual ~VoxelWorld();
 
     void Tick(float deltaTime, void* pUserData);

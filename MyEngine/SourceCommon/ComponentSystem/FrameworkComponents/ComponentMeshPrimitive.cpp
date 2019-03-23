@@ -343,7 +343,10 @@ void ComponentMeshPrimitive::CreatePrimitive()
         return;
 
     if( m_pMesh == nullptr )
-        m_pMesh = MyNew MyMesh;
+    {
+        m_pMesh = MyNew MyMesh();
+        m_pMesh->SetMeshManagerAndAddToMeshList( m_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
+    }
     else
         RemoveFromSceneGraph();
 

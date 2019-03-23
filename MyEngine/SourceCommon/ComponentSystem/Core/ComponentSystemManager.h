@@ -166,6 +166,7 @@ public:
 #endif //MYFW_USING_LUA
 
     // Getters
+    GameCore* GetGameCore() { return m_pGameCore; }
     float GetTimeScale() { return m_TimeScale; }
     SceneGraph_Base* GetSceneGraph() { return m_pSceneGraph; }
 

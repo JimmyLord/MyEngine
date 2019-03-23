@@ -14,6 +14,7 @@
 #include "ComponentVariableValue.h"
 
 class ComponentBase;
+class ComponentSystemManager;
 class GameObject;
 class SceneInfo;
 
@@ -49,6 +50,7 @@ public:
     };
 
 protected:
+    ComponentSystemManager* m_pComponentSystemManager;
     EnabledState m_EnabledState;
     SceneID m_SceneIDLoadedFrom;
     unsigned int m_ID; // Unique ID within a scene, used when quick-loading scene to find matching component.
@@ -74,6 +76,8 @@ public:
     ComponentBase();
     virtual ~ComponentBase();
     SetClassnameBase( "BaseComponent" ); // Only first 8 character count.
+
+    void SetComponentSystemManager(ComponentSystemManager* pComponentSystemManager);
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);

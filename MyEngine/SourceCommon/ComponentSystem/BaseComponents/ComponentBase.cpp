@@ -28,7 +28,8 @@
 #endif
 
 ComponentBase::ComponentBase()
-: m_SceneIDLoadedFrom( SCENEID_NotSet )
+: m_pComponentSystemManager( nullptr )
+, m_SceneIDLoadedFrom( SCENEID_NotSet )
 , m_BaseType( BaseComponentType_None )
 , m_pGameObject( 0 )
 , m_Type(-1)
@@ -78,6 +79,11 @@ void ComponentBase::Reset()
     m_ControlID_ComponentTitleLabel = -1;
     m_pPanelWatchBlockVisible = 0;
 #endif
+}
+
+void ComponentBase::SetComponentSystemManager(ComponentSystemManager* pComponentSystemManager)
+{
+    m_pComponentSystemManager = pComponentSystemManager;
 }
 
 #if MYFW_USING_LUA
