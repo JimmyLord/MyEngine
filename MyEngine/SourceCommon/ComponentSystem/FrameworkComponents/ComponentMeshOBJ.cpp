@@ -100,7 +100,7 @@ void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newde
                 if( pMesh == 0 )
                 {
                     pMesh = MyNew MyMesh();
-                    pMesh->SetMeshManagerAndAddToMeshList( m_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
+                    pMesh->SetMeshManagerAndAddToMeshList( m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
                     pMesh->SetSourceFile( pFile );
                     SetMesh( pMesh );
                     pMesh->Release();

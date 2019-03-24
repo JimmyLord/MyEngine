@@ -17,7 +17,7 @@ extern EngineFileManager* g_pEngineFileManager;
 class EngineFileManager : public FileManager
 {
 public:
-    EngineFileManager();
+    EngineFileManager(GameCore* pGameCore);
     virtual ~EngineFileManager();
 
     virtual MyFileObject* RequestFile(const char* filename);

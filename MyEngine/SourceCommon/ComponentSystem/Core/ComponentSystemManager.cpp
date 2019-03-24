@@ -54,9 +54,9 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pEventManager->RegisterForEvents( "GameObjectEnable", this, &ComponentSystemManager::StaticOnEvent );
 
 #if MYFW_EDITOR
-    m_pGameCore->GetManagers()->m_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
-    m_pGameCore->GetManagers()->m_pFileManager->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
-    m_pGameCore->GetManagers()->m_pFileManager->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
+    m_pGameCore->GetManagers()->GetMaterialManager()->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
+    m_pGameCore->GetManagers()->GetFileManager()->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
+    m_pGameCore->GetManagers()->GetFileManager()->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
     g_pGameCore->GetSoundManager()->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
     g_pGameCore->GetSoundManager()->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 
@@ -686,7 +686,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                 strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
             {
                 MyMesh* pMesh = MyNew MyMesh();
-                pMesh->SetMeshManagerAndAddToMeshList( GetGameCore()->GetManagers()->m_pMeshManager );
+                pMesh->SetMeshManagerAndAddToMeshList( GetGameCore()->GetManagers()->GetMeshManager() );
                 pMesh->SetSourceFile( pFile );
 
                 pFileInfo->SetMesh( pMesh );
@@ -702,7 +702,12 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
 
             if( pShaderGroup == nullptr )
             {
-                pShaderGroup = MyNew ShaderGroup( pFile );
+                TextureDefinition* pErrorTexture = nullptr;
+#if MYFW_EDITOR
+                pErrorTexture = m_pGameCore->GetManagers()->GetTextureManager()->GetErrorTexture();
+#endif
+
+                pShaderGroup = MyNew ShaderGroup( pFile, pErrorTexture );
                 pFileInfo->SetShaderGroup( pShaderGroup );
                 pShaderGroup->Release();
             }
@@ -746,7 +751,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             ShaderGroup* pShaderGroup = pFileInfo->GetShaderGroup();
 
             SpriteSheet* pSpriteSheet = MyNew SpriteSheet();
-            pSpriteSheet->Create( pFile->GetFullPath(), pShaderGroup, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, false, true );
+            pSpriteSheet->Create( m_pGameCore->GetManagers()->GetTextureManager(), pFile->GetFullPath(), pShaderGroup, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, false, true );
 
             pFileInfo->SetSpriteSheet( pSpriteSheet );
 

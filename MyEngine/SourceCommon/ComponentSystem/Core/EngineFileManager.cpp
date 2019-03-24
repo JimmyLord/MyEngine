@@ -13,7 +13,8 @@
 
 EngineFileManager* g_pEngineFileManager = 0;
 
-EngineFileManager::EngineFileManager()
+EngineFileManager::EngineFileManager(GameCore* pGameCore)
+: FileManager( pGameCore )
 {
     MyAssert( g_pEngineFileManager == 0 );
     g_pEngineFileManager = this;

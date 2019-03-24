@@ -279,7 +279,7 @@ void EngineCore::LuaRegister(lua_State* luastate)
 void EngineCore::InitializeManagers()
 {
     if( g_pFileManager == nullptr )
-        g_pFileManager = MyNew EngineFileManager;
+        g_pFileManager = MyNew EngineFileManager( this );
 
     GameCore::InitializeManagers();
 
@@ -354,6 +354,11 @@ void EngineCore::OneTimeInit()
     SetEditorInterface( EditorInterfaceType_SceneManagement );
 #endif //MYFW_EDITOR
 
+    TextureDefinition* pErrorTexture = nullptr;
+#if MYFW_EDITOR
+    pErrorTexture = m_Managers.GetTextureManager()->GetErrorTexture();
+#endif
+
     // Setup our shaders and materials.
     m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
     m_pShaderFile_TintColorWithAlpha = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColorWithAlpha.glsl" );
@@ -369,12 +374,12 @@ void EngineCore::OneTimeInit()
     m_pShaderFile_ClipSpaceColor->MemoryPanel_Hide();
     m_pShaderFile_FresnelTint->MemoryPanel_Hide();
 #endif
-    m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
-    m_pShader_TintColorWithAlpha = MyNew ShaderGroup( m_pShaderFile_TintColorWithAlpha );
-    m_pShader_SelectedObjects = MyNew ShaderGroup( m_pShaderFile_SelectedObjects );
-    m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
-    m_pShader_ClipSpaceColor = MyNew ShaderGroup( m_pShaderFile_ClipSpaceColor );
-    m_pShader_FresnelTint = MyNew ShaderGroup( m_pShaderFile_FresnelTint );
+    m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor, pErrorTexture );
+    m_pShader_TintColorWithAlpha = MyNew ShaderGroup( m_pShaderFile_TintColorWithAlpha, pErrorTexture );
+    m_pShader_SelectedObjects = MyNew ShaderGroup( m_pShaderFile_SelectedObjects, pErrorTexture );
+    m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture, pErrorTexture );
+    m_pShader_ClipSpaceColor = MyNew ShaderGroup( m_pShaderFile_ClipSpaceColor, pErrorTexture );
+    m_pShader_FresnelTint = MyNew ShaderGroup( m_pShaderFile_FresnelTint, pErrorTexture );
     m_pMaterial_Box2DDebugDraw = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_MousePicker = MyNew MaterialDefinition( m_pShader_ClipSpaceTexture );
@@ -387,7 +392,7 @@ void EngineCore::OneTimeInit()
 
     if( m_pDebugTextMesh == nullptr )
     {
-        m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont, m_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
+        m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont, m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
     }
 
     // Initialize lua state and register any variables needed.
@@ -742,9 +747,9 @@ void EngineCore::OnFocusGained()
 
     if( filesupdated )
     {
-        //g_pShaderManager->InvalidateAllShaders( true );
-        //g_pTextureManager->InvalidateAllTextures( true );
-        //g_pBufferManager->InvalidateAllBuffers( true );
+        //GetManagers()->GetShaderManager()->InvalidateAllShaders( true );
+        //GetManagers()->GetTextureManager()->InvalidateAllTextures( true );
+        //GetManagers()->GetBufferManager()->InvalidateAllBuffers( true );
     }
 }
 
@@ -1214,9 +1219,9 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 
         if( filesupdated )
         {
-            g_pShaderManager->InvalidateAllShaders( true );
-            //g_pTextureManager->InvalidateAllTextures( true );
-            //g_pBufferManager->InvalidateAllBuffers( true );
+            GetManagers()->GetShaderManager()->InvalidateAllShaders( true );
+            //GetManagers()->m_pTextureManager->InvalidateAllTextures( true );
+            //GetManagers()->m_pBufferManager->InvalidateAllBuffers( true );
             return true;
         }
     }
@@ -1295,7 +1300,7 @@ void EngineCore::OnModePlay()
     {
         g_pMaterialManager->SaveAllMaterials();
         //m_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
-        m_Managers.m_pSoundManager->SaveAllCues();
+        m_Managers.GetSoundManager()->SaveAllCues();
 
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
@@ -1421,7 +1426,7 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
     if( m_pMesh_MaterialBall == nullptr )
     {
         m_pMesh_MaterialBall = MyNew MyMesh();
-        m_pMesh_MaterialBall->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
+        m_pMesh_MaterialBall->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
         m_pMesh_MaterialBall->SetLoadDefaultMaterials( false );
         MyAssert( m_pSphereMeshFile == nullptr );
         m_pSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
@@ -1479,7 +1484,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
             pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_Editor | Layer_EditorUnselectable );
             pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
+            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();

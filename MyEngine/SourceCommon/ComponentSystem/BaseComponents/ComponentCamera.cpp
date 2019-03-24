@@ -600,6 +600,11 @@ void ComponentCamera::DrawScene()
         // Create gbuffer and deferred shader if they don't exist.
         if( m_pGBuffer == 0 )
         {
+            TextureDefinition* pErrorTexture = nullptr;
+#if MYFW_EDITOR
+            pErrorTexture = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager()->GetErrorTexture();
+#endif
+
             const int numcolorformats = 3;
             FBODefinition::FBOColorFormat colorformats[numcolorformats];
             colorformats[0] = FBODefinition::FBOColorFormat_RGBA_UByte;  // Albedo (RGB)
@@ -621,8 +626,8 @@ void ComponentCamera::DrawScene()
             m_pDeferredShaderFile_AmbientDirectional->MemoryPanel_Hide();
             m_pDeferredShaderFile_PointLight->MemoryPanel_Hide();
 #endif
-            m_pDeferredShader_AmbientDirectional = MyNew ShaderGroup( m_pDeferredShaderFile_AmbientDirectional );
-            m_pDeferredShader_PointLight = MyNew ShaderGroup( m_pDeferredShaderFile_PointLight );
+            m_pDeferredShader_AmbientDirectional = MyNew ShaderGroup( m_pDeferredShaderFile_AmbientDirectional, pErrorTexture );
+            m_pDeferredShader_PointLight = MyNew ShaderGroup( m_pDeferredShaderFile_PointLight, pErrorTexture );
 
             m_pDeferredMaterial_AmbientDirectional = new MaterialDefinition( m_pDeferredShader_AmbientDirectional );
             m_pDeferredMaterial_PointLight = new MaterialDefinition( m_pDeferredShader_PointLight );
@@ -636,7 +641,7 @@ void ComponentCamera::DrawScene()
             MyAssert( m_pDeferredSphereMesh == 0 );
             MyAssert( m_pDeferredSphereMeshFile == 0 );
             m_pDeferredSphereMesh = MyNew MyMesh();
-            m_pDeferredSphereMesh->SetMeshManagerAndAddToMeshList( m_pComponentSystemManager->GetGameCore()->GetManagers()->m_pMeshManager );
+            m_pDeferredSphereMesh->SetMeshManagerAndAddToMeshList( m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
             m_pDeferredSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
 #if MYFW_EDITOR
             m_pDeferredSphereMeshFile->MemoryPanel_Hide();

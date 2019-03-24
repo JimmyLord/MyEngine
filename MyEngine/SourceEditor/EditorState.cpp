@@ -95,7 +95,7 @@ EditorState::EditorState()
             if( pFile->IsA( "MyFileShader" ) )
             {
                 MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
-                pShaderGroup = MyNew ShaderGroup( pShaderFile );
+                pShaderGroup = MyNew ShaderGroup( pShaderFile, g_pTextureManager->GetErrorTexture() );
                 pMaterial->SetShader( pShaderGroup );
                 pShaderGroup->Release();
             }
