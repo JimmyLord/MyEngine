@@ -104,9 +104,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui(EngineCore* pEngineCore)
     m_ShowWarning_CloseEditor = false;
 
     // Render surfaces.
-    m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
-    m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
-    m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+    m_pGameFBO = m_pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+    m_pEditorFBO = m_pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+    m_pMaterialPreviewFBO = m_pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
 
     // Material Preview and Editor.
     m_pMaterialToPreview = nullptr;
@@ -1442,7 +1442,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 m_GameWindowSize.Set( w, h );
 
                 // This will resize our FBO if the window is larger than it ever was.
-                g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                m_pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
 
                 if( m_pGameFBO->GetColorTexture( 0 ) )
                 {
@@ -1486,7 +1486,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 m_EditorWindowSize.Set( w, h );
 
                 // This will resize our FBO if the window is larger than it ever was.
-                g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                m_pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
 
                 if( m_pEditorFBO->GetColorTexture( 0 ) )
                 {
@@ -2985,9 +2985,10 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 
     for( int i=0; i<2; i++ )
     {
-        TextureDefinition* pTex = (TextureDefinition*)g_pTextureManager->m_TexturesStillLoading.GetHead();
+        TextureManager* pTextureManager = m_pEngineCore->GetManagers()->GetTextureManager();
+        TextureDefinition* pTex = (TextureDefinition*)pTextureManager->m_TexturesStillLoading.GetHead();
         if( i == 1 )
-            pTex = (TextureDefinition*)g_pTextureManager->m_LoadedTextures.GetHead();
+            pTex = (TextureDefinition*)pTextureManager->m_LoadedTextures.GetHead();
 
         if( pTex )
         {

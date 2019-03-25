@@ -13,6 +13,7 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
 #include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/TransformGizmo.h"
 #include "../SourceEditor/Documents/EditorDocument.h"
@@ -25,8 +26,10 @@ const char* EditorIconFilenames[EditorIcon_NumIcons] =
     "Data/DataEngine/Textures/IconCamera.png"
 };
 
-EditorState::EditorState()
+EditorState::EditorState(EngineCore* pEngineCore)
 {
+    m_pEngineCore = pEngineCore;
+
     m_ModifierKeyStates = 0;
     m_EditorActionState = EDITORACTIONSTATE_None;
     for( int i=0; i<3; i++ )
@@ -72,7 +75,7 @@ EditorState::EditorState()
 
         // Load the icon png file, create a texture, set it to the material.  
         MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( EditorIconFilenames[i] );
-        TextureDefinition* pTexture = g_pTextureManager->CreateTexture( pFile );
+        TextureDefinition* pTexture = m_pEngineCore->GetManagers()->GetTextureManager()->CreateTexture( pFile );
         pMaterial->SetTextureColor( pTexture );
 
         // Free the extra ref's from the requests/creates and hide them from the editor front end.
@@ -95,7 +98,7 @@ EditorState::EditorState()
             if( pFile->IsA( "MyFileShader" ) )
             {
                 MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
-                pShaderGroup = MyNew ShaderGroup( pShaderFile, g_pTextureManager->GetErrorTexture() );
+                pShaderGroup = MyNew ShaderGroup( pShaderFile, m_pEngineCore->GetManagers()->GetTextureManager()->GetErrorTexture() );
                 pMaterial->SetShader( pShaderGroup );
                 pShaderGroup->Release();
             }
@@ -206,12 +209,12 @@ void EditorState::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 heig
 
     if( m_pDebugViewFBO )
     {
-        g_pTextureManager->ReSetupFBO( m_pDebugViewFBO, width, height, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+        m_pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pDebugViewFBO, width, height, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
     }
 
     if( m_pMousePickerFBO )
     {
-        g_pTextureManager->ReSetupFBO( m_pMousePickerFBO, width, height, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+        m_pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pMousePickerFBO, width, height, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
     }
 }
 

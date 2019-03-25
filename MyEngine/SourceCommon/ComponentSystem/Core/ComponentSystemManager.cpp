@@ -592,8 +592,10 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // Load textures differently than other files.
         if( rellen > 4 && strcmp( &relativePath[rellen-4], ".png" ) == 0 )
         {
+            TextureManager* pTextureManager = m_pGameCore->GetManagers()->GetTextureManager();
+
             // Check if the texture is already loaded and create it if not.
-            pTexture = g_pTextureManager->FindTexture( relativePath );
+            pTexture = pTextureManager->FindTexture( relativePath );
 
             if( pTexture == nullptr )
             {
@@ -602,7 +604,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                 pFileInfo->SetFile( pFile );
                 pFile->Release(); // Release ref added by RequestFile.
 
-                pTexture = g_pTextureManager->CreateTexture( pFile );
+                pTexture = pTextureManager->CreateTexture( pFile );
                 MyAssert( pFile == pTexture->GetFile() );
                 pFile = pTexture->GetFile();
 

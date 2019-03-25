@@ -121,11 +121,13 @@ void ComponentCameraShadow::Reset()
 
     SAFE_RELEASE( m_pDepthFBO );
 
+    TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+
     int texres = 2048;
 #if MYFW_OPENGLES2
-    m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, FBODefinition::FBOColorFormat_RGBA_UByte, 0, false );
+    m_pDepthFBO = pTextureManager->CreateFBO( texres, texres, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, FBODefinition::FBOColorFormat_RGBA_UByte, 0, false );
 #else
-    m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+    m_pDepthFBO = pTextureManager->CreateFBO( texres, texres, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
 #endif
 
     if( m_pLight == 0 )

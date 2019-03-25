@@ -85,9 +85,11 @@ void LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow(const char* u
     LOGError( LOGTag, "%s(%d): %s: %s - %s\n", fullpath, linenumber, userdata, &what[errori], what );
 }
 
-LuaGameState::LuaGameState()
+LuaGameState::LuaGameState(EngineCore* pEngineCore)
 {
     g_pLuaGameState = this;
+
+    m_pEngineCore = pEngineCore;
 
     m_pLuaState = 0;
 #if MYFW_ENABLE_LUA_DEBUGGER
@@ -995,13 +997,13 @@ GL_REPEAT                     = 0x2901;\
     MenuSprite::LuaRegister( m_pLuaState );
     MenuText::LuaRegister( m_pLuaState );
 
-    // register global managers
-    luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" ); // EngineCore*
-    luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" ); // ComponentSystemManager*
-    luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" ); // FileManager*
-    luabridge::setGlobal( m_pLuaState, g_pTextureManager, "g_pTextureManager" ); // TextureManager*
-    luabridge::setGlobal( m_pLuaState, g_pMaterialManager, "g_pMaterialManager" ); // MaterialManager*
-    luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "SoundManager" ); // SoundManager*
+    // Register global managers.
+    luabridge::setGlobal( m_pLuaState, m_pEngineCore, "EngineCore" ); // EngineCore*
+    luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetComponentSystemManager(), "ComponentSystemManager" ); // ComponentSystemManager*
+    luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetManagers()->GetFileManager(), "FileManager" ); // FileManager*
+    luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetManagers()->GetTextureManager(), "TextureManager" ); // TextureManager*
+    luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetManagers()->GetMaterialManager(), "MaterialManager" ); // MaterialManager*
+    luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetSoundManager(), "SoundManager" ); // SoundManager*
 }
 
 #endif //MYFW_USING_LUA

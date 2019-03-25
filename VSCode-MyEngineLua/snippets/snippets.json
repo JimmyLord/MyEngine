@@ -1288,13 +1288,13 @@
         "description": "Change the string on this menu text item."
     }
     
-    //// register global managers
-    //luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" ); // EngineCore*
-    //luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" ); // ComponentSystemManager*
-    //luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" ); // FileManager*
-    //luabridge::setGlobal( m_pLuaState, g_pTextureManager, "g_pTextureManager" ); // TextureManager*
-    //luabridge::setGlobal( m_pLuaState, g_pMaterialManager, "g_pMaterialManager" ); // MaterialManager*
-    //luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "SoundManager" ); // SoundManager*
+    //// Register global managers.
+    //luabridge::setGlobal( m_pLuaState, m_pEngineCore, "EngineCore" ); // EngineCore*
+    //luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetComponentSystemManager(), "ComponentSystemManager" ); // ComponentSystemManager*
+    //luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetManagers()->GetFileManager(), "FileManager" ); // FileManager*
+    //luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetManagers()->GetTextureManager(), "TextureManager" ); // TextureManager*
+    //luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetManagers()->GetMaterialManager(), "MaterialManager" ); // MaterialManager*
+    //luabridge::setGlobal( m_pLuaState, m_pEngineCore->GetSoundManager(), "SoundManager" ); // SoundManager*
 
     // "g_pEngineCore": {
     //     "prefix": "g_pEngineCore",

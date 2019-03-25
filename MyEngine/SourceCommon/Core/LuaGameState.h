@@ -17,6 +17,7 @@
 #define MYFW_ENABLE_LUA_DEBUGGER 0
 #endif
 
+class EngineCore;
 class LuaGameState;
 
 extern LuaGameState* g_pLuaGameState;
@@ -37,6 +38,7 @@ public:
     };
 
     lua_State* m_pLuaState;
+    EngineCore* m_pEngineCore;
 
 #if MYFW_ENABLE_LUA_DEBUGGER
     int m_ListenSocket;
@@ -55,7 +57,7 @@ public:
     bool m_WasPausedBeforeRestart;
 
 public:
-    LuaGameState();
+    LuaGameState(EngineCore* pEngineCore);
     virtual ~LuaGameState();
 
     virtual void Rebuild();

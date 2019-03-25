@@ -57,6 +57,8 @@ extern const char* EditorIconFilenames[EditorIcon_NumIcons];
 class EditorState
 {
 public:
+    EngineCore* m_pEngineCore;
+
     std::vector<EditorDocument*> m_pOpenDocuments;
 
     MyRect m_EditorWindowRect;
@@ -99,7 +101,7 @@ public:
     MySprite* m_pEditorIcons[EditorIcon_NumIcons];
 
 public:
-    EditorState();
+    EditorState(EngineCore* pEngineCore);
     ~EditorState();
 
     void SaveAllMiscFiles();

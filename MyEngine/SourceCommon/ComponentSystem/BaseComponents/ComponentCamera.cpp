@@ -427,7 +427,8 @@ void ComponentCamera::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 
         colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
         colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
-        g_pTextureManager->ReSetupFBO( m_pGBuffer, m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, colorformats, numcolorformats, 32, true );
+        TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+        pTextureManager->ReSetupFBO( m_pGBuffer, m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, colorformats, numcolorformats, 32, true );
     }
 
 #if MYFW_EDITOR
@@ -497,14 +498,16 @@ void ComponentCamera::OnDrawFrame()
     {
         if( pPostEffect )
         {
+            TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+
             // If a post effect was found, render to an FBO.
             if( m_pPostEffectFBOs[0] == 0 )
             {
-                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                m_pPostEffectFBOs[0] = pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
 
             m_pPostEffectFBOs[0]->Bind( false );
@@ -529,14 +532,16 @@ void ComponentCamera::OnDrawFrame()
 
         if( pNextPostEffect )
         {
+            TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+
             // If there is a next effect, render into the next unused FBO.
             if( m_pPostEffectFBOs[!fboindex] == 0 )
             {
-                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                m_pPostEffectFBOs[!fboindex] = pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+                pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             m_pPostEffectFBOs[!fboindex]->Bind( false );
 
@@ -600,10 +605,9 @@ void ComponentCamera::DrawScene()
         // Create gbuffer and deferred shader if they don't exist.
         if( m_pGBuffer == 0 )
         {
-            TextureDefinition* pErrorTexture = nullptr;
-#if MYFW_EDITOR
-            pErrorTexture = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager()->GetErrorTexture();
-#endif
+            TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+            TextureDefinition* pErrorTexture = pTextureManager->GetErrorTexture();
+            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
 
             const int numcolorformats = 3;
             FBODefinition::FBOColorFormat colorformats[numcolorformats];
@@ -611,7 +615,7 @@ void ComponentCamera::DrawScene()
             colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
             colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
-            m_pGBuffer = g_pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, colorformats, numcolorformats, 32, true );
+            m_pGBuffer = pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, colorformats, numcolorformats, 32, true );
 
             MyAssert( m_pDeferredShaderFile_AmbientDirectional == 0 );
             MyAssert( m_pDeferredShaderFile_PointLight == 0 );
@@ -629,8 +633,8 @@ void ComponentCamera::DrawScene()
             m_pDeferredShader_AmbientDirectional = MyNew ShaderGroup( m_pDeferredShaderFile_AmbientDirectional, pErrorTexture );
             m_pDeferredShader_PointLight = MyNew ShaderGroup( m_pDeferredShaderFile_PointLight, pErrorTexture );
 
-            m_pDeferredMaterial_AmbientDirectional = new MaterialDefinition( m_pDeferredShader_AmbientDirectional );
-            m_pDeferredMaterial_PointLight = new MaterialDefinition( m_pDeferredShader_PointLight );
+            m_pDeferredMaterial_AmbientDirectional = new MaterialDefinition( pMaterialManager, m_pDeferredShader_AmbientDirectional );
+            m_pDeferredMaterial_PointLight = new MaterialDefinition( pMaterialManager, m_pDeferredShader_PointLight );
 
             m_pDeferredQuadMesh = new MyMesh();
             m_pDeferredQuadMesh->SetMeshManagerAndAddToMeshList( g_pMeshManager );
