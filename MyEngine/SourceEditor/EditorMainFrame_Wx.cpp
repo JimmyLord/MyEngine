@@ -1557,7 +1557,7 @@ void EngineMainFrame::OnDrop(int controlid, int x, int y)
         {
             if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
             {
-                ShaderGroup* pShader = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
+                ShaderGroup* pShader = g_pEngineCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByFile( pFile );
                 g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
             }
         }

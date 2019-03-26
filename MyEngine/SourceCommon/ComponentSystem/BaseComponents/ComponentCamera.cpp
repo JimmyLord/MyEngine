@@ -608,6 +608,7 @@ void ComponentCamera::DrawScene()
             TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
             TextureDefinition* pErrorTexture = pTextureManager->GetErrorTexture();
             MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+            ShaderGroupManager* pShaderGroupManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetShaderGroupManager();
 
             const int numcolorformats = 3;
             FBODefinition::FBOColorFormat colorformats[numcolorformats];
@@ -630,8 +631,8 @@ void ComponentCamera::DrawScene()
             m_pDeferredShaderFile_AmbientDirectional->MemoryPanel_Hide();
             m_pDeferredShaderFile_PointLight->MemoryPanel_Hide();
 #endif
-            m_pDeferredShader_AmbientDirectional = MyNew ShaderGroup( m_pDeferredShaderFile_AmbientDirectional, pErrorTexture );
-            m_pDeferredShader_PointLight = MyNew ShaderGroup( m_pDeferredShaderFile_PointLight, pErrorTexture );
+            m_pDeferredShader_AmbientDirectional = MyNew ShaderGroup( pShaderGroupManager, m_pDeferredShaderFile_AmbientDirectional, pErrorTexture );
+            m_pDeferredShader_PointLight = MyNew ShaderGroup( pShaderGroupManager, m_pDeferredShaderFile_PointLight, pErrorTexture );
 
             m_pDeferredMaterial_AmbientDirectional = new MaterialDefinition( pMaterialManager, m_pDeferredShader_AmbientDirectional );
             m_pDeferredMaterial_PointLight = new MaterialDefinition( pMaterialManager, m_pDeferredShader_PointLight );

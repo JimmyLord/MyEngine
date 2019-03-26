@@ -3078,7 +3078,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
     //unsigned int numShadersShown = 0;
 
     {
-        ShaderGroup* pShaderGroup = (ShaderGroup*)g_pShaderGroupManager->m_ShaderGroupList.GetHead();
+        ShaderGroup* pShaderGroup = (ShaderGroup*)m_pEngineCore->GetManagers()->GetShaderGroupManager()->m_ShaderGroupList.GetHead();
 
         if( pShaderGroup )
         {
@@ -4318,7 +4318,7 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
             {
                 if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
                 {
-                    ShaderGroup* pShader = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
+                    ShaderGroup* pShader = m_pEngineCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByFile( pFile );
                     g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
                 }
             }

@@ -697,19 +697,17 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             }
         }
 
-        // if we're loading an .glsl file, create a ShaderGroup.
+        // If we're loading an .glsl file, create a ShaderGroup.
         if( strcmp( pFile->GetExtensionWithDot(), ".glsl" ) == 0 )
         {
-            ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
+            ShaderGroup* pShaderGroup = m_pGameCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByFile( pFile );
 
             if( pShaderGroup == nullptr )
             {
-                TextureDefinition* pErrorTexture = nullptr;
-#if MYFW_EDITOR
-                pErrorTexture = m_pGameCore->GetManagers()->GetTextureManager()->GetErrorTexture();
-#endif
+                TextureDefinition* pErrorTexture = m_pGameCore->GetManagers()->GetTextureManager()->GetErrorTexture();
+                ShaderGroupManager* pShaderGroupManager = m_pGameCore->GetManagers()->GetShaderGroupManager();
 
-                pShaderGroup = MyNew ShaderGroup( pFile, pErrorTexture );
+                pShaderGroup = MyNew ShaderGroup( pShaderGroupManager, pFile, pErrorTexture );
                 pFileInfo->SetShaderGroup( pShaderGroup );
                 pShaderGroup->Release();
             }
@@ -747,7 +745,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
         if( strcmp( pFile->GetExtensionWithDot(), ".myspritesheet" ) == 0 )
         {
-            //ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
+            //ShaderGroup* pShaderGroup = m_pGameCore->GetManagers()->GetShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
             // TODO: Allow the user to choose a shader.
             MyFileInfo* pFileInfo = LoadDataFile( "Data/Shaders/Shader_Texture.glsl", SCENEID_MainScene, 0, false );
             ShaderGroup* pShaderGroup = pFileInfo->GetShaderGroup();

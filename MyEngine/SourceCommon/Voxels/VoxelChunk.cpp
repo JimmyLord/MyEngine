@@ -299,8 +299,8 @@ void VoxelChunk::ParseFile()
 
                 if( pMaterial && pMaterial->GetShader() == 0 )
                 {
-                    // guess at an appropriate shader for this mesh/material.
-                    GuessAndAssignAppropriateShader();
+                    // Guess at an appropriate shader for this mesh/material.
+                    m_pMeshManager->GuessAndAssignAppropriateShaderToMesh( this );
                 }
             }
         }

@@ -97,7 +97,7 @@ void ComponentSprite::Reset()
     ComponentRenderable::Reset();
 
     if( m_pSprite == 0 )
-        m_pSprite = MyNew MySprite( false );
+        m_pSprite = MyNew MySprite();
 
     m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
 

@@ -61,14 +61,21 @@ EditorState::EditorState(EngineCore* pEngineCore)
     m_pGameObjectCameraIsFollowing = 0;
     m_OffsetFromObject.SetIdentity();
 
+    ShaderGroup* pShader = m_pEngineCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByName( "Shader_TintColor" );
+
     // Load all the editor icons (Lights/Cameras/Etc)
     for( int i=0; i<EditorIcon_NumIcons; i++ )
     {
+        MaterialDefinition* pMaterial = g_pMaterialManager->CreateMaterial();
+        pMaterial->SetShader( pShader );
+
         // Create all icons as 1x1 sprites, with center pivots. Sprites are facing positive z-axis.
-        m_pEditorIcons[i] = MyNew MySprite( true );
+        m_pEditorIcons[i] = MyNew MySprite();
+        m_pEditorIcons[i]->SetMaterial( pMaterial );
         m_pEditorIcons[i]->Create( "EditorIcon", 1, 1, 0, 1, 0, 1, Justify_Center, false, true );
 
-        MaterialDefinition* pMaterial = m_pEditorIcons[i]->GetMaterial();
+        // Now that it's on the sprite, release our reference to the material.
+        pMaterial->Release();
 
         // Icons can't have tranparency, shader will 'discard' fragments if alpha is less than 1.
         pMaterial->SetBlendType( MyRE::MaterialBlendType_Off );
@@ -85,7 +92,7 @@ EditorState::EditorState(EngineCore* pEngineCore)
         pTexture->MemoryPanel_Hide();
 
         // Assign the shader to the new material, reuse the shader if already loaded.
-        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTintDiscard.glsl" );
+        ShaderGroup* pShaderGroup = m_pEngineCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTintDiscard.glsl" );
         if( pShaderGroup != 0 )
         {
             pMaterial->SetShader( pShaderGroup );
@@ -98,7 +105,7 @@ EditorState::EditorState(EngineCore* pEngineCore)
             if( pFile->IsA( "MyFileShader" ) )
             {
                 MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
-                pShaderGroup = MyNew ShaderGroup( pShaderFile, m_pEngineCore->GetManagers()->GetTextureManager()->GetErrorTexture() );
+                pShaderGroup = MyNew ShaderGroup( m_pEngineCore->GetManagers()->GetShaderGroupManager(), pShaderFile, m_pEngineCore->GetManagers()->GetTextureManager()->GetErrorTexture() );
                 pMaterial->SetShader( pShaderGroup );
                 pShaderGroup->Release();
             }

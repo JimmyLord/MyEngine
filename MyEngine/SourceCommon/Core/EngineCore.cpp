@@ -354,8 +354,9 @@ void EngineCore::OneTimeInit()
     SetEditorInterface( EditorInterfaceType_SceneManagement );
 #endif //MYFW_EDITOR
 
-    TextureDefinition* pErrorTexture = m_Managers.GetTextureManager()->GetErrorTexture();
-    MaterialManager* pMaterialManager = m_Managers.GetMaterialManager();
+    TextureDefinition* pErrorTexture = GetManagers()->GetTextureManager()->GetErrorTexture();
+    MaterialManager* pMaterialManager = GetManagers()->GetMaterialManager();
+    ShaderGroupManager* pShaderGroupManager = GetManagers()->GetShaderGroupManager();
 
     // Setup our shaders and materials.
     m_pShaderFile_TintColor          = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
@@ -372,12 +373,12 @@ void EngineCore::OneTimeInit()
     m_pShaderFile_ClipSpaceColor->MemoryPanel_Hide();
     m_pShaderFile_FresnelTint->MemoryPanel_Hide();
 #endif
-    m_pShader_TintColor          = MyNew ShaderGroup( m_pShaderFile_TintColor, pErrorTexture );
-    m_pShader_TintColorWithAlpha = MyNew ShaderGroup( m_pShaderFile_TintColorWithAlpha, pErrorTexture );
-    m_pShader_SelectedObjects    = MyNew ShaderGroup( m_pShaderFile_SelectedObjects, pErrorTexture );
-    m_pShader_ClipSpaceTexture   = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture, pErrorTexture );
-    m_pShader_ClipSpaceColor     = MyNew ShaderGroup( m_pShaderFile_ClipSpaceColor, pErrorTexture );
-    m_pShader_FresnelTint        = MyNew ShaderGroup( m_pShaderFile_FresnelTint, pErrorTexture );
+    m_pShader_TintColor          = MyNew ShaderGroup( pShaderGroupManager, m_pShaderFile_TintColor, pErrorTexture );
+    m_pShader_TintColorWithAlpha = MyNew ShaderGroup( pShaderGroupManager, m_pShaderFile_TintColorWithAlpha, pErrorTexture );
+    m_pShader_SelectedObjects    = MyNew ShaderGroup( pShaderGroupManager, m_pShaderFile_SelectedObjects, pErrorTexture );
+    m_pShader_ClipSpaceTexture   = MyNew ShaderGroup( pShaderGroupManager, m_pShaderFile_ClipSpaceTexture, pErrorTexture );
+    m_pShader_ClipSpaceColor     = MyNew ShaderGroup( pShaderGroupManager, m_pShaderFile_ClipSpaceColor, pErrorTexture );
+    m_pShader_FresnelTint        = MyNew ShaderGroup( pShaderGroupManager, m_pShaderFile_FresnelTint, pErrorTexture );
     m_pMaterial_Box2DDebugDraw   = MyNew MaterialDefinition( pMaterialManager, m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_3DGrid           = MyNew MaterialDefinition( pMaterialManager, m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_MousePicker      = MyNew MaterialDefinition( pMaterialManager, m_pShader_ClipSpaceTexture );
@@ -1413,7 +1414,7 @@ MySprite* EngineCore::GetSprite_DebugQuad()
 {
     if( m_pSprite_DebugQuad == nullptr )
     {
-        m_pSprite_DebugQuad = MyNew MySprite( false );
+        m_pSprite_DebugQuad = MyNew MySprite();
     }
 
     return m_pSprite_DebugQuad;
