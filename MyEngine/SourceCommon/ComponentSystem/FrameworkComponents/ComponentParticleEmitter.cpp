@@ -164,7 +164,8 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, SceneID scen
     cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
     if( materialstringobj )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
+        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+        MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
             SetMaterial( pMaterial, 0 );
         pMaterial->Release();

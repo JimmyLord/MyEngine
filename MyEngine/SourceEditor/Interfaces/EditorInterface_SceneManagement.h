@@ -17,7 +17,7 @@ class EditorInterface_SceneManagement : public EditorInterface
 protected:
 
 public:
-    EditorInterface_SceneManagement();
+    EditorInterface_SceneManagement(EngineCore* pEngineCore);
     virtual ~EditorInterface_SceneManagement();
 
     virtual void Initialize();

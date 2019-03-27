@@ -37,7 +37,7 @@ protected:
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];
 
 public:
-    EditorInterface_2DPointEditor();
+    EditorInterface_2DPointEditor(EngineCore* pEngineCore);
     virtual ~EditorInterface_2DPointEditor();
 
     virtual void Initialize();

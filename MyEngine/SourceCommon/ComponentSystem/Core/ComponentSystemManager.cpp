@@ -57,12 +57,12 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     m_pGameCore->GetManagers()->GetMaterialManager()->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
     m_pGameCore->GetManagers()->GetFileManager()->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
     m_pGameCore->GetManagers()->GetFileManager()->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
-    g_pGameCore->GetSoundManager()->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
-    g_pGameCore->GetSoundManager()->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
+    m_pGameCore->GetSoundManager()->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
+    m_pGameCore->GetSoundManager()->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 
     // This class adds to SoundCue's refcount when storing cue in m_Files
     //    so increment this number to prevent editor from allowing it to be unloaded if ref'ed by game code
-    g_pGameCore->GetSoundManager()->Editor_AddToNumRefsPlacedOnSoundCueBySystem();
+    m_pGameCore->GetSoundManager()->Editor_AddToNumRefsPlacedOnSoundCueBySystem();
 #endif
 
     m_NextSceneID = SCENEID_MainScene;
@@ -74,7 +74,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     //m_pSceneGraph = MyNew SceneGraph_Flat();
     int depth = 3;
-    m_pSceneGraph = MyNew SceneGraph_Octree( depth, -32, -32, -32, 32, 32, 32 );
+    m_pSceneGraph = MyNew SceneGraph_Octree( m_pGameCore, depth, -32, -32, -32, 32, 32, 32 );
 
     for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
@@ -224,7 +224,8 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
                     MyFileObject* pScriptFile = ((ComponentLuaScript*)pComponent)->GetScriptFile();
                     if( pScriptFile )
                     {
-                        g_pFileManager->MoveFileToFrontOfFileLoadedList( pScriptFile );
+                        FileManager* pFileManager = m_pGameCore->GetManagers()->GetFileManager();
+                        pFileManager->MoveFileToFrontOfFileLoadedList( pScriptFile );
                     }
                 }
 #endif //MYFW_USING_LUA
@@ -516,7 +517,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
     {
         return pFileInfo;
         //LOGInfo( LOGTag, "%s already in scene, reloading\n", relativepath );
-        //g_pFileManager->ReloadFile( pFile );
+        //FileManager* pFileManager = m_pGameCore->GetManagers()->GetFileManager();
+        //pFileManager->ReloadFile( pFile );
         //OnFileUpdated_CallbackFunction( pFile );
     }
     else
@@ -624,8 +626,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             MyAssert( false );
 #else
             // Let SoundPlayer (SDL on windows) load the wav files
-            SoundCue* pCue = g_pGameCore->GetSoundManager()->CreateCue( "new cue" );
-            g_pGameCore->GetSoundManager()->AddSoundToCue( pCue, relativePath );
+            SoundCue* pCue = m_pGameCore->GetSoundManager()->CreateCue( "new cue" );
+            m_pGameCore->GetSoundManager()->AddSoundToCue( pCue, relativePath );
             pCue->SaveSoundCue( nullptr );
 
             pFileInfo->SetSoundCue( pCue );
@@ -720,7 +722,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // if we're loading a .mymaterial file, create a Material.
         if( strcmp( pFile->GetExtensionWithDot(), ".mymaterial" ) == 0 )
         {
-            MaterialDefinition* pMat = g_pMaterialManager->LoadMaterial( pFile->GetFullPath() );
+            MaterialManager* pMaterialManager = m_pGameCore->GetManagers()->GetMaterialManager();
+            MaterialDefinition* pMat = pMaterialManager->LoadMaterial( pFile->GetFullPath() );
             pFileInfo->SetMaterial( pMat );
             pMat->Release();
         }
@@ -750,7 +753,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             MyFileInfo* pFileInfo = LoadDataFile( "Data/Shaders/Shader_Texture.glsl", SCENEID_MainScene, 0, false );
             ShaderGroup* pShaderGroup = pFileInfo->GetShaderGroup();
 
-            SpriteSheet* pSpriteSheet = MyNew SpriteSheet();
+            SpriteSheet* pSpriteSheet = MyNew SpriteSheet( m_pGameCore );
             pSpriteSheet->Create( m_pGameCore->GetManagers()->GetTextureManager(), pFile->GetFullPath(), pShaderGroup, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, false, true );
 
             pFileInfo->SetSpriteSheet( pSpriteSheet );
@@ -764,7 +767,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                 sprintf_s( newFilename, "%s.my2daniminfo", pFile->GetFilenameWithoutExtension() );
                 char animFullPath[MAX_PATH];
                 pFile->GenerateNewFullPathFilenameInSameFolder( newFilename, animFullPath, MAX_PATH );
-                if( g_pFileManager->DoesFileExist( animFullPath ) )
+                FileManager* pFileManager = m_pGameCore->GetManagers()->GetFileManager();
+                if( pFileManager->DoesFileExist( animFullPath ) )
                 {
                     // Load the existing animation file.
                     LoadDataFile( animFullPath, sceneID, 0, false );
@@ -772,7 +776,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                 else
                 {
                     // Create a new animation file.
-                    MyFileObject* pFile = g_pFileManager->CreateFileObject( animFullPath );
+                    FileManager* pFileManager = m_pGameCore->GetManagers()->GetFileManager();
+                    MyFileObject* pFile = pFileManager->CreateFileObject( animFullPath );
                     My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
                     pAnimInfo->SetSourceFile( pFile );
                     AddToFileList( pFile, 0, 0, 0, 0, 0, 0, pAnimInfo, sceneID );
@@ -788,7 +793,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // if we're loading a .mycue file, create a Sound Cue.
         if( strcmp( pFile->GetExtensionWithDot(), ".mycue" ) == 0 )
         {
-            SoundCue* pSoundCue = g_pGameCore->GetSoundManager()->LoadCue( pFile->GetFullPath() );
+            SoundCue* pSoundCue = m_pGameCore->GetSoundManager()->LoadCue( pFile->GetFullPath() );
             pFileInfo->SetSoundCue( pSoundCue );
             pSoundCue->Release();
         }
@@ -2571,7 +2576,8 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
     }
 
     // Check materials for references to files.
-    MaterialDefinition* pMaterial = g_pMaterialManager->GetFirstMaterial();
+    MaterialManager* pMaterialManager = m_pGameCore->GetManagers()->GetMaterialManager();
+    MaterialDefinition* pMaterial = pMaterialManager->GetFirstMaterial();
     while( pMaterial != 0 )
     {
         if( pMaterial->IsReferencingFile( pFile ) )
@@ -2747,7 +2753,8 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 
     // Find the GameObject.
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialname );
+        MaterialManager* pMaterialManager = m_pGameCore->GetManagers()->GetMaterialManager();
+        MaterialDefinition* pMaterial = pMaterialManager->FindMaterialByFilename( materialname );
 
         return pMaterial;
     }

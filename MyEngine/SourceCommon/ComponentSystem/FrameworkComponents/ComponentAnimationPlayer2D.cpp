@@ -349,7 +349,7 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
 
     if( m_AnimationFileLoaded == false )
     {
-        if( m_pAnimInfo->LoadAnimationControlFile() )
+        if( m_pAnimInfo->LoadAnimationControlFile( m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager() ) )
         {
             m_AnimationFileLoaded = true;
         }

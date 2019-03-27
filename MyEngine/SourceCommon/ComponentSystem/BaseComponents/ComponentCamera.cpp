@@ -608,6 +608,7 @@ void ComponentCamera::DrawScene()
             TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
             TextureDefinition* pErrorTexture = pTextureManager->GetErrorTexture();
             MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+            MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
             ShaderGroupManager* pShaderGroupManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetShaderGroupManager();
 
             const int numcolorformats = 3;
@@ -638,7 +639,7 @@ void ComponentCamera::DrawScene()
             m_pDeferredMaterial_PointLight = new MaterialDefinition( pMaterialManager, m_pDeferredShader_PointLight );
 
             m_pDeferredQuadMesh = new MyMesh();
-            m_pDeferredQuadMesh->SetMeshManagerAndAddToMeshList( g_pMeshManager );
+            m_pDeferredQuadMesh->SetMeshManagerAndAddToMeshList( pMeshManager );
             m_pDeferredQuadMesh->CreateClipSpaceQuad( Vector2( m_pGBuffer->GetWidth()/(float)m_pGBuffer->GetTextureWidth(), m_pGBuffer->GetHeight()/(float)m_pGBuffer->GetTextureHeight() ) );
             m_pDeferredQuadMesh->SetMaterial( m_pDeferredMaterial_AmbientDirectional, 0 );
             m_pDeferredQuadMesh->RegisterSetupCustomUniformsCallback( this, StaticSetupCustomUniformsCallback );

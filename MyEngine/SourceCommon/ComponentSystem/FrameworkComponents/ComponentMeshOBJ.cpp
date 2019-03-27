@@ -63,7 +63,8 @@ void ComponentMeshOBJ::SetPointerValue(ComponentVariable* pVar, const void* newv
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
-        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
+        MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+        MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
         SetMesh( pMesh );
     }
 }
@@ -96,11 +97,12 @@ void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newde
             MyFileObject* pFile = g_pFileManager->RequestFile( newdesc ); // adds a ref
             if( pFile )
             {
-                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
+                MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+                MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
                 if( pMesh == 0 )
                 {
                     pMesh = MyNew MyMesh();
-                    pMesh->SetMeshManagerAndAddToMeshList( m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
+                    pMesh->SetMeshManagerAndAddToMeshList( pMeshManager );
                     pMesh->SetSourceFile( pFile );
                     SetMesh( pMesh );
                     pMesh->Release();
@@ -222,8 +224,9 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyin
                 oldpointer = m_pMesh ? m_pMesh->GetFile() : 0;
 
                 MyFileObject* pFile = pNewValue ? (MyFileObject*)pNewValue->GetPointerIndirect() : 0;
+                MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
 
-                MyMesh* pNewMesh = pFile ? g_pMeshManager->FindMeshBySourceFile( pFile ) : 0;
+                MyMesh* pNewMesh = pFile ? pMeshManager->FindMeshBySourceFile( pFile ) : 0;
                 SetMesh( pNewMesh );
             }
         }
@@ -253,7 +256,8 @@ void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
     //    MyFileObject* pFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
     //    if( pFile )
     //    {
-    //        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+    //        MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+    //        MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile );
     //        SetMesh( pMesh );
     //    }
     //}

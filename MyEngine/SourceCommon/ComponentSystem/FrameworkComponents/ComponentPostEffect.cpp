@@ -10,6 +10,7 @@
 #include "MyEnginePCH.h"
 
 #include "ComponentPostEffect.h"
+#include "../Core/ComponentSystemManager.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 // Component Variable List.
@@ -63,7 +64,8 @@ void ComponentPostEffect::ImportFromJSONObject(cJSON* jObject, SceneID sceneID)
     cJSON* materialstringobj = cJSON_GetObjectItem( jObject, "Material" );
     if( materialstringobj )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
+        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+        MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
         {
             SetMaterial( pMaterial );

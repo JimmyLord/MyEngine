@@ -17,6 +17,8 @@ class GameObject;
 class TransformGizmo
 {
 public:
+    EngineCore* m_pEngineCore;
+
     MyMatrix m_GizmoWorldTransform;
     Vector3 m_GizmoWorldRotation;
     GameObject* m_pTranslate1Axis[3];
@@ -38,7 +40,7 @@ public:
     Vector3 m_LastIntersectResultUsed;
 
 public:
-    TransformGizmo();
+    TransformGizmo(EngineCore* pEngineCore);
     virtual ~TransformGizmo();
 
     virtual void Tick(float deltaTime, EditorState* pEditorState);

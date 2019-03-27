@@ -20,7 +20,8 @@
 #include "Voxels/VoxelWorld.h"
 #include "../SourceEditor/EditorState.h"
 
-EditorInterface_VoxelMeshEditor::EditorInterface_VoxelMeshEditor()
+EditorInterface_VoxelMeshEditor::EditorInterface_VoxelMeshEditor(EngineCore* pEngineCore)
+: EditorInterface( pEngineCore )
 {
     m_pVoxelWorld = 0;
     m_pVoxelMesh = 0;

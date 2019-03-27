@@ -70,7 +70,7 @@ struct FrameTimingInfo
     float Render_Game;
 };
 
-extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
+extern void OnFileUpdated_CallbackFunction(GameCore* pGameCore, MyFileObject* pFile);
 
 class EngineCore : public GameCore
 {

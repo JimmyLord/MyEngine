@@ -908,7 +908,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_File_SaveScene:
         StoreCurrentUndoStackSize();
-        g_pMaterialManager->SaveAllMaterials();
+        pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         g_pGameCore->GetSoundManager()->SaveAllCues();
         SaveScene();
@@ -916,7 +916,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_File_SaveSceneAs:
         StoreCurrentUndoStackSize();
-        g_pMaterialManager->SaveAllMaterials();
+        pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         g_pGameCore->GetSoundManager()->SaveAllCues();
         SaveSceneAs( SCENEID_MainScene );
@@ -1381,7 +1381,7 @@ void EngineMainFrame::SaveSceneAs(SceneID sceneid)
     g_pComponentSystemManager->GetSceneInfo( sceneid )->ChangePath( (const char*)wxpath );
     //sprintf_s( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, 260, "%s", (const char*)wxpath );
 
-    g_pMaterialManager->SaveAllMaterials();
+    pMaterialManager->SaveAllMaterials();
     g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
     g_pGameCore->GetSoundManager()->SaveAllCues();
     g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath, sceneid );
@@ -1567,13 +1567,14 @@ void EngineMainFrame::OnDrop(int controlid, int x, int y)
           )
         {
             // Create a new gameobject using this obj.
-            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+            MeshManager* pMeshManager = m_pEngineCore->GetManagers()->GetMeshManager();
+            MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile );
 
             GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
             pGameObject->SetName( "New mesh" );
             ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, SCENEID_MainScene );
             pComponentMeshOBJ->SetSceneID( SCENEID_MainScene );
-            pComponentMeshOBJ->SetMaterial( g_pMaterialManager->GetFirstMaterial(), 0 );
+            pComponentMeshOBJ->SetMaterial( pMaterialManager->GetFirstMaterial(), 0 );
             pComponentMeshOBJ->SetMesh( pMesh );
             pComponentMeshOBJ->SetLayersThisExistsOn( Layer_MainScene );
 

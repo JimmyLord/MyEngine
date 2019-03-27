@@ -29,7 +29,7 @@ protected:
     unsigned int m_CurrentBlockType;
 
 public:
-    EditorInterface_VoxelMeshEditor();
+    EditorInterface_VoxelMeshEditor(EngineCore* pEngineCore);
     virtual ~EditorInterface_VoxelMeshEditor();
 
     virtual void Initialize();

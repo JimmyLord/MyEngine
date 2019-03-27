@@ -20,7 +20,8 @@
 #include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/TransformGizmo.h"
 
-EditorInterface_SceneManagement::EditorInterface_SceneManagement()
+EditorInterface_SceneManagement::EditorInterface_SceneManagement(EngineCore* pEngineCore)
+: EditorInterface( pEngineCore )
 {
 }
 

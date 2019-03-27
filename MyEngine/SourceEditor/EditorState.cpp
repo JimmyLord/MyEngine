@@ -46,7 +46,7 @@ EditorState::EditorState(EngineCore* pEngineCore)
     m_p3DGridPlane = 0;
     m_pEditorCamera = 0;
 
-    m_pTransformGizmo = MyNew TransformGizmo();
+    m_pTransformGizmo = MyNew TransformGizmo( m_pEngineCore );
 
     m_MousePicker_PickedBody = 0;
     m_MousePicker_PickConstraint = 0;
@@ -66,7 +66,9 @@ EditorState::EditorState(EngineCore* pEngineCore)
     // Load all the editor icons (Lights/Cameras/Etc)
     for( int i=0; i<EditorIcon_NumIcons; i++ )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->CreateMaterial();
+        MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
+
+        MaterialDefinition* pMaterial = pMaterialManager->CreateMaterial();
         pMaterial->SetShader( pShader );
 
         // Create all icons as 1x1 sprites, with center pivots. Sprites are facing positive z-axis.
@@ -136,9 +138,11 @@ EditorState::~EditorState()
 
 void EditorState::SaveAllMiscFiles()
 {
-    g_pMaterialManager->SaveAllMaterials();
-    g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
-    g_pGameCore->GetSoundManager()->SaveAllCues();
+    MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
+
+    pMaterialManager->SaveAllMaterials();
+    m_pEngineCore->GetComponentSystemManager()->m_pPrefabManager->SaveAllPrefabs();
+    m_pEngineCore->GetSoundManager()->SaveAllCues();
 }
 
 void EditorState::SaveAllOpenDocuments()

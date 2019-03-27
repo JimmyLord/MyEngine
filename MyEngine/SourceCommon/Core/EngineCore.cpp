@@ -114,9 +114,9 @@ EngineCore::EngineCore(Renderer_Base* pRenderer, bool createAndOwnGlobalManagers
     m_pDebugFont = nullptr;
     m_pDebugTextMesh = nullptr;
 
-    m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
-    m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
-    m_pEditorInterfaces[EditorInterfaceType_VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor();
+    m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement( this );
+    m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor( this );
+    m_pEditorInterfaces[EditorInterfaceType_VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor( this );
     m_CurrentEditorInterfaceType = EditorInterfaceType_NumInterfaces;
     m_pCurrentEditorInterface = nullptr;
 #endif //MYFW_EDITOR
@@ -284,7 +284,7 @@ void EngineCore::InitializeManagers()
     GameCore::InitializeManagers();
 
     if( g_pRTQGlobals == nullptr )
-        g_pRTQGlobals = MyNew RenderTextQuickGlobals;
+        g_pRTQGlobals = MyNew RenderTextQuickGlobals( this );
 
     if( m_pImGuiManager == nullptr )
         m_pImGuiManager = MyNew ImGuiManager;
@@ -696,7 +696,7 @@ float EngineCore::Tick(float deltaTime)
         return deltaTime;
 }
 
-void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
+void OnFileUpdated_CallbackFunction(GameCore* pGameCore, MyFileObject* pFile)
 {
 #if MYFW_EDITOR
 #if MYFW_USING_WX
@@ -707,13 +707,15 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 
     if( strcmp( pFile->GetExtensionWithDot(), ".mymaterial" ) == 0 )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( pFile->GetFullPath() );
-        g_pMaterialManager->ReloadMaterial( pMaterial );
+        MaterialManager* pMaterialManager = pGameCore->GetManagers()->GetMaterialManager();
+        MaterialDefinition* pMaterial = pMaterialManager->FindMaterialByFilename( pFile->GetFullPath() );
+        pMaterialManager->ReloadMaterial( pMaterial );
     }
 
     if( strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
     {
-        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+        MeshManager* pMeshManager = pGameCore->GetManagers()->GetMeshManager();
+        MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile );
         // Clear out the old mesh and load in the new one.
         pMesh->Clear();
     }
@@ -742,7 +744,7 @@ void EngineCore::OnFocusGained()
     if( g_pFileManager == nullptr )
         return;
 
-    int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
+    int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( this, OnFileUpdated_CallbackFunction );
 
     if( filesupdated )
     {
@@ -843,7 +845,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     {
         if( m_pDebugTextMesh->GetMaterial( 0 ) == nullptr )
         {
-            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( "Data/DataEngine/Materials/Nevis60.mymaterial" );
+            MaterialDefinition* pMaterial = GetManagers()->GetMaterialManager()->LoadMaterial( "Data/DataEngine/Materials/Nevis60.mymaterial" );
             MyAssert( pMaterial );
             if( pMaterial )
             {
@@ -1214,7 +1216,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 
     if( action == GCBA_Down && keycode == 344 ) // F5 )
     {
-        int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
+        int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( this, OnFileUpdated_CallbackFunction );
 
         if( filesupdated )
         {
@@ -1297,7 +1299,8 @@ void EngineCore::OnModePlay()
 #if MYFW_EDITOR
     if( m_EditorMode )
     {
-        g_pMaterialManager->SaveAllMaterials();
+        MaterialManager* pMaterialManager = GetManagers()->GetMaterialManager();
+        pMaterialManager->SaveAllMaterials();
         //m_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         m_Managers.GetSoundManager()->SaveAllCues();
 

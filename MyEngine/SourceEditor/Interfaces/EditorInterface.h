@@ -15,11 +15,12 @@ class GameObject;
 class EditorInterface
 {
 protected:
+    EngineCore* m_pEngineCore;
     bool m_ShowRightClickMenu;
     GameObject* m_pGameObjectRightClicked;
 
 public:
-    EditorInterface();
+    EditorInterface(EngineCore* pEngineCore);
     virtual ~EditorInterface();
 
     virtual void Initialize() = 0;

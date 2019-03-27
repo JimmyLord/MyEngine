@@ -22,7 +22,8 @@
 #include "../SourceEditor/EngineEditorCommands.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
-EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
+EditorInterface_2DPointEditor::EditorInterface_2DPointEditor(EngineCore* pEngineCore)
+: EditorInterface( pEngineCore )
 {
     m_pCollisionObject = nullptr;
 
@@ -52,12 +53,14 @@ EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
 
 void EditorInterface_2DPointEditor::Initialize()
 {
+    MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
+
     if( m_pMaterials[Mat_Lines] == nullptr )
-        m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( g_pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
+        m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
     if( m_pMaterials[Mat_Points] == nullptr )
-        m_pMaterials[Mat_Points] = MyNew MaterialDefinition( g_pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
+        m_pMaterials[Mat_Points] = MyNew MaterialDefinition( pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
     if( m_pMaterials[Mat_SelectedPoint] == nullptr )
-        m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( g_pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
+        m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
 }
 
 void EditorInterface_2DPointEditor::OnActivated()

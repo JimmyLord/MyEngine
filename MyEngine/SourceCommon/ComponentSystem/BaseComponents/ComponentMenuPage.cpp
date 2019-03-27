@@ -1541,7 +1541,7 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
     m_CurrentLayout = layout;
 
     ClearAllMenuItems();
-    m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_CurrentLayout, m_pMenuItems, MAX_MENU_ITEMS, m_ExtentsBLTRWhenPageLoaded );
+    m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_pComponentSystemManager->GetGameCore(), m_CurrentLayout, m_pMenuItems, MAX_MENU_ITEMS, m_ExtentsBLTRWhenPageLoaded );
 
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {

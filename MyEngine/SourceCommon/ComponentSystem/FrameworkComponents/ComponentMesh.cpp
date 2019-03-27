@@ -310,7 +310,8 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
     cJSON* jMaterial = cJSON_GetObjectItem( jComponent, "Material" );
     if( jMaterial )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( jMaterial->valuestring );
+        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+        MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( jMaterial->valuestring );
         if( pMaterial )
         {
             SetMaterial( pMaterial, 0 );
@@ -328,7 +329,8 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
         for( int i=0; i<numMaterials; i++ )
         {
             cJSON* jMaterial = cJSON_GetArrayItem( jMaterialArray, i );
-            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( jMaterial->valuestring );
+            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+            MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( jMaterial->valuestring );
             if( pMaterial )
             {
                 SetMaterial( pMaterial, i );

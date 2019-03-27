@@ -2796,7 +2796,8 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, voi
     {
         if( ImGui::MenuItem( "Create Material Using Shader" ) )
         {
-            MaterialDefinition* pMat = g_pMaterialManager->CreateMaterial( pFile->GetFilenameWithoutExtension(), "Data/Materials" );
+            MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
+            MaterialDefinition* pMat = pMaterialManager->CreateMaterial( pFile->GetFilenameWithoutExtension(), "Data/Materials" );
             pMat->SetShader( (ShaderGroup*)pSelectedObject );
             ImGui::CloseCurrentPopup();
         }
@@ -2821,10 +2822,11 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
     for( int i=0; i<2; i++ )
     {
-        //MaterialDefinition* pMat = g_pMaterialManager->GetFirstMaterial();
-        MaterialDefinition* pMat = g_pMaterialManager->Editor_GetFirstMaterialStillLoading();
+        MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
+        //MaterialDefinition* pMat = pMaterialManager->GetFirstMaterial();
+        MaterialDefinition* pMat = pMaterialManager->Editor_GetFirstMaterialStillLoading();
         if( i == 1 )
-            pMat = g_pMaterialManager->Editor_GetFirstMaterialLoaded();
+            pMat = pMaterialManager->Editor_GetFirstMaterialLoaded();
 
         if( pMat == nullptr )
             continue;
@@ -2851,17 +2853,17 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                 if( ImGui::MenuItem( "Create New Material" ) )
                 {
                     ImGui::CloseCurrentPopup();
-                    MaterialDefinition* pMaterial = g_pMaterialManager->CreateMaterial( "new" );
+                    MaterialDefinition* pMaterial = pMaterialManager->CreateMaterial( "new" );
 
                     // TODO: Fix path based on folders.
                     char tempstr[MAX_PATH];
                     sprintf_s( tempstr, MAX_PATH, "Data/Materials" );
                     pMaterial->SaveMaterial( tempstr );
-                    g_pMaterialManager->Editor_MoveMaterialToFrontOfLoadedList( pMaterial );
+                    pMaterialManager->Editor_MoveMaterialToFrontOfLoadedList( pMaterial );
 
                     // Essentially, tell the ComponentSystemManager that a new material was loaded.
                     //  This will add it to the scene's file list, which will free the material.
-                    g_pMaterialManager->CallMaterialCreatedCallbacks( pMaterial );
+                    pMaterialManager->CallMaterialCreatedCallbacks( pMaterial );
 
                     // Start a rename op on the new material.
                     StartRenameOp( nullptr, pMaterial, pMaterial->GetName() );
@@ -4334,13 +4336,15 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
               )
             {
                 // Create a new gameobject using this obj.
-                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+                MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
+                MeshManager* pMeshManager = m_pEngineCore->GetManagers()->GetMeshManager();
+                MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile );
 
                 GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
                 pGameObject->SetName( "New mesh" );
                 ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, SCENEID_MainScene, g_pComponentSystemManager );
                 pComponentMeshOBJ->SetSceneID( SCENEID_MainScene );
-                pComponentMeshOBJ->SetMaterial( g_pMaterialManager->GetFirstMaterial(), 0 );
+                pComponentMeshOBJ->SetMaterial( pMaterialManager->GetFirstMaterial(), 0 );
                 pComponentMeshOBJ->SetMesh( pMesh );
                 pComponentMeshOBJ->SetLayersThisExistsOn( Layer_MainScene );
 

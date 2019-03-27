@@ -182,7 +182,8 @@ void ComponentVoxelWorld::SetPointerDesc(ComponentVariable* pVar, const char* ne
         MyAssert( newdesc );
         if( newdesc )
         {
-            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
+            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+            MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( newdesc );
             SetVoxelMeshMaterial( pMaterial );
             pMaterial->Release();
         }

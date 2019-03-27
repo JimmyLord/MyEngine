@@ -19,8 +19,10 @@
 #include "../SourceEditor/TransformGizmo.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
-EditorInterface::EditorInterface()
+EditorInterface::EditorInterface(EngineCore* pEngineCore)
 {
+    m_pEngineCore = pEngineCore;
+
     m_ShowRightClickMenu = false;
     m_pGameObjectRightClicked = nullptr;
 }

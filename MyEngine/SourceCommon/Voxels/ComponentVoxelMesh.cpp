@@ -118,7 +118,8 @@ void ComponentVoxelMesh::SetPointerValue(ComponentVariable* pVar, const void* ne
 {
     if( strcmp( pVar->m_Label, "File" ) == 0 )
     {
-        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
+        MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+        MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
         SetMesh( pMesh );
     }
 }
@@ -151,7 +152,8 @@ void ComponentVoxelMesh::SetPointerDesc(ComponentVariable* pVar, const char* new
             MyFileObject* pFile = g_pFileManager->RequestFile( newdesc ); // adds a ref
             if( pFile )
             {
-                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
+                MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+                MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
                 if( pMesh == 0 )
                 {
                     pMesh = MyNew VoxelChunk();
@@ -239,7 +241,8 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, int x, int y)
             if( m_pMesh )
                 oldPointer = m_pMesh->GetFile();
 
-            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+            MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+            MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );
 
 #if MYFW_USING_WX
