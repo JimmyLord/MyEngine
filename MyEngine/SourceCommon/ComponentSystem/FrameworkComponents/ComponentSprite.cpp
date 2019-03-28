@@ -254,7 +254,8 @@ void ComponentSprite::OnLoad()
 {
     ComponentRenderable::OnLoad();
 
-    m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+    BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+    m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
 
     if( m_pSceneGraphObject == 0 )
         AddToSceneGraph();
@@ -282,7 +283,8 @@ void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshInde
         // Create a scenegraph object if this is the first time we set the material.
         if( m_pSceneGraphObject == 0 && pMaterial != 0 )
         {
-            m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+            BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+            m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
 
             AddToSceneGraph();
         }
@@ -507,7 +509,8 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyint
 
     //if( strcmp( pVar->m_Label, "Size" ) == 0 )
     {
-        m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+        BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+        m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
     }
 
     PushChangesToSceneGraphObjects();

@@ -77,7 +77,8 @@ bool IsNearBezierCurve(Vector2 position, Vector2 p0, Vector2 cp0, Vector2 cp1, V
     return false;
 }
 
-MyNodeGraph::MyNodeGraph(MyNodeTypeManager* pNodeTypeManager)
+MyNodeGraph::MyNodeGraph(EngineCore* pEngineCore, MyNodeTypeManager* pNodeTypeManager)
+: EditorDocument( pEngineCore )
 {
     m_pCommandStack = MyNew CommandStack();
 

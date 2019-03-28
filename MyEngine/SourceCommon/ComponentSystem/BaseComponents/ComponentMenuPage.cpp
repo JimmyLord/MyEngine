@@ -292,7 +292,8 @@ void ComponentMenuPage::SaveMenuPageToDisk()
             char fullpath[MAX_PATH];
             sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
             const char* relativepath = GetRelativePath( fullpath );
-            m_pMenuLayoutFile = g_pFileManager->RequestFile( relativepath );
+            FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+            m_pMenuLayoutFile = pFileManager->RequestFile( relativepath );
         }
     }
 
@@ -365,7 +366,7 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
     // if a new file is requested, either create it or load it.
     if( newfullpath[0] != 0 )
     {
-        if( g_pFileManager->DoesFileExist( newfullpath ) )
+        if( FileManager::DoesFileExist( newfullpath ) )
         {
             // launching this messagebox causes a change focus message on the editbox, causing OnValueChanged to get call again, avoiding issue with this hack.
             h_RenameInProgress = true;
@@ -379,7 +380,8 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
             if( answer == wxID_YES )
             {
                 ClearAllMenuItems();
-                MyFileObject* pFile = g_pFileManager->RequestFile( newfullpath );
+                FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+                MyFileObject* pFile = pFileManager->RequestFile( newfullpath );
                 SetMenuLayoutFile( pFile );
                 pFile->Release();
                 m_MenuItemsCreated = false;
@@ -388,7 +390,8 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
 
             // the file existed, so load it up and associate it with this menupage, but don't save over it unless scene is saved.
             //   the user might have just typed the wrong name.
-            MyFileObject* pFile = g_pFileManager->RequestFile( newfullpath );
+            FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+            MyFileObject* pFile = pFileManager->RequestFile( newfullpath );
             SetMenuLayoutFile( pFile );
             pFile->Release();
             return;
@@ -398,7 +401,8 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
         SaveMenuPageToDisk( newfullpath );
 
         // request the file, so it's part of the scene.
-        MyFileObject* pFile = g_pFileManager->RequestFile( newfullpath );
+        FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+        MyFileObject* pFile = pFileManager->RequestFile( newfullpath );
         SetMenuLayoutFile( pFile );
         pFile->Release();
     }
@@ -946,7 +950,8 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
     cJSON* jFilename = cJSON_GetObjectItem( jComponent, "MenuFile" );
     if( jFilename )
     {
-        MyFileObject* pFile = g_pFileManager->RequestFile( jFilename->valuestring ); // will add ref.
+        FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+        MyFileObject* pFile = pFileManager->RequestFile( jFilename->valuestring ); // will add ref.
         SetMenuLayoutFile( pFile ); // will add ref.
         pFile->Release();
     }
@@ -1541,7 +1546,7 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
     m_CurrentLayout = layout;
 
     ClearAllMenuItems();
-    m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_pComponentSystemManager->GetGameCore(), m_CurrentLayout, m_pMenuItems, MAX_MENU_ITEMS, m_ExtentsBLTRWhenPageLoaded );
+    m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_pComponentSystemManager->GetEngineCore(), m_CurrentLayout, m_pMenuItems, MAX_MENU_ITEMS, m_ExtentsBLTRWhenPageLoaded );
 
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {

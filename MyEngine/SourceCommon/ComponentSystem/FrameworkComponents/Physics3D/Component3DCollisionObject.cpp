@@ -15,6 +15,7 @@
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointBase.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineComponentTypeManager.h"
+#include "Core/EngineCore.h"
 
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DCollisionObject );
@@ -117,7 +118,7 @@ void Component3DCollisionObject::SetPointerValue(ComponentVariable* pVar, const 
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
-        MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+        MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
         MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
         SetMesh( pMesh );
     }
@@ -148,16 +149,16 @@ void Component3DCollisionObject::SetPointerDesc(ComponentVariable* pVar, const c
         MyAssert( newdesc );
         if( newdesc )
         {
-            MyFileObject* pFile = g_pFileManager->RequestFile( newdesc ); // adds a ref
+            FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+            MyFileObject* pFile = pFileManager->RequestFile( newdesc ); // adds a ref
             if( pFile )
             {
-                MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+                MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
 
                 MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
                 if( pMesh == 0 )
                 {
-                    pMesh = MyNew MyMesh();
-                    pMesh->SetMeshManagerAndAddToMeshList( pMeshManager );
+                    pMesh = MyNew MyMesh( m_pComponentSystemManager->GetEngineCore() );
                     pMesh->SetSourceFile( pFile );
                     SetMesh( pMesh );
                     pMesh->Release();
@@ -234,7 +235,7 @@ void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, int x, int 
             if( m_pMesh )
                 oldPointer = m_pMesh->GetFile();
 
-            MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+            MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
 
             MyMesh* pNewMesh = pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pNewMesh );

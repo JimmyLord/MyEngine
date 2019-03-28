@@ -38,31 +38,32 @@
 
 ComponentSystemManager* g_pComponentSystemManager = 0;
 
-ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager, GameCore* pGameCore)
+ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager, EngineCore* pEngineCore)
 {
     g_pComponentSystemManager = this;
 
-    m_pGameCore = pGameCore;
+    m_pEngineCore = pEngineCore;
     m_pComponentTypeManager = typemanager;
 #if MYFW_EDITOR
     m_pSceneHandler = MyNew SceneHandler();
     m_pGameObjectTemplateManager = MyNew GameObjectTemplateManager();
 #endif
 
-    m_pPrefabManager = MyNew PrefabManager();
+    m_pPrefabManager = MyNew PrefabManager( m_pEngineCore );
 
-    g_pEventManager->RegisterForEvents( "GameObjectEnable", this, &ComponentSystemManager::StaticOnEvent );
+    EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
+    pEventManager->RegisterForEvents( "GameObjectEnable", this, &ComponentSystemManager::StaticOnEvent );
 
 #if MYFW_EDITOR
-    m_pGameCore->GetManagers()->GetMaterialManager()->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
-    m_pGameCore->GetManagers()->GetFileManager()->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
-    m_pGameCore->GetManagers()->GetFileManager()->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
-    m_pGameCore->GetSoundManager()->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
-    m_pGameCore->GetSoundManager()->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
+    m_pEngineCore->GetManagers()->GetMaterialManager()->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
+    m_pEngineCore->GetManagers()->GetFileManager()->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
+    m_pEngineCore->GetManagers()->GetFileManager()->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
+    m_pEngineCore->GetSoundManager()->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
+    m_pEngineCore->GetSoundManager()->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 
     // This class adds to SoundCue's refcount when storing cue in m_Files
     //    so increment this number to prevent editor from allowing it to be unloaded if ref'ed by game code
-    m_pGameCore->GetSoundManager()->Editor_AddToNumRefsPlacedOnSoundCueBySystem();
+    m_pEngineCore->GetSoundManager()->Editor_AddToNumRefsPlacedOnSoundCueBySystem();
 #endif
 
     m_NextSceneID = SCENEID_MainScene;
@@ -74,7 +75,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     //m_pSceneGraph = MyNew SceneGraph_Flat();
     int depth = 3;
-    m_pSceneGraph = MyNew SceneGraph_Octree( m_pGameCore, depth, -32, -32, -32, 32, 32, 32 );
+    m_pSceneGraph = MyNew SceneGraph_Octree( m_pEngineCore, depth, -32, -32, -32, 32, 32, 32 );
 
     for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
@@ -224,7 +225,7 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
                     MyFileObject* pScriptFile = ((ComponentLuaScript*)pComponent)->GetScriptFile();
                     if( pScriptFile )
                     {
-                        FileManager* pFileManager = m_pGameCore->GetManagers()->GetFileManager();
+                        FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
                         pFileManager->MoveFileToFrontOfFileLoadedList( pScriptFile );
                     }
                 }
@@ -517,7 +518,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
     {
         return pFileInfo;
         //LOGInfo( LOGTag, "%s already in scene, reloading\n", relativepath );
-        //FileManager* pFileManager = m_pGameCore->GetManagers()->GetFileManager();
+        //FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
         //pFileManager->ReloadFile( pFile );
         //OnFileUpdated_CallbackFunction( pFile );
     }
@@ -594,7 +595,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // Load textures differently than other files.
         if( rellen > 4 && strcmp( &relativePath[rellen-4], ".png" ) == 0 )
         {
-            TextureManager* pTextureManager = m_pGameCore->GetManagers()->GetTextureManager();
+            TextureManager* pTextureManager = m_pEngineCore->GetManagers()->GetTextureManager();
 
             // Check if the texture is already loaded and create it if not.
             pTexture = pTextureManager->FindTexture( relativePath );
@@ -626,8 +627,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             MyAssert( false );
 #else
             // Let SoundPlayer (SDL on windows) load the wav files
-            SoundCue* pCue = m_pGameCore->GetSoundManager()->CreateCue( "new cue" );
-            m_pGameCore->GetSoundManager()->AddSoundToCue( pCue, relativePath );
+            SoundCue* pCue = m_pEngineCore->GetSoundManager()->CreateCue( "new cue" );
+            m_pEngineCore->GetSoundManager()->AddSoundToCue( pCue, relativePath );
             pCue->SaveSoundCue( nullptr );
 
             pFileInfo->SetSoundCue( pCue );
@@ -689,8 +690,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             if( strcmp( pFile->GetExtensionWithDot(), ".obj" ) == 0 ||
                 strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
             {
-                MyMesh* pMesh = MyNew MyMesh();
-                pMesh->SetMeshManagerAndAddToMeshList( GetGameCore()->GetManagers()->GetMeshManager() );
+                MyMesh* pMesh = MyNew MyMesh( m_pEngineCore );
                 pMesh->SetSourceFile( pFile );
 
                 pFileInfo->SetMesh( pMesh );
@@ -702,14 +702,14 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // If we're loading an .glsl file, create a ShaderGroup.
         if( strcmp( pFile->GetExtensionWithDot(), ".glsl" ) == 0 )
         {
-            ShaderGroup* pShaderGroup = m_pGameCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByFile( pFile );
+            ShaderGroup* pShaderGroup = m_pEngineCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByFile( pFile );
 
             if( pShaderGroup == nullptr )
             {
-                TextureDefinition* pErrorTexture = m_pGameCore->GetManagers()->GetTextureManager()->GetErrorTexture();
-                ShaderGroupManager* pShaderGroupManager = m_pGameCore->GetManagers()->GetShaderGroupManager();
+                TextureDefinition* pErrorTexture = m_pEngineCore->GetManagers()->GetTextureManager()->GetErrorTexture();
+                ShaderGroupManager* pShaderGroupManager = m_pEngineCore->GetManagers()->GetShaderGroupManager();
 
-                pShaderGroup = MyNew ShaderGroup( pShaderGroupManager, pFile, pErrorTexture );
+                pShaderGroup = MyNew ShaderGroup( m_pEngineCore, pFile, pErrorTexture );
                 pFileInfo->SetShaderGroup( pShaderGroup );
                 pShaderGroup->Release();
             }
@@ -722,7 +722,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // if we're loading a .mymaterial file, create a Material.
         if( strcmp( pFile->GetExtensionWithDot(), ".mymaterial" ) == 0 )
         {
-            MaterialManager* pMaterialManager = m_pGameCore->GetManagers()->GetMaterialManager();
+            MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
             MaterialDefinition* pMat = pMaterialManager->LoadMaterial( pFile->GetFullPath() );
             pFileInfo->SetMaterial( pMat );
             pMat->Release();
@@ -748,13 +748,13 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
         if( strcmp( pFile->GetExtensionWithDot(), ".myspritesheet" ) == 0 )
         {
-            //ShaderGroup* pShaderGroup = m_pGameCore->GetManagers()->GetShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
+            //ShaderGroup* pShaderGroup = m_pEngineCore->GetManagers()->GetShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
             // TODO: Allow the user to choose a shader.
             MyFileInfo* pFileInfo = LoadDataFile( "Data/Shaders/Shader_Texture.glsl", SCENEID_MainScene, 0, false );
             ShaderGroup* pShaderGroup = pFileInfo->GetShaderGroup();
 
-            SpriteSheet* pSpriteSheet = MyNew SpriteSheet( m_pGameCore );
-            pSpriteSheet->Create( m_pGameCore->GetManagers()->GetTextureManager(), pFile->GetFullPath(), pShaderGroup, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, false, true );
+            SpriteSheet* pSpriteSheet = MyNew SpriteSheet( m_pEngineCore );
+            pSpriteSheet->Create( pFile->GetFullPath(), pShaderGroup, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, false, true );
 
             pFileInfo->SetSpriteSheet( pSpriteSheet );
 
@@ -767,8 +767,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                 sprintf_s( newFilename, "%s.my2daniminfo", pFile->GetFilenameWithoutExtension() );
                 char animFullPath[MAX_PATH];
                 pFile->GenerateNewFullPathFilenameInSameFolder( newFilename, animFullPath, MAX_PATH );
-                FileManager* pFileManager = m_pGameCore->GetManagers()->GetFileManager();
-                if( pFileManager->DoesFileExist( animFullPath ) )
+                if( FileManager::DoesFileExist( animFullPath ) )
                 {
                     // Load the existing animation file.
                     LoadDataFile( animFullPath, sceneID, 0, false );
@@ -776,7 +775,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                 else
                 {
                     // Create a new animation file.
-                    FileManager* pFileManager = m_pGameCore->GetManagers()->GetFileManager();
+                    FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
                     MyFileObject* pFile = pFileManager->CreateFileObject( animFullPath );
                     My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
                     pAnimInfo->SetSourceFile( pFile );
@@ -793,7 +792,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         // if we're loading a .mycue file, create a Sound Cue.
         if( strcmp( pFile->GetExtensionWithDot(), ".mycue" ) == 0 )
         {
-            SoundCue* pSoundCue = m_pGameCore->GetSoundManager()->LoadCue( pFile->GetFullPath() );
+            SoundCue* pSoundCue = m_pEngineCore->GetSoundManager()->LoadCue( pFile->GetFullPath() );
             pFileInfo->SetSoundCue( pSoundCue );
             pSoundCue->Release();
         }
@@ -1462,7 +1461,7 @@ GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name,
 
 GameObject* ComponentSystemManager::CreateGameObject(bool manageObject, SceneID sceneID, bool isFolder, bool hasTransform, PrefabReference* pPrefabRef)
 {
-    GameObject* pGameObject = MyNew GameObject( manageObject, sceneID, isFolder, hasTransform, pPrefabRef );
+    GameObject* pGameObject = MyNew GameObject( m_pEngineCore, manageObject, sceneID, isFolder, hasTransform, pPrefabRef );
     
     {
         unsigned int id = GetNextGameObjectIDAndIncrement( sceneID );
@@ -2576,7 +2575,7 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
     }
 
     // Check materials for references to files.
-    MaterialManager* pMaterialManager = m_pGameCore->GetManagers()->GetMaterialManager();
+    MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
     MaterialDefinition* pMaterial = pMaterialManager->GetFirstMaterial();
     while( pMaterial != 0 )
     {
@@ -2753,7 +2752,7 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 
     // Find the GameObject.
     {
-        MaterialManager* pMaterialManager = m_pGameCore->GetManagers()->GetMaterialManager();
+        MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
         MaterialDefinition* pMaterial = pMaterialManager->FindMaterialByFilename( materialname );
 
         return pMaterial;
@@ -2978,10 +2977,11 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
 bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keyCode, int unicodeChar)
 {
     // Create an event and send it to all event handlers.
-    MyEvent* pEvent = g_pEventManager->CreateNewEvent( "Keyboard" );
-    pEvent->AttachInt( "Action", action );
-    pEvent->AttachInt( "KeyCode", keyCode );
-    g_pEventManager->SendEventNow( pEvent );
+    EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
+    MyEvent* pEvent = pEventManager->CreateNewEvent( "Keyboard" );
+    pEvent->AttachInt( pEventManager, "Action", action );
+    pEvent->AttachInt( pEventManager, "KeyCode", keyCode );
+    pEventManager->SendEventNow( pEvent );
 
     // Send keyboard events to all components that registered a callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_OnKeys.HeadNode.Next; pNode->Next; pNode = pNode->Next )

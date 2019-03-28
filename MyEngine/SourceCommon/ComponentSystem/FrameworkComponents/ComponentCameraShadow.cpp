@@ -11,7 +11,9 @@
 
 #include "ComponentCameraShadow.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
 
 ComponentCameraShadow::ComponentCameraShadow()
 : ComponentCamera()
@@ -33,7 +35,10 @@ ComponentCameraShadow::~ComponentCameraShadow()
     m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
 
     if( m_pLight )
-        g_pLightManager->DestroyLight( m_pLight );
+    {
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        pLightManager->DestroyLight( m_pLight );
+    }
 }
 
 #if MYFW_USING_WX
@@ -121,7 +126,7 @@ void ComponentCameraShadow::Reset()
 
     SAFE_RELEASE( m_pDepthFBO );
 
-    TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+    TextureManager* pTextureManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
 
     int texres = 2048;
 #if MYFW_OPENGLES2
@@ -132,7 +137,8 @@ void ComponentCameraShadow::Reset()
 
     if( m_pLight == 0 )
     {
-        m_pLight = g_pLightManager->CreateLight();
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        m_pLight = pLightManager->CreateLight();
         m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
     }
 
@@ -205,7 +211,10 @@ void ComponentCameraShadow::OnGameObjectEnabled()
     ComponentBase::OnGameObjectEnabled();
 
     if( m_pLight )
-        g_pLightManager->SetLightEnabled( m_pLight, true );
+    {
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        pLightManager->SetLightEnabled( m_pLight, true );
+    }
 }
 
 void ComponentCameraShadow::OnGameObjectDisabled()
@@ -213,7 +222,10 @@ void ComponentCameraShadow::OnGameObjectDisabled()
     ComponentBase::OnGameObjectDisabled();
 
     if( m_pLight )
-        g_pLightManager->SetLightEnabled( m_pLight, false );
+    {
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        pLightManager->SetLightEnabled( m_pLight, false );
+    }
 }
 
 void ComponentCameraShadow::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)

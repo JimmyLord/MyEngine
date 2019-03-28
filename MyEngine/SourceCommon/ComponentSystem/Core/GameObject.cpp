@@ -24,9 +24,11 @@
 #include "../SourceEditor/EngineEditorCommands.h"
 #endif
 
-GameObject::GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+GameObject::GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
 {
     ClassnameSanityCheck();
+
+    m_pEngineCore = pEngineCore;
 
     m_pGameObjectThisInheritsFrom = 0;
 
@@ -521,11 +523,12 @@ void GameObject::SetEnabledViaEvent(bool enabled, bool affectChildren)
         return;
 
     // If game is running and we want to enable/disable an object, then send a message and do it at the start of the next frame.
-    MyEvent* pEvent = g_pEventManager->CreateNewEvent( "GameObjectEnable" );
-    pEvent->AttachPointer( "GameObject", this );
-    pEvent->AttachBool( "Enable", enabled );
-    pEvent->AttachBool( "AffectChildren", affectChildren );
-    g_pEventManager->QueueEvent( pEvent );
+    EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
+    MyEvent* pEvent = pEventManager->CreateNewEvent( "GameObjectEnable" );
+    pEvent->AttachPointer( pEventManager, "GameObject", this );
+    pEvent->AttachBool( pEventManager, "Enable", enabled );
+    pEvent->AttachBool( pEventManager, "AffectChildren", affectChildren );
+    pEventManager->QueueEvent( pEvent );
 }
 
 void GameObject::SetEnabled(bool enabled, bool affectChildren)

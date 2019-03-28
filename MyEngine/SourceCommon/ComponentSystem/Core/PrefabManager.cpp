@@ -676,8 +676,9 @@ void PrefabFile::OnRightClick(wxTreeItemId treeid) // StaticOnRightClick
 // PrefabManager
 // ============================================================================================================================
 
-PrefabManager::PrefabManager()
+PrefabManager::PrefabManager(EngineCore* pEngineCore)
 {
+    m_pEngineCore = pEngineCore;
 }
 
 PrefabManager::~PrefabManager()
@@ -724,7 +725,8 @@ PrefabFile* PrefabManager::GetLoadedPrefabFileByFullPath(const char* fullpath)
 
 PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 {
-    MyFileObject* pFile = g_pFileManager->RequestFile( prefabfilename );
+    FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
+    MyFileObject* pFile = pFileManager->RequestFile( prefabfilename );
     MyAssert( pFile );
 
     PrefabFile* pPrefabFile = MyNew PrefabFile( pFile );
@@ -756,7 +758,8 @@ void PrefabManager::UnloadAllPrefabFiles()
 #if MYFW_EDITOR
 void PrefabManager::LoadFileNow(const char* prefabfilename)
 {
-    MyFileObject* pFile = g_pFileManager->LoadFileNow( prefabfilename );
+    FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
+    MyFileObject* pFile = pFileManager->LoadFileNow( prefabfilename );
     MyAssert( pFile );
 
     PrefabFile* pPrefabFile = MyNew PrefabFile( pFile );
@@ -812,7 +815,8 @@ void PrefabManager::CreateFile(const char* relativepath)
     // if the file managed to save, request it.
     if( pFile != 0 )
     {
-        RequestFile( relativepath );
+        FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
+        pFileManager->RequestFile( relativepath );
     }
 }
 
@@ -831,7 +835,7 @@ bool PrefabManager::CreateOrLoadFile()
 
         if( relativepath != 0 )
         {
-            if( g_pFileManager->DoesFileExist( relativepath ) )
+            if( FileManager::DoesFileExist( relativepath ) )
             {
                 LoadFileNow( relativepath );
                 return true;

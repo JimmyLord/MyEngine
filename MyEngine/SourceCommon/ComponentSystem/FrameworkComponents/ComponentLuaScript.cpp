@@ -1395,7 +1395,8 @@ void ComponentLuaScript::LoadScript()
         return;
 
     // Unregister all event callbacks, they will be Registered again based on what the script needs.
-    g_pEventManager->UnregisterForEvents( "Keyboard", this, &ComponentLuaScript::StaticOnEvent );
+    EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+    pEventManager->UnregisterForEvents( "Keyboard", this, &ComponentLuaScript::StaticOnEvent );
 
     // Script is ready, so run it.
     if( m_pScriptFile != 0 )
@@ -1450,7 +1451,8 @@ void ComponentLuaScript::LoadScript()
                         // If OnKeys() exists as a lua function, then register for keyboard events.
                         if( DoesFunctionExist( "OnKeys" ) )
                         {
-                            g_pEventManager->RegisterForEvents( "Keyboard", this, &ComponentLuaScript::StaticOnEvent );
+                            EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+                            pEventManager->RegisterForEvents( "Keyboard", this, &ComponentLuaScript::StaticOnEvent );
                         }
                     }
                     else

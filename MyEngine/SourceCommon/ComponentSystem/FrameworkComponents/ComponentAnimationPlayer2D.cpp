@@ -11,8 +11,10 @@
 
 #include "ComponentAnimationPlayer2D.h"
 #include "ComponentSprite.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
 
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentAnimationPlayer2D ); //_VARIABLE_LIST
@@ -349,7 +351,7 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
 
     if( m_AnimationFileLoaded == false )
     {
-        if( m_pAnimInfo->LoadAnimationControlFile( m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager() ) )
+        if( m_pAnimInfo->LoadAnimationControlFile( m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager() ) )
         {
             m_AnimationFileLoaded = true;
         }

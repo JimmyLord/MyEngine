@@ -88,10 +88,12 @@ ComponentCamera::~ComponentCamera()
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
+    FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+
     if( m_pDeferredShaderFile_AmbientDirectional )
-        g_pFileManager->FreeFile( m_pDeferredShaderFile_AmbientDirectional );
+        pFileManager->FreeFile( m_pDeferredShaderFile_AmbientDirectional );
     if( m_pDeferredShaderFile_PointLight )
-        g_pFileManager->FreeFile( m_pDeferredShaderFile_PointLight );
+        pFileManager->FreeFile( m_pDeferredShaderFile_PointLight );
     SAFE_RELEASE( m_pDeferredShader_AmbientDirectional );
     SAFE_RELEASE( m_pDeferredShader_PointLight );
     SAFE_RELEASE( m_pDeferredMaterial_AmbientDirectional );
@@ -427,7 +429,7 @@ void ComponentCamera::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 
         colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
         colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
-        TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+        TextureManager* pTextureManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
         pTextureManager->ReSetupFBO( m_pGBuffer, m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, colorformats, numcolorformats, 32, true );
     }
 
@@ -498,7 +500,7 @@ void ComponentCamera::OnDrawFrame()
     {
         if( pPostEffect )
         {
-            TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+            TextureManager* pTextureManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
 
             // If a post effect was found, render to an FBO.
             if( m_pPostEffectFBOs[0] == 0 )
@@ -532,7 +534,7 @@ void ComponentCamera::OnDrawFrame()
 
         if( pNextPostEffect )
         {
-            TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+            TextureManager* pTextureManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
 
             // If there is a next effect, render into the next unused FBO.
             if( m_pPostEffectFBOs[!fboindex] == 0 )
@@ -605,11 +607,12 @@ void ComponentCamera::DrawScene()
         // Create gbuffer and deferred shader if they don't exist.
         if( m_pGBuffer == 0 )
         {
-            TextureManager* pTextureManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetTextureManager();
+            TextureManager* pTextureManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
             TextureDefinition* pErrorTexture = pTextureManager->GetErrorTexture();
-            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
-            MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
-            ShaderGroupManager* pShaderGroupManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetShaderGroupManager();
+            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
+            MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
+            ShaderGroupManager* pShaderGroupManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetShaderGroupManager();
+            FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
 
             const int numcolorformats = 3;
             FBODefinition::FBOColorFormat colorformats[numcolorformats];
@@ -632,23 +635,21 @@ void ComponentCamera::DrawScene()
             m_pDeferredShaderFile_AmbientDirectional->MemoryPanel_Hide();
             m_pDeferredShaderFile_PointLight->MemoryPanel_Hide();
 #endif
-            m_pDeferredShader_AmbientDirectional = MyNew ShaderGroup( pShaderGroupManager, m_pDeferredShaderFile_AmbientDirectional, pErrorTexture );
-            m_pDeferredShader_PointLight = MyNew ShaderGroup( pShaderGroupManager, m_pDeferredShaderFile_PointLight, pErrorTexture );
+            m_pDeferredShader_AmbientDirectional = MyNew ShaderGroup( m_pComponentSystemManager->GetEngineCore(), m_pDeferredShaderFile_AmbientDirectional, pErrorTexture );
+            m_pDeferredShader_PointLight = MyNew ShaderGroup( m_pComponentSystemManager->GetEngineCore(), m_pDeferredShaderFile_PointLight, pErrorTexture );
 
             m_pDeferredMaterial_AmbientDirectional = new MaterialDefinition( pMaterialManager, m_pDeferredShader_AmbientDirectional );
             m_pDeferredMaterial_PointLight = new MaterialDefinition( pMaterialManager, m_pDeferredShader_PointLight );
 
-            m_pDeferredQuadMesh = new MyMesh();
-            m_pDeferredQuadMesh->SetMeshManagerAndAddToMeshList( pMeshManager );
+            m_pDeferredQuadMesh = new MyMesh( m_pComponentSystemManager->GetEngineCore() );
             m_pDeferredQuadMesh->CreateClipSpaceQuad( Vector2( m_pGBuffer->GetWidth()/(float)m_pGBuffer->GetTextureWidth(), m_pGBuffer->GetHeight()/(float)m_pGBuffer->GetTextureHeight() ) );
             m_pDeferredQuadMesh->SetMaterial( m_pDeferredMaterial_AmbientDirectional, 0 );
             m_pDeferredQuadMesh->RegisterSetupCustomUniformsCallback( this, StaticSetupCustomUniformsCallback );
 
             MyAssert( m_pDeferredSphereMesh == 0 );
             MyAssert( m_pDeferredSphereMeshFile == 0 );
-            m_pDeferredSphereMesh = MyNew MyMesh();
-            m_pDeferredSphereMesh->SetMeshManagerAndAddToMeshList( m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
-            m_pDeferredSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
+            m_pDeferredSphereMesh = MyNew MyMesh( m_pComponentSystemManager->GetEngineCore() );
+            m_pDeferredSphereMeshFile = pFileManager->RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
 #if MYFW_EDITOR
             m_pDeferredSphereMeshFile->MemoryPanel_Hide();
 #endif
@@ -768,6 +769,8 @@ void ComponentCamera::DrawScene()
         // Render one dir light and loop through all point lights.
         if( m_pDeferredSphereMesh->IsReady() )
         {
+            LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+
             // TODO: This only needs to be done once, but since the mesh file isn't loaded above,
             //       the submesh isn't created and material can't be set.
             m_pDeferredSphereMesh->SetMaterial( m_pDeferredMaterial_PointLight, 0 );
@@ -779,7 +782,7 @@ void ComponentCamera::DrawScene()
                 // Blending should be disabled, which it is by default.
                 // Textures are set below in SetupCustomUniformsCallback().
                 MyLight* pLight;
-                g_pLightManager->FindNearestLights( LightType_Directional, 1, Vector3(0,0,0), &pLight );
+                pLightManager->FindNearestLights( LightType_Directional, 1, Vector3(0,0,0), &pLight );
 
                 Vector3 worldPosition = m_pComponentTransform->GetWorldPosition();
 
@@ -798,7 +801,7 @@ void ComponentCamera::DrawScene()
                 // Swap culling to draw backs of spheres for the rest of the lights.
                 g_pRenderer->SetCullMode( MyRE::CullMode_Front );
 
-                for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
+                for( CPPListNode* pNode = pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
                 {
                     MyLight* pLight = static_cast<MyLight*>( pNode );
 
@@ -838,7 +841,7 @@ void ComponentCamera::DrawScene()
             EmissiveDrawOptions emissiveDrawOption = EmissiveDrawOption_OnlyEmissives;
             bool drawOverlays = false;
 
-            g_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
+            m_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
         }
 
         // Render transparent objects with normal forward render pass.
@@ -848,7 +851,7 @@ void ComponentCamera::DrawScene()
             EmissiveDrawOptions emissiveDrawOption = EmissiveDrawOption_EitherEmissiveOrNot;
             bool drawOverlays = true;
 
-            g_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
+            m_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
         }
     }
 }
@@ -875,7 +878,7 @@ bool ComponentCamera::ExistsOnLayer(unsigned int layerflags)
 #if MYFW_EDITOR
 void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
-    if( g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() == false )
+    if( m_pComponentSystemManager->GetEngineCore()->GetEditorPrefs()->Get_View_ShowEditorIcons() == false )
         return;
 
     MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[EditorIcon_Camera];

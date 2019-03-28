@@ -80,8 +80,7 @@ void EditorInterface_2DPointEditor::OnActivated()
             pComponentMesh->SetVisible( true );
             pComponentMesh->SetMaterial( m_pMaterials[Mat_Points], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
-            pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
+            pComponentMesh->m_pMesh = MyNew MyMesh( g_pComponentSystemManager->GetEngineCore() );
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 

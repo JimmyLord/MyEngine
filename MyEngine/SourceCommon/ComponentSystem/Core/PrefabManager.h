@@ -195,6 +195,7 @@ public:
 class PrefabManager
 {
 protected:
+    EngineCore* m_pEngineCore;
 #if MYFW_EDITOR
     std::vector<PrefabFile*> m_pPrefabFiles;
 #else
@@ -207,7 +208,7 @@ protected:
 #endif
 
 public:
-    PrefabManager();
+    PrefabManager(EngineCore* pEngineCore);
     virtual ~PrefabManager();
 
     unsigned int GetNumberOfFiles();

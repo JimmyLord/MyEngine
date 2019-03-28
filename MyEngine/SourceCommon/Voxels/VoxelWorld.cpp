@@ -17,8 +17,10 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "Core/EngineCore.h"
 
-VoxelWorld::VoxelWorld(VertexFormatManager* pVertexFormatManager)
+VoxelWorld::VoxelWorld(GameCore* pGameCore)
 {
+    m_pGameCore = pGameCore;
+
     m_NumChunkPointersAllocated = 0;
     m_VoxelBlockEnabledBitsSingleAllocation = 0;
     m_VoxelBlockSingleAllocation = 0;
@@ -33,7 +35,6 @@ VoxelWorld::VoxelWorld(VertexFormatManager* pVertexFormatManager)
     m_WorldOffset.Set( 0, 0, 0 );
     m_DesiredOffset.Set( 0, 0, 0 );
 
-    m_pVertexFormatManager = pVertexFormatManager;
     m_pMaterial = nullptr;
     m_pSharedIndexBuffer = nullptr;
 
@@ -159,7 +160,9 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
     // Make sure init is only called once.
     MyAssert( m_NumChunkPointersAllocated == 0 );
 
-    m_pSharedIndexBuffer = g_pBufferManager->CreateBuffer();
+    BufferManager* pBufferManager = m_pGameCore->GetManagers()->GetBufferManager();
+
+    m_pSharedIndexBuffer = pBufferManager->CreateBuffer();
     m_pSharedIndexBuffer->InitializeBuffer( 0, 0, MyRE::BufferType_Index, MyRE::BufferUsage_StaticDraw, false, 1, (VertexFormats)2, 0, "IBO", "VoxelWorld" );
     BuildSharedIndexBuffer();
     
@@ -489,9 +492,11 @@ void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
             pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z * sizeof( VoxelBlock ),
             num4bytecontainersneeded * sizeof(uint32) );
 
-        // give each chunk/mesh a single ref, removed manually before deleting the array.
+        // Give each chunk/mesh a single ref, removed manually before deleting the array.
+        // Add each chunk to the mesh manager.
         for( unsigned int i=0; i<pointersneeded; i++ )
         {
+            m_VoxelChunkSingleAllocation[i].SetGameCoreAndAddToMeshManager( g_pEngineCore );
             m_VoxelChunkSingleAllocation[i].AddRef();
         }
     }

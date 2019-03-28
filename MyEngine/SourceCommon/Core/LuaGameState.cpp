@@ -331,7 +331,7 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
 {
     // On any debug message, check for updated scripts.
     // Scripts changes will be applied on next tick (on reentry to the function changed).
-    g_pFileManager->ReloadAnyUpdatedFiles( m_pEngineCore, OnFileUpdated_CallbackFunction );
+    m_pEngineCore->GetManagers()->GetFileManager()->ReloadAnyUpdatedFiles( m_pEngineCore, OnFileUpdated_CallbackFunction );
 
     if( strcmp( message, "continue" ) == 0 )
     {

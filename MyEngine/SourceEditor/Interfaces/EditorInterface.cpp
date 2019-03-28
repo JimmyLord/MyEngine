@@ -153,7 +153,8 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
 
         if( pDebugQuad )
         {
-            pDebugQuad->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
+            BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
+            pDebugQuad->CreateInPlace( pBufferManager, "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
             g_pEngineCore->GetMaterial_MousePicker()->SetTextureColor( pEditorState->m_pMousePickerFBO->GetColorTexture( 0 ) );
             pDebugQuad->SetMaterial( g_pEngineCore->GetMaterial_MousePicker() );
             pDebugQuad->Draw( nullptr, nullptr, nullptr );

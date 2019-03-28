@@ -24,6 +24,8 @@ protected:
     };
 
 protected:
+    EngineCore* m_pEngineCore;
+
     CommandStack* m_pCommandStack;
     uint32 m_UndoStackDepthAtLastSave;
     bool m_SaveRequested;
@@ -36,13 +38,15 @@ protected:
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value);
 
 public:
-    EditorDocument();
+    EditorDocument(EngineCore* pEngineCore);
     virtual ~EditorDocument();
 
-    static EditorDocument* AddDocumentMenu(EditorDocument* pDocument);
+    static EditorDocument* AddDocumentMenu(EngineCore* pEngineCore, EditorDocument* pDocument);
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
     virtual void Save();
     virtual void Load();
+
+    EngineCore* GetEngineCore() { return m_pEngineCore; }
 
     void SetRelativePath(const char* relativePath);
     const char* GetRelativePath();

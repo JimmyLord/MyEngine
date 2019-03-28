@@ -79,7 +79,7 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::CreateNode(const char* typeNam
     if( TypeIs( "MathOp_Add" )              return MyNew VisualScriptNode_MathOp_Add(               pNodeGraph, newNodeID, "Add",               pos );
     if( TypeIs( "Condition_GreaterEqual" )  return MyNew VisualScriptNode_Condition_GreaterEqual(   pNodeGraph, newNodeID, "GreaterEqual",      pos );
     if( TypeIs( "Condition_Keyboard" )      return MyNew VisualScriptNode_Condition_Keyboard(       pNodeGraph, newNodeID, "If Key",            pos, GCBA_Down, 'Z' );
-    if( TypeIs( "Event_Keyboard" )          return MyNew VisualScriptNode_Event_Keyboard(           pNodeGraph, newNodeID, "Event Keys",        pos );
+    if( TypeIs( "Event_Keyboard" )          return MyNew VisualScriptNode_Event_Keyboard(           pNodeGraph, newNodeID, "Event Keys",        pos, pNodeGraph->GetEngineCore()->GetManagers()->GetEventManager() );
     if( TypeIs( "Disable_GameObject" )      return MyNew VisualScriptNode_Disable_GameObject(       pNodeGraph, newNodeID, "DisableGameObject", pos, nullptr );
 
 #undef TypeIs

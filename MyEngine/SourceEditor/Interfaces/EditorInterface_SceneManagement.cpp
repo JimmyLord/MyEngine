@@ -85,7 +85,8 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 float maxu = (float)pEditorState->m_pDebugViewFBO->GetWidth() / pEditorState->m_pDebugViewFBO->GetTextureWidth();
                 float maxv = (float)pEditorState->m_pDebugViewFBO->GetHeight() / pEditorState->m_pDebugViewFBO->GetTextureHeight();
 
-                debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
+                BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
+                debugQuad->CreateInPlace( pBufferManager, "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
                 g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->GetColorTexture( 0 ) );
                 debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
                 debugQuad->Draw( 0, 0, 0 );
@@ -95,7 +96,8 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             ComponentCameraShadow* pCamera = dynamic_cast<ComponentCameraShadow*>( pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera ) );
             if( pCamera )
             {
-                debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
+                BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
+                debugQuad->CreateInPlace( pBufferManager, "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
                 g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pCamera->GetFBO()->GetDepthTexture() );
                 debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
                 debugQuad->Draw( 0, 0, 0 );
@@ -120,7 +122,8 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 
         if( clipSize.x > 0 || clipSize.y > 0 )
         {
-            debugQuad->CreateInPlace( "debug", clipTopLeft.x, clipTopLeft.y, clipSize.x, clipSize.y, 0, 1, 0, 1, Justify_TopLeft, false );
+            BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
+            debugQuad->CreateInPlace( pBufferManager, "debug", clipTopLeft.x, clipTopLeft.y, clipSize.x, clipSize.y, 0, 1, 0, 1, Justify_TopLeft, false );
             MaterialDefinition* pMaterial = g_pEngineCore->GetMaterial_ClipSpaceColor();
             pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 64 ) );
             debugQuad->SetMaterial( pMaterial );

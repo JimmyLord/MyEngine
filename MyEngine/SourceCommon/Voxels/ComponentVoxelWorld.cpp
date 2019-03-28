@@ -40,7 +40,7 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_MaxWorldSize.Set( 0, 0, 0 );
     m_pSaveFile = 0;
 
-    m_pVoxelWorld = MyNew VoxelWorld( m_pComponentSystemManager->GetGameCore()->GetManagers()->GetVertexFormatManager() );
+    m_pVoxelWorld = MyNew VoxelWorld( g_pComponentSystemManager->GetEngineCore() );
     m_pVoxelWorld->Initialize( Vector3Int( 7, 5, 7 ) );
 
     //m_pVoxelWorld->UpdateVisibility( this );
@@ -182,7 +182,7 @@ void ComponentVoxelWorld::SetPointerDesc(ComponentVariable* pVar, const char* ne
         MyAssert( newdesc );
         if( newdesc )
         {
-            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
             MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( newdesc );
             SetVoxelMeshMaterial( pMaterial );
             pMaterial->Release();
@@ -340,7 +340,7 @@ void ComponentVoxelWorld::OnButtonCreateSaveFile(int buttonid)
             sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
             const char* relativepath = GetRelativePath( fullpath );
 
-            if( g_pFileManager->DoesFileExist( relativepath ) == false )
+            if( FileManager::DoesFileExist( relativepath ) == false )
             {
                 // create the file
                 // TODO: make the file not garbage.

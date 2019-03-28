@@ -135,7 +135,7 @@ MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnFileRenamed );
 class ComponentSystemManager
 {
 protected:
-    GameCore* m_pGameCore;
+    EngineCore* m_pEngineCore;
 
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
 
@@ -158,7 +158,7 @@ protected:
 #endif //MYFW_EDITOR
 
 public:
-    ComponentSystemManager(ComponentTypeManager* typemanager, GameCore* pGameCore);
+    ComponentSystemManager(ComponentTypeManager* typemanager, EngineCore* pEngineCore);
     virtual ~ComponentSystemManager();
 
 #if MYFW_USING_LUA
@@ -166,7 +166,7 @@ public:
 #endif //MYFW_USING_LUA
 
     // Getters
-    GameCore* GetGameCore() { return m_pGameCore; }
+    EngineCore* GetEngineCore() { return m_pEngineCore; }
     float GetTimeScale() { return m_TimeScale; }
     SceneGraph_Base* GetSceneGraph() { return m_pSceneGraph; }
 

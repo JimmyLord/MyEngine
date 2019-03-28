@@ -62,12 +62,14 @@ ComponentMesh::ComponentMesh()
 
     m_pComponentLuaScript = nullptr;
 
-    g_pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
+    EventManager* pEventManager = g_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+    pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
 }
 
 ComponentMesh::~ComponentMesh()
 {
-    g_pEventManager->UnregisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
+    EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+    pEventManager->UnregisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
@@ -310,7 +312,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
     cJSON* jMaterial = cJSON_GetObjectItem( jComponent, "Material" );
     if( jMaterial )
     {
-        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
         MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( jMaterial->valuestring );
         if( pMaterial )
         {
@@ -329,7 +331,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
         for( int i=0; i<numMaterials; i++ )
         {
             cJSON* jMaterial = cJSON_GetArrayItem( jMaterialArray, i );
-            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
             MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( jMaterial->valuestring );
             if( pMaterial )
             {
@@ -740,8 +742,9 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
         //m_pMesh->SetTransform( worldtransform );
 
         // Find nearest lights.
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
         MyLight* lights[4];
-        int numlights = g_pLightManager->FindNearestLights( LightType_Point, 4, m_pComponentTransform->GetWorldTransform()->GetTranslation(), lights );
+        int numlights = pLightManager->FindNearestLights( LightType_Point, 4, m_pComponentTransform->GetWorldTransform()->GetTranslation(), lights );
 
         // Find nearest shadow casting light.
         MyMatrix* pShadowVP = nullptr;

@@ -11,6 +11,7 @@
 
 #include "ComponentMeshOBJ.h"
 #include "ComponentSystem/Core/GameObject.h"
+#include "Core/EngineCore.h"
 
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshOBJ ); //_VARIABLE_LIST
@@ -63,7 +64,7 @@ void ComponentMeshOBJ::SetPointerValue(ComponentVariable* pVar, const void* newv
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
-        MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+        MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
         MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
         SetMesh( pMesh );
     }
@@ -94,15 +95,15 @@ void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newde
         MyAssert( newdesc );
         if( newdesc )
         {
-            MyFileObject* pFile = g_pFileManager->RequestFile( newdesc ); // adds a ref
+            FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+            MyFileObject* pFile = pFileManager->RequestFile( newdesc ); // adds a ref
             if( pFile )
             {
-                MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+                MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
                 MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
                 if( pMesh == 0 )
                 {
-                    pMesh = MyNew MyMesh();
-                    pMesh->SetMeshManagerAndAddToMeshList( pMeshManager );
+                    pMesh = MyNew MyMesh( m_pComponentSystemManager->GetEngineCore() );
                     pMesh->SetSourceFile( pFile );
                     SetMesh( pMesh );
                     pMesh->Release();
@@ -224,7 +225,7 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyin
                 oldpointer = m_pMesh ? m_pMesh->GetFile() : 0;
 
                 MyFileObject* pFile = pNewValue ? (MyFileObject*)pNewValue->GetPointerIndirect() : 0;
-                MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+                MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
 
                 MyMesh* pNewMesh = pFile ? pMeshManager->FindMeshBySourceFile( pFile ) : 0;
                 SetMesh( pNewMesh );
@@ -253,10 +254,11 @@ void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
     //cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
     //if( objstringobj )
     //{
-    //    MyFileObject* pFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
+    //    FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+    //    MyFileObject* pFile = pFileManager->FindFileByName( objstringobj->valuestring );
     //    if( pFile )
     //    {
-    //        MeshManager* pMeshManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager();
+    //        MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
     //        MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile );
     //        SetMesh( pMesh );
     //    }

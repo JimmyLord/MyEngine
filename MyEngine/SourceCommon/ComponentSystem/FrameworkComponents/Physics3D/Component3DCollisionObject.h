@@ -75,6 +75,7 @@ protected:
 public:
     btRigidBody* GetBody() { return m_pBody; }
 
+    MyMesh* GetMesh() { return m_pMesh; }
     void SetMesh(MyMesh* pMesh);
 
     virtual void OnPlay();

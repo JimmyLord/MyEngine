@@ -24,6 +24,8 @@ class VoxelWorld
     static const int MAX_BUILDERS = 100;
 
 protected:
+    GameCore* m_pGameCore;
+
     CPPListHead m_pChunksFree;
     CPPListHead m_pChunksNotVisible; // active(around player) but not being looked at
     CPPListHead m_pChunksLoading;
@@ -46,7 +48,6 @@ protected:
     VoxelChunk** m_pActiveWorldChunkPtrs;
     unsigned int m_NumChunkPointersAllocated;
 
-    VertexFormatManager* m_pVertexFormatManager;
     MaterialDefinition* m_pMaterial;
     BufferDefinition* m_pSharedIndexBuffer;
 
@@ -85,8 +86,10 @@ protected:
 
     void SortChunkList(CPPListHead* pChunkList);
 
+    VertexFormatManager* GetVertexFormatManager() { return m_pGameCore->GetManagers()->GetVertexFormatManager(); }
+
 public:
-    VoxelWorld(VertexFormatManager* pVertexFormatManager);
+    VoxelWorld(GameCore* pGameCore);
     virtual ~VoxelWorld();
 
     void Tick(float deltaTime, void* pUserData);

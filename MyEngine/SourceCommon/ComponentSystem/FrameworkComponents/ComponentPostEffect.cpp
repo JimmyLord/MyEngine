@@ -10,7 +10,8 @@
 #include "MyEnginePCH.h"
 
 #include "ComponentPostEffect.h"
-#include "../Core/ComponentSystemManager.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "Core/EngineCore.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 // Component Variable List.
@@ -64,7 +65,7 @@ void ComponentPostEffect::ImportFromJSONObject(cJSON* jObject, SceneID sceneID)
     cJSON* materialstringobj = cJSON_GetObjectItem( jObject, "Material" );
     if( materialstringobj )
     {
-        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
         MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
         {
@@ -78,12 +79,14 @@ void ComponentPostEffect::Reset()
 {
     ComponentData::Reset();
 
+    BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+
     // Free old quad and material if needed.
     SAFE_RELEASE( m_pFullScreenQuad );
     SAFE_RELEASE( m_pMaterial );
 
     m_pFullScreenQuad = MyNew MySprite();
-    m_pFullScreenQuad->Create( 2, 2, 0, 1, 1, 0, Justify_Center, false );
+    m_pFullScreenQuad->Create( pBufferManager, 2, 2, 0, 1, 1, 0, Justify_Center, false );
     m_pMaterial = nullptr;
 
 #if MYFW_USING_WX
@@ -120,13 +123,15 @@ void ComponentPostEffect::Render(FBODefinition* pFBO)
     MyAssert( m_pFullScreenQuad );
     MyAssert( m_pMaterial );
 
+    BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+
     if( m_pFullScreenQuad == nullptr || m_pMaterial == nullptr )
         return;
 
     m_pMaterial->SetTextureColor( pFBO->GetColorTexture( 0 ) );
 
     m_pFullScreenQuad->SetMaterial( m_pMaterial );
-    m_pFullScreenQuad->Create( 2, 2, 0, (float)pFBO->GetWidth()/pFBO->GetTextureWidth(), (float)pFBO->GetHeight()/pFBO->GetTextureHeight(), 0, Justify_Center, false );
+    m_pFullScreenQuad->Create( pBufferManager, 2, 2, 0, (float)pFBO->GetWidth()/pFBO->GetTextureWidth(), (float)pFBO->GetHeight()/pFBO->GetTextureHeight(), 0, Justify_Center, false );
 
     if( m_pFullScreenQuad->Setup( nullptr, nullptr, nullptr ) )
     {

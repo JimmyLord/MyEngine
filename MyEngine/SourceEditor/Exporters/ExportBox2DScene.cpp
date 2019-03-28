@@ -18,6 +18,7 @@
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointRevolute.h"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointPrismatic.h"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
+#include "ComponentSystem/FrameworkComponents/Physics3D/Component3DCollisionObject.h"
 #include "Core/EngineCore.h"
 
 cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
@@ -58,12 +59,14 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                 ComponentBase* pComponent = pGameObject->GetComponentByIndex( i );
 
                 if( pComponent->IsA( "2DCollisionObjectComponent" ) ||
-                    pComponent->IsA( "2DJoint-Revolute" ) ||
-                    pComponent->IsA( "2DJoint-Weld" ) ||
-                    pComponent->IsA( "2DJoint-Prismatic" ) ||
+                    pComponent->IsA( "2DJoint-RevoluteComponent" ) ||
+                    pComponent->IsA( "2DJoint-WeldComponent" ) ||
+                    pComponent->IsA( "2DJoint-PrismaticComponent" ) ||
                     pComponent->IsA( "MeshPrimitiveComponent" ) ||
                     pComponent->IsA( "MeshOBJComponent" ) ||
-                    pComponent->IsA( "SpriteComponent" ) )
+                    pComponent->IsA( "SpriteComponent" ) ||
+                    pComponent->IsA( "3DCollisionObjectComponent" ) ||
+                    pComponent->IsA( "LightComponent" ) )
                 {
                     if( jComponentArray == 0 )
                     {
@@ -84,17 +87,17 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                     cJSON_DeleteItemFromObject( jComponent, "Tint" );
                     cJSON_DeleteItemFromObject( jComponent, "Size" );
 
-                    if( Component2DJointRevolute* pJoint = dynamic_cast<Component2DJointRevolute*>(pComponent) )
+                    if( Component2DJointRevolute* pJoint = dynamic_cast<Component2DJointRevolute*>( pComponent ) )
                     {
                         if( pJoint->m_pSecondCollisionObject )
                             cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->GetGameObject()->GetName() );
                     }
-                    if( Component2DJointPrismatic* pJoint = dynamic_cast<Component2DJointPrismatic*>(pComponent) )
+                    if( Component2DJointPrismatic* pJoint = dynamic_cast<Component2DJointPrismatic*>( pComponent ) )
                     {
                         if( pJoint->m_pSecondCollisionObject )
                             cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->GetGameObject()->GetName() );
                     }
-                    if( Component2DJointWeld* pJoint = dynamic_cast<Component2DJointWeld*>(pComponent) )
+                    if( Component2DJointWeld* pJoint = dynamic_cast<Component2DJointWeld*>( pComponent ) )
                     {
                         if( pJoint->m_pSecondCollisionObject )
                             cJSON_AddStringToObject( jComponent, "OtherGameObject", pJoint->m_pSecondCollisionObject->GetGameObject()->GetName() );
@@ -121,6 +124,17 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
 
                         if( pMesh->m_pMesh && pMesh->m_pMesh->GetFile() )
                             cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->m_pMesh->GetFile()->GetFilenameWithoutExtension() );
+                    }
+
+                    if( pComponent->IsA( "3DCollisionObjectComponent" ) )
+                    {
+                        Component3DCollisionObject* p3DComponent = (Component3DCollisionObject*)pComponent;
+                        MyMesh* pMesh = p3DComponent->GetMesh();
+
+                        if( pMesh )
+                        {
+                            cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->GetFile()->GetFilenameWithoutExtension() );
+                        }
                     }
 
                     if( pMaterial )

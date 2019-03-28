@@ -354,19 +354,22 @@ public:
 class VisualScriptNode_Event_Keyboard : public VisualScriptNode
 {
 protected:
+    EventManager* m_pEventManager;
 
 public:
-    VisualScriptNode_Event_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
+    VisualScriptNode_Event_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, EventManager* pEventManager)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
+        m_pEventManager = pEventManager;
+
         // Don't allow node graph to be triggered directly.
         // This will now get triggered through lua script when attached to an object.
-        g_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
+        m_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
     }
 
     ~VisualScriptNode_Event_Keyboard()
     {
-        g_pEventManager->UnregisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
+        m_pEventManager->UnregisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
     }
 
     const char* GetType() { return "Event_Keyboard"; }

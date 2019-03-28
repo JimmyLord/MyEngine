@@ -12,6 +12,7 @@
 #include "ComponentParticleEmitter.h"
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "Core/EngineCore.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 
 #if MYFW_USING_WX
@@ -32,15 +33,17 @@ ComponentParticleEmitter::ComponentParticleEmitter()
         m_Particles.AddInactiveObject( pObj );
     }
 
+    BufferManager* pBufferManager = g_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+
 #if MYFW_USEINSTANCEDPARTICLES
     {
         m_pParticleRenderer = MyNew ParticleRendererInstanced( false );
-        m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer Instanced" );
+        m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer Instanced", pBufferManager );
     }
 #else
     {
         m_pParticleRenderer = MyNew ParticleRenderer( false );
-        m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer" );
+        m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer", pBufferManager );
     }
 #endif
 
@@ -164,7 +167,7 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, SceneID scen
     cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
     if( materialstringobj )
     {
-        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetGameCore()->GetManagers()->GetMaterialManager();
+        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
         MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
             SetMaterial( pMaterial, 0 );
@@ -239,6 +242,8 @@ void ComponentParticleEmitter::UnregisterCallbacks()
 
 void ComponentParticleEmitter::OnLoad()
 {
+    ComponentBase::OnLoad();
+
     if( m_pSceneGraphObject == 0 )
         AddToSceneGraph();
 }

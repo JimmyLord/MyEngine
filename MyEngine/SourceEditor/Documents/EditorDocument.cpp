@@ -19,8 +19,10 @@
 
 static VisualScriptNodeTypeManager g_VisualScriptNodeTypeManager;
 
-EditorDocument::EditorDocument()
+EditorDocument::EditorDocument(EngineCore* pEngineCore)
 {
+    m_pEngineCore = pEngineCore;
+
     m_pCommandStack = nullptr;
     m_UndoStackDepthAtLastSave = 0;
     m_SaveRequested = false;
@@ -60,7 +62,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
                 strcpy_s( path, MAX_PATH, filename );
                 const char* relativePath = ::GetRelativePath( path );
 
-                EditorDocument* pNewDocument = MyNew MyNodeGraph( &g_VisualScriptNodeTypeManager );
+                EditorDocument* pNewDocument = MyNew MyNodeGraph( m_pEngineCore, &g_VisualScriptNodeTypeManager );
                 pNewDocument->SetRelativePath( relativePath );
                 pNewDocument->Load();
 
@@ -136,7 +138,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
 }
 
 // Static
-EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
+EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorDocument* pDocument)
 {
     EditorDocument* pNewDocument = nullptr;
 
@@ -146,7 +148,7 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
         {
             if( ImGui::MenuItem( "Visual Script" ) )
             {
-                pNewDocument = MyNew MyNodeGraph( &g_VisualScriptNodeTypeManager );
+                pNewDocument = MyNew MyNodeGraph( pEngineCore, &g_VisualScriptNodeTypeManager );
             }
             ImGui::EndMenu(); // "New Document..."
         }
@@ -158,7 +160,7 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
 
         if( ImGui::BeginMenu( "Load Recent Document..." ) )
         {
-            uint32 numRecentDocuments = g_pEngineCore->GetEditorPrefs()->Get_Document_NumRecentDocuments();
+            uint32 numRecentDocuments = pEngineCore->GetEditorPrefs()->Get_Document_NumRecentDocuments();
             if( numRecentDocuments == 0 )
             {
                 ImGui::Text( "no recent documents..." );
@@ -166,11 +168,11 @@ EditorDocument* EditorDocument::AddDocumentMenu(EditorDocument* pDocument)
 
             for( uint32 i=0; i<numRecentDocuments; i++ )
             {
-                std::string relativePath = g_pEngineCore->GetEditorPrefs()->Get_Document_RecentDocument( i );
+                std::string relativePath = pEngineCore->GetEditorPrefs()->Get_Document_RecentDocument( i );
 
                 if( ImGui::MenuItem( relativePath.c_str() ) )
                 {
-                    pNewDocument = MyNew MyNodeGraph( &g_VisualScriptNodeTypeManager );
+                    pNewDocument = MyNew MyNodeGraph( pEngineCore, &g_VisualScriptNodeTypeManager );
                     pNewDocument->SetRelativePath( relativePath.c_str() );
                     pNewDocument->Load();
 

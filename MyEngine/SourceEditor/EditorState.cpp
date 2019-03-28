@@ -67,6 +67,7 @@ EditorState::EditorState(EngineCore* pEngineCore)
     for( int i=0; i<EditorIcon_NumIcons; i++ )
     {
         MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
+        BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
 
         MaterialDefinition* pMaterial = pMaterialManager->CreateMaterial();
         pMaterial->SetShader( pShader );
@@ -74,7 +75,7 @@ EditorState::EditorState(EngineCore* pEngineCore)
         // Create all icons as 1x1 sprites, with center pivots. Sprites are facing positive z-axis.
         m_pEditorIcons[i] = MyNew MySprite();
         m_pEditorIcons[i]->SetMaterial( pMaterial );
-        m_pEditorIcons[i]->Create( "EditorIcon", 1, 1, 0, 1, 0, 1, Justify_Center, false, true );
+        m_pEditorIcons[i]->Create( pBufferManager, "EditorIcon", 1, 1, 0, 1, 0, 1, Justify_Center, false, true );
 
         // Now that it's on the sprite, release our reference to the material.
         pMaterial->Release();
@@ -107,7 +108,7 @@ EditorState::EditorState(EngineCore* pEngineCore)
             if( pFile->IsA( "MyFileShader" ) )
             {
                 MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
-                pShaderGroup = MyNew ShaderGroup( m_pEngineCore->GetManagers()->GetShaderGroupManager(), pShaderFile, m_pEngineCore->GetManagers()->GetTextureManager()->GetErrorTexture() );
+                pShaderGroup = MyNew ShaderGroup( m_pEngineCore, pShaderFile, m_pEngineCore->GetManagers()->GetTextureManager()->GetErrorTexture() );
                 pMaterial->SetShader( pShaderGroup );
                 pShaderGroup->Release();
             }

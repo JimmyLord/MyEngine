@@ -49,6 +49,8 @@ class GameObject : public TCPPListNode<GameObject*>
     static const int MAX_COMPONENTS = 64; // TODO: fix this hardcodedness
 
 protected:
+    EngineCore* m_pEngineCore;
+
     PrefabReference m_PrefabRef;
     GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
 
@@ -75,7 +77,7 @@ protected:
     void NotifyOthersThisWasDeleted();
 
 public:
-    GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef);
+    GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef);
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 

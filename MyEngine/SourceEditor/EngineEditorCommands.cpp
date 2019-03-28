@@ -2192,8 +2192,7 @@ EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh::EditorCommand_ReplaceMeshPrim
     
     m_pOldMesh = pOldMesh;
     m_pOldMesh->AddRef();
-    m_pNewMesh = MyNew MyMesh();
-    m_pNewMesh->SetMeshManagerAndAddToMeshList( g_pComponentSystemManager->GetGameCore()->GetManagers()->GetMeshManager() );
+    m_pNewMesh = MyNew MyMesh( g_pComponentSystemManager->GetEngineCore() );
 
     m_OldGLPrimitiveType = m_pComponent->m_GLPrimitiveType;
     m_NewGLPrimitiveType = m_pComponent->m_GLPrimitiveType;

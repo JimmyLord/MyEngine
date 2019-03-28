@@ -49,7 +49,8 @@ ComponentLight::~ComponentLight()
 
     if( m_pLight )
     {
-        g_pLightManager->DestroyLight( m_pLight );
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        pLightManager->DestroyLight( m_pLight );
     }
 }
 
@@ -75,7 +76,8 @@ void ComponentLight::Reset()
 
     if( m_pLight == nullptr )
     {
-        m_pLight = g_pLightManager->CreateLight();
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        m_pLight = pLightManager->CreateLight();
         m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
     }
 
@@ -233,7 +235,8 @@ void ComponentLight::OnGameObjectEnabled()
 
     //if( m_pLight && m_EnabledState == EnabledState_Enabled )
     //{
-    //    g_pLightManager->SetLightEnabled( m_pLight, true );
+    //    LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+    //    pLightManager->SetLightEnabled( m_pLight, true );
     //}
 }
 
@@ -243,7 +246,8 @@ void ComponentLight::OnGameObjectDisabled()
 
     //if( m_pLight && m_EnabledState != EnabledState_Enabled )
     //{
-    //    g_pLightManager->SetLightEnabled( m_pLight, false );
+    //    LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+    //    pLightManager->SetLightEnabled( m_pLight, false );
     //}
 }
 
@@ -254,11 +258,13 @@ bool ComponentLight::SetEnabled(bool enableComponent)
 
     if( m_EnabledState == EnabledState_Enabled )
     {
-        g_pLightManager->SetLightEnabled( m_pLight, true );
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        pLightManager->SetLightEnabled( m_pLight, true );
     }
     else
     {
-        g_pLightManager->SetLightEnabled( m_pLight, false );
+        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        pLightManager->SetLightEnabled( m_pLight, false );
     }
 
     return true;

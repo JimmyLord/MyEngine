@@ -140,7 +140,7 @@ protected:
     void RemoveExistingNode(MyNode* pNode);
 
 public:
-    MyNodeGraph(MyNodeTypeManager* pNodeTypeManager);
+    MyNodeGraph(EngineCore* pEngineCore, MyNodeTypeManager* pNodeTypeManager);
     virtual ~MyNodeGraph();
 
     // Returns true if in focus.
