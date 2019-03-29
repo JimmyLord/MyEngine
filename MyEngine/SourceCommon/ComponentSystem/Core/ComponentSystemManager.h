@@ -222,7 +222,8 @@ public:
     unsigned int GetNextGameObjectIDAndIncrement(SceneID sceneid);
     unsigned int GetNextComponentIDAndIncrement(SceneID sceneid);
 
-    GameObject* GetFirstGameObjectFromScene(SceneID sceneid);
+    GameObject* EditorLua_GetFirstGameObjectFromScene(uint32 sceneID);
+    GameObject* GetFirstGameObjectFromScene(SceneID sceneID);
     GameObject* FindGameObjectByID(SceneID sceneid, unsigned int goid);
     GameObject* FindGameObjectByIDFromList(GameObject* list, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);

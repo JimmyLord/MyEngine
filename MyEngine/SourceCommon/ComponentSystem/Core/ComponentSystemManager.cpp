@@ -190,6 +190,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
             .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
             .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
             .addFunction( "Editor_LoadDataFile", &ComponentSystemManager::EditorLua_LoadDataFile ) // MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
+            .addFunction( "Editor_GetFirstGameObjectFromScene", &ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene ) // GameObject* ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene(uint32 sceneID)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -1889,20 +1890,25 @@ unsigned int ComponentSystemManager::GetNextComponentIDAndIncrement(SceneID scen
     return pSceneInfo->m_NextComponentID-1;
 }
 
-GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(SceneID sceneid)
+GameObject* ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene(uint32 sceneID)
 {
-    SceneInfo* pSceneInfo = GetSceneInfo( sceneid );
+    return GetFirstGameObjectFromScene( (SceneID)sceneID );
+}
+
+GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(SceneID sceneID)
+{
+    SceneInfo* pSceneInfo = GetSceneInfo( sceneID );
     if( pSceneInfo == 0 )
-        return 0;
+        return nullptr;
 
     GameObject* pGameObject = pSceneInfo->m_GameObjects.GetHead();
     if( pGameObject )
     {
-        MyAssert( pGameObject->GetSceneID() == sceneid );
+        MyAssert( pGameObject->GetSceneID() == sceneID );
         return pGameObject;
     }
 
-    return 0;
+    return nullptr;
 }
 
 GameObject* ComponentSystemManager::FindGameObjectByID(SceneID sceneid, unsigned int goid)

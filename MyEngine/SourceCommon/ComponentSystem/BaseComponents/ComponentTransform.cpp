@@ -118,17 +118,25 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
 
             .addFunction( "GetWorldTransform", &ComponentTransform::GetWorldTransform ) // MyMatrix* ComponentTransform::GetWorldTransform(bool markdirty)
             .addFunction( "SetWorldTransform", &ComponentTransform::SetWorldTransform ) // void ComponentTransform::SetWorldTransform(MyMatrix* mat)
-            .addFunction( "UpdateWorldSRT", &ComponentTransform::UpdateWorldSRT ) // void ComponentTransform::UpdateWorldSRT()
+            .addFunction( "UpdateWorldSRT",    &ComponentTransform::UpdateWorldSRT )    // void ComponentTransform::UpdateWorldSRT()
 
             .addFunction( "GetLocalTransform", &ComponentTransform::GetLocalTransform ) // MyMatrix* ComponentTransform::GetLocalTransform(bool markdirty)
             .addFunction( "SetLocalTransform", &ComponentTransform::SetLocalTransform ) // void ComponentTransform::SetLocalTransform(MyMatrix* mat)
-            .addFunction( "UpdateLocalSRT", &ComponentTransform::UpdateLocalSRT ) // void ComponentTransform::UpdateLocalSRT()
+            .addFunction( "UpdateLocalSRT",    &ComponentTransform::UpdateLocalSRT )    // void ComponentTransform::UpdateLocalSRT()
 
             .addFunction( "SetLocalPosition", &ComponentTransform::SetLocalPosition ) // void ComponentTransform::SetLocalPosition(Vector3 pos)
             .addFunction( "SetLocalRotation", &ComponentTransform::SetLocalRotation ) // void ComponentTransform::SetLocalRotation(Vector3 rot)
-            .addFunction( "SetLocalScale", &ComponentTransform::SetLocalScale ) // void ComponentTransform::SetLocalScale(Vector3 scale)
+            .addFunction( "SetLocalScale",    &ComponentTransform::SetLocalScale )    // void ComponentTransform::SetLocalScale(Vector3 scale)
             .addFunction( "GetLocalPosition", &ComponentTransform::GetLocalPosition ) // Vector3 ComponentTransform::GetLocalPosition()
             .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation ) // Vector3 ComponentTransform::GetLocalRotation()
+            .addFunction( "GetLocalScale",    &ComponentTransform::GetLocalScale )    // Vector3 ComponentTransform::GetLocalScale()
+
+            .addFunction( "SetWorldPosition", &ComponentTransform::SetWorldPosition ) // void ComponentTransform::SetWorldPosition(Vector3 pos)
+            .addFunction( "SetWorldRotation", &ComponentTransform::SetWorldRotation ) // void ComponentTransform::SetWorldRotation(Vector3 rot)
+            .addFunction( "SetWorldScale",    &ComponentTransform::SetWorldScale )    // void ComponentTransform::SetWorldScale(Vector3 scale)
+            .addFunction( "GetWorldPosition", &ComponentTransform::GetWorldPosition ) // Vector3 ComponentTransform::GetWorldPosition()
+            .addFunction( "GetWorldRotation", &ComponentTransform::GetWorldRotation ) // Vector3 ComponentTransform::GetWorldRotation()
+            .addFunction( "GetWorldScale",    &ComponentTransform::GetWorldScale )    // Vector3 ComponentTransform::GetWorldScale()
 
             .addFunction( "LookAt", &ComponentTransform::LookAt ) // void ComponentTransform::LookAt(Vector3 pos)
         .endClass();
