@@ -169,6 +169,7 @@ public:
     EngineCore* GetEngineCore() { return m_pEngineCore; }
     float GetTimeScale() { return m_TimeScale; }
     SceneGraph_Base* GetSceneGraph() { return m_pSceneGraph; }
+    ComponentTypeManager* GetComponentTypeManager() { return m_pComponentTypeManager; }
 
     // Setters
     void SetTimeScale(float scale) { m_TimeScale = scale; } // Exposed to Lua, change elsewhere if function signature changes.

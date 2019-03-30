@@ -153,7 +153,7 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_Component2DCollisionObject", CastAs_Component2DCollisionObject ); // Component2DCollisionObject* CastAs_Component2DCollisionObject(ComponentBase* pComponent)
 
     luabridge::getGlobalNamespace( luastate )
-        .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )
+        .deriveClass<Component2DCollisionObject, ComponentBase>( "Component2DCollisionObject" )
             .addData( "density", &Component2DCollisionObject::m_Density ) // float
             .addFunction( "ClearVelocity", &Component2DCollisionObject::ClearVelocity ) // void Component2DCollisionObject::ClearVelocity()
             .addFunction( "SetPositionAndAngle", &Component2DCollisionObject::SetPositionAndAngle ) // void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
@@ -162,6 +162,13 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
             .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
             .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
             .addFunction( "GetMass", &Component2DCollisionObject::GetMass ) // float Component2DCollisionObject::GetMass()
+            .addFunction( "GetPrimitiveTypeName", &Component2DCollisionObject::GetPrimitiveTypeName ) // const char* Component2DCollisionObject::GetPrimitiveTypeName()
+            .addFunction( "IsStatic", &Component2DCollisionObject::IsStatic ) // bool Component2DCollisionObject::IsStatic()
+            .addFunction( "IsFixedRotation", &Component2DCollisionObject::IsFixedRotation ) // bool Component2DCollisionObject::IsFixedRotation()
+            .addFunction( "GetDensity", &Component2DCollisionObject::GetDensity ) // float Component2DCollisionObject::GetDensity()
+            .addFunction( "IsSensor", &Component2DCollisionObject::IsSensor ) // bool Component2DCollisionObject::IsSensor()
+            .addFunction( "GetFriction", &Component2DCollisionObject::GetFriction ) // float Component2DCollisionObject::GetFriction()
+            .addFunction( "GetRestitution", &Component2DCollisionObject::GetRestitution ) // float Component2DCollisionObject::GetRestitution()
 #if MYFW_EDITOR
             .addFunction( "Editor_SetVertices", &Component2DCollisionObject::SetVertices ) // void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsigned int count)
 #endif //MYFW_EDITOR
@@ -803,7 +810,48 @@ Vector2 Component2DCollisionObject::GetLinearVelocity()
 // Exposed to Lua, change elsewhere if function signature changes.
 float Component2DCollisionObject::GetMass()
 {
-    return m_pBody->GetMass();
+    if( m_pBody )
+        return m_pBody->GetMass();
+
+    return 0;
+}
+
+const char* Component2DCollisionObject::GetPrimitiveTypeName()
+{
+    if( m_PrimitiveType >= 0 && m_PrimitiveType < Physics2DPrimitive_NumTypes )
+        return Physics2DPrimitiveTypeStrings[m_PrimitiveType];
+
+    return nullptr;
+}
+
+bool Component2DCollisionObject::IsStatic()
+{
+    return m_Static;
+}
+
+bool Component2DCollisionObject::IsFixedRotation()
+{
+    return m_FixedRotation;
+}
+
+float Component2DCollisionObject::GetDensity()
+{
+    return m_Density;
+}
+
+bool Component2DCollisionObject::IsSensor()
+{
+    return m_IsSensor;
+}
+
+float Component2DCollisionObject::GetFriction()
+{
+    return m_Friction;
+}
+
+float Component2DCollisionObject::GetRestitution()
+{
+    return m_Restitution;
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.

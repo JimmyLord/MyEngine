@@ -93,6 +93,10 @@ void ComponentBase::LuaRegister(lua_State* luastate)
         .beginClass<ComponentBase>( "ComponentBase" )
             //.addData( "localmatrix", &ComponentBase::m_LocalTransform )
             
+            .addFunction( "IsA", &ComponentBase::IsA ) // bool ComponentBase::IsA(const char* classname)
+
+            .addFunction( "GetTypeName", &ComponentBase::GetTypeName ) // const char* GetTypeName()
+
             .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // bool ComponentBase::SetEnabled(bool enabled)
             .addFunction( "IsEnabled", &ComponentBase::IsEnabled ) // bool ComponentBase::IsEnabled()
             
@@ -288,9 +292,14 @@ bool ComponentBase::SetEnabled(bool enableComponent)
     return stateChanged;
 }
 
+const char* ComponentBase::GetTypeName()
+{
+    return m_pComponentSystemManager->GetComponentTypeManager()->GetTypeName( m_Type );
+}
+
 SceneInfo* ComponentBase::GetSceneInfo()
 {
-    return g_pComponentSystemManager->GetSceneInfo( m_SceneIDLoadedFrom );
+    return m_pComponentSystemManager->GetSceneInfo( m_SceneIDLoadedFrom );
 }
 
 void ComponentBase::RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc* pCallback)
@@ -2194,10 +2203,10 @@ void ComponentBase::SyncVariableInChildren(ComponentVariable* pVar)
 {
     for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
-        if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+        if( m_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
             continue;
 
-        SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
+        SceneInfo* pSceneInfo = &m_pComponentSystemManager->m_pSceneInfoMap[i];
 
         GameObject* pFirstGameObject = pSceneInfo->m_GameObjects.GetHead();
         if( pFirstGameObject )
@@ -3423,17 +3432,17 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
 {
 #if 0 //MYFW_USING_WX
     typedef std::map<int, SceneInfo>::iterator it_type;
-    for( it_type iterator = g_pComponentSystemManager->m_pSceneInfoMap.begin(); iterator != g_pComponentSystemManager->m_pSceneInfoMap.end(); )
+    for( it_type iterator = m_pComponentSystemManager->m_pSceneInfoMap.begin(); iterator != m_pComponentSystemManager->m_pSceneInfoMap.end(); )
     {
         SceneID sceneid = iterator->first;
         SceneInfo* pSceneInfo = &iterator->second;
 #else
     for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
-        if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+        if( m_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
             continue;
 
-        SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
+        SceneInfo* pSceneInfo = &m_pComponentSystemManager->m_pSceneInfoMap[i];
 #endif //MYFW_USING_WX
 
         if( pSceneInfo->m_GameObjects.GetHead() )

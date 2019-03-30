@@ -103,6 +103,7 @@ public:
     // Getters.
     BaseComponentTypes GetBaseType() { return m_BaseType; }
     int GetType() { return m_Type; }
+    const char* GetTypeName();
     GameObject* GetGameObject() { return m_pGameObject; }
     bool IsEnabled() { return m_EnabledState == EnabledState_Enabled; }
     EnabledState GetEnabledState() { return m_EnabledState; }

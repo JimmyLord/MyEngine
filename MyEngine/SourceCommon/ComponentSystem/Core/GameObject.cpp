@@ -149,11 +149,13 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "SetParentGameObject", &GameObject::SetParentGameObject ) // void SetParentGameObject(GameObject* pNewParentGameObject);
             .addFunction( "GetTransform", &GameObject::GetTransform ) // ComponentTransform* GameObject::GetTransform()
             .addFunction( "GetName", &GameObject::GetName ) // const char* GameObject::GetName()
+            .addFunction( "GetComponentByIndex", &GameObject::GetComponentByIndex_Friendly ) // GetComponentByIndex_Friendly(unsigned int index)
             .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
             .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
             .addFunction( "GetFirstChild", &GameObject::GetFirstChild ) // GameObject* GetFirstChild()
             .addFunction( "GetNextGameObjectInList", &GameObject::GetNextGameObjectInList ) // GameObject* GetNextGameObjectInList()
-            .addFunction( "ReturnToPool", &GameObject::ReturnToPool ) // void GameObject::ReturnToPool()            
+            .addFunction( "ReturnToPool", &GameObject::ReturnToPool ) // void GameObject::ReturnToPool()
+            .addFunction( "GetFlagStringIfSet", &GameObject::GetFlagStringIfSet ) // const char* GameObject::GetFlagStringIfSet(unsigned int bit)
 
             .addFunction( "GetSprite", &GameObject::GetSprite ) // ComponentSprite* GameObject::GetSprite()
             .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()
@@ -516,6 +518,16 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
     return jGameObject;
 }
 
+const char* GameObject::GetFlagStringIfSet(unsigned int bit)
+{
+    if( m_Properties.GetFlags() & 1 << bit )
+    {
+        return g_pEngineCore->GetGameObjectFlagString( bit );
+    }
+
+    return nullptr;
+}
+
 // Exposed to Lua, change elsewhere if function signature changes.
 void GameObject::SetEnabledViaEvent(bool enabled, bool affectChildren)
 {
@@ -810,6 +822,16 @@ SceneInfo* GameObject::GetSceneInfo()
 unsigned int GameObject::GetComponentCount()
 {
     return m_Components.Count();
+}
+
+ComponentBase* GameObject::GetComponentByIndex_Friendly(unsigned int index)
+{
+    if( index < m_Components.Count() )
+    {
+        return (ComponentBase*)m_Components[index];
+    }
+
+    return nullptr; // 'index' was out of bounds.
 }
 
 ComponentBase* GameObject::GetComponentByIndex(unsigned int index)

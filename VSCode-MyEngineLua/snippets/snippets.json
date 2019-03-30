@@ -703,6 +703,7 @@
     //            .addFunction( "SetParentGameObject", &GameObject::SetParentGameObject ) // void SetParentGameObject(GameObject* pNewParentGameObject);
     //            .addFunction( "GetTransform", &GameObject::GetTransform ) // ComponentTransform* GameObject::GetTransform()
     // (TODO)     .addFunction( "GetName", &GameObject::GetName ) // const char* GameObject::GetName()
+    // (TODO)     .addFunction( "GetComponentByIndex", &GameObject::GetComponentByIndex_Friendly ) // GetComponentByIndex_Friendly(unsigned int index)
     // (TODO)     .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
     // (TODO)     .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
     // (TODO)     .addFunction( "GetFirstChild", &GameObject::GetFirstChild ) // GameObject* GetFirstChild()
@@ -754,6 +755,10 @@
     //        .beginClass<ComponentBase>( "ComponentBase" )
     //            //.addData( "localmatrix", &ComponentBase::m_LocalTransform )
     //        
+    // (TODO)     .addFunction( "IsA", &ComponentBase::IsA ) // bool ComponentBase::IsA(const char* classname)
+    //
+    // (TODO)     .addFunction( "GetTypeName", &ComponentBase::GetTypeName ) // const char* GetTypeName()
+    //
     //            .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // bool ComponentBase::SetEnabled(bool enabled)
     //            .addFunction( "IsEnabled", &ComponentBase::IsEnabled ) // bool ComponentBase::IsEnabled()
     //        
@@ -1004,6 +1009,13 @@
     //            .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
     //            .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
     //            .addFunction( "GetMass", &Component2DCollisionObject::GetMass ) // float Component2DCollisionObject::GetMass()
+    // (TODO)     .addFunction( "GetPrimitiveTypeName", &Component2DCollisionObject::GetPrimitiveTypeName ) // const char* Component2DCollisionObject::GetPrimitiveTypeName()
+    // (TODO)     .addFunction( "IsStatic", &Component2DCollisionObject::IsStatic ) // bool Component2DCollisionObject::IsStatic()
+    // (TODO)     .addFunction( "IsFixedRotation", &Component2DCollisionObject::IsFixedRotation ) // bool Component2DCollisionObject::IsFixedRotation()
+    // (TODO)     .addFunction( "GetDensity", &Component2DCollisionObject::GetDensity ) // float Component2DCollisionObject::GetDensity()
+    // (TODO)     .addFunction( "IsSensor", &Component2DCollisionObject::IsSensor ) // bool Component2DCollisionObject::IsSensor()
+    // (TODO)     .addFunction( "GetFriction", &Component2DCollisionObject::GetFriction ) // float Component2DCollisionObject::GetFriction()
+    // (TODO)     .addFunction( "GetRestitution", &Component2DCollisionObject::GetRestitution ) // float Component2DCollisionObject::GetRestitution()
     // (TODO)     .addFunction( "Editor_SetVertices", &Component2DCollisionObject::SetVertices ) // void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsigned int count)
     //        .endClass();
 

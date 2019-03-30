@@ -106,6 +106,7 @@ public:
 
     void SetFlags(unsigned int flags) { return m_Properties.SetFlags( flags ); }
     unsigned int GetFlags() { return m_Properties.GetFlags(); }
+    const char* GetFlagStringIfSet(unsigned int bit);
     ComponentGameObjectProperties* GetPropertiesComponent() { return &m_Properties; }
 
     void SetEnabledViaEvent(bool enabled, bool affectChildren);
@@ -136,6 +137,7 @@ public:
     ComponentBase* GetComponentByIndexIncludingCore(unsigned int index);
 
     unsigned int GetComponentCount();
+    ComponentBase* GetComponentByIndex_Friendly(unsigned int index);
     ComponentBase* GetComponentByIndex(unsigned int index);
 
     ComponentBase* AddNewComponent(const char* componentName);

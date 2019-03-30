@@ -92,6 +92,13 @@ public:
     // Getters.
     Vector2 GetLinearVelocity();
     float GetMass();
+    const char* GetPrimitiveTypeName();
+    bool IsStatic();
+    bool IsFixedRotation();
+    float GetDensity();
+    bool IsSensor();
+    float GetFriction();
+    float GetRestitution();
 
     // Setters.
     void SetPositionAndAngle(Vector2 newPosition, float angle);
