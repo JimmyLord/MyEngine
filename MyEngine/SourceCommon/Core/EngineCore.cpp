@@ -357,14 +357,15 @@ void EngineCore::OneTimeInit()
     TextureDefinition* pErrorTexture = GetManagers()->GetTextureManager()->GetErrorTexture();
     MaterialManager* pMaterialManager = GetManagers()->GetMaterialManager();
     ShaderGroupManager* pShaderGroupManager = GetManagers()->GetShaderGroupManager();
+    EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( GetManagers()->GetFileManager() );
 
     // Setup our shaders and materials.
-    m_pShaderFile_TintColor          = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
-    m_pShaderFile_TintColorWithAlpha = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColorWithAlpha.glsl" );
-    m_pShaderFile_SelectedObjects    = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_SelectedObjects.glsl" );
-    m_pShaderFile_ClipSpaceTexture   = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
-    m_pShaderFile_ClipSpaceColor     = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceColor.glsl" );
-    m_pShaderFile_FresnelTint        = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_FresnelTint.glsl" );
+    m_pShaderFile_TintColor          = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
+    m_pShaderFile_TintColorWithAlpha = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColorWithAlpha.glsl" );
+    m_pShaderFile_SelectedObjects    = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_SelectedObjects.glsl" );
+    m_pShaderFile_ClipSpaceTexture   = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
+    m_pShaderFile_ClipSpaceColor     = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceColor.glsl" );
+    m_pShaderFile_FresnelTint        = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_FresnelTint.glsl" );
 #if MYFW_EDITOR
     m_pShaderFile_TintColor->MemoryPanel_Hide();
     m_pShaderFile_TintColorWithAlpha->MemoryPanel_Hide();
@@ -441,8 +442,8 @@ void EngineCore::OneTimeInit()
 #endif
 
 #if MYFW_EDITOR
-    m_pEditorPrefs = g_pEditorPrefs;
-    if( m_pEditorPrefs == nullptr )
+    //m_pEditorPrefs = g_pEditorPrefs;
+    if( true )//m_pEditorPrefs == nullptr )
     {
         // This should be the editor pref load point for ImGui Editor builds.
         m_pEditorPrefs = MyNew EditorPrefs;
@@ -1639,7 +1640,8 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
     if( i == MAX_SCENES_QUEUED_TO_LOAD )
         return nullptr;
 
-    m_pSceneFilesLoading[i].m_pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( fullpath );
+    EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( GetManagers()->GetFileManager() );
+    m_pSceneFilesLoading[i].m_pFile = pEngineFileManager->RequestFile_UntrackedByScene( fullpath );
     m_pSceneFilesLoading[i].m_SceneID = SCENEID_NotSet;
 
     return &m_pSceneFilesLoading[i];

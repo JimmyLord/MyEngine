@@ -84,7 +84,8 @@ EditorState::EditorState(EngineCore* pEngineCore)
         pMaterial->SetBlendType( MyRE::MaterialBlendType_Off );
 
         // Load the icon png file, create a texture, set it to the material.  
-        MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( EditorIconFilenames[i] );
+        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
+        MyFileObject* pFile = pEngineFileManager->RequestFile_UntrackedByScene( EditorIconFilenames[i] );
         TextureDefinition* pTexture = m_pEngineCore->GetManagers()->GetTextureManager()->CreateTexture( pFile );
         pMaterial->SetTextureColor( pTexture );
 
@@ -102,7 +103,8 @@ EditorState::EditorState(EngineCore* pEngineCore)
         }
         else
         {
-            MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TextureTintDiscard.glsl" );
+            EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
+            MyFileObject* pFile = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TextureTintDiscard.glsl" );
             pFile->MemoryPanel_Hide();
             MyAssert( pFile->IsA( "MyFileShader" ) );
             if( pFile->IsA( "MyFileShader" ) )

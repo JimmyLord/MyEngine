@@ -603,8 +603,9 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
 
             if( pTexture == nullptr )
             {
-                // Find the file and add it to the object, 
-                pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativePath );
+                // Find the file and add it to the FileInfo object.
+                EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
+                pFile = pEngineFileManager->RequestFile_UntrackedByScene( relativePath );
                 pFileInfo->SetFile( pFile );
                 pFile->Release(); // Release ref added by RequestFile.
 
@@ -642,7 +643,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         else if( rellen > 14 && strcmp( &relativePath[rellen-14], ".myspritesheet" ) == 0 )
         {
             // In editor builds, fully load spritesheets immediately.
-            pFile = g_pEngineFileManager->LoadFileNow( relativePath );
+            EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
+            pFile = pEngineFileManager->LoadFileNow( relativePath );
             pFileInfo->SetFile( pFile );
             if( pFile )
             {
@@ -653,7 +655,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         else
         {
             // Call untracked request since we're in the tracking code, just to avoid unnecessary repeat of LoadDataFile() call.
-            pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativePath );
+            EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
+            pFile = pEngineFileManager->RequestFile_UntrackedByScene( relativePath );
             pFileInfo->SetFile( pFile );
             pFile->Release(); // Release ref added by RequestFile.
         }

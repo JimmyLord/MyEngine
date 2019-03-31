@@ -1223,7 +1223,8 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
     cJSON* scriptstringobj = cJSON_GetObjectItem( jsonobj, "Script" );
     if( scriptstringobj )
     {
-        MyFileObject* pFile = g_pEngineFileManager->RequestFile( scriptstringobj->valuestring, GetSceneID() );
+        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager() );
+        MyFileObject* pFile = pEngineFileManager->RequestFile( scriptstringobj->valuestring, GetSceneID() );
         MyAssert( pFile );
         if( pFile )
         {

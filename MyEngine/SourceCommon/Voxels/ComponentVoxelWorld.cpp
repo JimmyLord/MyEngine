@@ -397,7 +397,8 @@ void ComponentVoxelWorld::ImportFromJSONObject(cJSON* jComponent, SceneID scenei
     cJSON* jSaveFile = cJSON_GetObjectItem( jComponent, "Save File" );
     if( jSaveFile )
     {
-        MyFileObject* pFile = g_pEngineFileManager->RequestFile( jSaveFile->valuestring, GetSceneID() );
+        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager() );
+        MyFileObject* pFile = pEngineFileManager->RequestFile( jSaveFile->valuestring, GetSceneID() );
         MyAssert( pFile );
         if( pFile )
         {

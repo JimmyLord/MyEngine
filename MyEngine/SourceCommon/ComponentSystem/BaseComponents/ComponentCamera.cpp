@@ -613,6 +613,7 @@ void ComponentCamera::DrawScene()
             MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
             ShaderGroupManager* pShaderGroupManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetShaderGroupManager();
             FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+            EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( pFileManager );
 
             const int numcolorformats = 3;
             FBODefinition::FBOColorFormat colorformats[numcolorformats];
@@ -629,8 +630,8 @@ void ComponentCamera::DrawScene()
             MyAssert( m_pDeferredMaterial_AmbientDirectional == 0 );
             MyAssert( m_pDeferredMaterial_PointLight == 0 );
 
-            m_pDeferredShaderFile_AmbientDirectional = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_Deferred_AmbientDirectional.glsl" );
-            m_pDeferredShaderFile_PointLight = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_Deferred_PointLight.glsl" );
+            m_pDeferredShaderFile_AmbientDirectional = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_Deferred_AmbientDirectional.glsl" );
+            m_pDeferredShaderFile_PointLight = pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_Deferred_PointLight.glsl" );
 #if MYFW_EDITOR
             m_pDeferredShaderFile_AmbientDirectional->MemoryPanel_Hide();
             m_pDeferredShaderFile_PointLight->MemoryPanel_Hide();

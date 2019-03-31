@@ -12,8 +12,6 @@
 
 class EngineFileManager;
 
-extern EngineFileManager* g_pEngineFileManager;
-
 class EngineFileManager : public FileManager
 {
 public:

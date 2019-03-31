@@ -907,7 +907,7 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
 
 My2DAnimInfo* EditorMainFrame_ImGui::Get2DAnimInfoBeingEdited()
 {
-    if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_2DAnimationEditor] )
+    if( m_pCurrentLayout && m_pCurrentLayout->m_IsWindowOpen[EditorWindow_2DAnimationEditor] )
     {
         return m_p2DAnimInfoBeingEdited;
     }

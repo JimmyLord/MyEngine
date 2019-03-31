@@ -40,6 +40,8 @@ ImGuiManager::ImGuiManager()
 
 ImGuiManager::~ImGuiManager()
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
     Shutdown();
 }
 
@@ -102,6 +104,8 @@ void ImGuiManager::Init(float width, float height)
 
 void ImGuiManager::Shutdown(bool invalidateDeviceObjects)
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
     if( invalidateDeviceObjects )
     {
         InvalidateDeviceObjects();
@@ -115,6 +119,8 @@ void ImGuiManager::Shutdown(bool invalidateDeviceObjects)
 
 void ImGuiManager::ClearInput()
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
     ImGuiIO& io = ImGui::GetIO();
 
     for( int i=0; i<5; i++ )
@@ -137,6 +143,8 @@ void ImGuiManager::ClearInput()
 
 void ImGuiManager::OnFocusLost()
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
     if( m_pImGuiContext )
     {
         ClearInput();
@@ -145,6 +153,8 @@ void ImGuiManager::OnFocusLost()
 
 bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
 #if MYFW_OPENGLES2
     return false;
 #endif
@@ -200,6 +210,8 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
 
 void ImGuiManager::OnChar(unsigned int c)
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
     ImGuiIO& io = ImGui::GetIO();
 
     if( c > 0 && c < 0x10000 )
@@ -210,6 +222,8 @@ void ImGuiManager::OnChar(unsigned int c)
 
 void ImGuiManager::StartTick(float deltaTime)
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
 #if MYFW_OPENGLES2
     return;
 #endif
@@ -227,6 +241,8 @@ void ImGuiManager::StartTick(float deltaTime)
 
 void ImGuiManager::StartFrame()
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
 #if MYFW_OPENGLES2
     return;
 #endif
@@ -245,6 +261,8 @@ void ImGuiManager::StartFrame()
 
 void ImGuiManager::EndFrame(float width, float height, bool draw)
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
 #if MYFW_OPENGLES2
     return;
 #endif
@@ -267,6 +285,8 @@ void ImGuiManager::EndFrame(float width, float height, bool draw)
 // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
 void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
 #if MYFW_OPENGLES2
     return;
 #endif
@@ -389,8 +409,11 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
     glScissor( last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3] );
 }
 
-void ImGuiManager::CreateFont()
+void ImGuiManager::CreateFont() // Static.
 {
+    // TODO: Fix this to better support multiple ImGuiManager instances.
+    //ImGui::SetCurrentContext( m_pImGuiContext );
+
     ImGuiIO& io = ImGui::GetIO();
 
     ImFont* pFont = io.Fonts->AddFontDefault();
@@ -403,8 +426,11 @@ void ImGuiManager::CreateFont()
     io.Fonts->Build();
 }
 
-bool ImGuiManager::CreateFontAndTexture()
+bool ImGuiManager::CreateFontAndTexture() // Static.
 {
+    // TODO: Fix this to better support multiple ImGuiManager instances.
+    //ImGui::SetCurrentContext( m_pImGuiContext );
+
     CreateFont();
 
     // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
@@ -438,7 +464,7 @@ bool ImGuiManager::CreateFontAndTexture()
     return true;
 }
 
-bool ImGuiManager::CreateDeviceObjects()
+bool ImGuiManager::CreateDeviceObjects() // Static.
 {
 #if MYFW_OPENGLES2
     return false;
@@ -521,7 +547,7 @@ bool ImGuiManager::CreateDeviceObjects()
     return true;
 }
 
-void ImGuiManager::InvalidateDeviceObjects()
+void ImGuiManager::InvalidateDeviceObjects() // Static.
 {
     if( m_VaoHandle ) glDeleteVertexArrays( 1, &m_VaoHandle );
     if( m_VboHandle ) glDeleteBuffers( 1, &m_VboHandle );
@@ -535,7 +561,7 @@ void ImGuiManager::InvalidateDeviceObjects()
 
     if( m_ShaderHandle ) glDeleteProgram( m_ShaderHandle );
 
-    m_pFontTexture->Release();
+    if( m_pFontTexture ) m_pFontTexture->Release();
     ImGui::GetIO().Fonts->TexID = 0;
 
     m_ShaderHandle = 0;
@@ -554,6 +580,8 @@ void ImGuiManager::InvalidateDeviceObjects()
 
 bool ImGuiManager::UpdateMouseCursor()
 {
+    ImGui::SetCurrentContext( m_pImGuiContext );
+
     ImGuiIO& io = ImGui::GetIO();
     if( io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange )
         return false;

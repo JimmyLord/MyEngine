@@ -234,7 +234,8 @@ void ComponentAnimationPlayer2D::ImportFromJSONObject(cJSON* jComponent, SceneID
     cJSON* animfilestringobj = cJSON_GetObjectItem( jComponent, "AnimFile" );
     if( animfilestringobj )
     {
-        MyFileObject* pFile = g_pEngineFileManager->RequestFile( animfilestringobj->valuestring, GetSceneID() );
+        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager() );
+        MyFileObject* pFile = pEngineFileManager->RequestFile( animfilestringobj->valuestring, GetSceneID() );
         MyAssert( pFile );
         if( pFile )
         {
