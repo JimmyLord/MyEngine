@@ -51,6 +51,8 @@ public:
     void Init(float width, float height);
     void Shutdown(bool invalidateDeviceObjects = true);
 
+    ImGuiContext* GetImGuiContext() { return m_pImGuiContext; }
+
     void OnFocusLost();
 
     bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);

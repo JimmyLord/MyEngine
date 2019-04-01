@@ -159,6 +159,7 @@ void EditorLayoutManager_ImGui::SavePrefs(cJSON* jPrefs)
 
 void EditorLayoutManager_ImGui::DumpCurrentLayoutToOutputWindow()
 {
+    ImGui::SetCurrentContext( m_pEditorMainFrame_ImGui->GetEngineCore()->GetImGuiManager()->GetImGuiContext() );
     std::string newLayout = ImGui::SaveIniSettingsToMemory();
             
     // Replace all newlines with "\\n"
@@ -175,6 +176,8 @@ void EditorLayoutManager_ImGui::SyncCurrentImGuiIni()
 {
     if( m_CurrentLayoutIndex != EditorLayout_NumLayouts )
     {
+        ImGui::SetCurrentContext( m_pEditorMainFrame_ImGui->GetEngineCore()->GetImGuiManager()->GetImGuiContext() );
+
         const char* newLayout = ImGui::SaveIniSettingsToMemory();
         m_CustomLayouts[m_CurrentLayoutIndex].m_ImGuiIniString = newLayout;
     }
@@ -220,6 +223,8 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
 
     if( m_RequestedLayoutIndex != m_CurrentLayoutIndex )
     {
+        ImGui::SetCurrentContext( m_pEditorMainFrame_ImGui->GetEngineCore()->GetImGuiManager()->GetImGuiContext() );
+
         // Save the current layout.
         SyncCurrentImGuiIni();
 
@@ -244,6 +249,7 @@ void EditorLayoutManager_ImGui::FinishFocusChangeIfNeeded()
 
     // Fix focus if we're switching into editor or game mode.
     // This needs to be done after all windows have been rebuild after switching layouts.
+    ImGui::SetCurrentContext( m_pEditorMainFrame_ImGui->GetEngineCore()->GetImGuiManager()->GetImGuiContext() );
 
     if( m_SwitchingToEditorLayout )
     {

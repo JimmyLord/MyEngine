@@ -141,6 +141,7 @@ public:
     EditorLayoutManager_ImGui* GetLayoutManager() { return m_pLayoutManager; }
     Vector2 GetEditorWindowCenterPosition();
     bool IsGameWindowFocused() { return m_GameWindowFocused; }
+    EditorLogWindow_ImGui* GetLogWindow() { return m_pLogWindow; }
 
     void StoreCurrentUndoStackSize();
     unsigned int GetUndoStackDepthAtLastSave() { return m_UndoStackDepthAtLastSave; }

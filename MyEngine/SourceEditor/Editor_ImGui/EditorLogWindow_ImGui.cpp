@@ -17,8 +17,6 @@
 // Public methods
 //====================================================================================================
 
-pthread_mutex_t g_MessageLogMutex;
-
 EditorLogWindow_ImGui* g_pGlobalLog;
 
 void EditorLogWindow_ImGui_MessageLog(int logtype, const char* tag, const char* message)
@@ -28,11 +26,7 @@ void EditorLogWindow_ImGui_MessageLog(int logtype, const char* tag, const char* 
     logentry.tag = tag;
     logentry.message = message;
 
-    pthread_mutex_lock( &g_MessageLogMutex );
-
     g_pGlobalLog->AddLog( logentry );
-
-    pthread_mutex_unlock( &g_MessageLogMutex );
 }
 
 EditorLogWindow_ImGui::EditorLogWindow_ImGui(bool isGlobalLog)
@@ -43,14 +37,14 @@ EditorLogWindow_ImGui::EditorLogWindow_ImGui(bool isGlobalLog)
     m_ScrollToBottom = false;
     m_Filter[0] = 0;
 
-    pthread_mutex_init( &g_MessageLogMutex, 0 );
+    pthread_mutex_init( &m_MessageLogMutex, 0 );
     g_pMessageLogCallbackFunction = EditorLogWindow_ImGui_MessageLog;
 }
 
 EditorLogWindow_ImGui::~EditorLogWindow_ImGui()
 {
     g_pMessageLogCallbackFunction = 0;
-    pthread_mutex_destroy( &g_MessageLogMutex );
+    pthread_mutex_destroy( &m_MessageLogMutex );
 }
 
 void EditorLogWindow_ImGui::Clear()
@@ -60,7 +54,9 @@ void EditorLogWindow_ImGui::Clear()
 
 void EditorLogWindow_ImGui::AddLog(LogEntry logentry)
 {
+    pthread_mutex_lock( &m_MessageLogMutex );
     m_LoggedMessages.push_back( logentry );
+    pthread_mutex_unlock( &m_MessageLogMutex );
 
     m_ScrollToBottom = true;
 }

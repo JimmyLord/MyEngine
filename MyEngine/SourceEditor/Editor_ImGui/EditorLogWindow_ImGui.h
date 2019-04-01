@@ -21,6 +21,8 @@ public:
     };
 
 protected:
+    pthread_mutex_t m_MessageLogMutex;
+
     std::vector<LogEntry> m_LoggedMessages;
     //ImGuiTextBuffer     m_TextBuffer;
     //ImGuiTextFilter     m_Filter;
