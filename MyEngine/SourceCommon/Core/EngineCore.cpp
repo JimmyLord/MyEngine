@@ -343,6 +343,9 @@ void EngineCore::OneTimeInit()
     m_pEditorState->m_pDebugViewFBO = GetManagers()->GetTextureManager()->CreateFBO( 0, 0, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_None, 0, false, true );
     m_pEditorState->m_pMousePickerFBO = GetManagers()->GetTextureManager()->CreateFBO( 0, 0, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_None, 0, false, true );
 
+    m_pEditorState->m_pDebugViewFBO->MemoryPanel_Hide();
+    m_pEditorState->m_pMousePickerFBO->MemoryPanel_Hide();
+
     if( m_pDebugFont == nullptr )
     {
         m_pDebugFont = GetManagers()->GetFontManager()->CreateFont( "Data/DataEngine/Fonts/Nevis60.fnt" );

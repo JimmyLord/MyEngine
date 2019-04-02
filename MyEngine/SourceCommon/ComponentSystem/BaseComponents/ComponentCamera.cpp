@@ -506,6 +506,9 @@ void ComponentCamera::OnDrawFrame()
             if( m_pPostEffectFBOs[0] == 0 )
             {
                 m_pPostEffectFBOs[0] = pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+#if MYFW_EDITOR
+                m_pPostEffectFBOs[0]->MemoryPanel_Hide();
+#endif
             }
             else
             {
@@ -540,6 +543,9 @@ void ComponentCamera::OnDrawFrame()
             if( m_pPostEffectFBOs[!fboindex] == 0 )
             {
                 m_pPostEffectFBOs[!fboindex] = pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+#if MYFW_EDITOR
+                m_pPostEffectFBOs[!fboindex]->MemoryPanel_Hide();
+#endif
             }
             else
             {
@@ -622,6 +628,9 @@ void ComponentCamera::DrawScene()
             colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
             m_pGBuffer = pTextureManager->CreateFBO( m_Viewport.GetWidth(), m_Viewport.GetHeight(), MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, colorformats, numcolorformats, 32, true );
+#if MYFW_EDITOR
+            m_pGBuffer->MemoryPanel_Hide();
+#endif
 
             MyAssert( m_pDeferredShaderFile_AmbientDirectional == 0 );
             MyAssert( m_pDeferredShaderFile_PointLight == 0 );

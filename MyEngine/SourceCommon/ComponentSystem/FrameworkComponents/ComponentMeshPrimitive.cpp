@@ -10,6 +10,7 @@
 #include "MyEnginePCH.h"
 
 #include "ComponentMeshPrimitive.h"
+#include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
 
 #if MYFW_EDITOR
@@ -265,11 +266,20 @@ void ComponentMeshPrimitive::FinishImportingFromJSONObject(cJSON* jComponent)
             cJSON* jComponentRef = cJSON_GetObjectItem( jComponent, "OtherMeshPrimitive" );
 
             ComponentMeshPrimitive* pComponent = (ComponentMeshPrimitive*)g_pComponentSystemManager->FindComponentByJSONRef( jComponentRef, m_SceneIDLoadedFrom );
-            MyAssert( pComponent->IsA( "MeshPrimitiveComponent" ) );
-            m_pOtherMeshPrimitive = pComponent;
+            if( pComponent == nullptr )
+            {
+                LOGError( LOGTag, "A referenced mesh primitive wasn't found, changing type to 'Plane'. GameObject: %s\n", m_pGameObject->GetName() );
+                m_MeshPrimitiveType = ComponentMeshPrimitive_Plane;
+                CreatePrimitive();
+            }
+            else
+            {
+                MyAssert( pComponent->IsA( "MeshPrimitiveComponent" ) );
+                m_pOtherMeshPrimitive = pComponent;
 
-            MyAssert( m_pOtherMeshPrimitive->m_pMesh != nullptr );
-            SetMesh( m_pOtherMeshPrimitive->m_pMesh );
+                MyAssert( m_pOtherMeshPrimitive->m_pMesh != nullptr );
+                SetMesh( m_pOtherMeshPrimitive->m_pMesh );
+            }
         }
     }
 

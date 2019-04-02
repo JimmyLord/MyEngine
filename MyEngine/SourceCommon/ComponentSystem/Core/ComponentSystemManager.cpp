@@ -479,6 +479,39 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     return 0;
 }
 
+MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, SceneID sceneid)
+{
+    return AddToFileList( pFile, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneid);
+}
+MyFileInfo* ComponentSystemManager::AddToFileList(MyMesh* pMesh, SceneID sceneid)
+{
+    return AddToFileList( nullptr, pMesh, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneid);
+}
+MyFileInfo* ComponentSystemManager::AddToFileList(ShaderGroup* pShaderGroup, SceneID sceneid)
+{
+    return AddToFileList( nullptr, nullptr, pShaderGroup, nullptr, nullptr, nullptr, nullptr, nullptr, sceneid);
+}
+MyFileInfo* ComponentSystemManager::AddToFileList(TextureDefinition* pTexture, SceneID sceneid)
+{
+    return AddToFileList( nullptr, nullptr, nullptr, pTexture, nullptr, nullptr, nullptr, nullptr, sceneid);
+}
+MyFileInfo* ComponentSystemManager::AddToFileList(MaterialDefinition* pMaterial, SceneID sceneid)
+{
+    return AddToFileList( nullptr, nullptr, nullptr, nullptr, pMaterial, nullptr, nullptr, nullptr, sceneid);
+}
+MyFileInfo* ComponentSystemManager::AddToFileList(SoundCue* pSoundCue, SceneID sceneid)
+{
+    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, pSoundCue, nullptr, nullptr, sceneid);
+}
+MyFileInfo* ComponentSystemManager::AddToFileList(SpriteSheet* pSpriteSheet, SceneID sceneid)
+{
+    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, pSpriteSheet, nullptr, sceneid);
+}
+MyFileInfo* ComponentSystemManager::AddToFileList(My2DAnimInfo* p2DAnimInfo, SceneID sceneid)
+{
+    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, p2DAnimInfo, sceneid);
+}
+
 MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneid)
 {
     MyFileInfo* pFileInfo = MyNew MyFileInfo();
@@ -2041,8 +2074,11 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
 ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid)
 {
     GameObject* pGameObject = FindGameObjectByJSONRef( pJSONComponentRef, defaultsceneid, true );
-    MyAssert( pGameObject );
-    if( pGameObject )
+    if( pGameObject == nullptr )
+    {
+        LOGError( LOGTag, "A referenced component wasn't found.\n" );
+    }
+    else //if( pGameObject )
     {
         unsigned int componentid = -1;
         cJSONExt_GetUnsignedInt( pJSONComponentRef, "ComponentID", &componentid );
@@ -2051,7 +2087,7 @@ ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONCompon
         return pGameObject->FindComponentByID( componentid );
     }
 
-    return 0;
+    return nullptr;
 }
 
 ComponentCamera* ComponentSystemManager::GetFirstCamera(bool preferEditorCam)

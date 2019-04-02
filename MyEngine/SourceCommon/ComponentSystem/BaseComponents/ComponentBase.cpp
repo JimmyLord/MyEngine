@@ -3439,10 +3439,10 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
 #else
     for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
-        if( m_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+        if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
             continue;
 
-        SceneInfo* pSceneInfo = &m_pComponentSystemManager->m_pSceneInfoMap[i];
+        SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
 #endif //MYFW_USING_WX
 
         if( pSceneInfo->m_GameObjects.GetHead() )

@@ -108,6 +108,12 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui(EngineCore* pEngineCore)
     m_pEditorFBO = m_pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
     m_pMaterialPreviewFBO = m_pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
 
+#if MYFW_EDITOR
+    m_pGameFBO->MemoryPanel_Hide();
+    m_pEditorFBO->MemoryPanel_Hide();
+    m_pMaterialPreviewFBO->MemoryPanel_Hide();
+#endif
+
     // Material Preview and Editor.
     m_pMaterialToPreview = nullptr;
     m_pMaterialBeingEdited = nullptr;
@@ -628,6 +634,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             g_GLStats.NewCanvasFrame( 0 );
 
             // Draw game view.
+            uint32 previousFBO = g_GLStats.m_CurrentFramebuffer;
             m_pGameFBO->Bind( false );
 
             uint32 x = 0;
@@ -684,7 +691,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 pComponentSystemManager->OnDrawFrame();
             }
 
-            g_pRenderer->BindFramebuffer( 0 );
+            g_pRenderer->BindFramebuffer( previousFBO );
 
             g_GLStats.EndCanvasFrame();
         }
@@ -700,10 +707,11 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             g_GLCanvasIDActive = 1;
             pEngineCore->Editor_OnSurfaceChanged( 0, 0, (unsigned int)m_EditorWindowSize.x, (unsigned int)m_EditorWindowSize.y );
 
+            uint32 previousFBO = g_GLStats.m_CurrentFramebuffer;
             m_pEditorFBO->Bind( false );
             m_pEngineCore->GetEditorState()->GetEditorCamera()->SetDeferred( m_pEngineCore->GetEditorPrefs()->Get_View_EditorCamDeferred() );
             pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
-            g_pRenderer->BindFramebuffer( 0 );
+            g_pRenderer->BindFramebuffer( previousFBO );
 
             g_GLCanvasIDActive = 0;
 
@@ -2987,9 +2995,10 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
     bool someTexturesAreLoaded = false;
     //unsigned int numTexturesShown = 0;
 
+    TextureManager* pTextureManager = m_pEngineCore->GetManagers()->GetTextureManager();
+
     for( int i=0; i<2; i++ )
     {
-        TextureManager* pTextureManager = m_pEngineCore->GetManagers()->GetTextureManager();
         TextureDefinition* pTex = (TextureDefinition*)pTextureManager->m_TexturesStillLoading.GetHead();
         if( i == 1 )
             pTex = (TextureDefinition*)pTextureManager->m_LoadedTextures.GetHead();
@@ -3026,7 +3035,10 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 
                         if( showThisItem )
                         {
-                            if( ImGui::TreeNodeEx( pTex->GetFilename(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                            const char* filename = pTex->GetFilename();
+                            if( filename == nullptr || filename[0] == '\0' )
+                                filename = "No filename";
+                            if( ImGui::TreeNodeEx( filename, ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
                             {
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                 {
@@ -3072,6 +3084,74 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
     if( someTexturesAreLoaded == false )
     {
         ImGui::TreeNodeEx( "No textures loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
+    }
+
+    // Add FBOs
+    {
+        TextureManager* pTextureManager = m_pEngineCore->GetManagers()->GetTextureManager();
+
+        FBODefinition* pFBO = pTextureManager->m_InitializedFBOs.GetHead();
+
+        if( pFBO )
+        {
+            ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+            char* label = "FBOs";
+
+            if( showHeaders == false || ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
+            {
+                while( pFBO )
+                {
+                    if( pFBO->m_ShowInMemoryPanel )
+                    {
+                        bool showThisItem = true;
+
+                        //if( m_MemoryPanelFilter[0] != '\0' )
+                        //{
+                        //    if( CheckIfMultipleSubstringsAreInString( pFBO->GetFilename(), m_MemoryPanelFilter ) == false )
+                        //    {
+                        //        showThisItem = false;
+                        //    }
+                        //}
+
+                        if( showThisItem )
+                        {
+                            TextureDefinition* pTex = pFBO->GetColorTexture( 0 );
+
+                            if( pTex )
+                            {
+                                const char* filename = "Unnamed FBO";
+                                if( ImGui::TreeNodeEx( filename, ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                                {
+                                    if( ImGui::IsItemHovered() )
+                                    {
+                                        ImGui::BeginTooltip();
+                                        AddTexturePreview( pTex, false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                        ImGui::EndTooltip();
+                                    }
+
+                                    if( ImGui::BeginDragDropSource() )
+                                    {
+                                        ImGui::SetDragDropPayload( "Texture", &pTex, sizeof(pTex), ImGuiCond_Once );
+                                        AddTexturePreview( pTex, false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                        ImGui::EndDragDropSource();
+                                    }
+
+                                    ImGui::TreePop();
+                                }
+                            }
+                        }
+                    }
+
+                    pFBO = pFBO->GetNext();
+                }
+
+                if( showHeaders )
+                {
+                    ImGui::TreePop();
+                }
+            }
+        }
     }
 }
 

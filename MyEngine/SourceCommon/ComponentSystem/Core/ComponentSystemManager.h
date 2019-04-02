@@ -184,7 +184,16 @@ public:
     MyFileInfo* GetFileInfoIfUsedByScene(const char* fullpath, SceneID sceneid);
     MyFileObject* GetFileObjectIfUsedByScene(const char* fullpath, SceneID sceneid);
 
+    MyFileInfo* AddToFileList(MyFileObject* pFile, SceneID sceneid);
+    MyFileInfo* AddToFileList(MyMesh* pMesh, SceneID sceneid);
+    MyFileInfo* AddToFileList(ShaderGroup* pShaderGroup, SceneID sceneid);
+    MyFileInfo* AddToFileList(TextureDefinition* pTexture, SceneID sceneid);
+    MyFileInfo* AddToFileList(MaterialDefinition* pMaterial, SceneID sceneid);
+    MyFileInfo* AddToFileList(SoundCue* pSoundCue, SceneID sceneid);
+    MyFileInfo* AddToFileList(SpriteSheet* pSpriteSheet, SceneID sceneid);
+    MyFileInfo* AddToFileList(My2DAnimInfo* p2DAnimInfo, SceneID sceneid);
     MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneid);
+
     MyFileInfo* EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired);
     MyFileInfo* LoadDataFile(const char* relativePath, SceneID sceneID, const char* fullSourceFilePath, bool convertIfRequired);
 #if MYFW_EDITOR

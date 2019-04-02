@@ -135,6 +135,10 @@ void ComponentCameraShadow::Reset()
     m_pDepthFBO = pTextureManager->CreateFBO( texres, texres, MyRE::MinFilter_Linear, MyRE::MagFilter_Linear, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
 #endif
 
+#if MYFW_EDITOR
+    m_pDepthFBO->MemoryPanel_Hide();
+#endif
+
     if( m_pLight == 0 )
     {
         LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
