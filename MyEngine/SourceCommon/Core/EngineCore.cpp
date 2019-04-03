@@ -1671,6 +1671,8 @@ void EngineCore::SaveScene(const char* fullpath, SceneID sceneid)
     {
         fprintf( filehandle, "%s", savestring );
         fclose( filehandle );
+
+        LOGInfo( LOGTag, "Saved scene... %s\n", fullpath );
     }
 
     cJSONExt_free( savestring );
@@ -1700,12 +1702,11 @@ void EngineCore::SaveAllScenes()
                 }
                 else
                 {
-                    LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->m_FullPath );
-
 #if MYFW_USING_IMGUI
                     g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
 #endif
                     g_pEngineCore->SaveScene( pSceneInfo->m_FullPath, sceneid );
+                    //LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->m_FullPath );
                 }
             }
         }

@@ -1125,7 +1125,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 for( unsigned int i=0; i<EditorLayout_NumLayouts; i++ )
                 {
-                    if( ImGui::MenuItem( g_EditorLayoutMenuLabels[i] ) )
+                    if( ImGui::MenuItem( g_EditorLayoutMenuLabels[i], nullptr, m_pLayoutManager->GetSelectedLayout_EditorMode() == (EditorLayoutTypes)i ) )
                     {
                         m_pLayoutManager->SetSelectedLayout_EditorMode( (EditorLayoutTypes)i );
 
@@ -1142,7 +1142,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 for( int i=0; i<EditorLayout_NumLayouts; i++ )
                 {
-                    if( ImGui::MenuItem( g_EditorLayoutMenuLabels[i] ) )
+                    if( ImGui::MenuItem( g_EditorLayoutMenuLabels[i], nullptr, m_pLayoutManager->GetSelectedLayout_GameMode() == (EditorLayoutTypes)i ) )
                     {
                         m_pLayoutManager->SetSelectedLayout_GameMode( (EditorLayoutTypes)i );
 
