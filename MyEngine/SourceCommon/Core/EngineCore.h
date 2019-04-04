@@ -219,6 +219,7 @@ public:
 
     virtual void RequestClose(); // Override GameCore, will popup a confirm dialog in ImGui Editor builds.
 
+    void StartFrame();
     virtual float Tick(float deltaTime);
     virtual void OnFocusGained();
     virtual void OnFocusLost();

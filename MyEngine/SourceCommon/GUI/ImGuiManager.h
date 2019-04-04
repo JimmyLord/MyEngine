@@ -52,6 +52,7 @@ public:
     void Shutdown(bool invalidateDeviceObjects = true);
 
     ImGuiContext* GetImGuiContext() { return m_pImGuiContext; }
+    bool GetFrameStarted() { return m_FrameStarted; }
 
     void OnFocusLost();
 

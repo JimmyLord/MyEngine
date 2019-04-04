@@ -489,7 +489,7 @@ void EngineCore::RequestClose()
 #endif
 }
 
-float EngineCore::Tick(float deltaTime)
+void EngineCore::StartFrame()
 {
 #if MYFW_EDITOR
     // If a change in editor perspective was requested, change it before the start of the frame.
@@ -497,6 +497,14 @@ float EngineCore::Tick(float deltaTime)
 
     m_pImGuiManager->StartFrame();
 #endif
+}
+
+float EngineCore::Tick(float deltaTime)
+{
+    if( m_pImGuiManager->GetFrameStarted() == false )
+    {
+        StartFrame();
+    }
 
     //ImGui::Begin( "Editor Debug" );
     //ImGui::Text( "IsAnyWindowHovered: %d", ImGui::IsAnyWindowHovered() );

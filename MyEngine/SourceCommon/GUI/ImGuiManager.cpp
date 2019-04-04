@@ -241,14 +241,14 @@ void ImGuiManager::StartTick(float deltaTime)
 
 void ImGuiManager::StartFrame()
 {
-    ImGui::SetCurrentContext( m_pImGuiContext );
+    if( m_FrameStarted == true )
+        return;
 
 #if MYFW_OPENGLES2
     return;
 #endif
 
-    if( m_FrameStarted == true )
-        return;
+    ImGui::SetCurrentContext( m_pImGuiContext );
 
     m_FrameStarted = true;
 

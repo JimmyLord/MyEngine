@@ -140,6 +140,7 @@ public:
     EngineCore* GetEngineCore() { return m_pEngineCore; }
     EditorLayoutManager_ImGui* GetLayoutManager() { return m_pLayoutManager; }
     Vector2 GetEditorWindowCenterPosition();
+    Vector2 GetGameWindowSize() { return m_GameWindowSize; }
     bool IsGameWindowFocused() { return m_GameWindowFocused; }
     EditorLogWindow_ImGui* GetLogWindow() { return m_pLogWindow; }
 
