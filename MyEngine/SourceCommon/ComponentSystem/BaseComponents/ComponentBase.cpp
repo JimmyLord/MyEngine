@@ -1460,7 +1460,10 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                         ImGui::Separator();
 
                     MyFileObject* pFile = *(MyFileObject**)((char*)pObject + pVar->m_Offset);
-                    g_pEngineCore->GetEditorMainFrame_ImGui()->AddContextMenuItemsForFiles( pFile );
+                    if( pFile )
+                    {
+                        g_pEngineCore->GetEditorMainFrame_ImGui()->AddContextMenuItemsForFiles( pFile );
+                    }
 
                     contextMenuItemCount++;
                 }

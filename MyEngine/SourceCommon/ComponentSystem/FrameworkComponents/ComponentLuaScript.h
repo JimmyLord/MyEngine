@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -27,7 +27,7 @@ class ExposedVariableDesc
 public:
     std::string name;
     ExposedVariableTypes type;
-    union // TODO?: make these values shared between c++ and lua so they can be changed/saved more easily.
+    union // TODO?: Make these values shared between c++ and lua so they can be changed/saved more easily.
     {
         double valuedouble;
         bool valuebool;
@@ -36,7 +36,7 @@ public:
     };
 
     bool divorced;
-    bool inuse; // used internally when reparsing the file.
+    bool inuse; // Used internally when reparsing the file.
     int controlID;
 
     ExposedVariableDesc()
@@ -62,13 +62,13 @@ typedef void LuaExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariable
 class ComponentLuaScript : public ComponentUpdateable
 {
 private:
-    // Component Variable List
+    // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentLuaScript );
 
-    static const int MAX_EXPOSED_VARS = 4; // TODO: fix this hardcodedness
+    static const int MAX_EXPOSED_VARS = 4; // TODO: Fix this hardcodedness.
 
 public:
-    LuaGameState* m_pLuaGameState; // a reference to a global lua_State managed elsewhere.
+    LuaGameState* m_pLuaGameState; // A reference to a global lua_State managed elsewhere.
 
 protected:
     bool m_ScriptLoaded;
@@ -82,14 +82,14 @@ protected:
 #if MYFW_EDITOR
     std::string m_pLuaInlineScript_OnPlay;
 #else
-    char* m_pLuaInlineScript_OnPlay; // If this isn't 0, this string will get run instead of the OnPlay function in the lua file.
+    char* m_pLuaInlineScript_OnPlay; // If this isn't nullptr, this string will get run instead of the OnPlay function in the lua file.
 #endif
     MyList<ExposedVariableDesc*> m_ExposedVars;
 
 public:
     ComponentLuaScript();
     virtual ~ComponentLuaScript();
-    SetClassnameBase( "LuaScriptComponent" ); // only first 8 character count.
+    SetClassnameBase( "LuaScriptComponent" ); // Only first 8 character count.
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
@@ -120,10 +120,10 @@ public:
     virtual void OnStop();
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
-    virtual void Tick(float deltaTime) {} // TODO: remove when clearing these out from ComponentUpdatable
+    virtual void Tick(float deltaTime) {} // TODO: Remove when clearing these out from ComponentUpdatable.
 
-    bool OnTouch(int action, int id, float x, float y, float pressure, float size) { return false; } // TODO: remove when clearing these out from ComponentUpdatable
-    bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) { return false; } // TODO: remove when clearing these out from ComponentUpdatable
+    bool OnTouch(int action, int id, float x, float y, float pressure, float size) { return false; } // TODO: Remove when clearing these out from ComponentUpdatable.
+    bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) { return false; } // TODO: Remove when clearing these out from ComponentUpdatable.
 
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentLuaScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
@@ -167,21 +167,7 @@ public:
 #endif
 
 #if MYFW_USING_WX
-    static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }
     void OnFileUpdated(MyFileObject* pFile);
-
-    static bool m_PanelWatchBlockVisible;
-    int m_ControlIDOfFirstExtern;
-
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    
-    // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentLuaScript*)pObjectPtr)->OnLeftClick( count, true ); }
-    void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
-
-    virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
-    void OnPopupClick(wxEvent &evt);
 #endif //MYFW_USING_WX
 
     // Component variable callbacks.
@@ -201,9 +187,9 @@ public:
     void OnPanelWatchExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
 #endif //MYFW_USING_WX
     
-    // exposed variable changed callback (not from watch panel)
-    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedchanging, oldvalue, oldpointer ); }
-    void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer);
+    // Exposed variable changed callback (not from watch panel).
+    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
+    void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
 
 #if MYFW_USING_WX
     ComponentLuaScriptEventHandlerForExposedVariables m_ComponentLuaScriptEventHandlerForExposedVariables;
@@ -216,6 +202,8 @@ public:
     void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedchanging, double oldvalue, void* oldpointer);
     void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, bool finishedchanging, double oldvalue, void* oldpointer);
     void CopyExposedVarValueFromParent(ExposedVariableDesc* pVar);
+
+    void ClearExposedVariableList();
 #endif //MYFW_EDITOR
 
 public:
@@ -239,11 +227,11 @@ public:
         if( m_ErrorInScript ) return false;
         //if( m_Playing == false ) return false;
 
-        // find the function and call it.
+        // Find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
-        // call pFuncName
+        // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
@@ -258,11 +246,11 @@ public:
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
-        // find the function and call it.
+        // Find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
-        // call pFuncName
+        // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
@@ -278,11 +266,11 @@ public:
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
-        // find the function and call it.
+        // Find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
-        // call pFuncName
+        // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
@@ -298,11 +286,11 @@ public:
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
-        // find the function and call it.
+        // Find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
-        // call pFuncName
+        // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
@@ -318,11 +306,11 @@ public:
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
-        // find the function and call it.
+        // Find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
-        // call pFuncName
+        // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
@@ -338,11 +326,11 @@ public:
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
-        // find the function and call it.
+        // Find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
-        // call pFuncName
+        // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
@@ -358,11 +346,11 @@ public:
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
-        // find the function and call it.
+        // Find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
-        // call pFuncName
+        // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
@@ -378,11 +366,11 @@ public:
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
-        // find the function and call it.
+        // Find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
-        // call pFuncName
+        // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
