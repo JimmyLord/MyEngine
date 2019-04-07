@@ -42,9 +42,7 @@ ComponentLuaScript::ComponentLuaScript()
 
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // Hard coded nonsense for now, max of 4 exposed vars in a script.
 
-#if MYFW_USING_WX
     g_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
-#endif
 }
 
 ComponentLuaScript::~ComponentLuaScript()
@@ -117,11 +115,6 @@ void ComponentLuaScript::Reset()
 
         delete pVariable;
     }
-
-#if MYFW_USING_WX
-    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
-    m_ControlIDOfFirstExtern = -1;
-#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_LUA
@@ -334,20 +327,72 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
 
         case ExposedVariableType_GameObject:
             {
-                ImGui::Text( "(TODO) GameObject: %s", pVar->name.c_str() );
-                // Setup name and drag and drop of game objects.
-                //const char* desc = "no gameobject";
-                //if( pVar->pointer )
-                //    desc = ((GameObject*)pVar->pointer)->GetName();
-                //id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDropExposedVar, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
+                // Group the button and the label into one "control", will make right-click context menu work on button.
+                ImGui::BeginGroup();
+
+                GameObject* pGameObject = static_cast<GameObject*>( pVar->pointer );
+
+                const char* pDesc = "none";
+                if( pGameObject )
+                {
+                    pDesc = pGameObject->GetName();
+                }
+
+                float width = ImGui::GetWindowWidth() * 0.65f;
+                if( ImGui::Button( pDesc, ImVec2( width, 0 ) ) )
+                {
+                    // TODO: Pop up a GameObject picker window.
+                }
+
+                if( ImGui::BeginDragDropTarget() )
+                {
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject" ) )
+                    {
+                        // Set the new value.
+                        GameObject* pDroppedGameObject = (GameObject*)*(void**)payload->Data;
+                        pVar->pointer = pDroppedGameObject;
+
+                        // Fix callbacks and adjust parent/child relationships.
+                        OnExposedVarValueChanged( pVar, 0, true, 0, pGameObject );
+                    }
+
+                    ImGui::EndDragDropTarget();
+                }
+
+                ImGui::SameLine();
+                ImGui::Text( pVar->name.c_str() );
+
+                ImGui::EndGroup();
+
+                // Right-click menu on group.
+                ImGui::PushID( pVar );
+                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                {
+                    //// Set color to default, since it might be set to divorced color.
+                    //Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                    //ImGui::PushStyleColor( ImGuiCol_Text, color );
+
+                    if( ImGui::MenuItem( "Clear GameObject" ) )
+                    {
+                        // Set the new value.
+                        GameObject* pDroppedGameObject = nullptr;
+                        pVar->pointer = pDroppedGameObject;
+
+                        // Fix callbacks and adjust parent/child relationships.
+                        OnExposedVarValueChanged( pVar, 0, true, 0, pGameObject );
+                    }
+
+                    //ImGui::PopStyleColor( 1 );
+
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
             }
             break;
         }
 
         if( pVar->divorced )
         {
-            //g_pPanelWatch->ChangeStaticTextFontStyle( id, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-            //g_pPanelWatch->ChangeStaticTextBGColor( id, wxColour( 255, 200, 200, 255 ) );
         }
     }
 
@@ -355,8 +400,7 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
 }
 #endif
 
-#if MYFW_USING_WX
-void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
+void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile) // StaticOnFileUpdated
 {
     if( pFile == m_pScriptFile )
     {
@@ -369,7 +413,6 @@ void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
         }
     }
 }
-#endif //MYFW_USING_WX
 
 void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, int x, int y)
 {
@@ -472,152 +515,6 @@ void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar)
 }
 #endif
 
-#if MYFW_USING_WX
-void* ComponentLuaScript::ProcessOnDropExposedVar(int controlid, int x, int y)
-{
-    void* oldpointer = nullptr;
-
-    ComponentUpdateable::OnDrop( controlid, x, y );
-
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-    if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
-    {
-        MyFileObject* pFile = static_cast<MyFileObject*>( pDropItem->m_Value );
-        MyAssert( pFile );
-
-        if( strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
-        {
-            oldpointer = m_pScriptFile;
-            SetScriptFile( pFile );
-
-            // Update the panel so new filename shows up. // TODO: This won't refresh lua variables, so maybe refresh the whole watch panel.
-            int scriptcontrolid = FindVariablesControlIDByLabel( "Script" );
-            g_pPanelWatch->GetVariableProperties( scriptcontrolid )->m_Description = m_pScriptFile->GetFullPath();
-        }
-    }
-
-    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
-    {
-        GameObject* pGameObject = static_cast<GameObject*>( pDropItem->m_Value );
-        MyAssert( pGameObject );
-
-        MyAssert( m_ControlIDOfFirstExtern != -1 );
-        if( m_ControlIDOfFirstExtern != -1 )
-        {
-            int id = g_DragAndDropStruct.GetControlID() - m_ControlIDOfFirstExtern;
-        
-            MyAssert( id < (int)m_ExposedVars.Count() );
-            if( id < (int)m_ExposedVars.Count() )
-            {
-                MyAssert( pGameObject->IsA( "GameObject" ) );
-        
-                // Unregister the old gameobject.
-                if( m_ExposedVars[id]->pointer )
-                    static_cast<GameObject*>( m_ExposedVars[id]->pointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-
-                oldpointer = m_ExposedVars[id]->pointer;
-                m_ExposedVars[id]->pointer = pGameObject;
-                static_cast<GameObject*>( m_ExposedVars[id]->pointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-
-                // Update the panel so new gameobject name shows up.
-                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pGameObject->GetName();
-            }
-        }
-    }
-
-    return oldpointer;
-}
-
-void ComponentLuaScript::OnDropExposedVar(int controlid, int x, int y)
-{
-    void* oldpointer = ProcessOnDropExposedVar( controlid, x, y );
-
-    ExposedVariableDesc* pVar = nullptr;
-
-    if( controlid != -1 )
-    {
-        for( unsigned int index=0; index<m_ExposedVars.Count(); index++ )
-        {
-            if( m_ExposedVars[index]->controlID == controlid )
-            {
-                pVar = m_ExposedVars[index];
-                break;
-            }
-        }
-    }
-
-    MyAssert( pVar != nullptr );
-
-    // Divorce the child value from it's parent, if it no longer matches.
-    if( DoesExposedVariableMatchParent( pVar ) == false ) // returns true if no parent was found.
-    {
-        // If the variable no longer matches the parent, then divorce it.
-        pVar->divorced = true;
-        g_pPanelWatch->ChangeStaticTextFontStyle( pVar->controlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-        g_pPanelWatch->ChangeStaticTextBGColor( pVar->controlID, wxColour( 255, 200, 200, 255 ) );
-    }
-
-    UpdateChildrenWithNewValue( pVar, true, 0, oldpointer );
-    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
-}
-
-void ComponentLuaScript::OnPanelWatchExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue)
-{
-    ExposedVariableDesc* pVar = nullptr;
-    int component = 0;
-    void* oldpointer = nullptr;
-
-    // Find the pVar associated with the controlid, might be a subcomponent of a vec3.
-    if( controlid != -1 && m_ControlIDOfFirstExtern != -1 )
-    {
-        for( unsigned int index=0; index<m_ExposedVars.Count(); index++ )
-        {
-            if( m_ExposedVars[index]->controlID == controlid )
-            {
-                pVar = m_ExposedVars[index];
-                break;
-            }
-
-            if( m_ExposedVars[index]->type == ExposedVariableType_Vector3 &&
-                  ( m_ExposedVars[index]->controlID + 0 != controlid ||
-                    m_ExposedVars[index]->controlID + 1 != controlid ||
-                    m_ExposedVars[index]->controlID + 2 != controlid )
-              )
-            {
-                pVar = m_ExposedVars[index];
-                component = controlid - m_ExposedVars[index]->controlID;
-                break;
-            }
-        }
-    }
-
-    // If pVar is null, the controlid wasn't found, which shouldn't happen.
-    MyAssert( pVar != nullptr );
-
-    // Deal with parts of GameObject pointers changes here.
-    if( pVar->type == ExposedVariableType_GameObject )
-    {
-        GameObject* pGameObject = static_cast<GameObject*>( pVar->pointer );
-
-        MyAssert( pGameObject->IsA( "GameObject" ) );
-
-        wxString text = g_pPanelWatch->GetVariableProperties( controlid )->GetTextCtrl()->GetValue();
-        if( text == "" || text == "none" || text == "no gameobject" )
-        {
-            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, "no gameobject" );
-
-            oldpointer = pVar->pointer;
-
-            pVar->pointer = nullptr;
-        }
-    }
-
-    // Deal with all types here (float, bool, vec3, GameObject).
-    OnExposedVarValueChanged( pVar, component, finishedchanging, oldvalue, oldpointer );
-}
-#endif //MYFW_USING_WX
-
 void ComponentLuaScript::OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer)
 {
     // Register/unregister GameObject onDelete callbacks.
@@ -644,11 +541,13 @@ void ComponentLuaScript::OnExposedVarValueChanged(ExposedVariableDesc* pVar, int
     // Divorce the child value from it's parent, if it no longer matches.
     if( DoesExposedVariableMatchParent( pVar ) == false ) // Returns true if no parent was found.
     {
-        // If the variable no longer matches the parent, then divorce it.
         pVar->divorced = true;
     }
 
-    UpdateChildrenWithNewValue( pVar, finishedChanging, oldValue, nullptr );
+    // Pass the new value to children.
+    UpdateChildrenWithNewValue( pVar, finishedChanging, oldValue, oldPointer );
+
+    // Update the lua state with the new value.
     ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 }
 

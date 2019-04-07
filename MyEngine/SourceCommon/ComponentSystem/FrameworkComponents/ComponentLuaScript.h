@@ -166,9 +166,8 @@ public:
     virtual void AddAllVariablesToWatchPanel();
 #endif
 
-#if MYFW_USING_WX
+    static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }
     void OnFileUpdated(MyFileObject* pFile);
-#endif //MYFW_USING_WX
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, int x, int y);
@@ -177,23 +176,11 @@ public:
 #if MYFW_USING_IMGUI
     void OnRightClickCallback(ComponentVariable* pVar);
 #endif
-#if MYFW_USING_WX
-    // Watch panel callbacks for exposed variables.
-    static void StaticOnDropExposedVar(void* pObjectPtr, int controlid, int x, int y) { ((ComponentLuaScript*)pObjectPtr)->OnDropExposedVar(controlid, x, y); }
-    void OnDropExposedVar(int controlid, int x, int y);
-    void* ProcessOnDropExposedVar(int controlid, int x, int y);
-
-    static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
-    void OnPanelWatchExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
-#endif //MYFW_USING_WX
     
     // Exposed variable changed callback (not from watch panel).
     static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
     void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
 
-#if MYFW_USING_WX
-    ComponentLuaScriptEventHandlerForExposedVariables m_ComponentLuaScriptEventHandlerForExposedVariables;
-#endif //MYFW_USING_WX
     static void StaticOnRightClickExposedVariable(void* pObjectPtr, int controlid) { ((ComponentLuaScript*)pObjectPtr)->OnRightClickExposedVariable( controlid ); }
     void OnRightClickExposedVariable(int controlid);
 
