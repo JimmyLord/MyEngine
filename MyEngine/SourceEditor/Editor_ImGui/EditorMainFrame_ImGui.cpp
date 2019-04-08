@@ -2276,11 +2276,11 @@ void EditorMainFrame_ImGui::AddWatchPanel()
     {
         EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
-        int numSelected = (int)pEditorState->m_pSelectedObjects.size();
+        int numGameObjectsSelected = (int)pEditorState->m_pSelectedObjects.size();
 
         // If multiple objects are selected, show their shared components.
         // If only one object is selected, just show it's components (will show nothing for empty folders).
-        if( numSelected > 0 )
+        if( numGameObjectsSelected > 0 )
         {
             // Pick the first game object, even it it's a folder.
             GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
@@ -2487,6 +2487,29 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                         //ImGui::PopStyleColor( 3 );
                     }
                 }
+            }
+        }
+
+        // Create dummy control in empty region to allow for context menu.
+        {
+            ImVec2 regionAvailable = ImGui::GetContentRegionAvail();
+            if( regionAvailable.y < 50 )
+                regionAvailable.y = 50;
+            ImGui::Dummy( regionAvailable );
+
+            // Only works when a single GameObject is selected.  TODO: Make this work with multiple.
+            if( numGameObjectsSelected == 1 )
+            {
+                // Pick the first game object, even if it's a folder.
+                GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
+
+                ImGui::PushID( pFirstGameObject );
+                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                {
+                    AddContextMenuOptionsForAddingComponents( pFirstGameObject );
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
             }
         }
     }
