@@ -189,6 +189,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
             .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
             .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
             .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
+            .addFunction( "GetGameObjectsWithinRange", &ComponentSystemManager::GetGameObjectsWithinRange ) // GameObject* ComponentSystemManager::GetGameObjectsWithinRange(Vector3 pos, float range, unsigned int flags)
             .addFunction( "Editor_LoadDataFile", &ComponentSystemManager::EditorLua_LoadDataFile ) // MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
             .addFunction( "Editor_GetFirstGameObjectFromScene", &ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene ) // GameObject* ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene(uint32 sceneID)
         .endClass();
@@ -2069,6 +2070,28 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
     MyAssert( goid != -1 );
 
     return FindGameObjectByID( sceneid, goid );
+}
+
+GameObject* ComponentSystemManager::GetGameObjectsWithinRange(Vector3 pos, float range, unsigned int flags)
+{
+    // TODO: Return more than 1 object.
+    //       Also, create a SceneGraph...
+    //       Also, rename the current SceneGraph stuff to RenderGraph...
+
+    SceneInfo* pScene = GetSceneInfo( SCENEID_MainScene );
+    for( GameObject* pGameObject = pScene->m_GameObjects.GetHead(); pGameObject != 0; pGameObject = pGameObject->GetNext() )
+    {
+        if( pGameObject->GetPropertiesComponent()->GetFlags() & flags )
+        {
+            Vector3 worldPos = pGameObject->GetTransform()->GetWorldPosition();
+            if( (worldPos - pos).LengthSquared() < range*range )
+            {
+                return pGameObject;
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid)
