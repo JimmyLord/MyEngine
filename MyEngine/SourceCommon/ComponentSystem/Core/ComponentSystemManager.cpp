@@ -189,7 +189,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
             .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
             .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
             .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
-            .addFunction( "GetGameObjectsWithinRange", &ComponentSystemManager::GetGameObjectsWithinRange ) // GameObject* ComponentSystemManager::GetGameObjectsWithinRange(Vector3 pos, float range, unsigned int flags)
+            .addFunction( "GetGameObjectsInRange", &ComponentSystemManager::Lua_GetGameObjectsInRange ) // luabridge::LuaRef ComponentSystemManager::Lua_GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags)
             .addFunction( "Editor_LoadDataFile", &ComponentSystemManager::EditorLua_LoadDataFile ) // MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
             .addFunction( "Editor_GetFirstGameObjectFromScene", &ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene ) // GameObject* ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene(uint32 sceneID)
         .endClass();
@@ -2072,7 +2072,7 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
     return FindGameObjectByID( sceneid, goid );
 }
 
-GameObject* ComponentSystemManager::GetGameObjectsWithinRange(Vector3 pos, float range, unsigned int flags)
+GameObject* ComponentSystemManager::GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags)
 {
     // TODO: Return more than 1 object.
     //       Also, create a SceneGraph...
@@ -2092,6 +2092,27 @@ GameObject* ComponentSystemManager::GetGameObjectsWithinRange(Vector3 pos, float
     }
 
     return nullptr;
+}
+
+luabridge::LuaRef ComponentSystemManager::Lua_GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags)
+{
+    // Build a Lua table storing all GameObjects in range.
+    luabridge::LuaRef gameObjectTable = luabridge::newTable( m_pEngineCore->GetLuaGameState()->m_pLuaState );
+
+    SceneInfo* pScene = GetSceneInfo( SCENEID_MainScene );
+    for( GameObject* pGameObject = pScene->m_GameObjects.GetHead(); pGameObject != 0; pGameObject = pGameObject->GetNext() )
+    {
+        if( pGameObject->GetPropertiesComponent()->GetFlags() & flags )
+        {
+            Vector3 worldPos = pGameObject->GetTransform()->GetWorldPosition();
+            if( (worldPos - pos).LengthSquared() < range*range )
+            {
+                gameObjectTable.append( pGameObject );
+            }
+        }
+    }
+
+    return gameObjectTable;
 }
 
 ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid)

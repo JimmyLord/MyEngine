@@ -888,7 +888,7 @@
     //            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
     //            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
     //            .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
-    // (TODO)     .addFunction( "GetGameObjectsWithinRange", &ComponentSystemManager::GetGameObjectsWithinRange ) // GameObject* ComponentSystemManager::GetGameObjectsWithinRange(Vector3 pos, float range, unsigned int flags)
+    // (TODO)     .addFunction( "GetGameObjectsInRange", &ComponentSystemManager::Lua_GetGameObjectsInRange ) // luabridge::LuaRef ComponentSystemManager::Lua_GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags)
     // (TODO)     .addFunction( "Editor_LoadDataFile", &ComponentSystemManager::EditorLua_LoadDataFile ) // MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
     // (TODO)     .addFunction( "Editor_GetFirstGameObjectFromScene", &ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene ) // GameObject* ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene(uint32 sceneID)
     //        .endClass();

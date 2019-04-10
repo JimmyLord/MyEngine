@@ -207,6 +207,7 @@ public:
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
     virtual LuaGameState* CreateLuaGameState() { return MyNew LuaGameState( this ); }
+    LuaGameState* GetLuaGameState() { return m_pLuaGameState; }
 #endif //MYFW_USING_LUA
 
     virtual void InitializeManagers();
