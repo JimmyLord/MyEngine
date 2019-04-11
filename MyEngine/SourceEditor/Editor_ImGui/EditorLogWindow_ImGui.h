@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2018-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -26,7 +26,7 @@ protected:
     std::vector<LogEntry> m_LoggedMessages;
     //ImGuiTextBuffer     m_TextBuffer;
     //ImGuiTextFilter     m_Filter;
-    //ImVector<int>       m_LineOffsets;        // Index to lines offset
+    //ImVector<int>       m_LineOffsets;        // Index to lines offset.
     bool m_ScrollToBottom;
     char m_Filter[100];
 
@@ -38,11 +38,13 @@ public:
 
     void Clear();
     void AddLog(LogEntry logentry);
-    void Draw(const char* title, bool* p_open = 0);
+    void Draw(const char* title, bool* p_open = nullptr);
 
     void DrawStart(const char* title, bool* p_open);
     void DrawMid();
     void DrawEnd();
+
+    void SetScrollToBottom() { m_ScrollToBottom = true; }
 };
 
 #endif //__EditorLogWindow_ImGui_H__

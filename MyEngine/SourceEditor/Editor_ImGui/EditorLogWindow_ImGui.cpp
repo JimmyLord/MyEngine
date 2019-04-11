@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2018-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -35,15 +35,15 @@ EditorLogWindow_ImGui::EditorLogWindow_ImGui(bool isGlobalLog)
         g_pGlobalLog = this;
 
     m_ScrollToBottom = false;
-    m_Filter[0] = 0;
+    m_Filter[0] = '\0';
 
-    pthread_mutex_init( &m_MessageLogMutex, 0 );
+    pthread_mutex_init( &m_MessageLogMutex, nullptr );
     g_pMessageLogCallbackFunction = EditorLogWindow_ImGui_MessageLog;
 }
 
 EditorLogWindow_ImGui::~EditorLogWindow_ImGui()
 {
-    g_pMessageLogCallbackFunction = 0;
+    g_pMessageLogCallbackFunction = nullptr;
     pthread_mutex_destroy( &m_MessageLogMutex );
 }
 
@@ -86,7 +86,7 @@ void EditorLogWindow_ImGui::DrawMid()
     ImGui::SameLine();
     if( ImGui::Button( "X" ) )
     {
-        m_Filter[0] = 0;
+        m_Filter[0] = '\0';
     }
     
     ImGui::Separator();
@@ -97,7 +97,9 @@ void EditorLogWindow_ImGui::DrawMid()
         ImGui::LogToClipboard();
     }
 
-    if( m_Filter[0] != 0 )
+    float totalHeight = -1;
+
+    if( m_Filter[0] != '\0' )
     {
         for( unsigned int i = 0; i < m_LoggedMessages.size(); i++ )
         {
@@ -109,7 +111,6 @@ void EditorLogWindow_ImGui::DrawMid()
     }
     else
     {
-        //for( unsigned int i = 0; i < m_LoggedMessages.size(); i++ )
         ImGuiListClipper clipper( (int)m_LoggedMessages.size() );
         while( clipper.Step() )
         {
@@ -118,6 +119,8 @@ void EditorLogWindow_ImGui::DrawMid()
                 DrawSingleLogEntry( i );
             }
         }
+
+        totalHeight = m_LoggedMessages.size() * clipper.ItemsHeight;
     }
 
     if( copy )
@@ -125,9 +128,9 @@ void EditorLogWindow_ImGui::DrawMid()
         ImGui::LogFinish();
     }
 
-    if( m_ScrollToBottom )
+    if( m_ScrollToBottom && totalHeight > 0 )
     {
-        ImGui::SetScrollHere();
+        ImGui::SetScrollFromPosY( totalHeight );
         m_ScrollToBottom = false;
     }
     
@@ -147,8 +150,6 @@ void EditorLogWindow_ImGui::DrawSingleLogEntry(unsigned int lineindex)
 {
     LogEntry* pLogEntry = &m_LoggedMessages[lineindex];
 
-    //ImGui::TextUnformatted( m_LoggedMessages[i].message.c_str() );
-
     if( pLogEntry->logtype == 0 )
     {
         ImGui::PushStyleColor( ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f) );
@@ -166,8 +167,6 @@ void EditorLogWindow_ImGui::DrawSingleLogEntry(unsigned int lineindex)
     }
 
     ImGui::SameLine();
-    //ImGui::Text( pLogEntry->tag.c_str() );
-    //ImGui::SameLine();
     if( ImGui::MenuItem( pLogEntry->message.c_str() ) )
     {
     }

@@ -10,6 +10,7 @@
 #include "MyEnginePCH.h"
 
 #include "EditorLayoutManager_ImGui.h"
+#include "EditorLogWindow_ImGui.h"
 #include "ImGuiStylePrefs.h"
 #include "../../SourceCommon/Core/EngineCore.h"
 #include "../../SourceEditor/EditorPrefs.h"
@@ -239,6 +240,9 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
         // Store the index to the active layout and have imgui load the ini string.
         m_CurrentLayoutIndex = m_RequestedLayoutIndex;
         ImGui::LoadIniSettingsFromMemory( m_CustomLayouts[m_CurrentLayoutIndex].m_ImGuiIniString.c_str() );
+
+        // Force log window to scroll to bottom.
+        m_pEditorMainFrame_ImGui->GetLogWindow()->SetScrollToBottom();
     }
 }
 
