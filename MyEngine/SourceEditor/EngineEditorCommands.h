@@ -41,6 +41,7 @@ class EditorCommand_Move2DPoint;
 class EditorCommand_Insert2DPoint;
 class EditorCommand_Delete2DPoint;
 class EditorCommand_ComponentVariablePointerChanged;
+class EditorCommand_LuaExposedVariableFloatChanged;
 class EditorCommand_LuaExposedVariablePointerChanged;
 class EditorCommand_DeletePrefabs;
 class EditorCommand_DivorceOrMarryComponentVariable;
@@ -541,6 +542,27 @@ protected:
 public:
     EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue* pNewValue);
     virtual ~EditorCommand_ComponentVariablePointerChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_LuaExposedVariableFloatChanged : public EditorCommand
+{
+protected:
+    double m_NewValue;
+    double m_OldValue;
+    ExposedVariableDesc* m_pVar;
+
+    LuaExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
+    void* m_pCallbackObj;
+
+public:
+    EditorCommand_LuaExposedVariableFloatChanged(double newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
+    virtual ~EditorCommand_LuaExposedVariableFloatChanged();
 
     virtual void Do();
     virtual void Undo();

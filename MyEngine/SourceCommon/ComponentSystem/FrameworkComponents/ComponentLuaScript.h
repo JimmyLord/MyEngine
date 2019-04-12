@@ -163,6 +163,11 @@ public:
     void CreateNewScriptFile();
 
 #if MYFW_USING_IMGUI
+    // For TestForVariableModificationAndCreateUndoCommand.
+    double m_ValueWhenControlSelected;
+    ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
+    bool m_LinkNextUndoCommandToPrevious;
+
     virtual void AddAllVariablesToWatchPanel();
 #endif
 

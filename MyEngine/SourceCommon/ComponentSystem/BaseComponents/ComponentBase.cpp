@@ -21,8 +21,8 @@
 #include "../SourceEditor/EditorState.h"
 #endif
 
-#include "GUI/ImGuiExtensions.h"
 #if MYFW_USING_IMGUI
+#include "GUI/ImGuiExtensions.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 #endif
@@ -46,6 +46,12 @@ ComponentBase::ComponentBase()
 #if MYFW_USING_WX
     m_ControlID_ComponentTitleLabel = -1;
     m_pPanelWatchBlockVisible = 0;
+#endif
+
+#if MYFW_USING_IMGUI
+    //m_ComponentVariableValueWhenControlSelected;
+    m_ImGuiControlIDForCurrentlySelectedVariable = -1;
+    m_LinkNextUndoCommandToPrevious = false;
 #endif
 
     m_CallbacksRegistered = false;

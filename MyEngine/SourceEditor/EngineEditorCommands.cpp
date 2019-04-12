@@ -1651,6 +1651,48 @@ EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_LuaExposedVariableFloatChanged
+//====================================================================================================
+
+EditorCommand_LuaExposedVariableFloatChanged::EditorCommand_LuaExposedVariableFloatChanged(double newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
+{
+    m_Name = "EditorCommand_LuaExposedVariableFloatChanged";
+
+    m_NewValue = newValue;
+    m_pVar = pVar;
+
+    m_OldValue = pVar->valuedouble;
+
+    m_pOnValueChangedCallBackFunc = callbackFunc;
+    m_pCallbackObj = callbackObj;
+}
+
+EditorCommand_LuaExposedVariableFloatChanged::~EditorCommand_LuaExposedVariableFloatChanged()
+{
+}
+
+void EditorCommand_LuaExposedVariableFloatChanged::Do()
+{
+    m_pVar->valuedouble = m_NewValue;
+
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_OldValue, nullptr );
+}
+
+void EditorCommand_LuaExposedVariableFloatChanged::Undo()
+{
+    m_pVar->valuedouble = m_OldValue;
+
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_NewValue, nullptr );
+}
+
+EditorCommand* EditorCommand_LuaExposedVariableFloatChanged::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
 // EditorCommand_LuaExposedVariablePointerChanged
 //====================================================================================================
 
@@ -1675,10 +1717,6 @@ void EditorCommand_LuaExposedVariablePointerChanged::Do()
 {
     m_pVar->pointer = m_NewValue;
 
-#if MYFW_USING_WX
-    g_pPanelWatch->UpdatePanel();
-#endif
-
     if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_OldValue );
 }
@@ -1686,10 +1724,6 @@ void EditorCommand_LuaExposedVariablePointerChanged::Do()
 void EditorCommand_LuaExposedVariablePointerChanged::Undo()
 {
     m_pVar->pointer = m_OldValue;
-
-#if MYFW_USING_WX
-    g_pPanelWatch->UpdatePanel();
-#endif
 
     if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_NewValue );

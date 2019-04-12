@@ -17,6 +17,7 @@
 #include "../../../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
 #if MYFW_EDITOR
+#include "GUI/ImGuiExtensions.h"
 #include "../SourceEditor/EngineEditorCommands.h"
 #endif
 
@@ -41,6 +42,12 @@ ComponentLuaScript::ComponentLuaScript()
 #endif
 
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // Hard coded nonsense for now, max of 4 exposed vars in a script.
+
+#if MYFW_EDITOR
+    m_ValueWhenControlSelected = 0;
+    m_ImGuiControlIDForCurrentlySelectedVariable = -1;
+    m_LinkNextUndoCommandToPrevious = false;
+#endif
 
     g_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
 }
@@ -281,11 +288,47 @@ void ComponentLuaScript::CreateNewScriptFile()
 }
 
 #if MYFW_USING_IMGUI
+void TestForLuaExposedVariableModificationAndCreateUndoCommand(ComponentLuaScript* pComponent, ImGuiID id, bool modified, ExposedVariableDesc* pVar, double newValue)
+{
+    MyAssert( pComponent != nullptr );
+
+    // If the id passed in is different than the last known value, then assume a new control was selected.
+    if( id != pComponent->m_ImGuiControlIDForCurrentlySelectedVariable )
+    {
+        // If a new control was selected, store the starting value and start a new undo chain.
+        pComponent->m_ValueWhenControlSelected = pVar->valuedouble;
+        pComponent->m_LinkNextUndoCommandToPrevious = false;
+        pComponent->m_ImGuiControlIDForCurrentlySelectedVariable = id;
+    }
+
+    // If the control returned true to indicate it was modified, then create an undo command.
+    if( modified && id != 0 )
+    {
+        MyAssert( id == pComponent->m_ImGuiControlIDForCurrentlySelectedVariable );
+
+        // Add an undo action.
+        EditorCommand* pCommand = MyNew EditorCommand_LuaExposedVariableFloatChanged(
+            newValue, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, pComponent );
+
+        pComponent->GetComponentSystemManager()->GetEngineCore()->GetCommandStack()->Do( pCommand, pComponent->m_LinkNextUndoCommandToPrevious );
+
+        // Link the next undo command to this one.
+        // TODO: Since we're passing in the starting value,
+        //       we can actually replace the old command rather than link to it.
+        pComponent->m_LinkNextUndoCommandToPrevious = true;
+    }
+}
+
 void ComponentLuaScript::AddAllVariablesToWatchPanel()
 {
     ComponentBase::AddAllVariablesToWatchPanel();
 
     ImGui::Indent( 20 );
+
+    if( ImGui::GetIO().MouseDown[0] == false )
+    {
+        m_LinkNextUndoCommandToPrevious = false;
+    }
 
     // Add all component variables.
     for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
@@ -304,10 +347,8 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
                 bool modified = ImGui::DragFloat( pVar->name.c_str(), &tempFloat, 0.1f );
                 if( modified )
                 {
-                    OnExposedVarValueChanged( pVar, 0, true, pVar->valuedouble, nullptr );
+                    TestForLuaExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetActiveItemId(), modified, pVar, tempFloat );
                 }
-                pVar->valuedouble = tempFloat;
-                //id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->valuedouble, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
             }
             break;
 
@@ -350,10 +391,7 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
                     {
                         // Set the new value.
                         GameObject* pDroppedGameObject = (GameObject*)*(void**)payload->Data;
-                        pVar->pointer = pDroppedGameObject;
-
-                        // Fix callbacks and adjust parent/child relationships.
-                        OnExposedVarValueChanged( pVar, 0, true, 0, pGameObject );
+                        m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged( pDroppedGameObject, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                     }
 
                     ImGui::EndDragDropTarget();
@@ -375,11 +413,9 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
                     if( ImGui::MenuItem( "Clear GameObject" ) )
                     {
                         // Set the new value.
-                        GameObject* pDroppedGameObject = nullptr;
-                        pVar->pointer = pDroppedGameObject;
-
-                        // Fix callbacks and adjust parent/child relationships.
-                        OnExposedVarValueChanged( pVar, 0, true, 0, pGameObject );
+                        GameObject* pNewGameObject = nullptr;
+                        m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
+                            pNewGameObject, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                     }
 
                     //ImGui::PopStyleColor( 1 );
@@ -497,7 +533,7 @@ void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar)
             // TODO: This undo/redo method is currently losing exposed variable values, here and in regular drag/drop cases.
             //       Fix along with fixing undo/redo for exposed variables in general.
             // Simulate drag/drop of a nullptr for undo/redo.
-            g_pGameCore->GetCommandStack()->Add(
+            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add(
                 MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1, DragAndDropType_FileObjectPointer, nullptr, m_pScriptFile ) );
 
             // Clear script file.
@@ -856,7 +892,7 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             OnExposedVarValueChanged( pVar, 0, true, oldvalue, nullptr );
 
 #if MYFW_USING_WX
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue - oldvalue, PanelWatchType_Double, ((char*)&pVar->valuedouble), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
 #endif
@@ -873,7 +909,7 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             OnExposedVarValueChanged( pVar, 0, true, oldvalue, nullptr );
 
 #if MYFW_USING_WX
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue - oldvalue, PanelWatchType_Bool, ((char*)&pVar->valuebool), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
 #endif
@@ -892,13 +928,13 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             OnExposedVarValueChanged( pVar, 2, true, oldvalue.z, nullptr );
 
 #if MYFW_USING_WX
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)&pVar->valuevector3[0]), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)&pVar->valuevector3[1]), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue.z - oldvalue.z, PanelWatchType_Float, ((char*)&pVar->valuevector3[2]), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
 #endif
@@ -1469,7 +1505,7 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
     if( m_ScriptLoaded == false )
         return;
 
-    // Set "this" to the data table storing this gameobjects script data "_GameObject_<ID>".
+    // Set "this" to the data table storing this gameobjects script data "_GameObject_<SceneID>_<ID>".
     char gameobjectname[100];
     sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
     luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
@@ -1539,7 +1575,7 @@ void ComponentLuaScript::SetExternFloat(const char* name, float newValue)
     }
 #endif
 
-    // Set "this" to the data table storing this gameobjects script data "_GameObject_<ID>".
+    // Set "this" to the data table storing this gameobjects script data "_GameObject_<SceneID>_<ID>".
     char gameobjectname[100];
     sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
     luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
@@ -1786,13 +1822,11 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
         {
             if( pVar->pointer == pGameObject )
             {
-#if MYFW_USING_WX
-                if( g_pGameCore->GetCommandStack() )
+                if( m_pComponentSystemManager->GetEngineCore()->GetCommandStack() )
                 {
-                    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
+                    m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
                         0, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                 }
-#endif
                 pVar->pointer = nullptr;
             }
         }

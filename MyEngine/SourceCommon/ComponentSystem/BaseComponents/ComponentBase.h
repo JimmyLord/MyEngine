@@ -101,6 +101,7 @@ public:
     virtual void OnGameObjectDisabled();
 
     // Getters.
+    ComponentSystemManager* GetComponentSystemManager() { return m_pComponentSystemManager; }
     BaseComponentTypes GetBaseType() { return m_BaseType; }
     int GetType() { return m_Type; }
     const char* GetTypeName();
