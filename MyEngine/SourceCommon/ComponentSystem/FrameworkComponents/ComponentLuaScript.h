@@ -76,6 +76,7 @@ protected:
     bool m_ErrorInScript;
     bool m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading;
 
+    luabridge::LuaRef m_DataTable;
     const ComponentLuaScript* m_pCopyExternsFromThisComponentAfterLoadingScript;
 
     MyFileObject* m_pScriptFile;
@@ -226,8 +227,10 @@ public:
         // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
+        assert( m_DataTable.isTable() );
+
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]() == LUA_OK ) return true; return false; }
+        try { if( LuaObject[pFuncName]( m_DataTable ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -245,8 +248,10 @@ public:
         // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
+        assert( m_DataTable.isTable() );
+
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]() == LUA_OK ) return true; return false; }
+        try { if( LuaObject[pFuncName]( m_DataTable ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -265,8 +270,10 @@ public:
         // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
+        assert( m_DataTable.isTable() );
+
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]( p1 ) == LUA_OK ) return true; return false; }
+        try { if( LuaObject[pFuncName]( m_DataTable, p1 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -285,8 +292,10 @@ public:
         // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
+        assert( m_DataTable.isTable() );
+
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]( p1, p2 ) == LUA_OK ) return true; return false; }
+        try { if( LuaObject[pFuncName]( m_DataTable, p1, p2 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -305,8 +314,10 @@ public:
         // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
+        assert( m_DataTable.isTable() );
+
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]( p1, p2, p3 ) == LUA_OK ) return true; return false; }
+        try { if( LuaObject[pFuncName]( m_DataTable, p1, p2, p3 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -325,8 +336,10 @@ public:
         // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
+        assert( m_DataTable.isTable() );
+
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]( p1, p2, p3, p4, p5 ) == LUA_OK ) return true; return false; }
+        try { if( LuaObject[pFuncName]( m_DataTable, p1, p2, p3, p4, p5 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -345,8 +358,10 @@ public:
         // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
+        assert( m_DataTable.isTable() );
+
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]( p1, p2, p3, p4, p5, p6 ) == LUA_OK ) return true; return false; }
+        try { if( LuaObject[pFuncName]( m_DataTable, p1, p2, p3, p4, p5, p6 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -365,8 +380,10 @@ public:
         // Call pFuncName.
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
+        assert( m_DataTable.isTable() );
+
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]( p1, p2, p3, p4, p5, p6, p7, p8 ) == LUA_OK ) return true; return false; }
+        try { if( LuaObject[pFuncName]( m_DataTable, p1, p2, p3, p4, p5, p6, p7, p8 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
