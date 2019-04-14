@@ -28,7 +28,6 @@ MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLuaScript ); //_VARIABLE_LIST
 
 ComponentLuaScript::ComponentLuaScript()
 : ComponentUpdateable()
-, m_DataTable( g_pLuaGameState->m_pLuaState )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -36,6 +35,9 @@ ComponentLuaScript::ComponentLuaScript()
 
     m_BaseType = BaseComponentType_Updateable;
     m_Type = ComponentType_LuaScript;
+
+    m_LuaGameObjectName[0] = '\0';
+    m_pCopyExternsFromThisComponentAfterLoadingScript = nullptr;
 
     m_pScriptFile = nullptr;
 #if !MYFW_EDITOR
@@ -177,25 +179,25 @@ void ComponentLuaScript::CreateNewScriptFile()
     //if( m_pScriptFile == nullptr )
     {
         // Generally offer to create scripts in Scripts folder.
-        const char* initialpath = "Data\\Scripts\\";
+        const char* initialPath = "Data\\Scripts\\";
 
-        bool ismenuactionscript = false;
-        bool ismeshscript = false;
+        bool isMenuActionScript = false;
+        bool isMeshScript = false;
 
         // If a ComponentMenuPage is attached to this game object, then offer to make the file in the menus folder.
         if( m_pGameObject->GetFirstComponentOfType( "MenuPageComponent" ) != nullptr )
         {
-            ismenuactionscript = true;
-            initialpath = "Data\\Menus\\";
+            isMenuActionScript = true;
+            initialPath = "Data\\Menus\\";
         }
 
         // If a ComponentMesh is attached to this game object, then add a SetupCustomUniforms callback.
         if( m_pGameObject->GetFirstComponentOfType( "MeshComponent" ) != nullptr )
         {
-            ismeshscript = true;
+            isMeshScript = true;
         }
 
-        const char* filename = FileSaveDialog( initialpath, "Lua script files\0*.lua\0All\0*.*\0" );
+        const char* filename = FileSaveDialog( initialPath, "Lua script files\0*.lua\0All\0*.*\0" );
         if( filename[0] != '\0' )
         {
             int len = (int)strlen( filename );
@@ -227,7 +229,7 @@ void ComponentLuaScript::CreateNewScriptFile()
 
                 if( file )
                 {
-                    if( ismenuactionscript )
+                    if( isMenuActionScript )
                     {
                         fprintf( file, "-- Menu Action File\n" );
                         fprintf( file, "\n" );
@@ -267,7 +269,7 @@ void ComponentLuaScript::CreateNewScriptFile()
                         fprintf( file, "\n" );
                         fprintf( file, "Tick = function(deltaTime)\n" );
 
-                        if( ismeshscript )
+                        if( isMeshScript )
                         {
                             fprintf( file, "end,\n" );
                             fprintf( file, "\n" );
@@ -729,7 +731,7 @@ bool ComponentLuaScript::DoesExposedVariableMatchParent(ExposedVariableDesc* pVa
     return true; // The object has no parent, we say it matches.
 }
 
-void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedchanging, double oldvalue, void* oldpointer)
+void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedChanging, double oldValue, void* oldPointer)
 {
     MyAssert( pVar );
 
@@ -751,32 +753,32 @@ void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, b
                 if( pSceneInfo->m_GameObjects.GetHead() )
                 {
                     GameObject* first = pSceneInfo->m_GameObjects.GetHead();
-                    UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, first, finishedchanging, oldvalue, oldpointer );
+                    UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, first, finishedChanging, oldValue, oldPointer );
                 } 
             }
         }
     }
 }
 
-void ComponentLuaScript::UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedchanging, double oldvalue, void* oldpointer)
+void ComponentLuaScript::UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedChanging, double oldValue, void* oldPointer)
 {
     // Find children of this gameobject and change their values as well, if their value matches the old value.
     for( GameObject* pGameObject = first; pGameObject; pGameObject = pGameObject->GetNext() )
     {
         if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {
-            UpdateChildGameObjectWithNewValue( pVar, varindex, pGameObject, finishedchanging, oldvalue, oldpointer );
+            UpdateChildGameObjectWithNewValue( pVar, varindex, pGameObject, finishedChanging, oldValue, oldPointer );
         }
 
         GameObject* pFirstChild = pGameObject->GetFirstChild();
         if( pFirstChild )
         {
-            UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, pFirstChild, finishedchanging, oldvalue, oldpointer );
+            UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, pFirstChild, finishedChanging, oldValue, oldPointer );
         }
     }
 }
 
-void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, bool finishedchanging, double oldvalue, void* oldpointer)
+void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varIndex, GameObject* pChildGameObject, bool finishedChanging, double oldValue, void* oldPointer)
 {
     if( pChildGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
     {
@@ -798,7 +800,7 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                 for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
                 {
                     if( pChildLuaScript->m_ExposedVars.Count() > i &&
-                        m_ExposedVars[varindex]->name == pChildLuaScript->m_ExposedVars[i]->name )
+                        m_ExposedVars[varIndex]->name == pChildLuaScript->m_ExposedVars[i]->name )
                     {
                         pChildVar = pChildLuaScript->m_ExposedVars[i];
                         break;
@@ -811,13 +813,13 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                     if( pChildVar->type == ExposedVariableType_Float ||
                         pChildVar->type == ExposedVariableType_Bool )
                     {
-                        if( fequal( pChildVar->valuedouble, oldvalue ) )
+                        if( fequal( pChildVar->valuedouble, oldValue ) )
                         {
                             pChildVar->valuedouble = pVar->valuedouble;
                             //pChildLuaScript->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue );
 
                             pChildLuaScript->ProgramVariables( m_pLuaGameState->m_pLuaState, true );
-                            pChildLuaScript->UpdateChildrenWithNewValue( pChildVar, finishedchanging, oldvalue, oldpointer );
+                            pChildLuaScript->UpdateChildrenWithNewValue( pChildVar, finishedChanging, oldValue, oldPointer );
                         }
                     }
 
@@ -830,20 +832,20 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                         //    pChildLuaScript->OnValueChanged( controlid, finishedchanging, oldvalue );
 
                         //    pChildLuaScript->ProgramVariables( m_pLuaGameState->m_pLuaState, true );
-                        //    pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                        //    pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedChanging, oldValue, oldPointer );
                         //}
                     }
 
                     if( pVar->type == ExposedVariableType_GameObject )
                     {
-                        if( pChildVar->pointer == oldpointer )
+                        if( pChildVar->pointer == oldPointer )
                         {
                             pChildVar->pointer = pVar->pointer;
                             if( pVar->pointer )
                                 static_cast<GameObject*>( pVar->pointer )->RegisterOnDeleteCallback( pChildLuaScript, StaticOnGameObjectDeleted );
 
                             pChildLuaScript->ProgramVariables( m_pLuaGameState->m_pLuaState, true );
-                            pChildLuaScript->UpdateChildrenWithNewValue( pChildVar, finishedchanging, oldvalue, oldpointer );
+                            pChildLuaScript->UpdateChildrenWithNewValue( pChildVar, finishedChanging, oldValue, oldPointer );
                         }
                     }
                 }
@@ -1263,15 +1265,14 @@ void ComponentLuaScript::LoadScript()
                     if( LuaObject.isTable() )
                     {
                         // Create a table to store local variables unique to this component.
-                        char gameobjectname[100];
-                        sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
-                        m_DataTable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
+                        sprintf_s( m_LuaGameObjectName, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
+                        luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-                        if( m_DataTable.isTable() == false )
+                        if( gameObjectData.isTable() == false )
                         {
-                            m_DataTable = luabridge::newTable( m_pLuaGameState->m_pLuaState );
-                            luabridge::setGlobal( m_pLuaGameState->m_pLuaState, m_DataTable, gameobjectname );
-                            m_DataTable["gameobject"] = m_pGameObject;
+                            gameObjectData = luabridge::newTable( m_pLuaGameState->m_pLuaState );
+                            luabridge::setGlobal( m_pLuaGameState->m_pLuaState, gameObjectData, m_LuaGameObjectName );
+                            gameObjectData["gameobject"] = m_pGameObject;
                         }
 
                         ParseExterns( LuaObject );
@@ -1506,11 +1507,8 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
     if( m_ScriptLoaded == false )
         return;
 
-    // Set "this" to the data table storing this gameobjects script data "_GameObject_<SceneID>_<ID>".
-    //char gameobjectname[100];
-    //sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
-    //m_DataTable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
-    //luabridge::setGlobal( m_pLuaGameState->m_pLuaState, datatable, "this" );
+    // Get the Lua data table for this GameObject.
+    luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
     // Only program the exposed vars if they change.
     if( updateExposedVariables )
@@ -1520,16 +1518,16 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
             ExposedVariableDesc* pVar = m_ExposedVars[i];
 
             if( pVar->type == ExposedVariableType_Float )
-                m_DataTable[pVar->name] = pVar->valuedouble;
+                gameObjectData[pVar->name] = pVar->valuedouble;
 
             if( pVar->type == ExposedVariableType_Bool )
-                m_DataTable[pVar->name] = pVar->valuebool;
+                gameObjectData[pVar->name] = pVar->valuebool;
 
             if( pVar->type == ExposedVariableType_Vector3 )
-                m_DataTable[pVar->name] = Vector3( pVar->valuevector3[0], pVar->valuevector3[1], pVar->valuevector3[2] );
+                gameObjectData[pVar->name] = Vector3( pVar->valuevector3[0], pVar->valuevector3[1], pVar->valuevector3[2] );
 
             if( pVar->type == ExposedVariableType_GameObject )
-                m_DataTable[pVar->name] = static_cast<GameObject*>( pVar->pointer );
+                gameObjectData[pVar->name] = static_cast<GameObject*>( pVar->pointer );
         }
     }
 }
@@ -1576,11 +1574,12 @@ void ComponentLuaScript::SetExternFloat(const char* name, float newValue)
     }
 #endif
 
-    // Set "this" to the data table storing this gameobjects script data "_GameObject_<SceneID>_<ID>".
-    MyAssert( m_DataTable.isTable() );
+    // Get the GameObjectData table from the lua state for this object.
+    luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
+    MyAssert( gameObjectData.isTable() );
 
     // Set the new value.
-    m_DataTable[name] = newValue;
+    gameObjectData[name] = newValue;
 }
 
 void ComponentLuaScript::HandleLuaError(const char* functionname, const char* errormessage)
@@ -1619,10 +1618,10 @@ void ComponentLuaScript::OnPlay()
     // Check for an inline OnPlay function and call it.
     {
         // Generate the name for the object/table that contains our inline scripts.
-        char inlinescriptname[100];
-        sprintf_s( inlinescriptname, 100, "_InlineScript_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
+        char inlineScriptName[100];
+        sprintf_s( inlineScriptName, 100, "_InlineScript_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
 
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, inlinescriptname );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, inlineScriptName );
         
         if( LuaObject.isTable() )
         {
@@ -1630,7 +1629,8 @@ void ComponentLuaScript::OnPlay()
             {
                 try
                 {
-                    LuaObject["OnPlay"]( m_DataTable );
+                    luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
+                    LuaObject["OnPlay"]( gameObjectData );
                 }
                 catch(luabridge::LuaException const& e)
                 {
@@ -1754,7 +1754,8 @@ void ComponentLuaScript::TickCallback(float deltaTime)
                     ProgramVariables( LuaObject, true );
                     try
                     {
-                        LuaObject["OnPlay"]( m_DataTable );
+                        luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
+                        LuaObject["OnPlay"]( gameObjectData );
                     }
                     catch(luabridge::LuaException const& e)
                     {
