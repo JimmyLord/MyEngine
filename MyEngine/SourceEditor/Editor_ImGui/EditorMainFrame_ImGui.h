@@ -36,6 +36,7 @@ enum EditorWindowTypes
     EditorWindow_Debug_MousePicker,
     EditorWindow_Debug_Stuff,
     EditorWindow_Debug_MemoryAllocations,
+    EditorWindow_Debug_CommandStacks,
     EditorWindow_Debug_ImGuiDemo,
     EditorWindow_NumTypes,
 };
@@ -179,6 +180,7 @@ protected:
     void AddWatchPanel();
     void AddLogWindow();
     void AddMemoryWindow();
+    void AddCommandStacksWindow();
     void AddMemoryPanel();
 
     void AddContextMenuOptionsForAddingComponents(GameObject* pGameObject);

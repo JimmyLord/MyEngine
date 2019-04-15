@@ -54,6 +54,7 @@ const char* g_DefaultEditorWindowTypeMenuLabels[EditorWindow_NumTypes] =
     "Debug: Mouse Picker",
     "Debug: Stuff",
     "Debug: Memory Allocations",
+    "Debug: Undo/Redo Stacks",
     "Debug: ImGui Demo",
 };
 
@@ -522,6 +523,7 @@ void EditorMainFrame_ImGui::AddEverything()
     AddWatchPanel();
     AddLogWindow();
     AddMemoryWindow();
+    AddCommandStacksWindow();
     AddMemoryPanel();
 
     AddDebug_MousePicker();
@@ -2560,6 +2562,39 @@ void EditorMainFrame_ImGui::AddMemoryWindow()
 
         m_pMemoryWindow->DrawMid();
         m_pMemoryWindow->DrawEnd();
+    }
+}
+
+void EditorMainFrame_ImGui::AddCommandStacksWindow()
+{
+    ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowPos( ImVec2(6, 476), ImGuiCond_FirstUseEver );
+
+    if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_CommandStacks] )
+    {
+        CommandStack* pCommandStack = m_pEngineCore->GetCommandStack();
+        if( pCommandStack )
+        {
+            if( ImGui::CollapsingHeader( "Undo Commands", nullptr, ImGuiTreeNodeFlags_DefaultOpen ) )
+            {
+                for( uint32 i=pCommandStack->GetUndoStackSize(); i>0; i-- )
+                {
+                    EditorCommand* pCommand = pCommandStack->GetUndoCommandAtIndex( i-1 );
+
+                    ImGui::Text( "%s", pCommand->GetName() );
+                }
+            }
+
+            if( ImGui::CollapsingHeader( "Redo Commands", nullptr, ImGuiTreeNodeFlags_DefaultOpen ) )
+            {
+                for( uint32 i=pCommandStack->GetRedoStackSize(); i>0; i-- )
+                {
+                    EditorCommand* pCommand = pCommandStack->GetRedoCommandAtIndex( i-1 );
+
+                    ImGui::Text( "%s", pCommand->GetName() );
+                }
+            }
+        }        
     }
 }
 
