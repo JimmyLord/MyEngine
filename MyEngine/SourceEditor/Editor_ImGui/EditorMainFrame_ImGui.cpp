@@ -190,6 +190,7 @@ EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
     SAFE_DELETE( m_pAnimPlayerComponent );
 
     SAFE_DELETE( m_pCommandStack );
+    m_pEngineCore->SetCommandStack( nullptr );
     SAFE_DELETE( m_pLogWindow );
     SAFE_DELETE( m_pMemoryWindow );
 

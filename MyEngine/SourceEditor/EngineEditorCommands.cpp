@@ -1238,6 +1238,8 @@ EditorCommand* EditorCommand_EnableObject::Repeat()
 
 EditorCommand_DragAndDropEvent::EditorCommand_DragAndDropEvent(ComponentBase* pComponent, ComponentVariable* pVar, int controlcomponent, int x, int y, DragAndDropTypes type, void* newValue, void* oldValue)
 {
+    m_Name = "EditorCommand_DragAndDropEvent";
+
     m_pComponent = pComponent;
     m_pVar = pVar;
     m_ControlComponent = controlcomponent;
@@ -2137,10 +2139,10 @@ EditorCommand* EditorCommand_ReorderOrReparentGameObjects::Repeat()
 
 EditorCommand_RestorePrefabComponent::EditorCommand_RestorePrefabComponent(GameObject* pObject, uint32 deletedPrefabComponentID)
 {
+    m_Name = "EditorCommand_RestorePrefabComponent";
+
     MyAssert( m_pGameObject != 0 );
     MyAssert( deletedPrefabComponentID != 0 );
-
-    m_Name = "EditorCommand_RestorePrefabComponent";
 
     m_pGameObject = pObject;
     m_DeletedPrefabComponentID = deletedPrefabComponentID;
@@ -2216,11 +2218,11 @@ EditorCommand* EditorCommand_RestorePrefabComponent::Repeat()
 
 EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh::EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh(ComponentMeshPrimitive* pComponent, MyMesh* pOldMesh, ComponentMeshPrimitives newMeshPrimitiveType)
 {
+    m_Name = "EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh";
+
     MyAssert( pComponent != nullptr );
     MyAssert( pOldMesh != nullptr );
     MyAssert( newMeshPrimitiveType < ComponentMeshPrimitive_NumTypesAccessibleFromInterface );
-
-    m_Name = "EditorCommand_ReplaceMeshPrimitiveCopyWithNewMesh";
 
     m_pComponent = pComponent;
     
