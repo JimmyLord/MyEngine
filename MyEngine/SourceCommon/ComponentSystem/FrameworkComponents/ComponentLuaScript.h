@@ -196,7 +196,7 @@ public:
     void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varIndex, GameObject* pChildGameObject, bool finishedChanging, double oldValue, void* oldPointer);
     void CopyExposedVarValueFromParent(ExposedVariableDesc* pVar);
 
-    void ClearExposedVariableList();
+    bool ClearExposedVariableList(bool addUndoCommands);
 #endif //MYFW_EDITOR
 
 public:

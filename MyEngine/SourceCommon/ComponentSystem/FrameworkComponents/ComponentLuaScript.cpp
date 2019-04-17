@@ -215,7 +215,7 @@ void ComponentLuaScript::CreateNewScriptFile()
 
             const char* relativepath = GetRelativePath( fullpath );
 
-            MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), nullptr, true )->GetFile();
+            MyFileObject* pScriptFile = m_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), nullptr, true )->GetFile();
             SetScriptFile( pScriptFile );
 
             // TODO: Create external template files in the DataEngine folder.
@@ -468,7 +468,7 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, int x, int y)
             oldPointer = m_pScriptFile;
 
             SetScriptFile( nullptr );
-            ClearExposedVariableList();
+            ClearExposedVariableList( false );
         }
         else
         {
@@ -533,15 +533,17 @@ void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar)
 
         if( ImGui::MenuItem( "Remove script" ) )
         {
+            bool undoCommandsAdded = ClearExposedVariableList( true );
+
             // TODO: This undo/redo method is currently losing exposed variable values, here and in regular drag/drop cases.
             //       Fix along with fixing undo/redo for exposed variables in general.
             // Simulate drag/drop of a nullptr for undo/redo.
             m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add(
-                MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1, DragAndDropType_FileObjectPointer, nullptr, m_pScriptFile ) );
+                MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1, DragAndDropType_FileObjectPointer, nullptr, m_pScriptFile ),
+                undoCommandsAdded ? true : false );
 
             // Clear script file.
             SetScriptFile( nullptr );
-            ClearExposedVariableList();
             ImGui::CloseCurrentPopup();
         }
     }
@@ -745,10 +747,10 @@ void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, b
         {
             for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
             {
-                if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+                if( m_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
                     continue;
 
-                SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
+                SceneInfo* pSceneInfo = &m_pComponentSystemManager->m_pSceneInfoMap[i];
 
                 if( pSceneInfo->m_GameObjects.GetHead() )
                 {
@@ -964,22 +966,36 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
     }
 }
 
-void ComponentLuaScript::ClearExposedVariableList()
+bool ComponentLuaScript::ClearExposedVariableList(bool addUndoCommands)
 {
-    // TODO: Add undo/redo for these changes.
-
     // Delete all variables.
-    while( m_ExposedVars.Count() )
+    if( addUndoCommands )
     {
-        // Remove the first variable from the list.
-        ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
+        // Add clear to undo stack.
+        if( m_ExposedVars.size() > 0 )
+        {
+            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do(
+                MyNew EditorCommand_LuaClearExposedVariables( this, m_ExposedVars ) );
 
-        // Unregister gameobject deleted callback, if we registered one.
-        if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
-            static_cast<GameObject*>( pVariable->pointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-
-        delete pVariable;
+            return true;
+        }
     }
+    else
+    {
+        while( m_ExposedVars.Count() )
+        {
+            // Remove the first variable from the list.
+            ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
+
+            // Unregister gameobject deleted callback, if we registered one.
+            if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
+                static_cast<GameObject*>( pVariable->pointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+            delete pVariable;
+        }
+    }
+
+    return false;
 }
 #endif //MYFW_EDITOR
 
@@ -1134,7 +1150,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
                 cJSON* obj = cJSON_GetObjectItem( jsonvar, "Value" );
                 if( obj )
                 {
-                    pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID(), false );
+                    pVar->pointer = m_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID(), false );
 
                     // TODO: Handle cases where the Scene containing the GameObject referenced isn't loaded.
                     //MyAssert( pVar->pointer != nullptr );
@@ -1251,10 +1267,10 @@ void ComponentLuaScript::LoadScript()
 #endif
 
             // Load the string from the file.
-            int filelen = m_pScriptFile->GetFileLength() - 1;
-            int loadretcode = luaL_loadbuffer( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer(), filelen, label );
+            int fileLength = m_pScriptFile->GetFileLength() - 1;
+            int loadReturnCode = luaL_loadbuffer( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer(), fileLength, label );
 
-            if( loadretcode == LUA_OK )
+            if( loadReturnCode == LUA_OK )
             {
                 // Run the code to do initial parsing.
                 int exeretcode = lua_pcall( m_pLuaGameState->m_pLuaState, 0, LUA_MULTRET, 0 );
@@ -1309,7 +1325,7 @@ void ComponentLuaScript::LoadScript()
             }
             else
             {
-                if( loadretcode == LUA_ERRSYNTAX )
+                if( loadReturnCode == LUA_ERRSYNTAX )
                 {
                     const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
                     HandleLuaError( "LUA_ERRSYNTAX", errorstr );
@@ -1352,9 +1368,9 @@ void ComponentLuaScript::LoadInLineScripts()
         sprintf_s( inlinescript, 200, "%s = { OnPlay = function() %s end }", inlinescriptname, pScript );
 
         // Load the new script into the lua state.
-        int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, inlinescript );
+        int loadReturnCode = luaL_loadstring( m_pLuaGameState->m_pLuaState, inlinescript );
 
-        if( loadretcode == LUA_OK )
+        if( loadReturnCode == LUA_OK )
         {
             // Run the code to do initial parsing.
             int exeretcode = lua_pcall( m_pLuaGameState->m_pLuaState, 0, LUA_MULTRET, 0 );
@@ -1470,7 +1486,7 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
                 // If it's a new variable or it changed type, set it to it's initial value.
                 if( pVar->inuse == false || pVar->type != ExposedVariableType_GameObject )
                 {
-                    pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( variableinitialvalue.tostring().c_str() );
+                    pVar->pointer = m_pComponentSystemManager->FindGameObjectByName( variableinitialvalue.tostring().c_str() );
                     if( pVar->pointer )
                         static_cast<GameObject*>( pVar->pointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
                 }
@@ -1658,7 +1674,7 @@ void ComponentLuaScript::OnStop()
 void ComponentLuaScript::OnGameObjectEnabled()
 {
     ComponentBase::OnGameObjectEnabled();
-    if( g_pEngineCore->IsInEditorMode() == false )
+    if( m_pComponentSystemManager->GetEngineCore()->IsInEditorMode() == false )
         OnPlay();
 }
 
@@ -1675,12 +1691,12 @@ void ComponentLuaScript::TickCallback(float deltaTime)
     if( m_ErrorInScript )
         return;
 
-    if( m_ScriptLoaded == false && g_pLuaGameState )
+    if( m_ScriptLoaded == false && m_pLuaGameState )
     {
         LoadScript();
     }
 
-    if( g_pLuaGameState == nullptr || m_ScriptLoaded == false )
+    if( m_pLuaGameState == nullptr || m_ScriptLoaded == false )
         return;
 
     // Copy externed variable values after loading the script.
@@ -1825,7 +1841,7 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
                 if( m_pComponentSystemManager->GetEngineCore()->GetCommandStack() )
                 {
                     m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
-                        0, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
+                        nullptr, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                 }
                 pVar->pointer = nullptr;
             }

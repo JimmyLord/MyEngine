@@ -1737,6 +1737,89 @@ EditorCommand* EditorCommand_LuaExposedVariablePointerChanged::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_LuaClearExposedVariables
+//====================================================================================================
+
+EditorCommand_LuaClearExposedVariables::EditorCommand_LuaClearExposedVariables(ComponentLuaScript* pLuaScriptComponent, MyList<ExposedVariableDesc*>& exposedVariablesList)
+: m_OriginalExposedVariablesListFromComponent( exposedVariablesList )
+{
+    m_Name = "EditorCommand_LuaClearExposedVariables";
+
+    m_pLuaScriptComponent = pLuaScriptComponent;
+
+    // Make a backup of all the exposed variable pointers.
+    for( uint32 i=0; i<exposedVariablesList.size(); i++ )
+    {
+        m_CopyOfExposedVariables.push_back( exposedVariablesList[i] );
+    }
+
+    m_DeleteExposedVarsWhenDestroyed = false;
+}
+
+EditorCommand_LuaClearExposedVariables::~EditorCommand_LuaClearExposedVariables()
+{
+    // If deleting this command from the redo stack, then delete the exposed variables.
+    if( m_DeleteExposedVarsWhenDestroyed )
+    {
+        while( m_CopyOfExposedVariables.size() > 0 )
+        {
+            delete m_CopyOfExposedVariables[m_CopyOfExposedVariables.size()-1];
+            m_CopyOfExposedVariables.pop_back();
+        }
+    }
+}
+
+void EditorCommand_LuaClearExposedVariables::Do()
+{
+    MyAssert( m_OriginalExposedVariablesListFromComponent.size() == m_CopyOfExposedVariables.size() );
+
+    // Unregister GameObject deleted callbacks, if we registered any.
+    for( uint32 i=0; i<m_CopyOfExposedVariables.size(); i++ )
+    {
+        ExposedVariableDesc* pVariable = m_CopyOfExposedVariables[i];
+
+        if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
+        {
+            GameObject* pGameObject = static_cast<GameObject*>( pVariable->pointer );
+            pGameObject->UnregisterOnDeleteCallback( m_pLuaScriptComponent, ComponentLuaScript::StaticOnGameObjectDeleted );
+        }
+    }
+
+    // Clear the component's list of exposed variables.
+    m_OriginalExposedVariablesListFromComponent.Clear();
+
+    m_DeleteExposedVarsWhenDestroyed = true;
+}
+
+void EditorCommand_LuaClearExposedVariables::Undo()
+{
+    MyAssert( m_OriginalExposedVariablesListFromComponent.size() == 0 );
+
+    // Restore the component's list of exposed variables.
+    for( uint32 i=0; i<m_CopyOfExposedVariables.size(); i++ )
+    {
+        m_OriginalExposedVariablesListFromComponent.Add( m_CopyOfExposedVariables[i] );
+    }
+
+    // Register OnDelete callbacks with GameObject, if necessary.
+    for( uint32 i=0; i<m_OriginalExposedVariablesListFromComponent.size(); i++ )
+    {
+        ExposedVariableDesc* pVariable = m_OriginalExposedVariablesListFromComponent[i];
+
+        // Unregister gameobject deleted callback, if we registered one.
+        if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
+            static_cast<GameObject*>( pVariable->pointer )->RegisterOnDeleteCallback( m_pLuaScriptComponent, ComponentLuaScript::StaticOnGameObjectDeleted );
+    }
+
+    m_DeleteExposedVarsWhenDestroyed = false;
+}
+
+EditorCommand* EditorCommand_LuaClearExposedVariables::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
 // EditorCommand_DeletePrefabs
 //====================================================================================================
 

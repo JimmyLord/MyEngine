@@ -43,6 +43,7 @@ class EditorCommand_Delete2DPoint;
 class EditorCommand_ComponentVariablePointerChanged;
 class EditorCommand_LuaExposedVariableFloatChanged;
 class EditorCommand_LuaExposedVariablePointerChanged;
+class EditorCommand_LuaClearExposedVariables;
 class EditorCommand_DeletePrefabs;
 class EditorCommand_DivorceOrMarryComponentVariable;
 class EditorCommand_ComponentVariableIndirectPointerChanged;
@@ -584,6 +585,25 @@ protected:
 public:
     EditorCommand_LuaExposedVariablePointerChanged(void* newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
     virtual ~EditorCommand_LuaExposedVariablePointerChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_LuaClearExposedVariables : public EditorCommand
+{
+protected:
+    ComponentLuaScript* m_pLuaScriptComponent;
+    MyList<ExposedVariableDesc*>& m_OriginalExposedVariablesListFromComponent;
+    std::vector<ExposedVariableDesc*> m_CopyOfExposedVariables;
+    bool m_DeleteExposedVarsWhenDestroyed;
+
+public:
+    EditorCommand_LuaClearExposedVariables(ComponentLuaScript* pLuaScriptComponent, MyList<ExposedVariableDesc*>& exposedVariablesList);
+    virtual ~EditorCommand_LuaClearExposedVariables();
 
     virtual void Do();
     virtual void Undo();
