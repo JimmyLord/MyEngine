@@ -121,7 +121,7 @@ void ComponentAudioPlayer::FillPropertiesWindow(bool clear, bool addcomponentvar
 }
 #endif //MYFW_USING_WX
 
-void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -156,13 +156,13 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pSoundCue ) )
     {
-        if( changedbyinterface )
+        if( changedByInterface )
         {
 #if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();

@@ -111,7 +111,7 @@ void Component3DJointPoint2Point::FillPropertiesWindow(bool clear, bool addcompo
 }
 #endif //MYFW_USING_WX
 
-void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, int x, int y)
+void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -142,13 +142,13 @@ void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* Component3DJointPoint2Point::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* Component3DJointPoint2Point::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pSecondCollisionObject ) )
     {
-        if( changedbyinterface )
+        if( changedByInterface )
         {
 #if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();

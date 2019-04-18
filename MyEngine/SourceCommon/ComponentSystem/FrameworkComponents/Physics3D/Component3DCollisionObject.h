@@ -116,10 +116,10 @@ public:
 #endif //MYFW_USING_WX
 
     // Component variable callbacks. //_VARIABLE_LIST
-    void* OnDropOBJ(ComponentVariable* pVar, int x, int y);
+    void* OnDropOBJ(ComponentVariable* pVar, bool changedByInterface, int x, int y);
 
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };
 

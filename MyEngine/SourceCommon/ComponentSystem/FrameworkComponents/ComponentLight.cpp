@@ -111,7 +111,7 @@ void ComponentLight::AddAllVariablesToWatchPanel()
 }
 #endif
 
-void* ComponentLight::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentLight::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = nullptr;
 

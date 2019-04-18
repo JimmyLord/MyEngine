@@ -97,7 +97,7 @@ void ComponentObjectPool::FillPropertiesWindow(bool clear, bool addcomponentvari
 }
 #endif //MYFW_USING_WX
 
-void* ComponentObjectPool::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentObjectPool::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -118,7 +118,7 @@ void* ComponentObjectPool::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentObjectPool::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentObjectPool::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 

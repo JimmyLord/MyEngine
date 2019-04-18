@@ -203,13 +203,13 @@ bool ComponentCamera::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     return false;
 }
 
-void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
     ComputeProjectionMatrices();
 
-    if( finishedchanging )
+    if( finishedChanging )
     {
         m_FullClearsRequired = 1;
 

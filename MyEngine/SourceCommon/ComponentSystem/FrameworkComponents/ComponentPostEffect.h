@@ -53,7 +53,7 @@ public:
     virtual ComponentVariable* GetComponentVariableForMaterial(int submeshIndex);
 
     // Component variable callbacks.
-    void* OnDropMaterial(ComponentVariable* pVar, int x, int y);    
+    void* OnDropMaterial(ComponentVariable* pVar, bool changedByInterface, int x, int y);    
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };

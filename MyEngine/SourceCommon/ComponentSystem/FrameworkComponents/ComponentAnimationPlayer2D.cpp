@@ -126,7 +126,7 @@ void ComponentAnimationPlayer2D::FillPropertiesWindow(bool clear, bool addcompon
 }
 #endif //MYFW_USING_WX
 
-void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -164,7 +164,7 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -175,7 +175,7 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool c
 
     if( strcmp( pVar->m_Label, "Animation File" ) == 0 )
     {
-        if( changedbyinterface )
+        if( changedByInterface )
         {
 #if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();

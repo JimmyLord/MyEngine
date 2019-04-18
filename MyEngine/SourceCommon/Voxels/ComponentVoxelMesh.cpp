@@ -211,7 +211,7 @@ void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvaria
 }
 #endif //MYFW_USING_WX
 
-void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -261,7 +261,7 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -288,11 +288,11 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedby
         pVoxelChunk->AddToSceneGraph( this, m_pMaterials[0] );
     }
 
-    if( finishedchanging )
+    if( finishedChanging )
     {
         if( strcmp( pVar->m_Label, "File" ) == 0 )
         {
-            if( changedbyinterface ) // controlid will only be set if the control itself was changed.
+            if( changedByInterface ) // controlid will only be set if the control itself was changed.
             {
 #if MYFW_USING_WX
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();

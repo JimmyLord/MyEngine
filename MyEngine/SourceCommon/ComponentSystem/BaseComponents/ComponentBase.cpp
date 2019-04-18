@@ -1121,7 +1121,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                         else
                         {
                             ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
-                            (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, -1, -1 );
+                            (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
                         }
                     }
 
@@ -1176,7 +1176,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                         else
                         {
                             ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
-                            (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, -1, -1 );
+                            (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
                         }
                     }
 
@@ -2417,7 +2417,7 @@ void ComponentBase::OnDropVariable(int controlid, int x, int y)
 }
 #endif //MYFW_USING_WX
 
-void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y, bool addundocommand)
+void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlComponent, int x, int y, bool addUndoCommand)
 {
     if( pVar )
     {
@@ -2425,10 +2425,10 @@ void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponen
 
         if( pVar->m_pOnDropCallbackFunc )
         {
-            oldPointer = (this->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+            oldPointer = (this->*pVar->m_pOnDropCallbackFunc)( pVar, addUndoCommand ? true : false, x, y );
 
             // Create an undo command for this drag/drop action.
-            if( addundocommand )
+            if( addUndoCommand )
             {
                 DragAndDropItem* pItem = g_DragAndDropStruct.GetItem( 0 );
                 MyAssert( pItem );
@@ -2441,9 +2441,9 @@ void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponen
         if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
             // Divorce the child value from it's parent, if it no longer matches.. and it's not already divorced.
-            if( addundocommand &&
+            if( addUndoCommand &&
                 IsDivorced( pVar->m_Index ) == false &&
-                DoesVariableMatchParent( pVar, controlcomponent ) == false ) // Returns true if no parent was found.
+                DoesVariableMatchParent( pVar, controlComponent ) == false ) // Returns true if no parent was found.
             {
                 // Since the variable no longer matches the parent, then divorce it.
                 g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
@@ -2451,12 +2451,12 @@ void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponen
         }
 
         // OnDropCallback will grab the new value from g_DragAndDropStruct
-        UpdateChildrenWithNewValue( true, pVar, controlcomponent, false, true, 0, oldPointer, x, y, 0 );
+        UpdateChildrenWithNewValue( true, pVar, controlComponent, false, true, 0, oldPointer, x, y, 0 );
 
         // deal with multiple selections
         for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
         {
-            UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], true, true, true, pVar, controlcomponent, true, 0, oldPointer, x, y, 0 );
+            UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], true, true, true, pVar, controlComponent, true, 0, oldPointer, x, y, 0 );
         }
 
         return oldPointer;
@@ -3701,7 +3701,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 MyAssert( pVar->m_pOnDropCallbackFunc );
                 if( pVar->m_pOnDropCallbackFunc )
                 {
-                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, true, x, y );
 
                     // assert should only trip if child didn't have same value that the parent had
                     //     which shouldn't happen since values aren't divorced.
@@ -3741,7 +3741,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 MyAssert( pVar->m_pOnDropCallbackFunc );
                 if( pVar->m_pOnDropCallbackFunc )
                 {
-                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, true, x, y );
                     //MyAssert( oldpointer2 == oldpointer );
                 }
             }

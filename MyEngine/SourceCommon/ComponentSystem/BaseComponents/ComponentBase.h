@@ -200,7 +200,7 @@ public:
 
     static ComponentVariable* FindComponentVariableByLabel(TCPPListHead<ComponentVariable*>* list, const char* label);
 
-    void* OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y, bool addundocommand = false);
+    void* OnDropVariable(ComponentVariable* pVar, int controlComponent, int x, int y, bool addUndoCommand = false);
 
     double GetCurrentValueFromVariable(ComponentVariable* pVar, int controlcomponent);
     void ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo);

@@ -234,7 +234,7 @@ void ComponentVoxelWorld::FillPropertiesWindow(bool clear, bool addcomponentvari
 }
 #endif //MYFW_USING_WX
 
-void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -271,13 +271,13 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
     if( strncmp( pVar->m_Label, "Material", strlen("Material") ) == 0 )
     {
-        if( changedbyinterface )
+        if( changedByInterface )
         {
 #if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();

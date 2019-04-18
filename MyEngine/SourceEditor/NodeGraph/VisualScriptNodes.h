@@ -135,7 +135,7 @@ public:
 
     const char* GetType() { return "Value_GameObject"; }
 
-    void* OnDrop(ComponentVariable* pVar, int x, int y)
+    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
     {
         DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -147,7 +147,7 @@ public:
         return nullptr;
     }
 
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
     {
         return nullptr;
     }
@@ -174,7 +174,7 @@ public:
 
     const char* GetType() { return "Value_Component"; }
 
-    void* OnDrop(ComponentVariable* pVar, int x, int y)
+    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
     {
         DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -186,7 +186,7 @@ public:
         return nullptr;
     }
 
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
     {
         return nullptr;
     }
@@ -439,7 +439,7 @@ public:
         }
     }
 
-    void* OnDrop(ComponentVariable* pVar, int x, int y)
+    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
     {
         DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -451,7 +451,7 @@ public:
         return nullptr;
     }
 
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
     {
         return nullptr;
     }

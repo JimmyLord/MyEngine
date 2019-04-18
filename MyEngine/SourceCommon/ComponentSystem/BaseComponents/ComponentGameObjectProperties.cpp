@@ -102,7 +102,7 @@ void ComponentGameObjectProperties::FillPropertiesWindow(bool clear, bool addcom
 }
 #endif //MYFW_USING_WX
 
-void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -121,7 +121,7 @@ void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, int x, int 
     return oldPointer;
 }
 
-void* ComponentGameObjectProperties::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentGameObjectProperties::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 

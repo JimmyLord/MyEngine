@@ -152,7 +152,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
 }
 #endif //MYFW_USING_WX
 
-void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
+void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -197,15 +197,15 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
-    if( finishedchanging )
+    if( finishedChanging )
     {
         if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
         {
-            if( changedbyinterface )
+            if( changedByInterface )
             {
 #if MYFW_USING_WX
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();

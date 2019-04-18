@@ -216,7 +216,7 @@ void Component3DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& ne
 }
 #endif //MYFW_USING_WX
 
-void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, int x, int y)
+void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -280,11 +280,11 @@ bool Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVari
     return false;
 }
 
-void* Component3DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* Component3DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
-    if( finishedchanging )
+    if( finishedChanging )
     {
         if( strcmp( pVar->m_Label, "Primitive" ) == 0 )
         {

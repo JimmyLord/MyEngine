@@ -149,7 +149,7 @@ ComponentVariable* ComponentPostEffect::GetComponentVariableForMaterial(int subm
     return nullptr; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentPostEffect, "Material" );
 }
 
-void* ComponentPostEffect::OnDropMaterial(ComponentVariable* pVar, int x, int y)
+void* ComponentPostEffect::OnDropMaterial(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = nullptr;
 

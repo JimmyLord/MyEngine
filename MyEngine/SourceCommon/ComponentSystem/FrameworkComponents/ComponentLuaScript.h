@@ -176,8 +176,8 @@ public:
     void OnFileUpdated(MyFileObject* pFile);
 
     // Component variable callbacks.
-    void* OnDrop(ComponentVariable* pVar, int x, int y);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 
 #if MYFW_USING_IMGUI
     void OnRightClickCallback(ComponentVariable* pVar);

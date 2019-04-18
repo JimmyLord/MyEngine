@@ -73,7 +73,7 @@ void ComponentTemplate::LuaRegister(lua_State* luaState)
 #endif //MYFW_USING_LUA
 
 #if MYFW_EDITOR
-void* ComponentTemplate::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentTemplate::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 

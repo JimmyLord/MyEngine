@@ -147,7 +147,7 @@ public:
 
     // Component variable callbacks. //_VARIABLE_LIST
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };
 

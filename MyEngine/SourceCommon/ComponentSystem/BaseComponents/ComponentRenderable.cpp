@@ -199,17 +199,17 @@ void ComponentRenderable::FillPropertiesWindow(bool clear, bool addcomponentvari
 }
 #endif //MYFW_USING_WX
 
-//void* ComponentRenderable::OnDrop(ComponentVariable* pVar, int x, int y)
+//void* ComponentRenderable::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 //{
 //    void* oldvalue = 0;
 //    return oldvalue;
 //}
 
-void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
-    if( finishedchanging )
+    if( finishedChanging )
     {
         PushChangesToSceneGraphObjects();
     }

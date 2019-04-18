@@ -73,7 +73,7 @@ public:
 #endif
 
     // Component variable callbacks.
-    void* OnDrop(ComponentVariable* pVar, int x, int y);
+    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };

@@ -135,7 +135,7 @@ void Component2DJointPrismatic::FillPropertiesWindow(bool clear, bool addcompone
 }
 #endif //MYFW_USING_WX
 
-void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, int x, int y)
+void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
 
@@ -165,13 +165,13 @@ void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pSecondCollisionObject ) )
     {
-        if( changedbyinterface )
+        if( changedByInterface )
         {
 #if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();

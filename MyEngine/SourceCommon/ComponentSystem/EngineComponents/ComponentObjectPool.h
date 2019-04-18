@@ -74,8 +74,8 @@ public:
 #endif //MYFW_USING_WX
 
     // Component variable callbacks.
-    void* OnDrop(ComponentVariable* pVar, int x, int y);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };
 

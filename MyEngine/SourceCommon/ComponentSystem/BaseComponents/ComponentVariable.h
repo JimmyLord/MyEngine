@@ -54,8 +54,8 @@ class ComponentVariableCallbackInterface : public CPPListNode
 
 typedef void (ComponentVariableCallbackInterface::*CVarFunc)(ComponentVariable* pVar);
 typedef void (ComponentVariableCallbackInterface::*CVarFunc_Int)(ComponentVariable* pVar, int someint);
-typedef void* (ComponentVariableCallbackInterface::*CVarFunc_DropTarget)(ComponentVariable* pVar, int x, int y);
-typedef void* (ComponentVariableCallbackInterface::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+typedef void* (ComponentVariableCallbackInterface::*CVarFunc_DropTarget)(ComponentVariable* pVar, bool changedByInterface, int x, int y);
+typedef void* (ComponentVariableCallbackInterface::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 typedef void* (ComponentVariableCallbackInterface::*CVarFunc_Pointer)(ComponentVariable* pVar);
 
 typedef void* (ComponentVariableCallbackInterface::*CVarFunc_GetPointerValue)(ComponentVariable* pVar);

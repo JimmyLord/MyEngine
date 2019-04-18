@@ -199,7 +199,7 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
     }
 }
 
-void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, int x, int y)
+void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = nullptr;
 

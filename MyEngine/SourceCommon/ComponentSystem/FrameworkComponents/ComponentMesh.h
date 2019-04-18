@@ -115,7 +115,7 @@ public:
     virtual void VariableAddedToWatchPanel(ComponentVariable* pVar);
 
     // Component variable callbacks. //_VARIABLE_LIST
-    void* OnDropMaterial(ComponentVariable* pVar, int x, int y);
+    void* OnDropMaterial(ComponentVariable* pVar, bool changedByInterface, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 
 #if _DEBUG && MYFW_WINDOWS

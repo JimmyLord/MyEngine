@@ -453,7 +453,7 @@ void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile) // StaticOnFileUpdat
     }
 }
 
-void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, int x, int y)
+void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = nullptr;
 
@@ -466,15 +466,15 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, int x, int y)
         if( pFile == nullptr )
         {
             oldPointer = m_pScriptFile;
-
+            ClearExposedVariableList( changedByInterface ? true : false );
             SetScriptFile( nullptr );
-            ClearExposedVariableList( false );
         }
         else
         {
             if( strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
             {
                 oldPointer = m_pScriptFile;
+                ClearExposedVariableList( changedByInterface ? true : false );
                 SetScriptFile( pFile );
             }
         }
@@ -483,13 +483,13 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, int x, int y)
     return oldPointer;
 }
 
-void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = nullptr;
 
     if( strcmp( pVar->m_Label, "Script" ) == 0 )
     {
-        if( changedbyinterface )
+        if( changedByInterface )
         {
 #if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
