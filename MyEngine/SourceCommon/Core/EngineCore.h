@@ -215,6 +215,7 @@ public:
 
     virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
 
+    virtual EditorMainFrame* CreateEditorMainFrame();
     virtual void OneTimeInit();
     virtual bool IsReadyToRender();
 

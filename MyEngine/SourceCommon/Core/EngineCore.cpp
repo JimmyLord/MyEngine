@@ -330,6 +330,11 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
     }
 }
 
+EditorMainFrame* EngineCore::CreateEditorMainFrame()
+{
+    return MyNew EditorMainFrame_ImGui( this );
+}
+
 void EngineCore::OneTimeInit()
 {
     GameCore::OneTimeInit();
@@ -427,7 +432,10 @@ void EngineCore::OneTimeInit()
     {
         m_pImGuiManager->Init( (float)GetWindowWidth(), (float)GetWindowHeight() );
 #if MYFW_EDITOR
-        m_pEditorMainFrame = MyNew EditorMainFrame_ImGui( this );
+        if( m_pEditorMainFrame == nullptr )
+        {
+            m_pEditorMainFrame = CreateEditorMainFrame();
+        }
 
         // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
         // Tick happens before game(0) window is drawn, m_pImGuiManager's draw only happens on editor(1) window.
