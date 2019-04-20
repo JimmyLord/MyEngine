@@ -51,6 +51,8 @@ public:
     void Init(float width, float height);
     void Shutdown(bool invalidateDeviceObjects = true);
 
+    void ActivateContext();
+
     ImGuiContext* GetImGuiContext() { return m_pImGuiContext; }
     bool GetFrameStarted() { return m_FrameStarted; }
 

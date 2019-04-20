@@ -117,6 +117,11 @@ void ImGuiManager::Shutdown(bool invalidateDeviceObjects)
     m_FrameStarted = false;
 }
 
+void ImGuiManager::ActivateContext()
+{
+    ImGui::SetCurrentContext( m_pImGuiContext );
+}
+
 void ImGuiManager::ClearInput()
 {
     ImGui::SetCurrentContext( m_pImGuiContext );
