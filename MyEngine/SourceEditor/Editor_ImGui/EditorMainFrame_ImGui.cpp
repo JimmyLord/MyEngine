@@ -1452,6 +1452,9 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 m_GameWindowPos.Set( pos.x + min.x, pos.y + min.y );
                 m_GameWindowSize.Set( w, h );
 
+                if( w > 4096 ) w = 4096;
+                if( h > 4096 ) h = 4096;
+
                 // This will resize our FBO if the window is larger than it ever was.
                 m_pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
 
@@ -1495,6 +1498,9 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 ImVec2 pos = ImGui::GetWindowPos();
                 m_EditorWindowPos.Set( pos.x + min.x, pos.y + min.y );
                 m_EditorWindowSize.Set( w, h );
+
+                if( w > 4096 ) w = 4096;
+                if( h > 4096 ) h = 4096;
 
                 // This will resize our FBO if the window is larger than it ever was.
                 m_pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
@@ -2568,10 +2574,13 @@ void EditorMainFrame_ImGui::AddMemoryWindow()
 
 void EditorMainFrame_ImGui::AddCommandStacksWindow()
 {
+    if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_CommandStacks] == false )
+        return;
+
     ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowPos( ImVec2(6, 476), ImGuiCond_FirstUseEver );
 
-    if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_CommandStacks] )
+    if( ImGui::Begin( "Undo/Redo", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Resources], ImVec2(334, 220) ) )
     {
         CommandStack* pCommandStack = m_pEngineCore->GetCommandStack();
         if( pCommandStack )
@@ -2597,6 +2606,7 @@ void EditorMainFrame_ImGui::AddCommandStacksWindow()
             }
         }        
     }
+    ImGui::End();
 }
 
 void EditorMainFrame_ImGui::AddMemoryPanel()
