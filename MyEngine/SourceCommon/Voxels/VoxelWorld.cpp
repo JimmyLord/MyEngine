@@ -240,7 +240,7 @@ void VoxelWorld::Tick(float deltaTime, void* pUserData)
         SetWorldCenterForReal( m_DesiredOffset + m_WorldSize/2 );
     }
 
-    g_pJobManager->GetJobListMutexLock();
+    m_pGameCore->GetManagers()->GetJobManager()->GetJobListMutexLock();
 
         // Sort chunks that need generating based on distance from world center (which is likely the player location)
         SortChunkList( &m_pChunksLoading );
@@ -254,7 +254,7 @@ void VoxelWorld::Tick(float deltaTime, void* pUserData)
         // Deal with meshing jobs that completed and start new ones
         int chunksMeshedThisFrame = DealWithMeshedChunkJobs();
 
-    g_pJobManager->ReleaseJobListMutexLock();
+    m_pGameCore->GetManagers()->GetJobManager()->ReleaseJobListMutexLock();
 
     // Some stats posted in an ImGui window
     {
@@ -356,7 +356,7 @@ int VoxelWorld::DealWithGeneratedChunkJobs()
                         pChunk->m_LockedInThreadedOp = true;
                                 
                         MyAssert( pChunkGenerator->m_pChunk->m_MapCreated == false );
-                        g_pJobManager->AddJob( pChunkGenerator, false );
+                        m_pGameCore->GetManagers()->GetJobManager()->AddJob( pChunkGenerator, false );
                             
                         //pChunk->GenerateMap();
                         //m_pChunksWaitingForMesh.MoveTail( pChunk );
@@ -444,7 +444,7 @@ int VoxelWorld::DealWithMeshedChunkJobs()
 
                     pChunk->m_LockedInThreadedOp = true;
 
-                    g_pJobManager->AddJob( pMeshBuilder, false );
+                    m_pGameCore->GetManagers()->GetJobManager()->AddJob( pMeshBuilder, false );
                 }
 
                 pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
