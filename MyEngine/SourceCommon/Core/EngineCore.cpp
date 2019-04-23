@@ -1509,9 +1509,9 @@ void EngineCore::CreateDefaultEditorSceneObjects()
             pComponentMesh->m_pMesh = MyNew MyMesh( this );
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
-            pComponentMesh->AddToSceneGraph();
+            pComponentMesh->AddToRenderGraph();
 
-            pComponentMesh->m_pSceneGraphObjects[0]->SetAsEditorObject();
+            pComponentMesh->m_pRenderGraphObjects[0]->SetAsEditorObject();
         }
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );

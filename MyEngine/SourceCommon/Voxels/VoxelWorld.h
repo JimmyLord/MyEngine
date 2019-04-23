@@ -141,8 +141,8 @@ public:
     void ChangeBlockState(Vector3Int worldpos, unsigned int type, bool enabled);
 
     // Rendering
-    void AddToSceneGraph();
-    void RemoveFromSceneGraph();
+    void AddToRenderGraph();
+    void RemoveFromRenderGraph();
 };
 
 #endif //__VoxelWorld_H__

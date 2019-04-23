@@ -32,7 +32,7 @@ VoxelChunk::VoxelChunk()
     m_ChunkSize.Set( 0, 0, 0 );
     m_ChunkOffset.Set( 0, 0, 0 );
     m_ChunkPosition.Set( 0, 0, 0 );
-    m_pSceneGraphObject = 0;
+    m_pRenderGraphObject = 0;
 
     m_TextureTileCount.Set( 8, 8 );
 
@@ -43,7 +43,7 @@ VoxelChunk::VoxelChunk()
 
 VoxelChunk::~VoxelChunk()
 {
-    RemoveFromSceneGraph();
+    RemoveFromRenderGraph();
 
     if( m_BlocksAllocated > 0 )
     {
@@ -1375,7 +1375,7 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
         MyAABounds* pBounds = GetBounds();
         pBounds->Set( center, extents );
 
-        RemoveFromSceneGraph();
+        RemoveFromRenderGraph();
     }
 
     // if any of the neighbouring chunks wasn't ready, then we likely created extra faces to close outside walls.
@@ -1419,32 +1419,32 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
 #endif
 }
 
-void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)
+void VoxelChunk::AddToRenderGraph(void* pUserData, MaterialDefinition* pMaterial)
 {
-    if( m_pSceneGraphObject != 0 )
+    if( m_pRenderGraphObject != 0 )
         return;
 
-    m_pSceneGraphObject = g_pComponentSystemManager->GetSceneGraph()->AddObject(
+    m_pRenderGraphObject = g_pComponentSystemManager->GetRenderGraph()->AddObject(
         &m_Transform, this, m_SubmeshList[0],
         pMaterial, MyRE::PrimitiveType_Triangles, 0, 1, pUserData );
 }
 
-void VoxelChunk::OverrideSceneGraphObjectTransform(MyMatrix* pTransform)
+void VoxelChunk::OverrideRenderGraphObjectTransform(MyMatrix* pTransform)
 {
-    MyAssert( m_pSceneGraphObject != 0 );
-    if( m_pSceneGraphObject == 0 )
+    MyAssert( m_pRenderGraphObject != 0 );
+    if( m_pRenderGraphObject == 0 )
         return;
 
-    m_pSceneGraphObject->m_pTransform = pTransform;
+    m_pRenderGraphObject->m_pTransform = pTransform;
 }
 
-void VoxelChunk::RemoveFromSceneGraph()
+void VoxelChunk::RemoveFromRenderGraph()
 {
-    if( m_pSceneGraphObject == 0 )
+    if( m_pRenderGraphObject == 0 )
         return;
 
-    g_pComponentSystemManager->GetSceneGraph()->RemoveObject( m_pSceneGraphObject );
-    m_pSceneGraphObject = 0;
+    g_pComponentSystemManager->GetRenderGraph()->RemoveObject( m_pRenderGraphObject );
+    m_pRenderGraphObject = 0;
 }
 
 // ============================================================================================================================
@@ -1454,9 +1454,9 @@ void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     MyMesh::SetMaterial( pMaterial, 0 );
 
-    if( m_pSceneGraphObject != 0 )
+    if( m_pRenderGraphObject != 0 )
     {
-        m_pSceneGraphObject->SetMaterial( pMaterial, true );
+        m_pRenderGraphObject->SetMaterial( pMaterial, true );
     }
 }
 

@@ -25,8 +25,8 @@ class GameObject;
 class ComponentBase;
 class ComponentCamera;
 class ComponentLight;
-class SceneGraph_Base;
-class SceneGraphObject;
+class RenderGraph_Base;
+class RenderGraphObject;
 class MyFileInfo; // at bottom of this file.
 
 enum ObjectListIconTypes
@@ -151,7 +151,7 @@ protected:
 
     float m_TimeScale;
 
-    SceneGraph_Base* m_pSceneGraph;
+    RenderGraph_Base* m_pRenderGraph;
 
 #if MYFW_EDITOR
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
@@ -168,7 +168,7 @@ public:
     // Getters
     EngineCore* GetEngineCore() { return m_pEngineCore; }
     float GetTimeScale() { return m_TimeScale; }
-    SceneGraph_Base* GetSceneGraph() { return m_pSceneGraph; }
+    RenderGraph_Base* GetRenderGraph() { return m_pRenderGraph; }
     ComponentTypeManager* GetComponentTypeManager() { return m_pComponentTypeManager; }
 
     // Setters
@@ -311,10 +311,10 @@ public:
     PrefabManager* m_pPrefabManager;
     SceneInfo m_pSceneInfoMap[MAX_SCENES_CREATED];
 
-    // SceneGraph Functions
-    void AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers, SceneGraphObject** pOutputList);
-    SceneGraphObject* AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers);
-    void RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject);
+    // RenderGraph Functions
+    void AddMeshToRenderGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers, RenderGraphObject** pOutputList);
+    RenderGraphObject* AddSubmeshToRenderGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers);
+    void RemoveObjectFromRenderGraph(RenderGraphObject* pRenderGraphObject);
 
 public:
 #if MYFW_EDITOR

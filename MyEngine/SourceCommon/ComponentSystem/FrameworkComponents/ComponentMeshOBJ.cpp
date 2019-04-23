@@ -319,7 +319,7 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
         pMesh->AddRef();
 
     if( m_pMesh )
-        RemoveFromSceneGraph();
+        RemoveFromRenderGraph();
 
     SAFE_RELEASE( m_pMesh );
     m_pMesh = pMesh;
@@ -357,7 +357,7 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
         if( IsEnabled() && m_pMesh != 0 )
         {
             MyAssert( m_pGameObject->IsEnabled() );
-            AddToSceneGraph();
+            AddToRenderGraph();
         }
     //}
 }

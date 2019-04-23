@@ -743,7 +743,7 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
     //{
     //    VoxelChunk* pChunk = (VoxelChunk*)pNode;
 
-    //    pChunk->AddToSceneGraph( pUserData, m_pMaterial );
+    //    pChunk->AddToRenderGraph( pUserData, m_pMaterial );
     //}
 
     // Add all chunks to scene graph, let scene graph decide which are visible // TODO: make sure scene graph is an octree
@@ -758,7 +758,7 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
         }
         else
         {
-            pChunk->AddToSceneGraph( pUserData, m_pMaterial );
+            pChunk->AddToRenderGraph( pUserData, m_pMaterial );
         }
     }
 }
@@ -995,7 +995,7 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
     {
         m_pChunksFree.MoveTail( pChunk );
         SaveChunk( pChunk );
-        pChunk->RemoveFromSceneGraph();
+        pChunk->RemoveFromRenderGraph();
         pChunk->Clear();
     }
 
@@ -1397,17 +1397,17 @@ void VoxelWorld::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool e
 // ============================================================================================================================
 // Rendering
 // ============================================================================================================================
-void VoxelWorld::AddToSceneGraph()
+void VoxelWorld::AddToRenderGraph()
 {
     // Nothing here, the UpdateVisibility() in Tick() will add the nodes to the scene graph
 }
 
-void VoxelWorld::RemoveFromSceneGraph()
+void VoxelWorld::RemoveFromRenderGraph()
 {
     for( unsigned int i=0; i<m_NumChunkPointersAllocated; i++ )
     {
         VoxelChunk* pChunk = m_pActiveWorldChunkPtrs[i];
 
-        pChunk->RemoveFromSceneGraph();
+        pChunk->RemoveFromRenderGraph();
     }
 }

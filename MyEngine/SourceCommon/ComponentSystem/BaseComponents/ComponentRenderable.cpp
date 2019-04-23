@@ -155,11 +155,11 @@ bool ComponentRenderable::SetEnabled(bool enableComponent)
 
     if( enableComponent == false )
     {
-        RemoveFromSceneGraph();
+        RemoveFromRenderGraph();
     }
     else
     {
-        AddToSceneGraph();
+        AddToRenderGraph();
     }
 
     return true;
@@ -211,7 +211,7 @@ void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool changedB
 
     if( finishedChanging )
     {
-        PushChangesToSceneGraphObjects();
+        PushChangesToRenderGraphObjects();
     }
 
     return oldpointer;

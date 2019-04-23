@@ -57,9 +57,9 @@ public:
     virtual void SetVisible(bool visible) { m_Visible = visible; }
     virtual bool IsVisible();
 
-    virtual void AddToSceneGraph() = 0;
-    virtual void RemoveFromSceneGraph() = 0;
-    virtual void PushChangesToSceneGraphObjects() = 0;
+    virtual void AddToRenderGraph() = 0;
+    virtual void RemoveFromRenderGraph() = 0;
+    virtual void PushChangesToRenderGraphObjects() = 0;
 
     virtual MyAABounds* GetBounds() { return 0; }
 

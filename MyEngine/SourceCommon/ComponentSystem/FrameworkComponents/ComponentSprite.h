@@ -21,8 +21,8 @@ private:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentSprite ); //_VARIABLE_LIST
 
 public:
-    bool m_WaitingToAddToSceneGraph;
-    SceneGraphObject* m_pSceneGraphObject;
+    bool m_WaitingToAddToRenderGraph;
+    RenderGraphObject* m_pRenderGraphObject;
 
     MySprite* m_pSprite;
     ColorByte m_Tint;
@@ -57,9 +57,9 @@ public:
 
     virtual void SetVisible(bool visible);
 
-    virtual void AddToSceneGraph();
-    virtual void RemoveFromSceneGraph();
-    virtual void PushChangesToSceneGraphObjects();
+    virtual void AddToRenderGraph();
+    virtual void RemoveFromRenderGraph();
+    virtual void PushChangesToRenderGraphObjects();
 
 protected:
     // Callback functions for various events.

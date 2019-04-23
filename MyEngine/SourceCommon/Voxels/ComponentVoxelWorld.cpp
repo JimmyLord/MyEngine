@@ -22,7 +22,7 @@
 #include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
 #endif
 
-#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
+#include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Octree.h"
 
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentVoxelWorld ); //_VARIABLE_LIST
@@ -498,13 +498,13 @@ void ComponentVoxelWorld::TickCallback(float deltaTime)
     Vector3 pos = pPlayer->GetTransform()->GetWorldPosition();
 
     m_pVoxelWorld->SetWorldCenter( pos );
-    SceneGraph_Base* pSceneGraph = g_pComponentSystemManager->GetSceneGraph();
+    RenderGraph_Base* pRenderGraph = g_pComponentSystemManager->GetRenderGraph();
 
     // Change the octree dimensions if the player moves too far from the previous center.
     pos.x = MyRoundToMultipleOf( pos.x, 16 );
     pos.y = MyRoundToMultipleOf( pos.y, 16 );
     pos.z = MyRoundToMultipleOf( pos.z, 16 );
-    ((SceneGraph_Octree*)pSceneGraph)->Resize( pos.x-32, pos.y-32, pos.z-32, pos.x+32, pos.y+32, pos.z+32 );
+    ((RenderGraph_Octree*)pRenderGraph)->Resize( pos.x-32, pos.y-32, pos.z-32, pos.x+32, pos.y+32, pos.z+32 );
 }
 
 #if MYFW_EDITOR
@@ -601,22 +601,22 @@ void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
     }
 }
 
-void ComponentVoxelWorld::AddToSceneGraph()
+void ComponentVoxelWorld::AddToRenderGraph()
 {
     if( m_pVoxelWorld == 0 )
         return;
 
-    m_pVoxelWorld->AddToSceneGraph();
+    m_pVoxelWorld->AddToRenderGraph();
 }
 
-void ComponentVoxelWorld::RemoveFromSceneGraph()
+void ComponentVoxelWorld::RemoveFromRenderGraph()
 {
     if( m_pVoxelWorld == 0 )
         return;
 
-    m_pVoxelWorld->RemoveFromSceneGraph();
+    m_pVoxelWorld->RemoveFromRenderGraph();
 }
 
-void ComponentVoxelWorld::PushChangesToSceneGraphObjects()
+void ComponentVoxelWorld::PushChangesToRenderGraphObjects()
 {
 }

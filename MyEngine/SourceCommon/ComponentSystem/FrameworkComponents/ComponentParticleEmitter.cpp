@@ -13,7 +13,7 @@
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "Core/EngineCore.h"
-#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Base.h"
 
 #if MYFW_USING_WX
 bool ComponentParticleEmitter::m_PanelWatchBlockVisible = true;
@@ -47,7 +47,7 @@ ComponentParticleEmitter::ComponentParticleEmitter()
     }
 #endif
 
-    m_pSceneGraphObject = 0;
+    m_pRenderGraphObject = 0;
     m_pMaterial = 0;
 }
 
@@ -59,7 +59,7 @@ ComponentParticleEmitter::~ComponentParticleEmitter()
 
     SAFE_RELEASE( m_pMaterial );
 
-    RemoveFromSceneGraph();
+    RemoveFromRenderGraph();
 }
 
 void ComponentParticleEmitter::Reset()
@@ -244,8 +244,8 @@ void ComponentParticleEmitter::OnLoad()
 {
     ComponentBase::OnLoad();
 
-    if( m_pSceneGraphObject == 0 )
-        AddToSceneGraph();
+    if( m_pRenderGraphObject == 0 )
+        AddToRenderGraph();
 }
 
 void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
@@ -259,9 +259,9 @@ void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int su
 
     m_pParticleRenderer->SetMaterial( m_pMaterial );
 
-    if( m_pSceneGraphObject != 0 )
+    if( m_pRenderGraphObject != 0 )
     {
-        m_pSceneGraphObject->SetMaterial( pMaterial, true );
+        m_pRenderGraphObject->SetMaterial( pMaterial, true );
     }
 }
 
@@ -270,43 +270,43 @@ void ComponentParticleEmitter::SetVisible(bool visible)
     ComponentRenderable::SetVisible( visible );
 }
 
-void ComponentParticleEmitter::AddToSceneGraph()
+void ComponentParticleEmitter::AddToRenderGraph()
 {
-    MyAssert( m_pSceneGraphObject == 0 );
+    MyAssert( m_pRenderGraphObject == 0 );
     MyAssert( m_pParticleRenderer );
 
     // Add the particle renderer (submesh) to the main scene graph
-    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pParticleRenderer, m_pMaterial, MyRE::PrimitiveType_Triangles, 1, m_LayersThisExistsOn );
+    m_pRenderGraphObject = g_pComponentSystemManager->AddSubmeshToRenderGraph( this, m_pParticleRenderer, m_pMaterial, MyRE::PrimitiveType_Triangles, 1, m_LayersThisExistsOn );
 
     // Force particle submesh to be rendered during transparent pass for now.
-    m_pSceneGraphObject->SetFlags( SceneGraphFlag_Transparent );
+    m_pRenderGraphObject->SetFlags( RenderGraphFlag_Transparent );
 }
 
-void ComponentParticleEmitter::RemoveFromSceneGraph()
+void ComponentParticleEmitter::RemoveFromRenderGraph()
 {
-    if( m_pSceneGraphObject != 0 )
+    if( m_pRenderGraphObject != 0 )
     {
-        g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObject );
-        m_pSceneGraphObject = 0;
+        g_pComponentSystemManager->RemoveObjectFromRenderGraph( m_pRenderGraphObject );
+        m_pRenderGraphObject = 0;
     }
 }
 
-void ComponentParticleEmitter::PushChangesToSceneGraphObjects()
+void ComponentParticleEmitter::PushChangesToRenderGraphObjects()
 {
-    //ComponentRenderable::PushChangesToSceneGraphObjects(); // pure virtual
+    //ComponentRenderable::PushChangesToRenderGraphObjects(); // pure virtual
 
-    // Sync scenegraph object
-    if( m_pSceneGraphObject )
+    // Sync RenderGraph object
+    if( m_pRenderGraphObject )
     {
         // TODO: Check if opaque or transparent
         // Don't bother updating flags when setting material, it's forced to transparent for now.
-        m_pSceneGraphObject->SetMaterial( this->GetMaterial( 0 ), false );
-        m_pSceneGraphObject->SetFlags( SceneGraphFlag_Transparent );
-        m_pSceneGraphObject->m_Layers = this->m_LayersThisExistsOn;
-        m_pSceneGraphObject->m_Visible = this->m_Visible;
+        m_pRenderGraphObject->SetMaterial( this->GetMaterial( 0 ), false );
+        m_pRenderGraphObject->SetFlags( RenderGraphFlag_Transparent );
+        m_pRenderGraphObject->m_Layers = this->m_LayersThisExistsOn;
+        m_pRenderGraphObject->m_Visible = this->m_Visible;
 
-        //m_pSceneGraphObject->m_GLPrimitiveType = this->m_GLPrimitiveType;
-        //m_pSceneGraphObject->m_PointSize = this->m_PointSize;
+        //m_pRenderGraphObject->m_GLPrimitiveType = this->m_GLPrimitiveType;
+        //m_pRenderGraphObject->m_PointSize = this->m_PointSize;
     }
 }
 

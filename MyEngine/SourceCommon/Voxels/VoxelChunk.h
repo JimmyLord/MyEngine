@@ -42,7 +42,7 @@ protected:
     VoxelBlock* m_pBlocks;
     uint32 m_BlocksAllocated; // set to 0 if blocks were allocated elsewhere and passed in.
 
-    SceneGraphObject* m_pSceneGraphObject;
+    RenderGraphObject* m_pRenderGraphObject;
 
     // Internal functions
     void CalculateBounds();
@@ -94,9 +94,9 @@ public:
     void CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount);
 
     // Rendering
-    void AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial);
-    void OverrideSceneGraphObjectTransform(MyMatrix* pTransform);
-    void RemoveFromSceneGraph();
+    void AddToRenderGraph(void* pUserData, MaterialDefinition* pMaterial);
+    void OverrideRenderGraphObjectTransform(MyMatrix* pTransform);
+    void RemoveFromRenderGraph();
 
     // MyMesh overrides
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);

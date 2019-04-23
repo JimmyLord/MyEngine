@@ -205,7 +205,7 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool chang
 
         CreatePrimitive();
 
-        PushChangesToSceneGraphObjects();
+        PushChangesToRenderGraphObjects();
     }
 
     return oldPointer;
@@ -357,7 +357,7 @@ void ComponentMeshPrimitive::CreatePrimitive()
         m_pMesh = MyNew MyMesh( m_pComponentSystemManager->GetEngineCore() );
     }
     else
-        RemoveFromSceneGraph();
+        RemoveFromRenderGraph();
 
     if( m_pMesh->GetSubmeshListCount() > 0 )
         m_pMesh->GetSubmesh( 0 )->m_PrimitiveType = m_GLPrimitiveType;
@@ -389,7 +389,7 @@ void ComponentMeshPrimitive::CreatePrimitive()
     m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
     // Add the Mesh to the main scene graph.
-    AddToSceneGraph();
+    AddToRenderGraph();
 }
 
 void ComponentMeshPrimitive::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)

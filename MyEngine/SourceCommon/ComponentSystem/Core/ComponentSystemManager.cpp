@@ -24,9 +24,9 @@
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
 #include "Physics/EngineBox2DContactListener.h"
-#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
-#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
-#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
+#include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Flat.h"
+#include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Octree.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 #if MYFW_EDITOR
@@ -73,9 +73,9 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_TimeScale = 1;
 
-    //m_pSceneGraph = MyNew SceneGraph_Flat();
+    //m_pRenderGraph = MyNew RenderGraph_Flat();
     int depth = 3;
-    m_pSceneGraph = MyNew SceneGraph_Octree( m_pEngineCore, depth, -32, -32, -32, 32, 32, 32 );
+    m_pRenderGraph = MyNew RenderGraph_Octree( m_pEngineCore, depth, -32, -32, -32, 32, 32, 32 );
 
     for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
@@ -122,7 +122,7 @@ ComponentSystemManager::~ComponentSystemManager()
 #endif
     SAFE_DELETE( m_pComponentTypeManager );
     
-    SAFE_DELETE( m_pSceneGraph );
+    SAFE_DELETE( m_pRenderGraph );
 
     // if a component didn't unregister its callbacks, assert.
     MyAssert( m_pComponentCallbackList_Tick.GetHead() == 0 );
@@ -2076,7 +2076,6 @@ GameObject* ComponentSystemManager::GetGameObjectsInRange(Vector3 pos, float ran
 {
     // TODO: Return more than 1 object.
     //       Also, create a SceneGraph...
-    //       Also, rename the current SceneGraph stuff to RenderGraph...
 
     SceneInfo* pScene = GetSceneInfo( SCENEID_MainScene );
     for( GameObject* pGameObject = pScene->m_GameObjects.GetHead(); pGameObject != 0; pGameObject = pGameObject->GetNext() )
@@ -2391,21 +2390,21 @@ void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatP
             }
         }
 
-        //SceneGraphFlags baseFlags = (SceneGraphFlags)0;
+        //RenderGraphFlags baseFlags = (RenderGraphFlags)0;
         //if( drawEmissives )
-        //    baseFlags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Emissive);
+        //    baseFlags = (RenderGraphFlags)(baseFlags | RenderGraphFlag_Emissive);
 
         if( drawOpaques )
         {
-            //SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Opaque);
-            //baseFlags = (SceneGraphFlags)(baseFlags | ~SceneGraphFlag_Emissive);
-            m_pSceneGraph->Draw( true, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            //RenderGraphFlags flags = (RenderGraphFlags)(baseFlags | RenderGraphFlag_Opaque);
+            //baseFlags = (RenderGraphFlags)(baseFlags | ~RenderGraphFlag_Emissive);
+            m_pRenderGraph->Draw( true, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, 0 );
         }
 
         if( drawTransparents )
         {
-            //SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Transparent);
-            m_pSceneGraph->Draw( false, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            //RenderGraphFlags flags = (RenderGraphFlags)(baseFlags | RenderGraphFlag_Transparent);
+            m_pRenderGraph->Draw( false, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, 0 );
         }
     }
     
@@ -2482,7 +2481,7 @@ void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
     pShader->ProgramTint( tint );
 }
 
-void ProgramSceneIDs(SceneGraphObject* pObject, ShaderGroup* pShaderOverride)
+void ProgramSceneIDs(RenderGraphObject* pObject, ShaderGroup* pShaderOverride)
 {
     ComponentBase* pComponent = (ComponentBase*)(pObject->m_pUserData);
 
@@ -2503,8 +2502,8 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
             Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
             Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();
 
-            m_pSceneGraph->Draw( true, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, 0, 0, pShaderOverride, ProgramSceneIDs );
-            m_pSceneGraph->Draw( false, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, 0, 0, pShaderOverride, ProgramSceneIDs );
+            m_pRenderGraph->Draw( true, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, 0, 0, pShaderOverride, ProgramSceneIDs );
+            m_pRenderGraph->Draw( false, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, 0, 0, pShaderOverride, ProgramSceneIDs );
         }
 
         // draw all components that registered a callback.
@@ -2859,7 +2858,7 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 
 //void ComponentSystemManager::m_pGameObjectTemplateManager
 
-void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers, SceneGraphObject** pOutputList)
+void ComponentSystemManager::AddMeshToRenderGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers, RenderGraphObject** pOutputList)
 {
     MyAssert( pComponent != 0 );
     MyAssert( pComponent->GetGameObject() != 0 );
@@ -2874,11 +2873,11 @@ void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMe
     {
         MyAssert( pOutputList[i] == 0 );
         
-        pOutputList[i] = m_pSceneGraph->AddObject( pMatWorld, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitiveType, pointsize, layers, pComponent );
+        pOutputList[i] = m_pRenderGraph->AddObject( pMatWorld, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitiveType, pointsize, layers, pComponent );
     }
 }
 
-SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers)
+RenderGraphObject* ComponentSystemManager::AddSubmeshToRenderGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers)
 {
     MyAssert( pComponent != 0 );
     MyAssert( pComponent->GetGameObject() != 0 );
@@ -2886,12 +2885,12 @@ SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* 
 
     MyMatrix* pMatWorld = pComponent->GetGameObject()->GetTransform()->GetWorldTransform();
 
-    return m_pSceneGraph->AddObject( pMatWorld, 0, pSubmesh, pMaterial, primitiveType, pointsize, layers, pComponent );
+    return m_pRenderGraph->AddObject( pMatWorld, 0, pSubmesh, pMaterial, primitiveType, pointsize, layers, pComponent );
 }
 
-void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject)
+void ComponentSystemManager::RemoveObjectFromRenderGraph(RenderGraphObject* pRenderGraphObject)
 {
-    m_pSceneGraph->RemoveObject( pSceneGraphObject );
+    m_pRenderGraph->RemoveObject( pRenderGraphObject );
 }
 
 void ComponentSystemManager::OnLoad(SceneID sceneid)

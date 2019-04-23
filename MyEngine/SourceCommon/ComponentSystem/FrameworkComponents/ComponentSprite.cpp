@@ -13,7 +13,7 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
-#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Base.h"
 
 #if MYFW_EDITOR
 #include "../SourceEditor/EngineEditorCommands.h"
@@ -31,8 +31,8 @@ ComponentSprite::ComponentSprite()
 
     m_BaseType = BaseComponentType_Renderable;
 
-    m_WaitingToAddToSceneGraph = false;
-    m_pSceneGraphObject = 0;
+    m_WaitingToAddToRenderGraph = false;
+    m_pRenderGraphObject = 0;
 
     m_pSprite = 0;
 }
@@ -46,7 +46,7 @@ ComponentSprite::~ComponentSprite()
     MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
     m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
 
-    RemoveFromSceneGraph();
+    RemoveFromRenderGraph();
 
     MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( Tick );
     //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( OnSurfaceChanged );
@@ -257,15 +257,15 @@ void ComponentSprite::OnLoad()
     BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
     m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
 
-    if( m_pSceneGraphObject == 0 )
-        AddToSceneGraph();
+    if( m_pRenderGraphObject == 0 )
+        AddToRenderGraph();
 }
 
 void ComponentSprite::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
 {
-    if( m_pSceneGraphObject != 0 )
+    if( m_pRenderGraphObject != 0 )
     {
-        g_pComponentSystemManager->GetSceneGraph()->ObjectMoved( m_pSceneGraphObject );
+        g_pComponentSystemManager->GetRenderGraph()->ObjectMoved( m_pRenderGraphObject );
     }
 }
 
@@ -280,24 +280,24 @@ void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshInde
     {
         m_pSprite->SetMaterial( pMaterial );
 
-        // Create a scenegraph object if this is the first time we set the material.
-        if( m_pSceneGraphObject == 0 && pMaterial != 0 )
+        // Create a RenderGraph object if this is the first time we set the material.
+        if( m_pRenderGraphObject == 0 && pMaterial != 0 )
         {
             BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
             m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
 
-            AddToSceneGraph();
+            AddToRenderGraph();
         }
 
         if( pMaterial == 0 )
         {
-            RemoveFromSceneGraph();
+            RemoveFromRenderGraph();
         }
     }
 
-    if( m_pSceneGraphObject )
+    if( m_pRenderGraphObject )
     {
-        m_pSceneGraphObject->SetMaterial( pMaterial, true );
+        m_pRenderGraphObject->SetMaterial( pMaterial, true );
     }
 }
 
@@ -305,13 +305,13 @@ void ComponentSprite::SetVisible(bool visible)
 {
     ComponentRenderable::SetVisible( visible );
 
-    if( m_pSceneGraphObject )
+    if( m_pRenderGraphObject )
     {
-        m_pSceneGraphObject->m_Visible = visible;
+        m_pRenderGraphObject->m_Visible = visible;
     }
 }
 
-void ComponentSprite::AddToSceneGraph()
+void ComponentSprite::AddToRenderGraph()
 {
     MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
 
@@ -321,52 +321,52 @@ void ComponentSprite::AddToSceneGraph()
     if( m_EnabledState != EnabledState_Enabled )
         return;
 
-    MyAssert( m_pSceneGraphObject == 0 );
+    MyAssert( m_pRenderGraphObject == 0 );
     MyAssert( m_pSprite );
 
     // Add the submesh to the scene graph if the material is loaded, otherwise check again each tick.
     // TODO: Either register with a material finished loading callback or use events instead of this tick callback.
     if( pMaterial->IsFullyLoaded() )
     {
-        m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pSprite, pMaterial, MyRE::PrimitiveType_Triangles, 1, m_LayersThisExistsOn );
+        m_pRenderGraphObject = g_pComponentSystemManager->AddSubmeshToRenderGraph( this, m_pSprite, pMaterial, MyRE::PrimitiveType_Triangles, 1, m_LayersThisExistsOn );
 
-        m_WaitingToAddToSceneGraph = false;
+        m_WaitingToAddToRenderGraph = false;
     }
-    else if( m_WaitingToAddToSceneGraph == false )
+    else if( m_WaitingToAddToRenderGraph == false )
     {
-        m_WaitingToAddToSceneGraph = true;
+        m_WaitingToAddToRenderGraph = true;
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, Tick );
     }
 }
 
-void ComponentSprite::RemoveFromSceneGraph()
+void ComponentSprite::RemoveFromRenderGraph()
 {
-    if( m_WaitingToAddToSceneGraph )
+    if( m_WaitingToAddToRenderGraph )
     {
-        m_WaitingToAddToSceneGraph = false;
+        m_WaitingToAddToRenderGraph = false;
         return;
     }
 
-    if( m_pSceneGraphObject != 0 )
+    if( m_pRenderGraphObject != 0 )
     {
-        g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObject );    
-        m_pSceneGraphObject = 0;
+        g_pComponentSystemManager->RemoveObjectFromRenderGraph( m_pRenderGraphObject );    
+        m_pRenderGraphObject = 0;
     }
 }
 
-void ComponentSprite::PushChangesToSceneGraphObjects()
+void ComponentSprite::PushChangesToRenderGraphObjects()
 {
-    //ComponentRenderable::PushChangesToSceneGraphObjects(); // pure virtual
+    //ComponentRenderable::PushChangesToRenderGraphObjects(); // pure virtual
 
-    // Sync scenegraph object
-    if( m_pSceneGraphObject )
+    // Sync RenderGraph object
+    if( m_pRenderGraphObject )
     {
-        m_pSceneGraphObject->SetMaterial( this->GetMaterial( 0 ), true );
-        m_pSceneGraphObject->m_Layers = this->m_LayersThisExistsOn;
-        m_pSceneGraphObject->m_Visible = this->m_Visible;
+        m_pRenderGraphObject->SetMaterial( this->GetMaterial( 0 ), true );
+        m_pRenderGraphObject->m_Layers = this->m_LayersThisExistsOn;
+        m_pRenderGraphObject->m_Visible = this->m_Visible;
 
-        //m_pSceneGraphObject->m_GLPrimitiveType = this->m_GLPrimitiveType;
-        //m_pSceneGraphObject->m_PointSize = this->m_PointSize;
+        //m_pRenderGraphObject->m_GLPrimitiveType = this->m_GLPrimitiveType;
+        //m_pRenderGraphObject->m_PointSize = this->m_PointSize;
     }
 }
 
@@ -375,14 +375,14 @@ void ComponentSprite::TickCallback(float deltaTime)
     MyAssert( m_pGameObject->GetTransform() );
 
     // If we're done waiting to be added to the scene graph (either to be added to removed), we no longer need this callback.
-    if( m_WaitingToAddToSceneGraph == false )
+    if( m_WaitingToAddToRenderGraph == false )
     {
         // Callbacks can only be safely unregistered during their own callback.
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
     }
     else
     {
-        AddToSceneGraph();
+        AddToRenderGraph();
     }
 }
 
@@ -513,7 +513,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedByInt
         m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
     }
 
-    PushChangesToSceneGraphObjects();
+    PushChangesToRenderGraphObjects();
 
     return oldpointer;
 }

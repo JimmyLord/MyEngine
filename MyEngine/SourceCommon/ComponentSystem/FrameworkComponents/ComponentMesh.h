@@ -14,7 +14,7 @@
 
 class ComponentLuaScript;
 class ComponentTransform;
-class SceneGraphObject;
+class RenderGraphObject;
 
 extern const char* OpenGLPrimitiveTypeStrings[7];
 
@@ -30,8 +30,8 @@ public:
 public:
     MyMesh* m_pMesh;
 
-    bool m_WaitingToAddToSceneGraph;
-    SceneGraphObject* m_pSceneGraphObjects[MAX_SUBMESHES];
+    bool m_WaitingToAddToRenderGraph;
+    RenderGraphObject* m_pRenderGraphObjects[MAX_SUBMESHES];
     MaterialDefinition* m_pMaterials[MAX_SUBMESHES];
     MyRE::PrimitiveTypes m_GLPrimitiveType;
     int m_PointSize;
@@ -83,9 +83,9 @@ public:
     virtual bool IsMeshReady();
     virtual void MeshFinishedLoading();
 
-    virtual void AddToSceneGraph();
-    virtual void RemoveFromSceneGraph();
-    virtual void PushChangesToSceneGraphObjects();
+    virtual void AddToRenderGraph();
+    virtual void RemoveFromRenderGraph();
+    virtual void PushChangesToRenderGraphObjects();
 
     virtual MyAABounds* GetBounds();
 

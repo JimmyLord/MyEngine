@@ -137,9 +137,9 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
-    virtual void AddToSceneGraph() {}
-    virtual void RemoveFromSceneGraph() {}
-    virtual void PushChangesToSceneGraphObjects() {}
+    virtual void AddToRenderGraph() {}
+    virtual void RemoveFromRenderGraph() {}
+    virtual void PushChangesToRenderGraphObjects() {}
 
     void FindLuaScriptComponentPointer();
     virtual void OnLoad();

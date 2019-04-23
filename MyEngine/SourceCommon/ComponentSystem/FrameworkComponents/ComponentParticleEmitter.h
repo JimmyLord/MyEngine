@@ -28,7 +28,7 @@ public:
     };
 
 public:
-    SceneGraphObject* m_pSceneGraphObject;
+    RenderGraphObject* m_pRenderGraphObject;
 
     MaterialDefinition* m_pMaterial;
 
@@ -96,9 +96,9 @@ public:
 
     virtual void SetVisible(bool visible);
 
-    virtual void AddToSceneGraph();
-    virtual void RemoveFromSceneGraph();
-    virtual void PushChangesToSceneGraphObjects();
+    virtual void AddToRenderGraph();
+    virtual void RemoveFromRenderGraph();
+    virtual void PushChangesToRenderGraphObjects();
 
     void CreateBurst(int number, Vector3 offset);
 

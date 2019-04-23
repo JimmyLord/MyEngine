@@ -63,9 +63,9 @@ public:
     void DeleteTileInFocus(Vector2 mousepos);
 
     // ComponentRenderable overrides
-    virtual void AddToSceneGraph();
-    virtual void RemoveFromSceneGraph();
-    virtual void PushChangesToSceneGraphObjects();
+    virtual void AddToRenderGraph();
+    virtual void RemoveFromRenderGraph();
+    virtual void PushChangesToRenderGraphObjects();
 
 protected:
     // Callback functions for various events.

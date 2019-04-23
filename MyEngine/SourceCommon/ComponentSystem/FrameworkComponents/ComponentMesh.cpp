@@ -15,8 +15,8 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
-#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
-#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
+#include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Flat.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 #if MYFW_EDITOR
@@ -48,12 +48,12 @@ ComponentMesh::ComponentMesh()
 
     m_BaseType = BaseComponentType_Renderable;
 
-    m_WaitingToAddToSceneGraph = false;
+    m_WaitingToAddToRenderGraph = false;
 
     m_pMesh = nullptr;
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
-        m_pSceneGraphObjects[i] = nullptr;
+        m_pRenderGraphObjects[i] = nullptr;
         m_pMaterials[i] = nullptr;
     }
 
@@ -78,9 +78,9 @@ ComponentMesh::~ComponentMesh()
     SAFE_RELEASE( m_pMesh );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        if( m_pSceneGraphObjects[i] != nullptr )
-            g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObjects[i] );
-        m_pSceneGraphObjects[i] = nullptr;
+        if( m_pRenderGraphObjects[i] != nullptr )
+            g_pComponentSystemManager->RemoveObjectFromRenderGraph( m_pRenderGraphObjects[i] );
+        m_pRenderGraphObjects[i] = nullptr;
         SAFE_RELEASE( m_pMaterials[i] );
     }
 
@@ -261,7 +261,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedByInter
             }
         }
 
-        PushChangesToSceneGraphObjects();
+        PushChangesToRenderGraphObjects();
     }
 
     return oldPointer;
@@ -420,7 +420,7 @@ void ComponentMesh::OnPlay()
 
 bool ComponentMesh::OnEvent(MyEvent* pEvent)
 {
-    // When a material finishes loading, if it was our material, set the material again to fix the flags of the scenegraphobject.
+    // When a material finishes loading, if it was our material, set the material again to fix the flags of the RenderGraphObject.
     if( pEvent->GetType() == Event_MaterialFinishedLoading )
     {
         MaterialDefinition* pMaterial = static_cast<MaterialDefinition*>( pEvent->GetPointer( "Material" ) );
@@ -467,9 +467,9 @@ void ComponentMesh::OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3
     {
         for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
         {
-            if( m_pSceneGraphObjects[i] != nullptr )
+            if( m_pRenderGraphObjects[i] != nullptr )
             {
-                g_pComponentSystemManager->GetSceneGraph()->ObjectMoved( m_pSceneGraphObjects[i] );
+                g_pComponentSystemManager->GetRenderGraph()->ObjectMoved( m_pRenderGraphObjects[i] );
             }
         }
     }
@@ -486,10 +486,10 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshIndex)
     SAFE_RELEASE( m_pMaterials[submeshIndex] );
     m_pMaterials[submeshIndex] = pMaterial;
 
-    if( m_pSceneGraphObjects[submeshIndex] )
+    if( m_pRenderGraphObjects[submeshIndex] )
     {
-        // Update the material on the SceneGraphObject along with the opaque/transparent flags.
-        m_pSceneGraphObjects[submeshIndex]->SetMaterial( pMaterial, true );
+        // Update the material on the RenderGraphObject along with the opaque/transparent flags.
+        m_pRenderGraphObjects[submeshIndex]->SetMaterial( pMaterial, true );
     }
 }
 
@@ -499,9 +499,9 @@ void ComponentMesh::SetVisible(bool visible)
 
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
-        if( m_pSceneGraphObjects[i] )
+        if( m_pRenderGraphObjects[i] )
         {
-            m_pSceneGraphObjects[i]->m_Visible = visible;
+            m_pRenderGraphObjects[i]->m_Visible = visible;
         }
     }
 }
@@ -520,13 +520,13 @@ void ComponentMesh::SetMesh(MyMesh* pMesh)
         pMesh->AddRef();
 
     if( m_pMesh )
-        RemoveFromSceneGraph();
+        RemoveFromRenderGraph();
 
     SAFE_RELEASE( m_pMesh );
     m_pMesh = pMesh;
 
     if( m_pMesh )
-        AddToSceneGraph();
+        AddToRenderGraph();
 }
 
 bool ComponentMesh::IsMeshReady()
@@ -538,7 +538,7 @@ void ComponentMesh::MeshFinishedLoading()
 {
 }
 
-void ComponentMesh::AddToSceneGraph()
+void ComponentMesh::AddToRenderGraph()
 {
     MyAssert( m_pMesh );
 
@@ -551,33 +551,33 @@ void ComponentMesh::AddToSceneGraph()
     if( m_pMesh->IsReady() )
     {
         MyAssert( m_pMesh->GetSubmeshListCount() > 0 );
-        MyAssert( m_pSceneGraphObjects[0] == nullptr );
+        MyAssert( m_pRenderGraphObjects[0] == nullptr );
 
         // Add the Mesh to the main scene graph.
         if( m_pMesh->GetSubmeshListCount() > 0 )
         {
-            g_pComponentSystemManager->AddMeshToSceneGraph( this, m_pMesh, m_pMaterials, m_GLPrimitiveType, m_PointSize, m_LayersThisExistsOn, m_pSceneGraphObjects );
+            g_pComponentSystemManager->AddMeshToRenderGraph( this, m_pMesh, m_pMaterials, m_GLPrimitiveType, m_PointSize, m_LayersThisExistsOn, m_pRenderGraphObjects );
         }
 
-        m_WaitingToAddToSceneGraph = false;
+        m_WaitingToAddToRenderGraph = false;
 
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
     }
-    else if( m_WaitingToAddToSceneGraph == false )
+    else if( m_WaitingToAddToRenderGraph == false )
     {
-        m_WaitingToAddToSceneGraph = true;
+        m_WaitingToAddToRenderGraph = true;
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, Tick );
     }
 }
 
-void ComponentMesh::RemoveFromSceneGraph()
+void ComponentMesh::RemoveFromRenderGraph()
 {
     if( m_pMesh == nullptr )
         return;
 
-    if( m_WaitingToAddToSceneGraph )
+    if( m_WaitingToAddToRenderGraph )
     {
-        m_WaitingToAddToSceneGraph = false;
+        m_WaitingToAddToRenderGraph = false;
         return;
     }
 
@@ -586,30 +586,30 @@ void ComponentMesh::RemoveFromSceneGraph()
 
     for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
     {
-        if( m_pSceneGraphObjects[i] != nullptr )
+        if( m_pRenderGraphObjects[i] != nullptr )
         {
-            g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObjects[i] );
-            m_pSceneGraphObjects[i] = nullptr;
+            g_pComponentSystemManager->RemoveObjectFromRenderGraph( m_pRenderGraphObjects[i] );
+            m_pRenderGraphObjects[i] = nullptr;
         }
     }
 }
 
-void ComponentMesh::PushChangesToSceneGraphObjects()
+void ComponentMesh::PushChangesToRenderGraphObjects()
 {
-    //ComponentRenderable::PushChangesToSceneGraphObjects(); // Pure virtual.
+    //ComponentRenderable::PushChangesToRenderGraphObjects(); // Pure virtual.
 
-    // Sync scenegraph objects.
+    // Sync RenderGraph objects.
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
-        if( m_pSceneGraphObjects[i] )
+        if( m_pRenderGraphObjects[i] )
         {
-            m_pSceneGraphObjects[i]->SetMaterial( this->GetMaterial( i ), true );
-            m_pSceneGraphObjects[i]->m_Layers = this->m_LayersThisExistsOn;
+            m_pRenderGraphObjects[i]->SetMaterial( this->GetMaterial( i ), true );
+            m_pRenderGraphObjects[i]->m_Layers = this->m_LayersThisExistsOn;
 
-            m_pSceneGraphObjects[i]->m_Visible = this->m_Visible;
+            m_pRenderGraphObjects[i]->m_Visible = this->m_Visible;
 
-            m_pSceneGraphObjects[i]->m_GLPrimitiveType = this->m_GLPrimitiveType;
-            m_pSceneGraphObjects[i]->m_PointSize = this->m_PointSize;
+            m_pRenderGraphObjects[i]->m_GLPrimitiveType = this->m_GLPrimitiveType;
+            m_pRenderGraphObjects[i]->m_PointSize = this->m_PointSize;
         }
     }
 }
@@ -651,7 +651,7 @@ void ComponentMesh::TickCallback(float deltaTime)
     MyAssert( m_pMesh );
 
     // If we're done waiting to be added to the scene graph (either to be added to removed), we no longer need this callback.
-    if( m_WaitingToAddToSceneGraph == false )
+    if( m_WaitingToAddToRenderGraph == false )
     {
         // Callbacks can only be safely unregistered during their own callback.
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
@@ -661,7 +661,7 @@ void ComponentMesh::TickCallback(float deltaTime)
         if( IsMeshReady() )
         {
             MeshFinishedLoading();
-            AddToSceneGraph();
+            AddToRenderGraph();
         }
     }
 }

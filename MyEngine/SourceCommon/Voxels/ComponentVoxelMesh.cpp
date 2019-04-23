@@ -285,7 +285,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedBy
         }
 
         pVoxelChunk->RebuildMesh( 1 );
-        pVoxelChunk->AddToSceneGraph( this, m_pMaterials[0] );
+        pVoxelChunk->AddToRenderGraph( this, m_pMaterials[0] );
     }
 
     if( finishedChanging )
@@ -565,7 +565,7 @@ void ComponentVoxelMesh::CreateMesh()
             }
         }
         pVoxelChunk->RebuildMesh( 1 );
-        pVoxelChunk->AddToSceneGraph( this, m_pMaterials[0] );
+        pVoxelChunk->AddToRenderGraph( this, m_pMaterials[0] );
 
         SetMesh( pVoxelChunk );
         pVoxelChunk->Release();
