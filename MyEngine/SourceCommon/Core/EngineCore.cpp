@@ -464,16 +464,16 @@ void EngineCore::OneTimeInit()
     }
 
     // Load in some editor preferences.
-    if( g_pEditorPrefs && g_pEditorPrefs->GetEditorPrefsJSONString() )
+    if( m_pEditorPrefs && m_pEditorPrefs->GetEditorPrefsJSONString() )
     {
-        cJSON* jEditorPrefs = g_pEditorPrefs->GetEditorPrefsJSONString();
+        cJSON* jEditorPrefs = m_pEditorPrefs->GetEditorPrefsJSONString();
 
         cJSON* jGameObjectFlagsArray = cJSON_GetObjectItem( jEditorPrefs, "GameObjectFlags" );
-        g_pEngineCore->InitializeGameObjectFlagStrings( jGameObjectFlagsArray );
+        InitializeGameObjectFlagStrings( jGameObjectFlagsArray );
     }
     else
     {
-        g_pEngineCore->InitializeGameObjectFlagStrings( nullptr );
+        InitializeGameObjectFlagStrings( nullptr );
     }
 
     m_pEditorPrefs->LoadLastSceneLoaded();
@@ -517,7 +517,7 @@ float EngineCore::Tick(float deltaTime)
     //ImGui::Begin( "Editor Debug" );
     //ImGui::Text( "IsAnyWindowHovered: %d", ImGui::IsAnyWindowHovered() );
     //ImGui::Text( "IsAnyWindowFocused: %d", ImGui::IsAnyWindowFocused() );
-    //ImGui::Text( "IsMouseLocked: %d", g_pGameCore->IsMouseLocked() );
+    //ImGui::Text( "IsMouseLocked: %d", IsMouseLocked() );
     //ImGui::Text( "MousePos: %0.0f, %0.0f", ImGui::GetMousePos().x, ImGui::GetMousePos().y );
     //ImGui::Text( "FrameCount: %d", ImGui::GetFrameCount() );
     //ImGui::Text( "Time: %f", ImGui::GetTime() );
@@ -596,11 +596,11 @@ float EngineCore::Tick(float deltaTime)
     MyFileObject* pFile = m_pSceneFilesLoading[0].m_pFile;
     if( pFile && pFile->GetFileLoadStatus() == FileLoadStatus_Success )
     {
-        SceneID sceneid = g_pComponentSystemManager->GetNextSceneID();
+        SceneID sceneid = m_pComponentSystemManager->GetNextSceneID();
 
-        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].Reset();
-        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
-        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( pFile->GetFullPath() );
+        m_pComponentSystemManager->m_pSceneInfoMap[sceneid].Reset();
+        m_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
+        m_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( pFile->GetFullPath() );
 
         // Loading an additional scene, or a lua script requested a scene.
         //     So, if we're in editor mode, don't call "play" when loading is finished.
@@ -671,10 +671,10 @@ float EngineCore::Tick(float deltaTime)
 
             for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
             {
-                if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
+                if( m_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && m_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
                 {
-                    g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->PhysicsStep();
-                    //g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->ClearForces();
+                    m_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->PhysicsStep();
+                    //m_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->ClearForces();
                 }
             }
         }
@@ -691,14 +691,14 @@ float EngineCore::Tick(float deltaTime)
     m_pComponentSystemManager->Tick( deltaTime );
 
 #if MYFW_USING_LUA
-    if( g_pLuaGameState && g_pLuaGameState->m_pLuaState )
+    if( m_pLuaGameState && m_pLuaGameState->m_pLuaState )
     {
-        int luamemcountk = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNT, 0 );
-        int luamemcountb = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNTB, 0 );
+        int luamemcountk = lua_gc( m_pLuaGameState->m_pLuaState, LUA_GCCOUNT, 0 );
+        int luamemcountb = lua_gc( m_pLuaGameState->m_pLuaState, LUA_GCCOUNTB, 0 );
         m_LuaMemoryUsedLastFrame = m_LuaMemoryUsedThisFrame;
         m_LuaMemoryUsedThisFrame = luamemcountk*1024 + luamemcountb;
 
-        lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOLLECT, 0 );
+        lua_gc( m_pLuaGameState->m_pLuaState, LUA_GCCOLLECT, 0 );
     }
 #endif
 
@@ -722,7 +722,7 @@ void OnFileUpdated_CallbackFunction(GameCore* pGameCore, MyFileObject* pFile)
 {
 #if MYFW_EDITOR
 #if MYFW_USING_WX
-    g_pComponentSystemManager->OnFileUpdated( pFile );
+    m_pComponentSystemManager->OnFileUpdated( pFile );
 #endif
 
     LOGInfo( LOGTag, "OnFileUpdated_CallbackFunction pFile = %s\n", pFile->GetFullPath() );
@@ -742,8 +742,6 @@ void OnFileUpdated_CallbackFunction(GameCore* pGameCore, MyFileObject* pFile)
         pMesh->Clear();
     }
 #endif
-
-    // TODO: EntityComponentManager-> Tell all script components file is updated.
 }
 
 void EngineCore::OnFocusGained()
@@ -758,7 +756,7 @@ void EngineCore::OnFocusGained()
 
 #if MYFW_USING_WX
     // Check if any of the "source" files, like .fbx's were updated, they aren't loaded by FileManager so wouldn't be detected there.
-    g_pComponentSystemManager->CheckForUpdatedDataSourceFiles( false );
+    m_pComponentSystemManager->CheckForUpdatedDataSourceFiles( false );
 #endif
 #endif
 
@@ -808,7 +806,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #if !MYFW_OPENGLES2
     if( m_Debug_DrawWireframe )
     {
-        g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
+        m_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
     }
 #endif
 
@@ -824,11 +822,11 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         // Reset to full window size.
         MyViewport viewport( 0, 0, windowWidth, windowHeight );
-        g_pRenderer->EnableViewport( &viewport, true );
+        m_pRenderer->EnableViewport( &viewport, true );
 
         // Render out the ImGui command list to the full window.
-        g_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.1f, 0.2f, 1.0f ) );
-        g_pRenderer->ClearBuffers( true, true, false );
+        m_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.1f, 0.2f, 1.0f ) );
+        m_pRenderer->ClearBuffers( true, true, false );
 
         if( m_pImGuiManager )
         {
@@ -859,7 +857,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
 #if !MYFW_OPENGLES2
     if( m_Debug_DrawWireframe )
-        g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
+        m_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
 #endif
 
 #if MYFW_EDITOR
@@ -949,9 +947,9 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         MyMatrix matProj;
         matProj.CreateOrtho( (float)windowrect.x, (float)windowrect.x+windowrect.w, (float)windowrect.y, (float)windowrect.y+windowrect.h, -1, 1 );
-        g_pRenderer->SetDepthTestEnabled( false );
+        m_pRenderer->SetDepthTestEnabled( false );
         m_pDebugTextMesh->Draw( &matProj, nullptr, nullptr, nullptr,nullptr,nullptr,0,nullptr,nullptr,nullptr,nullptr );
-        g_pRenderer->SetDepthTestEnabled( true );
+        m_pRenderer->SetDepthTestEnabled( true );
     }
 #endif //MYFW_EDITOR
 
@@ -1049,7 +1047,7 @@ void EngineCore::OnDrawFrameDone()
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
 {
-    g_pComponentSystemManager->OnFileRenamed( fullpathbefore, fullpathafter );
+    m_pComponentSystemManager->OnFileRenamed( fullpathbefore, fullpathafter );
 }
 
 void EngineCore::OnDropFile(const char* filename)
@@ -1069,7 +1067,7 @@ void EngineCore::OnDropFile(const char* filename)
         return;
     }
 
-    g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, SCENEID_MainScene, filename, true );
+    GetComponentSystemManager()->LoadDataFile( relativepath, SCENEID_MainScene, filename, true );
 }
 
 void EngineCore::SetMousePosition(float x, float y)
@@ -1142,7 +1140,7 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
 #endif
 
 #if !MYFW_EDITOR
-    if( g_pGameCore->IsMouseLocked() == false )
+    if( IsMouseLocked() == false )
     {
         float toplefty = y;
         if( m_pImGuiManager->HandleInput( -1, -1, action, id, x, toplefty, pressure ) )
@@ -1162,7 +1160,7 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     
     // For non ImGui editor builds, if the game wants the mouse locked, finish the locking process here after imgui manager uses the mouse.
     bool wasLockedBecauseOfThisClick = false;
-    if( action == GCBA_Down && g_pGameCore->WasMouseLockRequested() )
+    if( action == GCBA_Down && WasMouseLockRequested() )
     {
         wasLockedBecauseOfThisClick = LockSystemMouse();
         
@@ -1177,13 +1175,13 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
 bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float pressure, float size)
 {
     // If mouse lock was requested, don't let mouse held messages go further.
-    if( g_pGameCore->WasMouseLockRequested() && g_pGameCore->IsMouseLocked() == false && action == GCBA_Held )
+    if( WasMouseLockRequested() && IsMouseLocked() == false && action == GCBA_Held )
     {
         return false;
     }
 
 #if MYFW_EDITOR
-    if( g_pGameCore->WasMouseLockRequested() && action == GCBA_Down )
+    if( WasMouseLockRequested() && action == GCBA_Down )
     {
         // If this call to lock the mouse actually did lock it, don't send the click to the game.
         // TODO: Also ignore the movements and the mouse up.
@@ -1298,7 +1296,7 @@ void EngineCore::OnModeTogglePlayStop()
         OnModePlay();
         
         // Set focus to gameplay window.
-        if( g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() )
+        if( GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() )
         {
             ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->OnModeTogglePlayStop( false );
         }
@@ -1308,7 +1306,7 @@ void EngineCore::OnModeTogglePlayStop()
         OnModeStop();
 
         // Set focus to editor window.
-        if( g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() )
+        if( GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() )
         {
             ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->OnModeTogglePlayStop( true );
         }
@@ -1460,9 +1458,9 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
 
     if( m_pMesh_MaterialBall && m_pMesh_MaterialBall->IsReady() == false )
     {
-        if( g_pEngineCore->m_pSphereMeshFile->GetFileLoadStatus() == FileLoadStatus_Success )
+        if( m_pSphereMeshFile->GetFileLoadStatus() == FileLoadStatus_Success )
         {
-            m_pMesh_MaterialBall->SetSourceFile( g_pEngineCore->m_pSphereMeshFile );
+            m_pMesh_MaterialBall->SetSourceFile( m_pSphereMeshFile );
         }
 
         return nullptr;
@@ -1496,12 +1494,12 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pGameObject = m_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
         pGameObject->SetName( "3D Grid Plane" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects, g_pComponentSystemManager );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects, m_pComponentSystemManager );
         if( pComponentMesh )
         {
-            if( g_pEngineCore->GetEditorPrefs() )
+            if( GetEditorPrefs() )
             {
-                pComponentMesh->SetVisible( g_pEngineCore->GetEditorPrefs()->GetGridSettings()->visible );
+                pComponentMesh->SetVisible( GetEditorPrefs()->GetGridSettings()->visible );
             }
 
             pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 );
@@ -1535,7 +1533,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
         // Add an editor scene camera.
         {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects, g_pComponentSystemManager );
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects, m_pComponentSystemManager );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
             pComponentCamera->m_Orthographic = false;
             pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
@@ -1549,7 +1547,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
         // Add a foreground camera for the transform gizmo only ATM.
         {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects, g_pComponentSystemManager );
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects, m_pComponentSystemManager );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
             pComponentCamera->m_Orthographic = false;
             pComponentCamera->m_LayersToRender = Layer_EditorFG;
@@ -1583,7 +1581,7 @@ void EngineCore::CreateDefaultSceneObjects()
         pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, -10 ) );
 #endif
 
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene, g_pComponentSystemManager );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene, m_pComponentSystemManager );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = false;
         pComponentCamera->m_LayersToRender = Layer_MainScene;
@@ -1595,7 +1593,7 @@ void EngineCore::CreateDefaultSceneObjects()
         pGameObject->SetName( "Hud Camera" );
         pGameObject->SetFlags( 1<<1 );
 
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene, g_pComponentSystemManager );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene, m_pComponentSystemManager );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = true;
         pComponentCamera->m_LayersToRender = Layer_HUD;
@@ -1616,7 +1614,7 @@ void EngineCore::ReloadSceneInternal(SceneID sceneid)
 
     OnModeStop();
     char oldscenepath[MAX_PATH];
-    sprintf_s( oldscenepath, MAX_PATH, "%s", g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath );
+    sprintf_s( oldscenepath, MAX_PATH, "%s", m_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath );
     UnloadScene( SCENEID_AllScenes, true );
     RequestedSceneInfo* pRequestedSceneInfo = RequestSceneInternal( oldscenepath );
     MyAssert( pRequestedSceneInfo );
@@ -1635,7 +1633,7 @@ void EngineCore::RequestScene(const char* fullpath)
 RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
 {
     // If the scene is already loaded, don't request it again.
-    if( g_pComponentSystemManager->IsSceneLoaded( fullpath ) )
+    if( m_pComponentSystemManager->IsSceneLoaded( fullpath ) )
         return nullptr;
 
     // Check if scene is already queued up.
@@ -1675,7 +1673,7 @@ void EngineCore::SwitchScene(const char* fullpath)
 
 void EngineCore::SaveScene(const char* fullpath, SceneID sceneid)
 {
-    char* savestring = g_pComponentSystemManager->SaveSceneToJSON( sceneid );
+    char* savestring = m_pComponentSystemManager->SaveSceneToJSON( sceneid );
 
     FILE* filehandle;
 #if MYFW_WINDOWS
@@ -1696,7 +1694,7 @@ void EngineCore::SaveScene(const char* fullpath, SceneID sceneid)
 
 void EngineCore::SaveAllScenes()
 {
-    if( g_pEngineCore->IsInEditorMode() == false )
+    if( IsInEditorMode() == false )
     {
         LOGInfo( LOGTag, "Scenes aren't saved when gameplay is active... use \"Save As\"\n" );
     }
@@ -1704,24 +1702,24 @@ void EngineCore::SaveAllScenes()
     {
         for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
-            if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+            if( m_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
                 continue;
 
             SceneID sceneid = (SceneID)i;
-            SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
+            SceneInfo* pSceneInfo = &m_pComponentSystemManager->m_pSceneInfoMap[i];
 
             if( sceneid != SCENEID_Unmanaged && sceneid != SCENEID_EngineObjects )
             {
-                if( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
+                if( m_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
                 {
                     LOGInfo( LOGTag, "Untitled scene not saved.\n" );
                 }
                 else
                 {
 #if MYFW_USING_IMGUI
-                    g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
+                    GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
 #endif
-                    g_pEngineCore->SaveScene( pSceneInfo->m_FullPath, sceneid );
+                    SaveScene( pSceneInfo->m_FullPath, sceneid );
                     //LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->m_FullPath );
                 }
             }
@@ -1731,7 +1729,7 @@ void EngineCore::SaveAllScenes()
 
 void EngineCore::ExportBox2DScene(const char* fullpath, SceneID sceneid)
 {
-    char* savestring = g_pComponentSystemManager->ExportBox2DSceneToJSON( sceneid );
+    char* savestring = m_pComponentSystemManager->ExportBox2DSceneToJSON( sceneid );
 
     FILE* filehandle;
 #if MYFW_WINDOWS
@@ -1758,7 +1756,7 @@ void EngineCore::UnloadScene(SceneID sceneid, bool clearEditorObjects)
         m_pLuaGameState->Rebuild(); // Reset the lua state.
     }
 
-    g_pComponentSystemManager->UnloadScene( sceneid, false );
+    m_pComponentSystemManager->UnloadScene( sceneid, false );
 
     if( sceneid == SCENEID_AllScenes && m_FreeAllMaterialsAndTexturesWhenUnloadingScene )
     {
@@ -1781,7 +1779,7 @@ void EngineCore::UnloadScene(SceneID sceneid, bool clearEditorObjects)
 #if MYFW_EDITOR
 SceneID EngineCore::LoadSceneFromFile(const char* fullpath)
 {
-    SceneID sceneid = g_pComponentSystemManager->GetNextSceneID();
+    SceneID sceneid = m_pComponentSystemManager->GetNextSceneID();
 
     FILE* filehandle;
 #if MYFW_WINDOWS
@@ -1836,8 +1834,8 @@ SceneID EngineCore::LoadSceneFromFile(const char* fullpath)
 
             LoadSceneFromJSON( filenamestart, jsonstr, sceneid, playWhenFinishedLoading );
 
-            g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
-            g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( fullpath );
+            m_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
+            m_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( fullpath );
 
             // Probably shouldn't bother with a rewind,
             //     might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around.
@@ -1852,7 +1850,7 @@ SceneID EngineCore::LoadSceneFromFile(const char* fullpath)
 
 void EngineCore::Editor_QuickSaveScene(const char* fullpath)
 {
-    char* savestring = g_pComponentSystemManager->SaveSceneToJSON( SCENEID_TempPlayStop );
+    char* savestring = m_pComponentSystemManager->SaveSceneToJSON( SCENEID_TempPlayStop );
 
     FILE* filehandle;
 #if MYFW_WINDOWS
@@ -1930,13 +1928,13 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, S
     m_pEditorState->ClearEditorState( false );
 #endif //MYFW_EDITOR
 
-    g_pComponentSystemManager->LoadSceneFromJSON( scenename, jsonstr, sceneid );
+    m_pComponentSystemManager->LoadSceneFromJSON( scenename, jsonstr, sceneid );
 
     // Tell all the cameras loaded in the scene the dimensions of the window. // TODO: move this into camera's onload.
     OnSurfaceChanged( m_MainViewport.GetX(), m_MainViewport.GetY(), m_MainViewport.GetWidth(), m_MainViewport.GetHeight() );
 
     // FinishLoading calls OnLoad and OnPlay for all components in scene.
-    g_pComponentSystemManager->FinishLoading( false, sceneid, playWhenFinishedLoading );
+    m_pComponentSystemManager->FinishLoading( false, sceneid, playWhenFinishedLoading );
 }
 
 #if MYFW_EDITOR
@@ -1974,11 +1972,11 @@ void EngineCore::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 heigh
 
     GameCore::OnSurfaceChanged( x, y, width, height );
 
-    g_pRenderer->SetCullingEnabled( true );
+    m_pRenderer->SetCullingEnabled( true );
 #if !MYFW_RIGHTHANDED
-    g_pRenderer->SetFrontFaceWinding( MyRE::FrontFaceWinding_Clockwise );
+    m_pRenderer->SetFrontFaceWinding( MyRE::FrontFaceWinding_Clockwise );
 #endif
-    g_pRenderer->SetDepthTestEnabled( true );
+    m_pRenderer->SetDepthTestEnabled( true );
 
     if( height == 0 || width == 0 )
         return;
@@ -2001,10 +1999,10 @@ void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUs
     pFBO->Bind( true );
 
     MyViewport viewport( 0, 0, pFBO->GetWidth(), pFBO->GetHeight() );
-    g_pRenderer->EnableViewport( &viewport, true );
+    m_pRenderer->EnableViewport( &viewport, true );
 
-    g_pRenderer->SetClearColor( ColorFloat( 0, 0, 0, 0 ) );
-    g_pRenderer->ClearBuffers( true, true, false );
+    m_pRenderer->SetClearColor( ColorFloat( 0, 0, 0, 0 ) );
+    m_pRenderer->ClearBuffers( true, true, false );
 
     // Draw all editor camera components.
     ComponentCamera* pCamera = nullptr;
@@ -2034,7 +2032,7 @@ void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUs
 
             m_pComponentSystemManager->DrawSingleObject( &matProj, &matView, pObject, nullptr );
 
-            g_pRenderer->ClearBuffers( false, true, false );
+            m_pRenderer->ClearBuffers( false, true, false );
         }
     }
 
