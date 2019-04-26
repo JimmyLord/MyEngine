@@ -128,7 +128,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui(EngineCore* pEngineCore)
     m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
 
     // Log Window.
-    m_pLogWindow = MyNew EditorLogWindow_ImGui( true );
+    m_pLogWindow = MyNew EditorLogWindow_ImGui( m_pEngineCore, true );
     m_pMemoryWindow = MyNew EditorMemoryWindow_ImGui();
 
     // Object list.

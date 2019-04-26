@@ -75,6 +75,9 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
     "TransformAlphaInUse",
     "TransformAlphaMax",
     "GameRunningMenuBarColor",
+    "LogTextInfo",
+    "LogTextError",
+    "LogTextDebug",
 };
 
 ImGuiStylePrefs::ImGuiStylePrefs()
@@ -118,16 +121,18 @@ ImGuiStylePrefs::ImGuiStylePrefs()
         m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaInUse].Set( 1, 1, 1, 0.2f );
         m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMax]  .Set( 1, 1, 1, 1.0f );
         m_DefaultColors[0][StylePref_Color_GameRunningMenuBarColor] .Set( 0.042f, 0.481f, 0.067f, 1.000f );
+        m_DefaultColors[0][StylePref_Color_LogTextInfo]             .Set( 1.0f, 1.0f, 1.0f, 1.0f );
+        m_DefaultColors[0][StylePref_Color_LogTextError]            .Set( 1.0f, 0.5f, 0.5f, 1.0f );
+        m_DefaultColors[0][StylePref_Color_LogTextDebug]            .Set( 0.5f, 0.5f, 1.0f, 1.0f );
 
         // Copy some of style 0 into other 4 styles.
         for( int i=1; i<5; i++ )
         {
-            m_DefaultColors[i][StylePref_Color_DivorcedVarText]          = m_DefaultColors[0][StylePref_Color_DivorcedVarText];
-            m_DefaultColors[i][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText];
-            m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaMin]   = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMin];
-            m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaInUse] = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaInUse];
-            m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaMax]   = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMax];
-            m_DefaultColors[i][StylePref_Color_GameRunningMenuBarColor]  = m_DefaultColors[0][StylePref_Color_GameRunningMenuBarColor];
+            // Copy all the extended (non-builtin imgui) colors.
+            for( int j=StylePref_NumImGuiStyleColors; j<StylePref_Num; j++ )
+            {
+                m_DefaultColors[i][j] = m_DefaultColors[0][j];
+            }
         }
 
         // Custom
@@ -151,6 +156,9 @@ ImGuiStylePrefs::ImGuiStylePrefs()
         m_DefaultColors[4][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[4][StylePref_Color_Button] * 0.5f;
         m_DefaultColors[4][StylePref_Color_UnsetObjectText]          = m_DefaultColors[4][StylePref_Color_Text] * 0.5f;
         m_DefaultColors[4][StylePref_Color_GameRunningMenuBarColor]  .Set(0.284f, 0.934f, 0.794f, 1.000f);
+        m_DefaultColors[4][StylePref_Color_LogTextInfo]              = m_DefaultColors[4][StylePref_Color_Text];
+        m_DefaultColors[4][StylePref_Color_LogTextError]             = m_DefaultColors[4][StylePref_Color_Text] + Vector4(0.6f, 0.2f, 0.2f, 0.0f);
+        m_DefaultColors[4][StylePref_Color_LogTextDebug]             = m_DefaultColors[4][StylePref_Color_Text] + Vector4(0.0f, 0.0f, 0.5f, 0.0f);
     }
 
     static const char* presets[] = { "MyDefaults", "Custom", "Classic", "Dark", "Light" };

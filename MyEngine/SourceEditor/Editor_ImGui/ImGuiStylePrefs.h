@@ -78,6 +78,9 @@ public:
         StylePref_Color_TransformGizmoAlphaInUse,
         StylePref_Color_TransformGizmoAlphaMax,
         StylePref_Color_GameRunningMenuBarColor,
+        StylePref_Color_LogTextInfo,
+        StylePref_Color_LogTextError,
+        StylePref_Color_LogTextDebug,
         StylePref_Num,
     };
 

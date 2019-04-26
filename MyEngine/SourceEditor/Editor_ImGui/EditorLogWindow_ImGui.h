@@ -21,6 +21,8 @@ public:
     };
 
 protected:
+    EngineCore* m_pEngineCore;
+
     pthread_mutex_t m_MessageLogMutex;
 
     std::vector<LogEntry> m_LoggedMessages;
@@ -33,7 +35,7 @@ protected:
     void DrawSingleLogEntry(unsigned int lineindex);
 
 public:
-    EditorLogWindow_ImGui(bool isGlobalLog);
+    EditorLogWindow_ImGui(EngineCore* pEngineCore, bool isGlobalLog);
     ~EditorLogWindow_ImGui();
 
     void Clear();

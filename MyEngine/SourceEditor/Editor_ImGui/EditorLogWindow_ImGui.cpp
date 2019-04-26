@@ -12,6 +12,8 @@
 #include "EditorLogWindow_ImGui.h"
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorMainFrame.h"
+#include "../SourceEditor/EditorPrefs.h"
+#include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 
 //====================================================================================================
 // Public methods
@@ -29,8 +31,10 @@ void EditorLogWindow_ImGui_MessageLog(int logtype, const char* tag, const char* 
     g_pGlobalLog->AddLog( logentry );
 }
 
-EditorLogWindow_ImGui::EditorLogWindow_ImGui(bool isGlobalLog)
+EditorLogWindow_ImGui::EditorLogWindow_ImGui(EngineCore* pEngineCore, bool isGlobalLog)
 {
+    m_pEngineCore = pEngineCore;
+
     if( isGlobalLog )
         g_pGlobalLog = this;
 
@@ -152,17 +156,20 @@ void EditorLogWindow_ImGui::DrawSingleLogEntry(unsigned int lineindex)
 
     if( pLogEntry->logtype == 0 )
     {
-        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f) );
+        Vector4 color = m_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_LogTextInfo );
+        ImGui::PushStyleColor( ImGuiCol_Text, color );
         ImGui::Text( "Info  - " );
     }
     else if( pLogEntry->logtype == 1 )
     {
-        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f) );
+        Vector4 color = m_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_LogTextError );
+        ImGui::PushStyleColor( ImGuiCol_Text, color );
         ImGui::Text( "Error - " );
     }
     else if( pLogEntry->logtype == 2 )
     {
-        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f) );
+        Vector4 color = m_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_LogTextDebug );
+        ImGui::PushStyleColor( ImGuiCol_Text, color );
         ImGui::Text( "Debug - " );
     }
 
