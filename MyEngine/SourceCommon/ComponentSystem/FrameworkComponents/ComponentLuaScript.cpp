@@ -410,7 +410,7 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                 {
                     //// Set color to default, since it might be set to divorced color.
-                    //Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                    //Vector4 color = m_pComponentSystemManager->GetEngineCore()->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     //ImGui::PushStyleColor( ImGuiCol_Text, color );
 
                     if( ImGui::MenuItem( "Clear GameObject" ) )

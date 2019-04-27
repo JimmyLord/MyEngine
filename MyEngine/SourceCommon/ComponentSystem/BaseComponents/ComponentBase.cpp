@@ -758,15 +758,19 @@ void ComponentBase::AddAllVariablesToWatchPanel()
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
 
-        AddVariableToWatchPanel( this, pVar, this );
+        AddVariableToWatchPanel( m_pComponentSystemManager->GetEngineCore(), this, pVar, this );
     }
 }
 
 void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObject, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent)
 {
+    EngineCore* pEngineCore = nullptr;
+
     // If the id passed in is different than the last known value, then assume a new control was selected.
     if( pObjectAsComponent )
     {
+        pEngineCore = pObjectAsComponent->m_pComponentSystemManager->GetEngineCore();
+
         if( id != pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable )
         {
             // If a new control was selected, store the starting value and start a new undo chain.
@@ -787,7 +791,7 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
         if( pObjectAsComponent )
         {
             // Add an undo action.
-            g_pEngineCore->GetCommandStack()->Do(
+            pEngineCore->GetCommandStack()->Do(
                 MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
                                     pObject, pVar, endValue, pObjectAsComponent->m_ComponentVariableValueWhenControlSelected, true, pObjectAsComponent ),
                 pObjectAsComponent->m_LinkNextUndoCommandToPrevious );
@@ -805,9 +809,9 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
             bool linkToPrevious = false;
 
             // If the previous command is changing the same object and variable, then link to it.
-            if( g_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+            if( pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
             {
-                EditorCommand* pPreviousCommand = g_pEngineCore->GetCommandStack()->GetUndoCommandAtIndex( g_pEngineCore->GetCommandStack()->GetUndoStackSize() - 1 );
+                EditorCommand* pPreviousCommand = pEngineCore->GetCommandStack()->GetUndoCommandAtIndex( pEngineCore->GetCommandStack()->GetUndoStackSize() - 1 );
                 if( strcmp( pPreviousCommand->GetName(), "EditorCommand_ImGuiPanelWatchNumberValueChanged" ) == 0 )
                 {
                     EditorCommand_ImGuiPanelWatchNumberValueChanged* pCommand = (EditorCommand_ImGuiPanelWatchNumberValueChanged*)pPreviousCommand;
@@ -819,7 +823,7 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
             }
 
             // Add an undo action.
-            g_pEngineCore->GetCommandStack()->Do(
+            pEngineCore->GetCommandStack()->Do(
                 MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
                                     pObject, pVar, endValue, oldValue, true, nullptr ),
                 linkToPrevious );
@@ -827,7 +831,7 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
     }
 }
 
-void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent)
+void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent)
 {
     MyAssert( pObject != nullptr );
 
@@ -851,14 +855,14 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
 
     if( pObjectAsComponent && pObjectAsComponent->IsDivorced( pVar->m_Index ) )
     {
-        Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_DivorcedVarText );
+        Vector4 color = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_DivorcedVarText );
         ImGui::PushStyleColor( ImGuiCol_Text, color ); //ImVec4( 1.0f, 0.5f, 0.0f, 1.0f ) );
         numStylesPushed++;
     }
 
     if( pObjectAsComponent && pObjectAsComponent->DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
     {
-        Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_MultiSelectedVarDiffText );
+        Vector4 color = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_MultiSelectedVarDiffText );
         ImGui::PushStyleColor( ImGuiCol_Text, color ); //ImVec4( 0.0f, 0.5f, 1.0f, 1.0f ) );
         numStylesPushed++;
     }
@@ -906,7 +910,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
 
                             if( pObjectAsComponent )
                             {
-                                g_pEngineCore->GetCommandStack()->Do(
+                                pEngineCore->GetCommandStack()->Do(
                                     MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pObject, pVar, newvalue, oldvalue, true, pObjectAsComponent ),
                                     false );
                             }
@@ -965,7 +969,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
 
                             if( pObjectAsComponent )
                             {
-                                g_pEngineCore->GetCommandStack()->Do(
+                                pEngineCore->GetCommandStack()->Do(
                                     MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pObject, pVar, newvalue, oldvalue, true, pObjectAsComponent ),
                                     false );
                             }
@@ -1012,7 +1016,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
 
                     if( pObjectAsComponent )
                     {
-                        g_pEngineCore->GetCommandStack()->Do(
+                        pEngineCore->GetCommandStack()->Do(
                             MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pObject, pVar, newvalue, oldvalue, true, pObjectAsComponent ),
                             false );
                     }
@@ -1197,15 +1201,15 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
 
                 MyFileObject* pFile = *(MyFileObject**)((char*)pObject + pVar->m_Offset);
 
-                Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
-                Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+                Vector4 buttonColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                Vector4 textColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
 
                 const char* pDesc = "none";
                 if( pFile )
                 {
                     pDesc = pFile->GetFullPath();
-                    buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
-                    textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                    buttonColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                    textColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                 }
 
                 ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
@@ -1292,7 +1296,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                 {
                     // Set color to default, since it might be set to divorced color.
-                    Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                    Vector4 color = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     ImGui::PushStyleColor( ImGuiCol_Text, color );
 
                     contextMenuItemCount++;
@@ -1312,7 +1316,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
 
                     if( ImGui::MenuItem( "Edit material" ) )
                     {
-                        g_pEngineCore->GetEditorMainFrame_ImGui()->EditMaterial( pMaterial );
+                        pEngineCore->GetEditorMainFrame_ImGui()->EditMaterial( pMaterial );
                     }
 
                     ImGui::PopStyleColor( 1 );
@@ -1345,13 +1349,13 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                 //void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                 const char* pDesc = (pObjectAsComponent->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
 
-                Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
-                Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+                Vector4 buttonColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                Vector4 textColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
 
                 if( pDesc != 0 && pDesc[0] != 0 )
                 {
-                    buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
-                    textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                    buttonColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                    textColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                 }
 
                 ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
@@ -1468,7 +1472,7 @@ void ComponentBase::AddVariableToWatchPanel(void* pObject, ComponentVariable* pV
                     MyFileObject* pFile = *(MyFileObject**)((char*)pObject + pVar->m_Offset);
                     if( pFile )
                     {
-                        g_pEngineCore->GetEditorMainFrame_ImGui()->AddContextMenuItemsForFiles( pFile );
+                        pEngineCore->GetEditorMainFrame_ImGui()->AddContextMenuItemsForFiles( pFile );
                     }
 
                     contextMenuItemCount++;
@@ -3886,7 +3890,7 @@ void ComponentBase::OnRightClickAction(int action)
 {
     if( action == RightClick_DeleteComponent )
     {
-        EditorState* pEditorState = g_pEngineCore->GetEditorState();
+        EditorState* pEditorState = m_pComponentSystemManager->GetEngineCore()->GetEditorState();
 
         // if anything is still selected, delete it/them.
         if( pEditorState->m_pSelectedComponents.size() > 0 )
