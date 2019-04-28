@@ -108,6 +108,7 @@ public:
     void SaveAllOpenDocuments();
     bool DoAnyOpenDocumentsHaveUnsavedChanges();
 
+    EngineCore* GetEngineCore() { return m_pEngineCore; }
     ComponentCamera* GetEditorCamera();
 
     void ClearEditorState(bool clearselectedobjectandcomponents = true);

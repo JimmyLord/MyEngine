@@ -66,7 +66,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
                 pNewDocument->SetRelativePath( relativePath );
                 pNewDocument->Load();
 
-                g_pEditorPrefs->AddRecentDocument( relativePath );
+                m_pEngineCore->GetEditorPrefs()->AddRecentDocument( relativePath );
 
                 return pNewDocument;
             }
@@ -118,7 +118,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
             if( m_RelativePath[0] != '\0' )
             {
                 Save();
-                g_pEditorPrefs->AddRecentDocument( m_RelativePath );
+                m_pEngineCore->GetEditorPrefs()->AddRecentDocument( m_RelativePath );
             }
         }
         break;
@@ -176,7 +176,7 @@ EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorD
                     pNewDocument->SetRelativePath( relativePath.c_str() );
                     pNewDocument->Load();
 
-                    g_pEditorPrefs->AddRecentDocument( relativePath.c_str() );
+                    pEngineCore->GetEditorPrefs()->AddRecentDocument( relativePath.c_str() );
                 }
             }
             ImGui::EndMenu();

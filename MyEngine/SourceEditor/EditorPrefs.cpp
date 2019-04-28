@@ -19,12 +19,8 @@
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 
-EditorPrefs* g_pEditorPrefs = nullptr;
-
 EditorPrefs::EditorPrefs()
 {
-    g_pEditorPrefs = this;
-
     m_pSaveFile = nullptr;
 
     m_jEditorPrefs = nullptr;

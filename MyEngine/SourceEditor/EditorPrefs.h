@@ -14,8 +14,6 @@ class EditorPrefs;
 class EngineCore;
 class ImGuiStylePrefs;
 
-extern EditorPrefs* g_pEditorPrefs;
-
 enum EngineEditorWindowTypes
 {
     EngineEditorWindow_Editor,

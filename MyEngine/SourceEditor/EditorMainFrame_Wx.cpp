@@ -246,7 +246,7 @@ void EngineMainFrame::InitFrame()
 
     m_pFullScreenFrame = MyNew FullScreenFrame( this );
 
-    EditorPrefs* pEditorPrefs = g_pEditorPrefs;
+    EditorPrefs* pEditorPrefs = Existing EditorPrefs object would need to be passed in.
     if( pEditorPrefs == 0 )
     {
         pEditorPrefs = MyNew EditorPrefs();
@@ -483,7 +483,7 @@ void EngineMainFrame::InitFrame()
 
     //if( g_pEngineCore )
     {
-        EditorPrefs* pEditorPrefs = g_pEditorPrefs; //g_pEngineCore->GetEditorPrefs();
+        EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
 
         if( pEditorPrefs )
         {
@@ -783,7 +783,7 @@ void EngineMainFrame::UpdateMenuItemStates()
 {
     MainFrame::UpdateMenuItemStates();
 
-    EditorPrefs* pPrefs = g_pEditorPrefs; //g_pEngineCore->GetEditorPrefs();
+    EditorPrefs* pPrefs = m_pEngineCore->GetEditorPrefs();
 
     if( m_MenuItem_View_ShowEditorIcons )
         m_MenuItem_View_ShowEditorIcons->Check( pPrefs->Get_View_ShowEditorIcons() );

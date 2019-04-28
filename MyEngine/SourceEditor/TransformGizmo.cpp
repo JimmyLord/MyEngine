@@ -84,12 +84,14 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
 
     // if the gizmo is currently being used, lower it's opacity
 #if MYFW_USING_IMGUI
-    float selectedOpacity = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMax ).w;
-    float overallOpacity = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMax ).w;
+    EditorPrefs* pEditorPrefs = pEditorState->GetEngineCore()->GetEditorPrefs();;
+
+    float selectedOpacity = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMax ).w;
+    float overallOpacity = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMax ).w;
     if( currentaction != EDITORACTIONSTATE_None )
     {
-        selectedOpacity = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaInUse ).w;
-        overallOpacity = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMin ).w;
+        selectedOpacity = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaInUse ).w;
+        overallOpacity = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMin ).w;
     }
 #else
     float selectedOpacity = 1.0f;

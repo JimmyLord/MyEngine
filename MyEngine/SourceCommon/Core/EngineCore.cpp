@@ -453,8 +453,6 @@ void EngineCore::OneTimeInit()
 #endif
 
 #if MYFW_EDITOR
-    //m_pEditorPrefs = g_pEditorPrefs;
-    if( true )//m_pEditorPrefs == nullptr )
     {
         // This should be the editor pref load point for ImGui Editor builds.
         m_pEditorPrefs = MyNew EditorPrefs;

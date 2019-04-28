@@ -498,6 +498,8 @@ void EditorMainFrame_ImGui::Update(float deltaTime)
 
 void EditorMainFrame_ImGui::AddEverything()
 {
+    EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+
     m_pCurrentLayout = m_pLayoutManager->GetCurrentLayout();
 
     ImGuiWindowFlags flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -538,7 +540,7 @@ void EditorMainFrame_ImGui::AddEverything()
 
     AddLoseChangesWarningPopups();
 
-    m_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->AddCustomizationDialog();
+    pEditorPrefs->GetImGuiStylePrefs()->AddCustomizationDialog();
 
 #if _DEBUG
     ImGuiIO& io = ImGui::GetIO();
@@ -585,7 +587,7 @@ void EditorMainFrame_ImGui::AddEverything()
                 ImGui::EndPopup();
             }
 
-            g_pEditorPrefs->FillGridSettingsWindow();
+            pEditorPrefs->FillGridSettingsWindow();
         }
         ImGui::End();
     }
@@ -704,6 +706,8 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
     {
         if( m_pEditorFBO->GetColorTexture( 0 ) )
         {
+            EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+
             g_GLStats.NewCanvasFrame( 1 );
 
             // Draw editor view.
@@ -712,7 +716,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
             uint32 previousFBO = g_GLStats.m_CurrentFramebuffer;
             m_pEditorFBO->Bind( false );
-            m_pEngineCore->GetEditorState()->GetEditorCamera()->SetDeferred( m_pEngineCore->GetEditorPrefs()->Get_View_EditorCamDeferred() );
+            m_pEngineCore->GetEditorState()->GetEditorCamera()->SetDeferred( pEditorPrefs->Get_View_EditorCamDeferred() );
             pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
             g_pRenderer->BindFramebuffer( previousFBO );
 
@@ -854,16 +858,18 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
                     {
                         const char* desc = "no texture";
 
-                        Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
-                        Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+                        EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+
+                        Vector4 buttonColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                        Vector4 textColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
 
                         TextureDefinition* pTextureColor = pMaterial->m_UniformValues[i].m_pTexture;
                         if( pTextureColor )
                         {
                             desc = pTextureColor->GetFilename();
 
-                            buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
-                            textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                            buttonColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                            textColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                         }
 
                         ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
@@ -980,11 +986,13 @@ bool EditorMainFrame_ImGui::WasItemSlowDoubleClicked(void* pObjectClicked)
 
 void EditorMainFrame_ImGui::AddMainMenuBar()
 {
+    EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+    
     bool wasInEditorMode = true;
 
     if( m_pEngineCore->IsInEditorMode() == false )
     {
-        Vector4 gameRunningMenuBarColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_GameRunningMenuBarColor );
+        Vector4 gameRunningMenuBarColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_GameRunningMenuBarColor );
         ImGui::PushStyleColor( ImGuiCol_MenuBarBg, gameRunningMenuBarColor );
 
         wasInEditorMode = false;
@@ -1010,7 +1018,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             }
             if( ImGui::BeginMenu( "Load Recent Scene..." ) )
             {
-                uint32 numRecentScenes = m_pEngineCore->GetEditorPrefs()->Get_File_NumRecentScenes();
+                uint32 numRecentScenes = pEditorPrefs->Get_File_NumRecentScenes();
                 if( numRecentScenes == 0 )
                 {
                     ImGui::Text( "no recent scenes..." );
@@ -1018,7 +1026,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
                 for( uint32 i=0; i<numRecentScenes; i++ )
                 {
-                    std::string recentFilename = m_pEngineCore->GetEditorPrefs()->Get_File_RecentScene( i );
+                    std::string recentFilename = pEditorPrefs->Get_File_RecentScene( i );
                     if( ImGui::MenuItem( recentFilename.c_str() ) )
                     {
                         if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
@@ -1072,7 +1080,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             ImGui::Separator();
 
-            if( ImGui::MenuItem( "Preferences...", "Ctrl-Shift-P" ) ) { m_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->Display(); }
+            if( ImGui::MenuItem( "Preferences...", "Ctrl-Shift-P" ) ) { pEditorPrefs->GetImGuiStylePrefs()->Display(); }
 
             if( ImGui::MenuItem( "Quit" ) ) { RequestCloseWindow(); }
 
@@ -1162,16 +1170,16 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             if( ImGui::BeginMenu( "Selected Objects" ) )
             {
-                if( ImGui::MenuItem( "Show Wireframe", 0, m_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() ) ) { EditorMenuCommand( EditorMenuCommand_View_SelectedObjects_ShowWireframe ); }
-                if( ImGui::MenuItem( "Show Effect", 0, m_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowEffect() ) ) { EditorMenuCommand( EditorMenuCommand_View_SelectedObjects_ShowEffect ); }
+                if( ImGui::MenuItem( "Show Wireframe", 0, pEditorPrefs->Get_View_SelectedObjects_ShowWireframe() ) ) { EditorMenuCommand( EditorMenuCommand_View_SelectedObjects_ShowWireframe ); }
+                if( ImGui::MenuItem( "Show Effect", 0, pEditorPrefs->Get_View_SelectedObjects_ShowEffect() ) ) { EditorMenuCommand( EditorMenuCommand_View_SelectedObjects_ShowEffect ); }
 
                 ImGui::EndMenu();
             }
 
             if( ImGui::BeginMenu( "Editor Camera" ) )
             {
-                if( ImGui::MenuItem( "Show Icons", "Shift-F7", m_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
-                if( ImGui::MenuItem( "Deferred Render", "Ctrl-Shift-F7", m_pEngineCore->GetEditorPrefs()->Get_View_EditorCamDeferred() ) ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred ); }
+                if( ImGui::MenuItem( "Show Icons", "Shift-F7", pEditorPrefs->Get_View_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
+                if( ImGui::MenuItem( "Deferred Render", "Ctrl-Shift-F7", pEditorPrefs->Get_View_EditorCamDeferred() ) ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred ); }
                 if( ImGui::MenuItem( "Show Deferred G-Buffer", "" ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorCamDeferredGBuffer ); }
 
                 if( ImGui::BeginMenu( "Editor Camera Layers (TODO)" ) )
@@ -1237,8 +1245,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Grid" ) )
         {
-            if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", m_pEngineCore->GetEditorPrefs()->Get_Grid_Visible() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_Visible ); }
-            if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", m_pEngineCore->GetEditorPrefs()->Get_Grid_SnapEnabled() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled ); }
+            if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", pEditorPrefs->Get_Grid_Visible() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_Visible ); }
+            if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", pEditorPrefs->Get_Grid_SnapEnabled() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled ); }
             if( ImGui::MenuItem( "Grid Settings", "Ctrl-Shift-G" ) ) { m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] = true; }
 
             ImGui::EndMenu();
@@ -1246,7 +1254,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Mode" ) )
         {
-            if( ImGui::MenuItem( "Switch Focus on Play/Stop", nullptr, m_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() ) ) { EditorMenuCommand( EditorMenuCommand_Mode_SwitchFocusOnPlayStop ); }
+            if( ImGui::MenuItem( "Switch Focus on Play/Stop", nullptr, pEditorPrefs->Get_Mode_SwitchFocusOnPlayStop() ) ) { EditorMenuCommand( EditorMenuCommand_Mode_SwitchFocusOnPlayStop ); }
             // Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
             if( ImGui::MenuItem( "Play/Stop", "Ctrl-Spacebar" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop ); }
             if( ImGui::MenuItem( "Pause", "Ctrl-." ) ) { EditorMenuCommand( EditorMenuCommand_Mode_Pause ); }
@@ -1257,7 +1265,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
                 {
-                    bool isSelected = (g_pEditorPrefs->Get_Mode_LaunchPlatform() == i);
+                    bool isSelected = (pEditorPrefs->Get_Mode_LaunchPlatform() == i);
                     if( ImGui::MenuItem( g_LaunchPlatformsMenuLabels[i], nullptr, isSelected ) ) { EditorMenuCommand( (EditorMenuCommands)(EditorMenuCommand_Mode_LaunchPlatforms + i) ); }
                 }
 
@@ -1287,7 +1295,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Show Animated Debug View for Selection (TODO)", "F8" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowSelectedAnimatedMesh ); }
             if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowGLStats ); }
             if( ImGui::MenuItem( "Draw Wireframe", "Ctrl-F9", &m_pEngineCore->m_Debug_DrawWireframe ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe ); }
-            if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", m_pEngineCore->GetEditorPrefs()->Get_Debug_DrawPhysicsDebugShapes() ) ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
+            if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", pEditorPrefs->Get_Debug_DrawPhysicsDebugShapes() ) ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
             if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowProfilingInfo ); }
             ImGui::EndMenu();
         }
@@ -1295,10 +1303,10 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         if( ImGui::BeginMenu( "Lua" ) )
         {
             if( ImGui::MenuItem( "Run Lua Script...", "Ctrl-Shift-L" ) ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript ); }
-            if( g_pEditorPrefs->Get_Lua_NumRecentScripts() > 0 )
+            if( pEditorPrefs->Get_Lua_NumRecentScripts() > 0 )
             {
                 int fileIndex = 0;
-                if( ImGui::MenuItem( g_pEditorPrefs->Get_Lua_RecentScript( fileIndex ).c_str() ) ) { EditorMenuCommand( (EditorMenuCommands)(EditorMenuCommand_Lua_RunRecentLuaScript + fileIndex) ); }
+                if( ImGui::MenuItem( pEditorPrefs->Get_Lua_RecentScript( fileIndex ).c_str() ) ) { EditorMenuCommand( (EditorMenuCommands)(EditorMenuCommand_Lua_RunRecentLuaScript + fileIndex) ); }
             }
             ImGui::EndMenu();
         }
@@ -2276,6 +2284,8 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
 void EditorMainFrame_ImGui::AddWatchPanel()
 {
+    EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Watch] == false )
         return;
 
@@ -2392,8 +2402,8 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
                             ImGui::PushID( pComponentToLookFor );
 
-                            Vector4 bgColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Header );
-                            Vector4 checkColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_CheckMark );
+                            Vector4 bgColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Header );
+                            Vector4 checkColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_CheckMark );
                             ImGui::PushStyleColor( ImGuiCol_FrameBg, bgColor );
                             ImGui::PushStyleColor( ImGuiCol_CheckMark, checkColor );
 
@@ -3585,6 +3595,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
 
 void EditorMainFrame_ImGui::AddMaterialEditor()
 {
+    EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_MaterialEditor] == false )
         return;
 
@@ -3682,14 +3694,14 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                     const char* desc = "no shader";
 
-                    Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
-                    Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+                    Vector4 buttonColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                    Vector4 textColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
                     
                     if( pShaderGroup && pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
                     {
                         desc = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
-                        buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
-                        textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                        buttonColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                        textColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     }
                     
                     ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
@@ -3757,14 +3769,14 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                     const char* desc = "no instanced shader";
 
-                    Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
-                    Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+                    Vector4 buttonColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                    Vector4 textColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
 
                     if( pShaderGroupInstanced && pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile )
                     {
                         desc = pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
-                        buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
-                        textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                        buttonColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                        textColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     }
 
                     ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
@@ -3830,16 +3842,16 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 {
                     const char* desc = "no color texture";
 
-                    Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
-                    Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+                    Vector4 buttonColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                    Vector4 textColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
 
                     TextureDefinition* pTextureColor = pMat->GetTextureColor();
                     if( pTextureColor )
                     {
                         desc = pTextureColor->GetFilename();
 
-                        buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
-                        textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                        buttonColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                        textColor = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     }
 
                     ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );

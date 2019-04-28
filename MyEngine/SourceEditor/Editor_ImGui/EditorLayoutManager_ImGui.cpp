@@ -224,6 +224,8 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
 
     if( m_RequestedLayoutIndex != m_CurrentLayoutIndex )
     {
+        EditorPrefs* pEditorPrefs = m_pEditorMainFrame_ImGui->GetEngineCore()->GetEditorPrefs();
+
         ImGui::SetCurrentContext( m_pEditorMainFrame_ImGui->GetEngineCore()->GetImGuiManager()->GetImGuiContext() );
 
         // Save the current layout.
@@ -232,10 +234,10 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
         // Reset the imgui context.
         ImGuiManager* pImGuiManager = m_pEditorMainFrame_ImGui->GetEngineCore()->GetImGuiManager();
         pImGuiManager->Shutdown( false );
-        pImGuiManager->Init( (float)g_pEditorPrefs->GetWindowWidth(), (float)g_pEditorPrefs->GetWindowHeight() );
+        pImGuiManager->Init( (float)pEditorPrefs->GetWindowWidth(), (float)pEditorPrefs->GetWindowHeight() );
 
         // Reapply current imgui color/etc style.
-        g_pEditorPrefs->GetImGuiStylePrefs()->ReapplyCurrentPreset();
+        pEditorPrefs->GetImGuiStylePrefs()->ReapplyCurrentPreset();
 
         // Store the index to the active layout and have imgui load the ini string.
         m_CurrentLayoutIndex = m_RequestedLayoutIndex;
@@ -248,7 +250,9 @@ void EditorLayoutManager_ImGui::ApplyLayoutChange()
 
 void EditorLayoutManager_ImGui::FinishFocusChangeIfNeeded()
 {
-    if( g_pEditorPrefs->Get_Mode_SwitchFocusOnPlayStop() == false )
+    EditorPrefs* pEditorPrefs = m_pEditorMainFrame_ImGui->GetEngineCore()->GetEditorPrefs();
+
+    if( pEditorPrefs->Get_Mode_SwitchFocusOnPlayStop() == false )
         return;
 
     // Fix focus if we're switching into editor or game mode.

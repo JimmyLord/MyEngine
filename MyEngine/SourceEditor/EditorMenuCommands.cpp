@@ -120,10 +120,8 @@ void LoadMultipleDataFiles()
     }
 }
 
-void LaunchGame()
+void LaunchGame(LaunchPlatforms platform)
 {
-    LaunchPlatforms platform = g_pEditorPrefs->Get_Mode_LaunchPlatform();
-
     switch( platform )
     {
 #if MYFW_WINDOWS
@@ -200,6 +198,8 @@ void LaunchGame()
 
 void EditorMenuCommand(EditorMenuCommands command)
 {
+    EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
+
     switch( command )
     {
     case EditorMenuCommand_File_NewScene:
@@ -227,7 +227,7 @@ void EditorMenuCommand(EditorMenuCommands command)
                 const char* relativePath = GetRelativePath( path );
                 LoadScene( relativePath, true );
 
-                g_pEditorPrefs->AddRecentScene( relativePath );
+                pEditorPrefs->AddRecentScene( relativePath );
             }
         }
         break;
@@ -254,7 +254,7 @@ void EditorMenuCommand(EditorMenuCommands command)
                 const char* relativePath = GetRelativePath( path );
                 LoadScene( relativePath, false );
 
-                g_pEditorPrefs->AddRecentScene( relativePath );
+                pEditorPrefs->AddRecentScene( relativePath );
             }
         }
         break;
@@ -295,7 +295,7 @@ void EditorMenuCommand(EditorMenuCommands command)
 #endif
                 g_pEngineCore->SaveScene( relativePath, SCENEID_MainScene );
 
-                g_pEditorPrefs->AddRecentScene( relativePath );
+                pEditorPrefs->AddRecentScene( relativePath );
             }
         }
         break;
@@ -348,25 +348,25 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_View_SelectedObjects_ShowWireframe:
         {
-            g_pEngineCore->GetEditorPrefs()->Toggle_View_SelectedObjects_ShowWireframe();
+            pEditorPrefs->Toggle_View_SelectedObjects_ShowWireframe();
         }
         break;
 
     case EditorMenuCommand_View_SelectedObjects_ShowEffect:
         {
-            g_pEngineCore->GetEditorPrefs()->Toggle_View_SelectedObjects_ShowEffect();
+            pEditorPrefs->Toggle_View_SelectedObjects_ShowEffect();
         }
         break;        
 
     case EditorMenuCommand_View_ShowEditorIcons:
         {
-            g_pEngineCore->GetEditorPrefs()->Toggle_View_ShowEditorIcons();
+            pEditorPrefs->Toggle_View_ShowEditorIcons();
         }
         break;
 
     case EditorMenuCommand_View_ToggleEditorCamDeferred:
         {
-            g_pEngineCore->GetEditorPrefs()->Toggle_View_EditorCamDeferred();
+            pEditorPrefs->Toggle_View_EditorCamDeferred();
         }
         break;
 
@@ -378,19 +378,19 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_Grid_Visible:
         {
-            g_pEngineCore->GetEditorPrefs()->Toggle_Grid_Visible();
+            pEditorPrefs->Toggle_Grid_Visible();
         }
         break;
 
     case EditorMenuCommand_Grid_SnapEnabled:
         {
-            g_pEngineCore->GetEditorPrefs()->Toggle_Grid_SnapEnabled();
+            pEditorPrefs->Toggle_Grid_SnapEnabled();
         }
         break;
 
     case EditorMenuCommand_Mode_SwitchFocusOnPlayStop:
         {
-            g_pEngineCore->GetEditorPrefs()->Toggle_Mode_SwitchFocusOnPlayStop();
+            pEditorPrefs->Toggle_Mode_SwitchFocusOnPlayStop();
         }
         break;
 
@@ -424,7 +424,7 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_Mode_LaunchGame:
         {
-            LaunchGame();
+            LaunchGame( pEditorPrefs->Get_Mode_LaunchPlatform() );
         }
         break;
 
@@ -442,7 +442,7 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_Debug_ShowPhysicsShapes:
         {
-            g_pEngineCore->GetEditorPrefs()->Toggle_Debug_DrawPhysicsDebugShapes();
+            pEditorPrefs->Toggle_Debug_DrawPhysicsDebugShapes();
         }
         break;
 
@@ -457,7 +457,7 @@ void EditorMenuCommand(EditorMenuCommands command)
                 
                 g_pLuaGameState->RunFile( relativepath );
 
-                g_pEditorPrefs->AddRecentLuaScript( relativepath );
+                pEditorPrefs->AddRecentLuaScript( relativepath );
             }
         }
         break;
@@ -512,27 +512,29 @@ void EditorMenuCommand(EditorMenuCommands command)
     {
         LaunchPlatforms platformIndex = (LaunchPlatforms)(command - EditorMenuCommand_Mode_LaunchPlatforms);
 
-        g_pEditorPrefs->Set_Mode_LaunchPlatform( platformIndex );
+        pEditorPrefs->Set_Mode_LaunchPlatform( platformIndex );
     }
 
     if( command >= EditorMenuCommand_Lua_RunRecentLuaScript && command < EditorMenuCommand_Lua_RunRecentLuaScript + EditorPrefs::MAX_RECENT_LUA_SCRIPTS )
     {
         int fileIndex = command - EditorMenuCommand_Lua_RunRecentLuaScript;
 
-        std::string relativePathStr = g_pEditorPrefs->Get_Lua_RecentScript( fileIndex );
+        std::string relativePathStr = pEditorPrefs->Get_Lua_RecentScript( fileIndex );
         const char* relativePath = relativePathStr.c_str();
         g_pLuaGameState->RunFile( relativePath );
 
-        g_pEditorPrefs->AddRecentLuaScript( relativePath );
+        pEditorPrefs->AddRecentLuaScript( relativePath );
     }
 }
 
 void EditorMenuCommand(EditorMenuCommands command, std::string value)
 {
+    EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
+
     if( command == EditorMenuCommand_File_LoadPreselectedScene )
     {
         LoadScene( value.c_str(), true );
 
-        g_pEditorPrefs->AddRecentScene( value.c_str() );
+        pEditorPrefs->AddRecentScene( value.c_str() );
     }
 }
