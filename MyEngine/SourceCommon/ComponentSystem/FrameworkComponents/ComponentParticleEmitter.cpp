@@ -19,8 +19,8 @@
 bool ComponentParticleEmitter::m_PanelWatchBlockVisible = true;
 #endif
 
-ComponentParticleEmitter::ComponentParticleEmitter()
-: ComponentRenderable()
+ComponentParticleEmitter::ComponentParticleEmitter(ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pComponentSystemManager )
 {
     ClassnameSanityCheck();
 

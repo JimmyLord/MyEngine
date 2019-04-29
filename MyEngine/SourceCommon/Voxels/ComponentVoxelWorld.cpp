@@ -27,8 +27,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentVoxelWorld ); //_VARIABLE_LIST
 
-ComponentVoxelWorld::ComponentVoxelWorld()
-: ComponentRenderable()
+ComponentVoxelWorld::ComponentVoxelWorld(ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

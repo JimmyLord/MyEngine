@@ -22,8 +22,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentSprite ); //_VARIABLE_LIST
 
-ComponentSprite::ComponentSprite()
-: ComponentRenderable()
+ComponentSprite::ComponentSprite(ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

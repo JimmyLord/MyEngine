@@ -11,6 +11,7 @@
 #define __ComponentTypeManager_H__
 
 class ComponentBase;
+class ComponentSystemManager;
 class ComponentTypeManager;
 
 extern ComponentTypeManager* g_pComponentTypeManager;
@@ -23,11 +24,14 @@ struct ComponentTypeInfo
 
 class ComponentTypeManager
 {
-public:
+protected:
+    ComponentSystemManager* m_pComponentSystemManager;
 
 public:
     ComponentTypeManager();
     virtual ~ComponentTypeManager();
+
+    void SetComponentSystemManager(ComponentSystemManager* pComponentSystemManager);
 
     virtual ComponentBase* CreateComponent(int type) = 0;
     virtual unsigned int GetNumberOfComponentTypes() = 0;

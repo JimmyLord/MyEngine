@@ -17,8 +17,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component2DJointRevolute ); //_VARIABLE_LIST
 
-Component2DJointRevolute::Component2DJointRevolute()
-: ComponentBase()
+Component2DJointRevolute::Component2DJointRevolute(ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

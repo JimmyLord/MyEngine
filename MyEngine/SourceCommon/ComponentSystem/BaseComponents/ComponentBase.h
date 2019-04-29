@@ -73,7 +73,7 @@ protected:
     virtual void UnregisterCallbacks() {}
 
 public:
-    ComponentBase();
+    ComponentBase(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentBase();
     SetClassnameBase( "BaseComponent" ); // Only first 8 character count.
 

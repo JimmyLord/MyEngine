@@ -9,6 +9,7 @@
 
 #include "MyEnginePCH.h"
 
+#include "ComponentSystemManager.h"
 #include "ComponentTypeManager.h"
 
 ComponentTypeManager* g_pComponentTypeManager = 0;
@@ -16,8 +17,15 @@ ComponentTypeManager* g_pComponentTypeManager = 0;
 ComponentTypeManager::ComponentTypeManager()
 {
     g_pComponentTypeManager = this;
+    m_pComponentSystemManager = nullptr;
 }
 
 ComponentTypeManager::~ComponentTypeManager()
 {
+}
+
+void ComponentTypeManager::SetComponentSystemManager(ComponentSystemManager* pComponentSystemManager)
+{
+    MyAssert( pComponentSystemManager != nullptr );
+    m_pComponentSystemManager = pComponentSystemManager;
 }

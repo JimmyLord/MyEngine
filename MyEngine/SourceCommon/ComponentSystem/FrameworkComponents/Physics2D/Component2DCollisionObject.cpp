@@ -35,8 +35,8 @@ const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes] = //ADDIN
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component2DCollisionObject ); //_VARIABLE_LIST
 
-Component2DCollisionObject::Component2DCollisionObject()
-: ComponentBase()
+Component2DCollisionObject::Component2DCollisionObject(ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

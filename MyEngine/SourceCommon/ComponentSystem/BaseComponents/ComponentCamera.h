@@ -85,7 +85,7 @@ protected:
     ComponentPostEffect* GetNextPostEffect(ComponentPostEffect* pLastEffect); // pass in 0 to get first effect.
 
 public:
-    ComponentCamera();
+    ComponentCamera(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentCamera();
     SetClassnameBase( "CameraComponent" ); // only first 8 character count.
 

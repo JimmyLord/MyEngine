@@ -48,6 +48,8 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
 class EngineComponentTypeManager : public ComponentTypeManager
 {
 public:
+    EngineComponentTypeManager();
+
     virtual ComponentBase* CreateComponent(int type);
     virtual unsigned int GetNumberOfComponentTypes();
 

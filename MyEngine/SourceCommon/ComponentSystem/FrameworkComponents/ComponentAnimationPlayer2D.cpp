@@ -19,8 +19,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentAnimationPlayer2D ); //_VARIABLE_LIST
 
-ComponentAnimationPlayer2D::ComponentAnimationPlayer2D()
-: ComponentBase()
+ComponentAnimationPlayer2D::ComponentAnimationPlayer2D(ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

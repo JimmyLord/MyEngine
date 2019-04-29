@@ -28,8 +28,8 @@ const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NE
     "Convex Hull",
 };
 
-Component3DCollisionObject::Component3DCollisionObject()
-: ComponentBase()
+Component3DCollisionObject::Component3DCollisionObject(ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
 

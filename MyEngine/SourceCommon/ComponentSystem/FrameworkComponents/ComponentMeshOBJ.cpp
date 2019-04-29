@@ -16,8 +16,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshOBJ ); //_VARIABLE_LIST
 
-ComponentMeshOBJ::ComponentMeshOBJ()
-: ComponentMesh()
+ComponentMeshOBJ::ComponentMeshOBJ(ComponentSystemManager* pComponentSystemManager)
+: ComponentMesh( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

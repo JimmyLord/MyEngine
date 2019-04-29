@@ -29,7 +29,7 @@ protected:
     MyFileObject* m_pSaveFile;
 
 public:
-    ComponentVoxelWorld();
+    ComponentVoxelWorld(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentVoxelWorld();
     SetClassnameBase( "VoxelWorldComponent" ); // only first 8 character count.
 

@@ -34,7 +34,7 @@ protected:
     uint32 m_FrameIndex;
 
 public:
-    ComponentAnimationPlayer2D();
+    ComponentAnimationPlayer2D(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentAnimationPlayer2D();
     SetClassnameBase( "Anim2DComponent" ); // only first 8 character count.
 

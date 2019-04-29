@@ -14,8 +14,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentAudioPlayer ); //_VARIABLE_LIST
 
-ComponentAudioPlayer::ComponentAudioPlayer()
-: ComponentBase()
+ComponentAudioPlayer::ComponentAudioPlayer(ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

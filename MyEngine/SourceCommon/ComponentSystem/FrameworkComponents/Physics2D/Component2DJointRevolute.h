@@ -41,7 +41,7 @@ public:
     b2Body* m_pSecondBody;
 
 public:
-    Component2DJointRevolute();
+    Component2DJointRevolute(ComponentSystemManager* pComponentSystemManager);
     virtual ~Component2DJointRevolute();
     SetClassnameBase( "2DJoint-RevoluteComponent" ); // only first 8 character count. // "2DJoint-"
     //SetClassnameWithParent( "2DRevoluteComponent", "2DJoint" ); // only first 8 character count.

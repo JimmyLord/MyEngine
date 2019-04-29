@@ -17,8 +17,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentPostEffect ); //_VARIABLE_LIST
 
-ComponentPostEffect::ComponentPostEffect()
-: ComponentData()
+ComponentPostEffect::ComponentPostEffect(ComponentSystemManager* pComponentSystemManager)
+: ComponentData( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

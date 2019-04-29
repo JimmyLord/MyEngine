@@ -39,8 +39,8 @@ const char* OpenGLPrimitiveTypeStrings[7] =
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMesh ); //_VARIABLE_LIST
 
-ComponentMesh::ComponentMesh()
-: ComponentRenderable()
+ComponentMesh::ComponentMesh(ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -62,7 +62,7 @@ ComponentMesh::ComponentMesh()
 
     m_pComponentLuaScript = nullptr;
 
-    EventManager* pEventManager = g_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+    EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
     pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
 }
 

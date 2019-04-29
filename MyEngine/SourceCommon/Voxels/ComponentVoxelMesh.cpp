@@ -21,8 +21,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentVoxelMesh ); //_VARIABLE_LIST
 
-ComponentVoxelMesh::ComponentVoxelMesh()
-: ComponentMesh()
+ComponentVoxelMesh::ComponentVoxelMesh(ComponentSystemManager* pComponentSystemManager)
+: ComponentMesh( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

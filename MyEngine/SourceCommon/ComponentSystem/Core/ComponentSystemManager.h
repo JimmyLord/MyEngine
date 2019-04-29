@@ -158,7 +158,7 @@ protected:
 #endif //MYFW_EDITOR
 
 public:
-    ComponentSystemManager(ComponentTypeManager* typemanager, EngineCore* pEngineCore);
+    ComponentSystemManager(ComponentTypeManager* pTypeManager, EngineCore* pEngineCore);
     virtual ~ComponentSystemManager();
 
 #if MYFW_USING_LUA

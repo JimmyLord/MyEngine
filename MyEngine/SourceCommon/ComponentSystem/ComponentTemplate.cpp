@@ -14,8 +14,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTemplate ); //_VARIABLE_LIST
 
-ComponentTemplate::ComponentTemplate()
-: ComponentBase()
+ComponentTemplate::ComponentTemplate(ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

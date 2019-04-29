@@ -15,8 +15,8 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
 
-ComponentCameraShadow::ComponentCameraShadow()
-: ComponentCamera()
+ComponentCameraShadow::ComponentCameraShadow(ComponentSystemManager* pComponentSystemManager)
+: ComponentCamera( pComponentSystemManager )
 {
     ClassnameSanityCheck();
 

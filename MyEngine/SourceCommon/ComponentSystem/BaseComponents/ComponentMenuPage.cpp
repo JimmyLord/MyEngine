@@ -25,8 +25,8 @@
 #include "../../SharedGameCode/Menus/MenuScrollBox.h"
 #endif //LEGACYHACK
 
-ComponentMenuPage::ComponentMenuPage()
-: ComponentRenderable()
+ComponentMenuPage::ComponentMenuPage(ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pComponentSystemManager )
 {
     ClassnameSanityCheck();
 

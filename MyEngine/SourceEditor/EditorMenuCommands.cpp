@@ -455,7 +455,7 @@ void EditorMenuCommand(EditorMenuCommands command)
                 strcpy_s( path, MAX_PATH, filename );
                 const char* relativepath = GetRelativePath( path );
                 
-                g_pLuaGameState->RunFile( relativepath );
+                g_pEngineCore->GetLuaGameState()->RunFile( relativepath );
 
                 pEditorPrefs->AddRecentLuaScript( relativepath );
             }
@@ -521,7 +521,7 @@ void EditorMenuCommand(EditorMenuCommands command)
 
         std::string relativePathStr = pEditorPrefs->Get_Lua_RecentScript( fileIndex );
         const char* relativePath = relativePathStr.c_str();
-        g_pLuaGameState->RunFile( relativePath );
+        g_pEngineCore->GetLuaGameState()->RunFile( relativePath );
 
         pEditorPrefs->AddRecentLuaScript( relativePath );
     }

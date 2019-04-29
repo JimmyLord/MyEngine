@@ -15,6 +15,8 @@
 class Component3DJointBase : public ComponentBase
 {
 public:
+    Component3DJointBase(ComponentSystemManager* pComponentSystemManager) : ComponentBase( pComponentSystemManager ) {}
+
     virtual void RemoveJointFromWorld() = 0;
 };
 

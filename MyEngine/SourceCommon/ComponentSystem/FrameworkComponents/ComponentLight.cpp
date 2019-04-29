@@ -23,8 +23,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLight );
 
-ComponentLight::ComponentLight()
-: ComponentData()
+ComponentLight::ComponentLight(ComponentSystemManager* pComponentSystemManager)
+: ComponentData( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
 

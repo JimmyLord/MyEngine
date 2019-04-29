@@ -21,7 +21,7 @@ protected:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentMeshOBJ ); //_VARIABLE_LIST
 
 public:
-    ComponentMeshOBJ();
+    ComponentMeshOBJ(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentMeshOBJ();
     SetClassnameWith2Parents( "MeshOBJComponent", ComponentMesh, ComponentRenderable ); // only first 8 character count.
 

@@ -30,8 +30,8 @@ const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
     "Copy",        // ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive
 };
 
-ComponentMeshPrimitive::ComponentMeshPrimitive()
-: ComponentMesh()
+ComponentMeshPrimitive::ComponentMeshPrimitive(ComponentSystemManager* pComponentSystemManager)
+: ComponentMesh( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

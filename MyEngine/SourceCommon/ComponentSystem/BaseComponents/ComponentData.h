@@ -17,7 +17,7 @@ class ComponentData : public ComponentBase
 public:
 
 public:
-    ComponentData();
+    ComponentData(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentData();
     SetClassnameBase( "DataComponent" ); // only first 8 character count.
 

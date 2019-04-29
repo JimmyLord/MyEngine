@@ -24,7 +24,7 @@ protected:
     int m_ChannelSoundIsPlayingOn;
 
 public:
-    ComponentAudioPlayer();
+    ComponentAudioPlayer(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentAudioPlayer();
     SetClassnameBase( "AudioPlayerComponent" ); // only first 8 character count.
 

@@ -38,12 +38,13 @@
 
 ComponentSystemManager* g_pComponentSystemManager = 0;
 
-ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager, EngineCore* pEngineCore)
+ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* pTypeManager, EngineCore* pEngineCore)
 {
     g_pComponentSystemManager = this;
 
     m_pEngineCore = pEngineCore;
-    m_pComponentTypeManager = typemanager;
+    m_pComponentTypeManager = pTypeManager;
+    m_pComponentTypeManager->SetComponentSystemManager( this );
 #if MYFW_EDITOR
     m_pSceneHandler = MyNew SceneHandler();
     m_pGameObjectTemplateManager = MyNew GameObjectTemplateManager();

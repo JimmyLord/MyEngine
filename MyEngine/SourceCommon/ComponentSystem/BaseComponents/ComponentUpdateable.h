@@ -20,7 +20,7 @@ public:
     ComponentTransform* m_pComponentTransform;
 
 public:
-    ComponentUpdateable();
+    ComponentUpdateable(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentUpdateable();
     SetClassnameBase( "UpdateableComponent" ); // only first 8 character count.
 

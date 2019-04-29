@@ -26,7 +26,7 @@ protected:
     Vector3 m_BlockSize;
 
 public:
-    ComponentVoxelMesh();
+    ComponentVoxelMesh(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentVoxelMesh();
     SetClassnameWith2Parents( "VoxelMeshComponent", ComponentMesh, ComponentRenderable ); // only first 8 character count.
 

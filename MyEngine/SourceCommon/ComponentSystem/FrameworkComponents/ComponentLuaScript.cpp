@@ -26,8 +26,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLuaScript ); //_VARIABLE_LIST
 
-ComponentLuaScript::ComponentLuaScript()
-: ComponentUpdateable()
+ComponentLuaScript::ComponentLuaScript(ComponentSystemManager* pComponentSystemManager)
+: ComponentUpdateable( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -52,7 +52,7 @@ ComponentLuaScript::ComponentLuaScript()
     m_LinkNextUndoCommandToPrevious = false;
 #endif
 
-    g_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
+    m_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
 }
 
 ComponentLuaScript::~ComponentLuaScript()

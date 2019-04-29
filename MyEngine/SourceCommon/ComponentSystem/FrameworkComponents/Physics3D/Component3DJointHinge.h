@@ -41,7 +41,7 @@ public:
     btRigidBody* m_pSecondBody;
 
 public:
-    Component3DJointHinge();
+    Component3DJointHinge(ComponentSystemManager* pComponentSystemManager);
     virtual ~Component3DJointHinge();
     SetClassnameBase( "3DJoint-HingeComponent" ); // only first 8 character count. // "3DJoint-"
     //SetClassnameWithParent( "3DHingeComponent", "3DJoint" ); // only first 8 character count.

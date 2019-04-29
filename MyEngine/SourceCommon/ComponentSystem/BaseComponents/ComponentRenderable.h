@@ -28,7 +28,7 @@ public:
     ComponentTransform* m_pComponentTransform;
 
 public:
-    ComponentRenderable();
+    ComponentRenderable(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentRenderable();
     SetClassnameBase( "RenderableComponent" ); // only first 8 character count.
 

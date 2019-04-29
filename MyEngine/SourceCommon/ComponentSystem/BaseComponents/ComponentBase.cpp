@@ -27,8 +27,8 @@
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 #endif
 
-ComponentBase::ComponentBase()
-: m_pComponentSystemManager( nullptr )
+ComponentBase::ComponentBase(ComponentSystemManager* pComponentSystemManager)
+: m_pComponentSystemManager( pComponentSystemManager )
 , m_SceneIDLoadedFrom( SCENEID_NotSet )
 , m_BaseType( BaseComponentType_None )
 , m_pGameObject( 0 )

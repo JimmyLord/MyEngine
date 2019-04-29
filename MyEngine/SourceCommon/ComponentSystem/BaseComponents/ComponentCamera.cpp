@@ -68,8 +68,8 @@ const char* g_pVisibilityLayerStrings[32] = //g_NumberOfVisibilityLayers] =
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentCamera ); //_VARIABLE_LIST
 
-ComponentCamera::ComponentCamera()
-: ComponentBase()
+ComponentCamera::ComponentCamera(ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

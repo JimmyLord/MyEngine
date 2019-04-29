@@ -88,7 +88,7 @@ protected:
     MyList<ExposedVariableDesc*> m_ExposedVars;
 
 public:
-    ComponentLuaScript();
+    ComponentLuaScript(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentLuaScript();
     SetClassnameBase( "LuaScriptComponent" ); // Only first 8 character count.
 

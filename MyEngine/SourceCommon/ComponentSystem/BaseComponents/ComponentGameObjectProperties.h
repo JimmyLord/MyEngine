@@ -22,7 +22,7 @@ public:
     unsigned int m_Flags;
 
 public:
-    ComponentGameObjectProperties();
+    ComponentGameObjectProperties(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentGameObjectProperties();
     SetClassnameBase( "GameObjectPropertiesComponent" ); // only first 8 character count.
 

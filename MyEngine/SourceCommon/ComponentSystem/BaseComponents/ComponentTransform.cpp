@@ -22,8 +22,8 @@ MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTransform );
 
 MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_TransformChangedCallbackPool;
 
-ComponentTransform::ComponentTransform()
-: ComponentBase()
+ComponentTransform::ComponentTransform(ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
 

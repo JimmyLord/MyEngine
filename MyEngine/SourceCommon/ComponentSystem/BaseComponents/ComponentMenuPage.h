@@ -119,7 +119,7 @@ public:
     ComponentCamera* m_pComponentCamera;
 
 public:
-    ComponentMenuPage();
+    ComponentMenuPage(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentMenuPage();
     SetClassnameWithParent( "MenuPageComponent", ComponentRenderable ); // only first 8 character count.
 

@@ -39,7 +39,7 @@ public:
     b2Body* m_pSecondBody;
 
 public:
-    Component2DJointPrismatic();
+    Component2DJointPrismatic(ComponentSystemManager* pComponentSystemManager);
     virtual ~Component2DJointPrismatic();
     SetClassnameBase( "2DJoint-PrismaticComponent" ); // only first 8 character count. // "2DJoint-"
     //SetClassnameWithParent( "2DPrismaticComponent", "2DJoint" ); // only first 8 character count.

@@ -32,7 +32,7 @@ protected:
     btRigidBody* m_pSecondBody;
 
 public:
-    Component3DJointPoint2Point();
+    Component3DJointPoint2Point(ComponentSystemManager* pComponentSystemManager);
     virtual ~Component3DJointPoint2Point();
     SetClassnameBase( "3DJoint-Point2PointComponent" ); // only first 8 character count. // "3DJoint-"
     //SetClassnameWithParent( "3DPoint2PointComponent", "3DJoint" ); // only first 8 character count.
