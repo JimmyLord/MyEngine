@@ -330,10 +330,12 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
     }
 }
 
+#if MYFW_EDITOR
 EditorMainFrame* EngineCore::CreateEditorMainFrame()
 {
     return MyNew EditorMainFrame_ImGui( this );
 }
+#endif
 
 void EngineCore::OneTimeInit()
 {

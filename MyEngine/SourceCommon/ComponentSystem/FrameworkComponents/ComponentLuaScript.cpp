@@ -50,9 +50,9 @@ ComponentLuaScript::ComponentLuaScript(ComponentSystemManager* pComponentSystemM
     m_ValueWhenControlSelected = 0;
     m_ImGuiControlIDForCurrentlySelectedVariable = -1;
     m_LinkNextUndoCommandToPrevious = false;
-#endif
 
     m_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
+#endif
 }
 
 ComponentLuaScript::~ComponentLuaScript()
@@ -1838,11 +1838,13 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
         {
             if( pVar->pointer == pGameObject )
             {
+#if MYFW_EDITOR
                 if( m_pComponentSystemManager->GetEngineCore()->GetCommandStack() )
                 {
                     m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
                         nullptr, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                 }
+#endif
                 pVar->pointer = nullptr;
             }
         }

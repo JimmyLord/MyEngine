@@ -215,7 +215,9 @@ public:
 
     virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
 
+#if MYFW_EDITOR
     virtual EditorMainFrame* CreateEditorMainFrame();
+#endif
     virtual void OneTimeInit();
     virtual bool IsReadyToRender();
 
