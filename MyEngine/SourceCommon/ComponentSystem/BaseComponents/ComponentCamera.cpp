@@ -9,7 +9,7 @@
 
 #include "MyEnginePCH.h"
 
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 #include "ComponentCamera.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"

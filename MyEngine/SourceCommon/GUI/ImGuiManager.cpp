@@ -11,9 +11,9 @@
 #include "../../SourceCommon/GUI/EditorIcons.h"
 
 #include <gl/GL.h>
-#include "../../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
-#include "../../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Texture_OpenGL.h"
+#include "../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
+#include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Texture_OpenGL.h"
 
 bool ImGuiManager::m_DeviceObjectsAreValid = false;
 int ImGuiManager::m_ShaderHandle = 0;
