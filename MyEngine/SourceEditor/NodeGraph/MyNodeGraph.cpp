@@ -289,11 +289,11 @@ bool MyNodeGraph::CreateWindowAndUpdate(bool* pDocumentStillOpen)
     char tempTitle[MAX_PATH*2+5];
     if( HasUnsavedChanges() )
     {
-        sprintf_s( tempTitle, 512, "%s*###%d", filename, this );
+        sprintf_s( tempTitle, 512, "%s*###%p", filename, this );
     }
     else
     {
-        sprintf_s( tempTitle, 512, "%s###%d", filename, this );
+        sprintf_s( tempTitle, 512, "%s###%p", filename, this );
     }
 
     if( ImGui::Begin( tempTitle, pDocumentStillOpen ) )

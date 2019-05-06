@@ -1,7 +1,7 @@
 -- This is not a complete premake5 lua script, it's meant to be included from another script that defines the workspace.
 -- Like this, for example:
 --     local rootDir = os.getcwd();
---     os.chdir( "../Engine/MyEngine/" )
+--     os.chdir( "../Engine/" )
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
@@ -13,38 +13,52 @@ project "MyEngine"
     targetdir           "$(SolutionDir)Output/%{cfg.platform}-%{prj.name}-%{cfg.buildcfg}"
     objdir              "$(SolutionDir)Output/Intermediate/%{cfg.platform}-%{prj.name}-%{cfg.buildcfg}"
     pchheader           "MyEnginePCH.h"
-    pchsource           "SourceCommon/MyEnginePCH.cpp"
+    pchsource           "MyEngine/SourceCommon/MyEnginePCH.cpp"
 
     includedirs {
-        "SourceCommon",
-		"../Libraries/bullet3/src/",
+        "MyEngine/SourceCommon",
+		"Libraries/bullet3/src",
         "$(SolutionDir)../Framework/Libraries/b2Settings",
         "$(SolutionDir)../Framework/Libraries/Box2D",
     }
 
     files {
-        "SourceCommon/**.cpp",
-        "SourceCommon/**.h",
-        "../Libraries/imgui/im*.cpp",
-        "../Libraries/imgui/im*.h",
-        "../Libraries/imgui/README.md",
-        "../Libraries/Lua/src/*.c",
-        "../Libraries/Lua/src/*.h",
-        "../Libraries/LuaBridge/**.h",
-        "../README.md",
+        "MyEngine/SourceCommon/**.cpp",
+        "MyEngine/SourceCommon/**.h",
+        "Libraries/imgui/im*.cpp",
+        "Libraries/imgui/im*.h",
+        "Libraries/imgui/README.md",
+        "Libraries/Lua/src/*.c",
+        "Libraries/Lua/src/*.h",
+        "Libraries/LuaBridge/**.h",
+        "README.md",
         "premake5inc.lua",
     }
 
-    -- Place these files in the root of the project for easy access.
-    vpaths { [""] = {
-        "../README.md",
-        "premake5inc.lua",
-    } }
+    vpaths {
+        -- Place these files in the root of the project.
+        [""] = {
+            "README.md",
+            "premake5inc.lua",
+        },
+        -- Place the SourceCommon and SourceEditor folders in the root of the project.
+        ["*"] = {
+            "MyEngine",
+        },
+        -- Place the Libraries folder in the root of the project.
+        ["Libraries*"] = {
+            "Libraries",
+        },
+    }
 
-    filter { "files:../Libraries/Lua/src/lua.c or ../Libraries/Lua/src/luac.c" }
+    filter { "files:Libraries/Lua/src/lua.c"
+            .. " or Libraries/Lua/src/luac.c"
+            .. " or MyEngine/SourceEditor/EditorMainFrame_Wx.*"
+            .. " or MyEngine/SourceEditor/Dialogs/DialogGridSettings.*"
+           }
         flags           "ExcludeFromBuild"
 
-    filter { "files:../Libraries/**" }
+    filter { "files:Libraries/**" }
         flags           "NoPCH"
 
     filter "system:windows"
@@ -66,8 +80,6 @@ project "MyEngine"
 
     filter "configurations:EditorDebug or EditorRelease"
         files {
-            "SourceEditor/**.cpp",
-            "SourceEditor/**.h",
+            "MyEngine/SourceEditor/**.cpp",
+            "MyEngine/SourceEditor/**.h",
         }
-
-	filter {}
