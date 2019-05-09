@@ -29,6 +29,8 @@ private:
 
     static const int CALLBACK_POOL_SIZE = 1000;
 
+    static MySimplePool<TransformChangedCallbackStruct> m_pComponentTransform_TransformChangedCallbackPool;
+
 protected:
     CPPListHead m_TransformChangedCallbackList;
 
@@ -50,6 +52,10 @@ public:
     ComponentTransform(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentTransform();
     SetClassnameBase( "TransformComponent" ); // only first 8 character count.
+
+    // These 2 methods are called by the EngineComponentTypeManager at startup and shutdown.
+    static void SystemStartup();
+    static void SystemShutdown();
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);

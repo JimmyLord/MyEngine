@@ -49,6 +49,7 @@ class EngineComponentTypeManager : public ComponentTypeManager
 {
 public:
     EngineComponentTypeManager();
+    virtual ~EngineComponentTypeManager();
 
     virtual ComponentBase* CreateComponent(int type);
     virtual unsigned int GetNumberOfComponentTypes();

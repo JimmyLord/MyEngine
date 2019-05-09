@@ -78,6 +78,12 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
 EngineComponentTypeManager::EngineComponentTypeManager()
 : ComponentTypeManager()
 {
+    ComponentTransform::SystemStartup();
+}
+
+EngineComponentTypeManager::~EngineComponentTypeManager()
+{
+    ComponentTransform::SystemShutdown();
 }
 
 ComponentBase* EngineComponentTypeManager::CreateComponent(int type)

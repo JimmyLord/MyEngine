@@ -20,7 +20,7 @@ bool ComponentTransform::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTransform );
 
-MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_TransformChangedCallbackPool;
+MySimplePool<TransformChangedCallbackStruct> ComponentTransform::m_pComponentTransform_TransformChangedCallbackPool;
 
 ComponentTransform::ComponentTransform(ComponentSystemManager* pComponentSystemManager)
 : ComponentBase( pComponentSystemManager )
@@ -32,15 +32,23 @@ ComponentTransform::ComponentTransform(ComponentSystemManager* pComponentSystemM
     m_BaseType = BaseComponentType_Data;
 
     m_pParentTransform = 0;
-
-    // the first ComponentTransform will create the pool of callback objects.
-    if( g_pComponentTransform_TransformChangedCallbackPool.IsInitialized() == false )
-        g_pComponentTransform_TransformChangedCallbackPool.AllocateObjects( CALLBACK_POOL_SIZE );
 }
 
 ComponentTransform::~ComponentTransform()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
+}
+
+void ComponentTransform::SystemStartup()
+{
+    // Create the pool of callback objects.
+    if( m_pComponentTransform_TransformChangedCallbackPool.IsInitialized() == false )
+        m_pComponentTransform_TransformChangedCallbackPool.AllocateObjects( CALLBACK_POOL_SIZE );
+}
+
+void ComponentTransform::SystemShutdown()
+{
+    m_pComponentTransform_TransformChangedCallbackPool.FreeObjects();
 }
 
 void ComponentTransform::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentTransform* pThis) //_VARIABLE_LIST
@@ -887,9 +895,9 @@ void ComponentTransform::RegisterTransformChangedCallback(void* pObj, TransformC
 {
     MyAssert( pCallback != 0 );
 
-    TransformChangedCallbackStruct* pCallbackStruct = g_pComponentTransform_TransformChangedCallbackPool.GetObjectFromPool();
+    TransformChangedCallbackStruct* pCallbackStruct = m_pComponentTransform_TransformChangedCallbackPool.GetObjectFromPool();
 
-    //LOGInfo( "TransformPool", "Grabbed an object (%d) - %s\n", g_pComponentTransform_TransformChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
+    //LOGInfo( "TransformPool", "Grabbed an object (%d) - %s\n", m_pComponentTransform_TransformChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
 
     if( pCallbackStruct != 0 )
     {
@@ -911,9 +919,9 @@ void ComponentTransform::UnregisterTransformChangedCallbacks(void* pObj)
         if( pCallbackStruct->pObj == pObj )
         {
             pCallbackStruct->Remove();
-            g_pComponentTransform_TransformChangedCallbackPool.ReturnObjectToPool( pCallbackStruct );
+            m_pComponentTransform_TransformChangedCallbackPool.ReturnObjectToPool( pCallbackStruct );
 
-            //LOGInfo( "TransformPool", "Returned an object (%d) %s\n", g_pComponentTransform_TransformChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
+            //LOGInfo( "TransformPool", "Returned an object (%d) %s\n", m_pComponentTransform_TransformChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
         }
 
         pNode = pNextNode;
