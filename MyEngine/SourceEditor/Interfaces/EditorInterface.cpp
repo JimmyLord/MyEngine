@@ -453,6 +453,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
         if( keyCode == 'S' ) dir.z += -1;
         if( keyCode == 'D' ) dir.x +=  1;
         if( keyCode == 'Q' ) dir.y +=  1;
+        if( keyCode == 'E' ) dir.y -=  1;
         if( keyCode == 'Z' ) dir.y -=  1;
 
         float speed = 7.0f;

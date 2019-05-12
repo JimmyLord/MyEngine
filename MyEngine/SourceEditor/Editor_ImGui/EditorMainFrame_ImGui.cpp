@@ -2901,6 +2901,16 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, voi
     if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFileManager, pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
 }
 
+void EditorMainFrame_ImGui::AddContextMenuItemsForMaterials(MaterialDefinition* pMaterial)
+{
+    // Clear is handled in ComponentBase::AddVariableToWatchPanel.
+    
+    if( ImGui::MenuItem( "Edit material" ) )
+    {
+        EditMaterial( pMaterial );
+    }
+}
+
 void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 {
     // Only show the headers if the filter is blank.
@@ -4200,6 +4210,9 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
 void EditorMainFrame_ImGui::AddMaterialPreview(MaterialDefinition* pMaterial, bool createWindow, ImVec2 requestedSize, ImVec4 tint)
 {
+    // TODO: Preview is locking up the system, fix it.
+    return;
+
     m_pMaterialToPreview = pMaterial;
 
     if( createWindow == false || ImGui::Begin( "Material", nullptr, ImVec2(requestedSize.x+50, requestedSize.y+50), 1 ) )

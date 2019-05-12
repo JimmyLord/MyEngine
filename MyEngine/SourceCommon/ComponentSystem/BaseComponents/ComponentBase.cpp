@@ -1290,40 +1290,6 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 ImGui::Text( pVar->m_WatchLabel );
 
                 ImGui::EndGroup();
-
-                // Right-click menu on group.
-                ImGui::PushID( pVar );
-                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
-                {
-                    // Set color to default, since it might be set to divorced color.
-                    Vector4 color = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
-                    ImGui::PushStyleColor( ImGuiCol_Text, color );
-
-                    contextMenuItemCount++;
-
-                    if( ImGui::MenuItem( "Clear material" ) )
-                    {
-                        // Clear the current material by "dropping" a null material.  Will deal with inheritance/divorce/etc.
-                        g_DragAndDropStruct.Clear();
-                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
-                        g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, 0 );
-
-                        if( pObjectAsComponent )
-                        {
-                            pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
-                        }
-                    }
-
-                    if( ImGui::MenuItem( "Edit material" ) )
-                    {
-                        pEngineCore->GetEditorMainFrame_ImGui()->EditMaterial( pMaterial );
-                    }
-
-                    ImGui::PopStyleColor( 1 );
-
-                    ImGui::EndPopup();
-                }
-                ImGui::PopID();
             }
             break;
 
@@ -1431,6 +1397,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             ImGui::PushID( pVar );
             if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
             {
+                // Add divorce/marry options first.
                 if( pObjectAsComponent->m_pGameObject->GetGameObjectThisInheritsFrom() )
                 {
                     if( pObjectAsComponent->IsDivorced( pVar->m_Index ) == false )
@@ -1455,6 +1422,35 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                     }
                 }
 
+                // Add material options.
+                if( pVar->m_Type == ComponentVariableType_MaterialPtr )
+                {
+                    MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)pObject + pVar->m_Offset);
+
+                    if( pMaterial )
+                    {
+                        if( ImGui::MenuItem( "Clear material" ) )
+                        {
+                            // Clear the current material by "dropping" a null material.  Will deal with inheritance/divorce/etc.
+                            g_DragAndDropStruct.Clear();
+                            g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                            g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, 0 );
+
+                            if( pObjectAsComponent )
+                            {
+                                pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                            }
+                        }
+
+                        contextMenuItemCount++;
+                    }
+
+                    // TODO: Have the callback return how many menu items it added instead of assuming it added one.
+                    pEngineCore->GetEditorMainFrame_ImGui()->AddContextMenuItemsForMaterials( pMaterial );
+
+                    contextMenuItemCount++;
+                }
+
                 // Call this pVar callback, not sure what's using it.
                 if( pVar->m_pOnRightClickCallbackFunc )
                 {
@@ -1464,6 +1460,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                     contextMenuItemCount++;
                 }
 
+                // Add generic "file" options last.
                 if( pVar->m_Type == ComponentVariableType_FilePtr )
                 {
                     if( contextMenuItemCount > 0 )
@@ -1472,6 +1469,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                     MyFileObject* pFile = *(MyFileObject**)((char*)pObject + pVar->m_Offset);
                     if( pFile )
                     {
+                        // TODO: Have the callback return how many menu items it added instead of assuming it added one.
                         pEngineCore->GetEditorMainFrame_ImGui()->AddContextMenuItemsForFiles( pFile );
                     }
 
