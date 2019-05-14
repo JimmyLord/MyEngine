@@ -726,13 +726,11 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
         }
     }
 
-    if( m_pMaterialToPreview != 0 && m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
+    // Render material preview onto a sphere, if requested.
+    if( m_pMaterialToPreview != nullptr && m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
     {
         if( m_pMaterialPreviewFBO->GetColorTexture( 0 ) )
         {
-            // Draw game view.
-            m_pMaterialPreviewFBO->Bind( false );
-            
             MyMesh* pMeshBall = m_pEngineCore->GetMesh_MaterialBall();
 
             if( pMeshBall )
@@ -783,11 +781,12 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
                 // Unset the material to avoid holding a ref that prevents the material from unloading.
                 pMeshBall->SetMaterial( nullptr, 0 );
-                m_pMaterialPreviewFBO->Unbind( true );
 
-                // Unset the material to preview, it will be reset every frame by the code that needs it.
-                m_pMaterialToPreview = nullptr;
+                m_pMaterialPreviewFBO->Unbind( true );
             }
+
+            // Unset the material to preview, it will be reset every frame by the code that needs it.
+            m_pMaterialToPreview = nullptr;
         }
     }
 }
@@ -4210,9 +4209,6 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
 void EditorMainFrame_ImGui::AddMaterialPreview(MaterialDefinition* pMaterial, bool createWindow, ImVec2 requestedSize, ImVec4 tint)
 {
-    // TODO: Preview is locking up the system, fix it.
-    return;
-
     m_pMaterialToPreview = pMaterial;
 
     if( createWindow == false || ImGui::Begin( "Material", nullptr, ImVec2(requestedSize.x+50, requestedSize.y+50), 1 ) )
