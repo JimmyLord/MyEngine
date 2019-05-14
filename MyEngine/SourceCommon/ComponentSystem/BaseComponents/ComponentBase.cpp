@@ -3895,6 +3895,8 @@ void ComponentBase::OnRightClickAction(int action)
         {
             g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
         }
+
+        g_pEngineCore->GetEditorState()->ClearSelectedComponents();
     }
 }
 #endif //MYFW_EDITOR

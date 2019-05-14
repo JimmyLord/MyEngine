@@ -853,21 +853,14 @@ EditorCommand* EditorCommand_DeleteObjects::Repeat()
 // EditorCommand_DeleteComponents
 //====================================================================================================
 
-EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector<ComponentBase*>& selectedcomponents)
+EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector<ComponentBase*>& selectedComponents)
 {
     m_Name = "EditorCommand_DeleteComponents";
 
-    for( unsigned int i=0; i<selectedcomponents.size(); i++ )
+    for( unsigned int i=0; i<selectedComponents.size(); i++ )
     {
-        // can't delete an objects transform component.
-        //if( selectedcomponents[i]->m_pGameObject &&
-        //    selectedcomponents[i] == selectedcomponents[i]->m_pGameObject->m_pComponentTransform )
-        //{
-        //    MyAssert( false );
-        //}
-        
-        m_ComponentsDeleted.push_back( selectedcomponents[i] );
-        m_ComponentWasDisabled.push_back( selectedcomponents[i]->IsEnabled() );
+        m_ComponentsDeleted.push_back( selectedComponents[i] );
+        m_ComponentWasDisabled.push_back( selectedComponents[i]->IsEnabled() );
     }
 
     m_DeleteComponentsWhenDestroyed = false;
@@ -886,8 +879,6 @@ EditorCommand_DeleteComponents::~EditorCommand_DeleteComponents()
 
 void EditorCommand_DeleteComponents::Do()
 {
-    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
         m_ComponentsDeleted[i]->GetGameObject()->RemoveComponent( m_ComponentsDeleted[i] );
@@ -898,8 +889,6 @@ void EditorCommand_DeleteComponents::Do()
 
 void EditorCommand_DeleteComponents::Undo()
 {
-    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
         m_ComponentsDeleted[i]->GetGameObject()->AddExistingComponent( m_ComponentsDeleted[i], false );

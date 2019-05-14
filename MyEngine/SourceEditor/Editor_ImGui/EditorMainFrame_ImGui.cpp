@@ -2174,12 +2174,16 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
                                 char* label = "Delete Component";
                                 if( pEditorState->m_pSelectedComponents.size() > 1 )
+                                {
                                     label = "Delete Selected Components";
+                                }
+
                                 if( ImGui::MenuItem( label ) )
                                 {
                                     pComponent->OnRightClickAction( ComponentBase::RightClick_DeleteComponent );
                                     ImGui::CloseCurrentPopup();
                                 }
+
                                 ImGui::EndPopup();
                             }
                             ImGui::TreePop();
@@ -2364,7 +2368,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                         pComponentToLookFor->m_MultiSelectedComponents.clear();
 
                         // Loop through selected gameobjects and check if they all have to least one of this component type on them.
-                        bool allgameobjectshavecomponent = true;
+                        bool allGameObjectsHaveComponent = true;
                         for( unsigned int soi=firstGameObjectIndex+1; soi<pEditorState->m_pSelectedObjects.size(); soi++ )
                         {
                             GameObject* pGameObject = pEditorState->m_pSelectedObjects[soi];
@@ -2374,7 +2378,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             if( pGameObject->IsFolder() )
                                 continue;
 
-                            bool hascomponent = false;
+                            bool hasComponent = false;
                             for( unsigned int soci=0; soci<pGameObject->GetComponentCountIncludingCore(); soci++ )
                             {
                                 ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( soci );
@@ -2382,19 +2386,19 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                                 if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
                                 {
                                     pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
-                                    hascomponent = true;
+                                    hasComponent = true;
                                     break;
                                 }
                             }
 
-                            if( hascomponent == false )
+                            if( hasComponent == false )
                             {
-                                allgameobjectshavecomponent = false;
+                                allGameObjectsHaveComponent = false;
                                 break;
                             }
                         }
 
-                        if( allgameobjectshavecomponent == true )
+                        if( allGameObjectsHaveComponent == true )
                         {
                             //ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
                             //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
@@ -2410,7 +2414,9 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             ComponentBase::EnabledState enabledState = pComponentToLookFor->GetEnabledState();
                             bool enabled = true;
                             if( enabledState == ComponentBase::EnabledState_Disabled_ManuallyDisabled )
+                            {
                                 enabled = false;
+                            }
                             if( ImGui::Checkbox( "", &enabled ) )
                             {
                                 pComponentToLookFor->SetEnabled( enabled );
@@ -2420,10 +2426,43 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             ImGui::SetCursorPosX( ImGui::GetCursorPosX() - 5 );
 
                             // Draw the component name in a collapsable block.
-                            if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
+                            bool componentBlockIsOpen = ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen );
+
+                            // Add context menu on the collapsingHeader.
+                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                            {
+                                if( pComponentToLookFor->m_MultiSelectedComponents.size() == 0 )
+                                {
+                                    if( ImGui::MenuItem( "Delete Component" ) )
+                                    {
+                                        std::vector<ComponentBase*> componentsToDelete;
+                                        componentsToDelete.push_back( pComponentToLookFor );
+                                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteComponents( componentsToDelete ) );
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                }
+                                else
+                                {
+                                    if( ImGui::MenuItem( "Delete Components" ) )
+                                    {
+                                        // Add pComponentToLookFor and pComponentToLookFor->m_MultiSelectedComponents to a vector and delete them.
+                                        std::vector<ComponentBase*> componentsToDelete;
+                                        componentsToDelete.push_back( pComponentToLookFor );
+                                        componentsToDelete.insert( componentsToDelete.end(), pComponentToLookFor->m_MultiSelectedComponents.begin(), pComponentToLookFor->m_MultiSelectedComponents.end() );
+                                        
+                                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteComponents( componentsToDelete ) );
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                }
+                                ImGui::EndPopup();
+                            }
+
+                            // Add contents of component if collapsingHeader is open.
+                            if( componentBlockIsOpen )
                             {
                                 pComponentToLookFor->AddAllVariablesToWatchPanel();
                             }
+
                             ImGui::PopID();
                             //ImGui::PopStyleColor( 3 );
                         }
