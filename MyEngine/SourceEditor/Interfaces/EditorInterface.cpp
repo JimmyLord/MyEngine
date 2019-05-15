@@ -453,7 +453,25 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
         if( keyCode == 'S' ) dir.z += -1;
         if( keyCode == 'D' ) dir.x +=  1;
         if( keyCode == 'Q' ) dir.y +=  1;
-        if( keyCode == 'Z' ) dir.y -=  1;
+        if( keyCode == 'E' ) dir.y -=  1;
+
+        //F to focus camera on selected object
+        if( keyCode == 'F' )
+        {
+            //Make sure there is an object actually selected
+            if( pEditorState->m_pSelectedObjects.size() > 0 )
+            {
+                Vector3 targetPos = pEditorState->m_pTransformGizmo->m_GizmoWorldTransform.GetTranslation();
+                Vector3 lookAt = matCamera->GetAt();
+
+                //Magic const number, maybe should be somewhere special?
+                float cameraSnapDist = 5.0f;
+                Vector3 offset = -1.0f * lookAt * cameraSnapDist;
+                Vector3 finalPosition = targetPos + offset;
+
+                matCamera->SetTranslation(finalPosition);
+            }
+        }
 
         float speed = 7.0f;
         if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
