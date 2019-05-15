@@ -955,7 +955,12 @@ bool EditorMainFrame_ImGui::WasItemSlowDoubleClicked(void* pObjectClicked)
 
     if( ImGui::IsItemClicked( 0 ) )
     {
-        if( ImGui::IsMouseDoubleClicked( 0 ) )
+        if( ImGuiExt::IsMouseHoveringOverItemExpansionArrow() )
+        {
+            // Clear the timer if the arrow was clicked.
+            m_RenameTimerForSlowDoubleClick = 9999.0f;
+        }
+        else if( ImGui::IsMouseDoubleClicked( 0 ) )
         {
             // Clear the timer if there was a double-click.
             m_RenameTimerForSlowDoubleClick = 9999.0f;
@@ -2005,13 +2010,10 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
         ImGui::PopID(); // ImGui::PushID( pGameObject );
 
-        float arrowIconWidthWithSpacing = 20.0f; // TODO: This shouldn't be hard-coded.
-        bool hoveringOverArrow = false;
-        if( ImGui::GetMousePos().x < ImGui::GetItemRectMin().x + arrowIconWidthWithSpacing )
-            hoveringOverArrow = true;
+        bool hoveringOverArrow = ImGuiExt::IsMouseHoveringOverItemExpansionArrow();
 
         // Select the GameObject if it's clicked.
-        // The code selects on mouse release so item can be dragged without changing selection.
+        // The code selects on mouse release so items can be dragged without changing selection.
         // Also handles Ctrl and Shift clicks for multiple selections.
         // Expand the item without selecting it if the arrow is clicked.
         if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered() &&
@@ -2057,7 +2059,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 {
                     pEditorState->ClearSelectedObjectsAndComponents();
                     GameObject* pCurrentGameObject = m_pLastGameObjectInteractedWithInObjectPanel;
-                    while( 1 )
+                    while( true )
                     {
                         pEditorState->SelectGameObject( pCurrentGameObject );
 

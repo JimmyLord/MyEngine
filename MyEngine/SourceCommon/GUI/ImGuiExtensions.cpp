@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2018-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,10 +9,11 @@
 
 #include "MyEnginePCH.h"
 
+#include "ImGuiExtensions.h"
+
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "../../Libraries/imgui/imgui_internal.h"
 
@@ -20,6 +21,16 @@ extern IMGUI_API ImGuiContext* GImGui;
 
 namespace ImGuiExt
 {
+
+bool IsMouseHoveringOverItemExpansionArrow()
+{
+    float arrowIconWidthWithSpacing = 20.0f; // TODO: This shouldn't be hard-coded.
+
+    if( ImGui::GetMousePos().x < ImGui::GetItemRectMin().x + arrowIconWidthWithSpacing )
+        return true;
+
+    return false;
+}
 
 // Idea taken from: https://github.com/ocornut/imgui/issues/1351
 bool WasItemActiveLastFrame()
