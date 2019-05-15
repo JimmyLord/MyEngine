@@ -454,7 +454,6 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
         if( keyCode == 'D' ) dir.x +=  1;
         if( keyCode == 'Q' ) dir.y +=  1;
         if( keyCode == 'E' ) dir.y -=  1;
-
         //F to focus camera on selected object
         if( keyCode == 'F' )
         {

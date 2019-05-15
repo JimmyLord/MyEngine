@@ -188,6 +188,7 @@ protected:
 
 public:
     void AddContextMenuItemsForFiles(MyFileObject* pFile, void* pSelectedObject = nullptr);
+    void AddContextMenuItemsForMaterials(MaterialDefinition* pMaterial);
     void AddMaterialPreview(MaterialDefinition* pMaterial, bool createWindow, ImVec2 requestedSize, ImVec4 tint);
     void AddMaterialColorTexturePreview(MaterialDefinition* pMaterial, bool createWindow, ImVec2 requestedSize, ImVec4 tint);
     void AddTexturePreview(TextureDefinition* pTexture, bool createWindow, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV = ImVec2(0,0), ImVec2 endUV = ImVec2(1,1));

@@ -243,7 +243,7 @@ protected:
     bool m_DeleteComponentsWhenDestroyed;
 
 public:
-    EditorCommand_DeleteComponents(const std::vector<ComponentBase*>& selectedcomponents);
+    EditorCommand_DeleteComponents(const std::vector<ComponentBase*>& selectedComponents);
     virtual ~EditorCommand_DeleteComponents();
 
     virtual void Do();

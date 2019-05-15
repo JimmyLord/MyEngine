@@ -329,11 +329,11 @@ void EditorState::ClearSelectedObjectsAndComponents()
 {
     m_pSelectedObjects.clear();
     m_pSelectedComponents.clear();
+}
 
-#if MYFW_USING_WX
-    g_pPanelObjectList->SelectObject( 0 );
-    g_pPanelWatch->ClearAllVariables();
-#endif
+void EditorState::ClearSelectedComponents()
+{
+    m_pSelectedComponents.clear();
 }
 
 void EditorState::ClearSelectedObjectsAndComponentsFromScene(SceneID sceneID)

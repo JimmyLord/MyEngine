@@ -130,6 +130,7 @@ public:
 
     void ClearKeyAndActionStates();
     void ClearSelectedObjectsAndComponents();
+    void ClearSelectedComponents();
     void ClearSelectedObjectsAndComponentsFromScene(SceneID sceneID);
 
     void LockCameraToGameObject(GameObject* pGameObject);

@@ -726,13 +726,11 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
         }
     }
 
-    if( m_pMaterialToPreview != 0 && m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
+    // Render material preview onto a sphere, if requested.
+    if( m_pMaterialToPreview != nullptr && m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
     {
         if( m_pMaterialPreviewFBO->GetColorTexture( 0 ) )
         {
-            // Draw game view.
-            m_pMaterialPreviewFBO->Bind( false );
-            
             MyMesh* pMeshBall = m_pEngineCore->GetMesh_MaterialBall();
 
             if( pMeshBall )
@@ -783,11 +781,12 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
                 // Unset the material to avoid holding a ref that prevents the material from unloading.
                 pMeshBall->SetMaterial( nullptr, 0 );
-                m_pMaterialPreviewFBO->Unbind( true );
 
-                // Unset the material to preview, it will be reset every frame by the code that needs it.
-                m_pMaterialToPreview = nullptr;
+                m_pMaterialPreviewFBO->Unbind( true );
             }
+
+            // Unset the material to preview, it will be reset every frame by the code that needs it.
+            m_pMaterialToPreview = nullptr;
         }
     }
 }
@@ -956,7 +955,12 @@ bool EditorMainFrame_ImGui::WasItemSlowDoubleClicked(void* pObjectClicked)
 
     if( ImGui::IsItemClicked( 0 ) )
     {
-        if( ImGui::IsMouseDoubleClicked( 0 ) )
+        if( ImGuiExt::IsMouseHoveringOverItemExpansionArrow() )
+        {
+            // Clear the timer if the arrow was clicked.
+            m_RenameTimerForSlowDoubleClick = 9999.0f;
+        }
+        else if( ImGui::IsMouseDoubleClicked( 0 ) )
         {
             // Clear the timer if there was a double-click.
             m_RenameTimerForSlowDoubleClick = 9999.0f;
@@ -2006,13 +2010,10 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
         ImGui::PopID(); // ImGui::PushID( pGameObject );
 
-        float arrowIconWidthWithSpacing = 20.0f; // TODO: This shouldn't be hard-coded.
-        bool hoveringOverArrow = false;
-        if( ImGui::GetMousePos().x < ImGui::GetItemRectMin().x + arrowIconWidthWithSpacing )
-            hoveringOverArrow = true;
+        bool hoveringOverArrow = ImGuiExt::IsMouseHoveringOverItemExpansionArrow();
 
         // Select the GameObject if it's clicked.
-        // The code selects on mouse release so item can be dragged without changing selection.
+        // The code selects on mouse release so items can be dragged without changing selection.
         // Also handles Ctrl and Shift clicks for multiple selections.
         // Expand the item without selecting it if the arrow is clicked.
         if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered() &&
@@ -2058,7 +2059,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 {
                     pEditorState->ClearSelectedObjectsAndComponents();
                     GameObject* pCurrentGameObject = m_pLastGameObjectInteractedWithInObjectPanel;
-                    while( 1 )
+                    while( true )
                     {
                         pEditorState->SelectGameObject( pCurrentGameObject );
 
@@ -2175,12 +2176,16 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
                                 char* label = "Delete Component";
                                 if( pEditorState->m_pSelectedComponents.size() > 1 )
+                                {
                                     label = "Delete Selected Components";
+                                }
+
                                 if( ImGui::MenuItem( label ) )
                                 {
                                     pComponent->OnRightClickAction( ComponentBase::RightClick_DeleteComponent );
                                     ImGui::CloseCurrentPopup();
                                 }
+
                                 ImGui::EndPopup();
                             }
                             ImGui::TreePop();
@@ -2365,7 +2370,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                         pComponentToLookFor->m_MultiSelectedComponents.clear();
 
                         // Loop through selected gameobjects and check if they all have to least one of this component type on them.
-                        bool allgameobjectshavecomponent = true;
+                        bool allGameObjectsHaveComponent = true;
                         for( unsigned int soi=firstGameObjectIndex+1; soi<pEditorState->m_pSelectedObjects.size(); soi++ )
                         {
                             GameObject* pGameObject = pEditorState->m_pSelectedObjects[soi];
@@ -2375,7 +2380,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             if( pGameObject->IsFolder() )
                                 continue;
 
-                            bool hascomponent = false;
+                            bool hasComponent = false;
                             for( unsigned int soci=0; soci<pGameObject->GetComponentCountIncludingCore(); soci++ )
                             {
                                 ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( soci );
@@ -2383,19 +2388,19 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                                 if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
                                 {
                                     pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
-                                    hascomponent = true;
+                                    hasComponent = true;
                                     break;
                                 }
                             }
 
-                            if( hascomponent == false )
+                            if( hasComponent == false )
                             {
-                                allgameobjectshavecomponent = false;
+                                allGameObjectsHaveComponent = false;
                                 break;
                             }
                         }
 
-                        if( allgameobjectshavecomponent == true )
+                        if( allGameObjectsHaveComponent == true )
                         {
                             //ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
                             //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
@@ -2411,7 +2416,9 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             ComponentBase::EnabledState enabledState = pComponentToLookFor->GetEnabledState();
                             bool enabled = true;
                             if( enabledState == ComponentBase::EnabledState_Disabled_ManuallyDisabled )
+                            {
                                 enabled = false;
+                            }
                             if( ImGui::Checkbox( "", &enabled ) )
                             {
                                 pComponentToLookFor->SetEnabled( enabled );
@@ -2421,10 +2428,43 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             ImGui::SetCursorPosX( ImGui::GetCursorPosX() - 5 );
 
                             // Draw the component name in a collapsable block.
-                            if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
+                            bool componentBlockIsOpen = ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen );
+
+                            // Add context menu on the collapsingHeader.
+                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                            {
+                                if( pComponentToLookFor->m_MultiSelectedComponents.size() == 0 )
+                                {
+                                    if( ImGui::MenuItem( "Delete Component" ) )
+                                    {
+                                        std::vector<ComponentBase*> componentsToDelete;
+                                        componentsToDelete.push_back( pComponentToLookFor );
+                                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteComponents( componentsToDelete ) );
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                }
+                                else
+                                {
+                                    if( ImGui::MenuItem( "Delete Components" ) )
+                                    {
+                                        // Add pComponentToLookFor and pComponentToLookFor->m_MultiSelectedComponents to a vector and delete them.
+                                        std::vector<ComponentBase*> componentsToDelete;
+                                        componentsToDelete.push_back( pComponentToLookFor );
+                                        componentsToDelete.insert( componentsToDelete.end(), pComponentToLookFor->m_MultiSelectedComponents.begin(), pComponentToLookFor->m_MultiSelectedComponents.end() );
+                                        
+                                        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteComponents( componentsToDelete ) );
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                }
+                                ImGui::EndPopup();
+                            }
+
+                            // Add contents of component if collapsingHeader is open.
+                            if( componentBlockIsOpen )
                             {
                                 pComponentToLookFor->AddAllVariablesToWatchPanel();
                             }
+
                             ImGui::PopID();
                             //ImGui::PopStyleColor( 3 );
                         }
@@ -2899,6 +2939,16 @@ void EditorMainFrame_ImGui::AddContextMenuItemsForFiles(MyFileObject* pFile, voi
     if( ImGui::MenuItem( "Open Containing Folder" ) ) { pFile->OnPopupClick( pFileManager, pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
     if( ImGui::MenuItem( "Unload File" ) )            { pFile->OnPopupClick( pFileManager, pFile, MyFileObject::RightClick_UnloadFile );           ImGui::CloseCurrentPopup(); }
     if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFileManager, pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+}
+
+void EditorMainFrame_ImGui::AddContextMenuItemsForMaterials(MaterialDefinition* pMaterial)
+{
+    // Clear is handled in ComponentBase::AddVariableToWatchPanel.
+    
+    if( ImGui::MenuItem( "Edit material" ) )
+    {
+        EditMaterial( pMaterial );
+    }
 }
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
