@@ -12,10 +12,10 @@
 #include "EditorDocument.h"
 
 #include "Core/EngineCore.h"
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodeTypeManager.h"
 #include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 
 static VisualScriptNodeTypeManager g_VisualScriptNodeTypeManager;
 

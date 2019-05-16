@@ -17,9 +17,9 @@
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 EditorInterface_2DPointEditor::EditorInterface_2DPointEditor(EngineCore* pEngineCore)

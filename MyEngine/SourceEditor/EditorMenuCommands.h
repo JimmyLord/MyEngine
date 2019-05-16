@@ -10,7 +10,7 @@
 #ifndef __EditorMenuCommands_H__
 #define __EditorMenuCommands_H__
 
-#include "../SourceEditor/EditorPrefs.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 
 enum EditorMenuCommands
 {

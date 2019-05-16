@@ -10,7 +10,6 @@
 #include "MyEnginePCH.h"
 
 #include "EditorState.h"
-#include "EditorPrefs.h"
 #include "TransformGizmo.h"
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
@@ -19,6 +18,7 @@
 #include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
+#include "Prefs/EditorPrefs.h"
 #include "../SourceEditor/Interfaces/EditorInterface.h"
 
 #if MYFW_USING_IMGUI

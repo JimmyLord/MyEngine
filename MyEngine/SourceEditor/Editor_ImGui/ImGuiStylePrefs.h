@@ -85,8 +85,6 @@ public:
     };
 
 protected:
-    bool m_Visible;
-
     int m_CurrentPreset;
     const char** m_ppPresetNames;
     int m_NumPresets;
@@ -106,8 +104,7 @@ public:
 
     Vector4 GetColor(StylePrefs index);
 
-    void Display();
-    void AddCustomizationDialog();
+    void AddCustomizationTab();
 };
 
 #endif //__ImGuiStylePrefs_H__

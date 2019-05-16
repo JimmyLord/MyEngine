@@ -10,6 +10,7 @@
 #include "MyEnginePCH.h"
 
 #include "EditorPrefs.h"
+#include "EditorKeyBindings.h"
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "Core/EngineCore.h"
@@ -52,7 +53,11 @@ EditorPrefs::EditorPrefs()
 
     m_Debug_DrawPhysicsDebugShapes = true;
 
-    m_pImGuiStylePrefs = MyNew( ImGuiStylePrefs );
+    m_pImGuiStylePrefs = MyNew ImGuiStylePrefs;
+    m_pKeyBindings = MyNew EditorKeyBindings;
+
+    // ImGui Preferences Window.
+    m_Visible = false;
 }
 
 EditorPrefs::~EditorPrefs()
@@ -61,9 +66,8 @@ EditorPrefs::~EditorPrefs()
 
     cJSON_Delete( m_jEditorPrefs );
 
-#if MYFW_USING_IMGUI
     delete m_pImGuiStylePrefs;
-#endif
+    delete m_pKeyBindings;
 }
 
 void EditorPrefs::Init()
@@ -178,10 +182,10 @@ void EditorPrefs::LoadPrefs()
         }
     }
 
-#if MYFW_USING_IMGUI
     m_pImGuiStylePrefs->LoadPrefs( m_jEditorPrefs );
     g_pEngineCore->GetEditorMainFrame_ImGui()->GetLayoutManager()->LoadPrefs( m_jEditorPrefs );
-#endif
+
+    m_pKeyBindings->LoadPrefs( m_jEditorPrefs );
 }
 
 void EditorPrefs::LoadLastSceneLoaded()
@@ -329,10 +333,10 @@ cJSON* EditorPrefs::SaveStart()
         }
         cJSON_AddItemToObject( jPrefs, "Lua_RecentFiles", jRecentFilesArray );
 
-#if MYFW_USING_IMGUI
         m_pImGuiStylePrefs->SavePrefs( jPrefs );
         g_pEngineCore->GetEditorMainFrame_ImGui()->GetLayoutManager()->SavePrefs( jPrefs );
-#endif
+
+        m_pKeyBindings->SavePrefs( jPrefs );
 
         return jPrefs;
     }
@@ -425,4 +429,30 @@ void EditorPrefs::FillGridSettingsWindow()
 #if MYFW_USING_IMGUI
     ImGui::DragFloat3( "Step Size", &m_GridSettings.stepSize.x );
 #endif
+}
+
+void EditorPrefs::Display()
+{
+    m_Visible = true;
+}
+
+void EditorPrefs::AddCustomizationDialog()
+{
+    if( m_Visible == false )
+        return;
+
+    ImGui::SetNextWindowPos( ImVec2(208, 61), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowSize( ImVec2(745, 530), ImGuiCond_FirstUseEver );
+
+    if( ImGui::Begin( "Editor Prefs", &m_Visible ) )
+    {
+        if( ImGui::BeginTabBar( "Editor Prefs" ) )
+        {
+            GetImGuiStylePrefs()->AddCustomizationTab();
+            GetKeyBindings()->AddCustomizationTab();
+
+            ImGui::EndTabBar();
+        }
+    }
+    ImGui::End();
 }

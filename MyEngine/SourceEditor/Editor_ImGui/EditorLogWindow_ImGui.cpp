@@ -12,8 +12,8 @@
 #include "EditorLogWindow_ImGui.h"
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorMainFrame.h"
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 
 //====================================================================================================
 // Public methods

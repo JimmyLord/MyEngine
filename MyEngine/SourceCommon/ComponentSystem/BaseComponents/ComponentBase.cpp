@@ -17,8 +17,8 @@
 
 #if MYFW_EDITOR
 #include "../SourceEditor/EngineEditorCommands.h"
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 #endif
 
 #if MYFW_USING_IMGUI

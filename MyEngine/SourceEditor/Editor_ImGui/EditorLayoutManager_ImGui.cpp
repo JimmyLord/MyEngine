@@ -13,7 +13,7 @@
 #include "EditorLogWindow_ImGui.h"
 #include "ImGuiStylePrefs.h"
 #include "../../SourceCommon/Core/EngineCore.h"
-#include "../../SourceEditor/EditorPrefs.h"
+#include "../../SourceEditor/Prefs/EditorPrefs.h"
 
 const char* g_DefaultEditorLayoutImGuiIniStrings[EditorLayout_NumLayouts] =
 {

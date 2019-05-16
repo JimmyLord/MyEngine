@@ -20,8 +20,8 @@
 #include "Core/EngineCore.h"
 
 #if MYFW_EDITOR
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 #endif
 
 #if MYFW_USING_WX

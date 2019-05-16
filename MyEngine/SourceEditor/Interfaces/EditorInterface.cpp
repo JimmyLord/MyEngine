@@ -14,9 +14,9 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 EditorInterface::EditorInterface(EngineCore* pEngineCore)
@@ -446,15 +446,6 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
         // Get the editor camera's local transform.
         MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
-        // WASD to move camera.
-        Vector3 dir( 0, 0, 0 );
-        if( keyCode == 'W' ) dir.z +=  1;
-        if( keyCode == 'A' ) dir.x += -1;
-        if( keyCode == 'S' ) dir.z += -1;
-        if( keyCode == 'D' ) dir.x +=  1;
-        if( keyCode == 'Q' ) dir.y +=  1;
-        if( keyCode == 'E' ) dir.y -=  1;
-
         // F to focus camera on selected objects.
         if( keyCode == 'F' )
         {
@@ -472,6 +463,16 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
                 matCamera->SetTranslation( finalPosition );
             }
         }
+
+        // WASD to move camera.
+        Vector3 dir( 0, 0, 0 );
+        if( keyCode == 'W' ) dir.z +=  1;
+        if( keyCode == 'A' ) dir.x += -1;
+        if( keyCode == 'S' ) dir.z += -1;
+        if( keyCode == 'D' ) dir.x +=  1;
+        if( keyCode == 'Q' ) dir.y +=  1;
+        if( keyCode == 'E' ) dir.y += -1;
+        if( keyCode == 'Z' ) dir.y += -1;
 
         float speed = 7.0f;
         if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )

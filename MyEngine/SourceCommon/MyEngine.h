@@ -102,12 +102,12 @@
 #if MYFW_EDITOR
 #include "../SourceEditor/DragAndDropHackeryExtended.h"
 #include "../SourceEditor/EditorMainFrame.h"
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/EngineCommandStack.h"
 #include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 
 #if MYFW_USING_IMGUI
 #include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"

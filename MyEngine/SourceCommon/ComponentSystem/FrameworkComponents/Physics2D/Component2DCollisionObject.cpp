@@ -20,8 +20,8 @@
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 #if MYFW_EDITOR
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 #endif
 
 const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes] = //ADDING_NEW_Physics2DPrimitiveType

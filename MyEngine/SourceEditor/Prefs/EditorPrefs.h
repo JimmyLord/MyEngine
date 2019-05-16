@@ -10,6 +10,7 @@
 #ifndef __EditorPrefs_H__
 #define __EditorPrefs_H__
 
+class EditorKeyBindings;
 class EditorPrefs;
 class EngineCore;
 class ImGuiStylePrefs;
@@ -83,9 +84,8 @@ protected:
     std::vector<std::string> m_File_RecentScenes;
     std::vector<std::string> m_Document_RecentDocuments;
 
-#if MYFW_USING_IMGUI
     ImGuiStylePrefs* m_pImGuiStylePrefs;
-#endif
+    EditorKeyBindings* m_pKeyBindings;
 
 public:
     EditorPrefs();
@@ -98,23 +98,18 @@ public:
     cJSON* SaveStart();
     void SaveFinish(cJSON* jPrefs);
 
+    // Getters.
     cJSON* GetEditorPrefsJSONString() { return m_jEditorPrefs; }
+
+    // Preference Getters.
+    ImGuiStylePrefs* GetImGuiStylePrefs() { return m_pImGuiStylePrefs; }
+    EditorKeyBindings* GetKeyBindings() { return m_pKeyBindings; }
 
     int GetWindowX() { return m_WindowX; }
     int GetWindowY() { return m_WindowY; }
     int GetWindowWidth() { return m_WindowWidth; }
     int GetWindowHeight() { return m_WindowHeight; }
     bool IsWindowMaximized() { return m_IsWindowMaximized; }
-
-    // Preference Setters
-    void SetWindowProperties(int x, int y, int w, int h, bool maximized)
-    {
-        m_WindowX = x;
-        m_WindowY = y;
-        m_WindowWidth = w;
-        m_WindowHeight = h;
-        m_IsWindowMaximized = false;
-    }
 
     GridSettings* GetGridSettings() { return &m_GridSettings; }
 
@@ -135,6 +130,16 @@ public:
     uint32 Get_Document_NumRecentDocuments() { return (uint32)m_Document_RecentDocuments.size(); }
     std::string Get_Document_RecentDocument(int index) { return m_Document_RecentDocuments[index]; }    
 
+    // Preference Setters.
+    void SetWindowProperties(int x, int y, int w, int h, bool maximized)
+    {
+        m_WindowX = x;
+        m_WindowY = y;
+        m_WindowWidth = w;
+        m_WindowHeight = h;
+        m_IsWindowMaximized = false;
+    }
+
     void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
     void Toggle_View_EditorCamDeferred() { m_View_EditorCamDeferred = !m_View_EditorCamDeferred; }
     void Toggle_View_SelectedObjects_ShowWireframe() { m_View_SelectedObjects_ShowWireframe = !m_View_SelectedObjects_ShowWireframe; }
@@ -152,9 +157,11 @@ public:
 
     void FillGridSettingsWindow();
 
-#if MYFW_USING_IMGUI
-    ImGuiStylePrefs* GetImGuiStylePrefs() { return m_pImGuiStylePrefs; }
-#endif
+    // ImGui Preferences Window.
+    bool m_Visible;
+
+    void Display();
+    void AddCustomizationDialog();
 };
 
 #endif //__EditorPrefs_H__

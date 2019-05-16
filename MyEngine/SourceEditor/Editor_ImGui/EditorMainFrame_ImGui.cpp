@@ -424,7 +424,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
         if( C  && keyCode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
         if( CS && keyCode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return true; }
         if( CS && keyCode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
-        if( CS && keyCode == 'P' )   { pEditorPrefs->GetImGuiStylePrefs()->Display();                               return true; }
+        if( CS && keyCode == 'P' )   { pEditorPrefs->Display();                                                     return true; }
         if( C  && keyCode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
         if( C  && keyCode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
         if( CS && keyCode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
@@ -540,7 +540,7 @@ void EditorMainFrame_ImGui::AddEverything()
 
     AddLoseChangesWarningPopups();
 
-    pEditorPrefs->GetImGuiStylePrefs()->AddCustomizationDialog();
+    pEditorPrefs->AddCustomizationDialog();
 
 #if _DEBUG
     ImGuiIO& io = ImGui::GetIO();
@@ -1084,7 +1084,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             ImGui::Separator();
 
-            if( ImGui::MenuItem( "Preferences...", "Ctrl-Shift-P" ) ) { pEditorPrefs->GetImGuiStylePrefs()->Display(); }
+            if( ImGui::MenuItem( "Preferences...", "Ctrl-Shift-P" ) ) { pEditorPrefs->Display(); }
 
             if( ImGui::MenuItem( "Quit" ) ) { RequestCloseWindow(); }
 

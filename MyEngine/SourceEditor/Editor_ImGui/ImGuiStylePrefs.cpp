@@ -82,8 +82,6 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
 
 ImGuiStylePrefs::ImGuiStylePrefs()
 {
-    m_Visible = false;
-
     // If this trips, imgui changed, so make fixes.
     MyAssert( StylePref_NumImGuiStyleColors == 50 );
 
@@ -198,7 +196,7 @@ void ImGuiStylePrefs::ReapplyCurrentPreset()
 
 void ImGuiStylePrefs::LoadPrefs(cJSON* jPrefs)
 {
-    cJSONExt_GetInt( jPrefs, "CurrentPreset", &m_CurrentPreset );
+    cJSONExt_GetInt( jPrefs, "StyleCurrentPreset", &m_CurrentPreset );
     if( m_CurrentPreset < 0 || m_CurrentPreset >= m_NumPresets )
         m_CurrentPreset = 0;
 
@@ -225,7 +223,7 @@ void ImGuiStylePrefs::LoadPrefs(cJSON* jPrefs)
 void ImGuiStylePrefs::SavePrefs(cJSON* jPrefs)
 {
     // Save all style colors.
-    cJSON_AddNumberToObject( jPrefs, "CurrentPreset", m_CurrentPreset );
+    cJSON_AddNumberToObject( jPrefs, "StyleCurrentPreset", m_CurrentPreset );
 
     cJSON* jPresetsArray = cJSON_CreateArray();
     cJSON_AddItemToObject( jPrefs, "StylePresets", jPresetsArray );
@@ -248,26 +246,15 @@ Vector4 ImGuiStylePrefs::GetColor(ImGuiStylePrefs::StylePrefs index)
     return m_Styles[m_CurrentPreset][index];
 }
 
-void ImGuiStylePrefs::Display()
+void ImGuiStylePrefs::AddCustomizationTab()
 {
-    m_Visible = true;
-}
-
-void ImGuiStylePrefs::AddCustomizationDialog()
-{
-    if( m_Visible == false )
-        return;
-
-    //ImGui::PushStyleColor( ImGuiCol_WindowBg, ImVec4( 0.1f, 0.1f, 0.1f, 0.9f ) );
-    
-    ImGui::SetNextWindowPos( ImVec2(208, 61), ImGuiCond_FirstUseEver );
-    ImGui::SetNextWindowSize( ImVec2(745, 530), ImGuiCond_FirstUseEver );
-
     ImGuiStyle* style = &ImGui::GetStyle();
     ImVec4* colors = style->Colors;
 
-    if( ImGui::Begin( "Editor Style Prefs", &m_Visible ) )
+    if( ImGui::BeginTabItem( "Style" ) )
     {
+        ImGui::EndTabItem();
+
         ImGui::Combo( "Presets", &m_CurrentPreset, m_ppPresetNames, m_NumPresets );
         ImGui::SameLine();
         if( ImGui::Button( "Reset" ) ) { ResetCurrentPreset(); }
@@ -285,7 +272,4 @@ void ImGuiStylePrefs::AddCustomizationDialog()
                 colors[i] = m_Styles[m_CurrentPreset][i];
         }
     }
-    ImGui::End();
-
-    //ImGui::PopStyleColor();
 }

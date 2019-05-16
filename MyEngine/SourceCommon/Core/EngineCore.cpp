@@ -23,7 +23,6 @@
 
 #if MYFW_EDITOR
 #include "../SourceEditor/EditorMainFrame.h"
-#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/TransformGizmo.h"
 #include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
@@ -32,6 +31,7 @@
 #include "../SourceEditor/Interfaces/EditorInterface_SceneManagement.h"
 #include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"
 #include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
+#include "../SourceEditor/Prefs/EditorPrefs.h"
 #endif
 
 EngineCore* g_pEngineCore = nullptr;
