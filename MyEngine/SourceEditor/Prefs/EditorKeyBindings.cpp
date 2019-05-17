@@ -24,14 +24,14 @@ const char* g_KeyBindingStrings[EditorKeyBindings::KeyAction_Num] =
 
 EditorKeyBindings::EditorKeyBindings()
 {
-    m_DefaultKeys[0][KeyAction_Camera_Forward].x = 'W';
-    m_DefaultKeys[0][KeyAction_Camera_Back   ].x = 'S';
-    m_DefaultKeys[0][KeyAction_Camera_Left   ].x = 'A';
-    m_DefaultKeys[0][KeyAction_Camera_Right  ].x = 'D';
-    m_DefaultKeys[0][KeyAction_Camera_Up     ].x = 'Q';
-    m_DefaultKeys[0][KeyAction_Camera_Down   ].x = 'E';
-    m_DefaultKeys[0][KeyAction_Camera_Down   ].y = 'Z';
-    m_DefaultKeys[0][KeyAction_Camera_Focus  ].x = 'F';
+    m_DefaultKeys[0][KeyAction_Camera_Forward].m_Keys[0].m_Key = 'W';
+    m_DefaultKeys[0][KeyAction_Camera_Back   ].m_Keys[0].m_Key = 'S';
+    m_DefaultKeys[0][KeyAction_Camera_Left   ].m_Keys[0].m_Key = 'A';
+    m_DefaultKeys[0][KeyAction_Camera_Right  ].m_Keys[0].m_Key = 'D';
+    m_DefaultKeys[0][KeyAction_Camera_Up     ].m_Keys[0].m_Key = 'Q';
+    m_DefaultKeys[0][KeyAction_Camera_Down   ].m_Keys[0].m_Key = 'E';
+    m_DefaultKeys[0][KeyAction_Camera_Down   ].m_Keys[1].m_Key = 'Z';
+    m_DefaultKeys[0][KeyAction_Camera_Focus  ].m_Keys[0].m_Key = 'F';
 
     // Copy preset 0 into other 4 presets.
     for( int i=1; i<5; i++ )
@@ -82,9 +82,10 @@ void EditorKeyBindings::LoadPrefs(cJSON* jPrefs)
         {
             for( int i=0; i<KeyAction_Num; i++ )
             {
-                Vector4Int key = m_DefaultKeys[preset][i];
-                cJSONExt_GetIntArray( jPreset, g_KeyBindingStrings[i], &key.x, 4 );
+                int numUnsignedChars = MaxKeysPerAction * 2;
 
+                KeyBinding key = m_DefaultKeys[preset][i];
+                cJSONExt_GetUnsignedCharArray( jPreset, g_KeyBindingStrings[i], reinterpret_cast<unsigned char*>( &key ), numUnsignedChars );
                 m_Keys[preset][i] = key;
             }
         }
@@ -106,13 +107,15 @@ void EditorKeyBindings::SavePrefs(cJSON* jPrefs)
         {
             if( m_Keys[preset][i] != m_DefaultKeys[preset][i] )
             {
-                cJSONExt_AddIntArrayToObject( jPreset, g_KeyBindingStrings[i], &m_Keys[preset][i].x, 4 );
+                int numUnsignedChars = MaxKeysPerAction * 2;
+
+                cJSONExt_AddUnsignedCharArrayToObject( jPreset, g_KeyBindingStrings[i], reinterpret_cast<unsigned char*>( &m_Keys[preset][i] ), numUnsignedChars );
             }
         }
     }
 }
 
-Vector4Int EditorKeyBindings::GetKey(EditorKeyBindings::KeyActions index)
+EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(EditorKeyBindings::KeyActions index)
 {
     return m_Keys[m_CurrentPreset][index];
 }
@@ -127,14 +130,45 @@ void EditorKeyBindings::AddCustomizationTab()
         ImGui::SameLine();
         if( ImGui::Button( "Reset" ) ) { ResetCurrentPreset(); }
 
-        int numColumns = 4;
+        ImGui::Columns( 3 );
+
         for( int i=0; i<KeyAction_Num; i++ )
         {
-            if( i%numColumns != 0 )
-                ImGui::SameLine( 180.0f * (i%numColumns) );
-
             ImGui::Text( g_KeyBindingStrings[i] );
-            //ImGui::ColorEdit4( g_StylePrefsStrings[i], &m_Keys[m_CurrentPreset][i].x, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaBar );
+
+            ImGui::NextColumn();
+
+            for( int k=0; k<MaxKeysPerAction; k++ )
+            {
+                ImGui::PushID( i*MaxKeysPerAction + k );
+
+                bool flagControl = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags & 1;
+                bool flagAlt     = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags & 2;
+                bool flagShift   = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags & 4;
+                char tempString[2];
+                tempString[0] = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Key;
+                tempString[1] = '\0';
+
+                ImGui::Checkbox( "C", &flagControl );           ImGui::SameLine();
+                ImGui::Checkbox( "A", &flagAlt );               ImGui::SameLine();
+                ImGui::Checkbox( "S", &flagShift );             ImGui::SameLine();
+                ImGui::PushItemWidth( 20 );
+                ImGui::InputText( "Key", tempString, 2, ImGuiInputTextFlags_AutoSelectAll );
+                ImGui::PopItemWidth();
+
+                m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags = flagControl << 0 | flagAlt << 1 | flagShift << 2;
+                if( tempString[0] < 32 && tempString[0] != 0 )
+                    tempString[0] = 33;
+                if( tempString[0] >= 97 && tempString[0] <= 122 )
+                    tempString[0] -= 'a' - 'A';
+                m_Keys[m_CurrentPreset][i].m_Keys[k].m_Key = static_cast<unsigned char>( tempString[0] );
+
+                ImGui::NextColumn();
+
+                ImGui::PopID();
+            }
         }
+
+        ImGui::Columns( 1 );
     }
 }

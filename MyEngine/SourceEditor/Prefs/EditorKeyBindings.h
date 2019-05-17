@@ -13,6 +13,40 @@
 class EditorKeyBindings
 {
 public:
+    static const int MaxKeysPerAction = 2;
+
+    struct keySingle
+    {
+        // All members must be unsigned chars.
+        unsigned char m_Flags;
+        unsigned char m_Key;
+    };
+
+    struct KeyBinding
+    {
+        // All members must be unsigned chars.
+        keySingle m_Keys[MaxKeysPerAction];
+
+        KeyBinding::KeyBinding()
+        {
+            for( int i=0; i<MaxKeysPerAction; i++ )
+            {
+                m_Keys[i].m_Flags = 0;
+                m_Keys[i].m_Key = 0;
+            }
+        }
+
+        inline bool operator !=(const KeyBinding& o) const
+        {
+            for( int i=0; i<MaxKeysPerAction; i++ )
+            {
+                if( this->m_Keys[i].m_Flags != o.m_Keys[i].m_Flags ) return true;
+                if( this->m_Keys[i].m_Key != o.m_Keys[i].m_Key ) return true;
+            }
+            return false;
+        }
+    };
+
     enum KeyActions
     {
         KeyAction_Camera_Forward,
@@ -30,8 +64,8 @@ protected:
     const char** m_ppPresetNames;
     int m_NumPresets;
 
-    Vector4Int m_DefaultKeys[5][KeyAction_Num];
-    Vector4Int m_Keys[5][KeyAction_Num];
+    KeyBinding m_DefaultKeys[5][KeyAction_Num];
+    KeyBinding m_Keys[5][KeyAction_Num];
 
 public:
     EditorKeyBindings();
@@ -42,7 +76,7 @@ public:
     void LoadPrefs(cJSON* jPrefs);
     void SavePrefs(cJSON* jPrefs);
 
-    Vector4Int GetKey(EditorKeyBindings::KeyActions index);
+    KeyBinding GetKey(EditorKeyBindings::KeyActions index);
 
     void AddCustomizationTab();
 };
