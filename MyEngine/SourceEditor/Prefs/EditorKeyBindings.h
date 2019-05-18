@@ -77,6 +77,7 @@ public:
     void SavePrefs(cJSON* jPrefs);
 
     KeyBinding GetKey(EditorKeyBindings::KeyActions index);
+    bool KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint8 keyCode);
 
     void AddCustomizationTab();
 };

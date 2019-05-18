@@ -17,6 +17,7 @@
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/TransformGizmo.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
+#include "../SourceEditor/Prefs/EditorKeyBindings.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
 EditorInterface::EditorInterface(EngineCore* pEngineCore)
@@ -443,11 +444,15 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
     // Handle editor keys.
     if( keyAction == GCBA_Held )
     {
+        EditorKeyBindings* pKeys = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
+        uint8 modifiers = static_cast<uint8>( pEditorState->m_ModifierKeyStates );
+        uint8 keyCode8 = static_cast<uint8>( keyCode );
+
         // Get the editor camera's local transform.
         MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
-        // F to focus camera on selected objects.
-        if( keyCode == 'F' )
+        // Focus camera on selected objects.
+        if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Focus, modifiers, keyCode8 ) )
         {
             // Make sure there is an object actually selected.
             if( pEditorState->m_pSelectedObjects.size() > 0 )
@@ -464,22 +469,24 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
             }
         }
 
-        // WASD to move camera.
-        Vector3 dir( 0, 0, 0 );
-        if( keyCode == 'W' ) dir.z +=  1;
-        if( keyCode == 'A' ) dir.x += -1;
-        if( keyCode == 'S' ) dir.z += -1;
-        if( keyCode == 'D' ) dir.x +=  1;
-        if( keyCode == 'Q' ) dir.y +=  1;
-        if( keyCode == 'E' ) dir.y += -1;
-        if( keyCode == 'Z' ) dir.y += -1;
+        // Handle editor camera movement.
+        {
+            Vector3 dir( 0, 0, 0 );
 
-        float speed = 7.0f;
-        if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
-            speed *= 5;
+            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Forward, modifiers, keyCode8 ) ) dir.z +=  1;
+            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Left,    modifiers, keyCode8 ) ) dir.x += -1;
+            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Back,    modifiers, keyCode8 ) ) dir.z += -1;
+            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Right,   modifiers, keyCode8 ) ) dir.x +=  1;
+            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Up,      modifiers, keyCode8 ) ) dir.y +=  1;
+            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Down,    modifiers, keyCode8 ) ) dir.y += -1;
 
-        if( dir.LengthSquared() > 0 )
-            matCamera->TranslatePreRotScale( dir * speed * g_pEngineCore->GetTimePassedUnpausedLastFrame() );
+            float speed = 7.0f;
+            if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
+                speed *= 5;
+
+            if( dir.LengthSquared() > 0 )
+                matCamera->TranslatePreRotScale( dir * speed * g_pEngineCore->GetTimePassedUnpausedLastFrame() );
+        }
 
         pCamera->m_pComponentTransform->UpdateLocalSRT();
         pCamera->m_pComponentTransform->UpdateTransform();

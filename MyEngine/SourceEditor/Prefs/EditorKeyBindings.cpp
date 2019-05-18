@@ -120,6 +120,21 @@ EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(EditorKeyBindings::KeyAc
     return m_Keys[m_CurrentPreset][index];
 }
 
+bool EditorKeyBindings::KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint8 keyCode)
+{
+    // Only keep the first 3 bits of the modifiers.
+    modifiers &= (1+2+4);
+
+    for( int k=0; k<MaxKeysPerAction; k++ )
+    {
+        if( m_Keys[m_CurrentPreset][index].m_Keys[k].m_Flags == modifiers &&
+            m_Keys[m_CurrentPreset][index].m_Keys[k].m_Key == keyCode )
+            return true;
+    }
+
+    return false;
+}
+
 void EditorKeyBindings::AddCustomizationTab()
 {
     if( ImGui::BeginTabItem( "Key Bindings" ) )
