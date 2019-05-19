@@ -13,6 +13,7 @@
 
 const char* g_KeyBindingStrings[EditorKeyBindings::KeyAction_Num] =
 {
+    "File_SaveScene",
     "Camera_Forward",
     "Camera_Back",
     "Camera_Left",
@@ -24,6 +25,8 @@ const char* g_KeyBindingStrings[EditorKeyBindings::KeyAction_Num] =
 
 EditorKeyBindings::EditorKeyBindings()
 {
+    m_DefaultKeys[0][KeyAction_File_SaveScene].m_Keys[0].m_Flags = 1;
+    m_DefaultKeys[0][KeyAction_File_SaveScene].m_Keys[0].m_Key = 'S';
     m_DefaultKeys[0][KeyAction_Camera_Forward].m_Keys[0].m_Key = 'W';
     m_DefaultKeys[0][KeyAction_Camera_Back   ].m_Keys[0].m_Key = 'S';
     m_DefaultKeys[0][KeyAction_Camera_Left   ].m_Keys[0].m_Key = 'A';
@@ -53,6 +56,8 @@ EditorKeyBindings::EditorKeyBindings()
     }
 
     m_CurrentPreset = 0; // Default to MyDefaults.
+
+    GenerateKeyStrings();
 }
 
 EditorKeyBindings::~EditorKeyBindings()
@@ -90,6 +95,8 @@ void EditorKeyBindings::LoadPrefs(cJSON* jPrefs)
             }
         }
     }
+
+    GenerateKeyStrings();
 }
 
 void EditorKeyBindings::SavePrefs(cJSON* jPrefs)
@@ -135,6 +142,11 @@ bool EditorKeyBindings::KeyMatches(EditorKeyBindings::KeyActions index, uint8 mo
     return false;
 }
 
+const char* EditorKeyBindings::GetStringForKey(EditorKeyBindings::KeyActions index)
+{
+    return m_KeyStrings[m_CurrentPreset][index];
+}
+
 void EditorKeyBindings::AddCustomizationTab()
 {
     if( ImGui::BeginTabItem( "Key Bindings" ) )
@@ -164,19 +176,25 @@ void EditorKeyBindings::AddCustomizationTab()
                 tempString[0] = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Key;
                 tempString[1] = '\0';
 
-                ImGui::Checkbox( "C", &flagControl );           ImGui::SameLine();
-                ImGui::Checkbox( "A", &flagAlt );               ImGui::SameLine();
-                ImGui::Checkbox( "S", &flagShift );             ImGui::SameLine();
+                bool changed = false;
+                if( ImGui::Checkbox( "C", &flagControl ) )  { changed = true; } ImGui::SameLine();
+                if( ImGui::Checkbox( "A", &flagAlt ) )      { changed = true; } ImGui::SameLine();
+                if( ImGui::Checkbox( "S", &flagShift ) )    { changed = true; } ImGui::SameLine();
                 ImGui::PushItemWidth( 20 );
-                ImGui::InputText( "Key", tempString, 2, ImGuiInputTextFlags_AutoSelectAll );
+                if( ImGui::InputText( "Key", tempString, 2, ImGuiInputTextFlags_AutoSelectAll ) ) { changed = true; }
                 ImGui::PopItemWidth();
 
-                m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags = flagControl << 0 | flagAlt << 1 | flagShift << 2;
-                if( tempString[0] < 32 && tempString[0] != 0 )
-                    tempString[0] = 33;
-                if( tempString[0] >= 97 && tempString[0] <= 122 )
-                    tempString[0] -= 'a' - 'A';
-                m_Keys[m_CurrentPreset][i].m_Keys[k].m_Key = static_cast<unsigned char>( tempString[0] );
+                if( changed )
+                {
+                    m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags = flagControl << 0 | flagAlt << 1 | flagShift << 2;
+                    if( tempString[0] < 32 && tempString[0] != 0 )
+                        tempString[0] = 33;
+                    if( tempString[0] >= 97 && tempString[0] <= 122 )
+                        tempString[0] -= 'a' - 'A';
+                    m_Keys[m_CurrentPreset][i].m_Keys[k].m_Key = static_cast<unsigned char>( tempString[0] );
+
+                    GenerateKeyStrings();
+                }
 
                 ImGui::NextColumn();
 
@@ -185,5 +203,28 @@ void EditorKeyBindings::AddCustomizationTab()
         }
 
         ImGui::Columns( 1 );
+    }
+}
+
+void EditorKeyBindings::GenerateKeyStrings()
+{
+    memset( m_KeyStrings, 0, sizeof( m_KeyStrings ) );
+
+    for( int preset=0; preset<5; preset++ )
+    {
+        for( int key=0; key<KeyAction_Num; key++ )
+        {
+            if( m_Keys[m_CurrentPreset][key].m_Keys[0].m_Flags & 1 )
+                strcat_s( m_KeyStrings[preset][key], m_MaxStringLength, "Ctrl-" );
+            if( m_Keys[m_CurrentPreset][key].m_Keys[0].m_Flags & 2 )
+                strcat_s( m_KeyStrings[preset][key], m_MaxStringLength, "Alt-" );
+            if( m_Keys[m_CurrentPreset][key].m_Keys[0].m_Flags & 4 )
+                strcat_s( m_KeyStrings[preset][key], m_MaxStringLength, "Shift-" );
+
+            char keyName[8];
+            sprintf_s( keyName, 8, "%c", m_Keys[m_CurrentPreset][key].m_Keys[0].m_Key );
+
+            strcat_s( m_KeyStrings[preset][key], m_MaxStringLength, keyName );
+        }
     }
 }

@@ -34,6 +34,7 @@
 #include "../SourceEditor/Interfaces/EditorInterface.h"
 #include "../SourceEditor/NodeGraph/MyNodeGraph.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
+#include "../SourceEditor/Prefs/EditorKeyBindings.h"
 #include "../SourceEditor/TransformGizmo.h"
 
 //====================================================================================================
@@ -170,6 +171,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui(EngineCore* pEngineCore)
     m_CurrentMouseInEditorWindow_Y = -1;
 
     // Misc.
+    m_RegisteringNewHotkey = false;
     m_pLastGameObjectInteractedWithInObjectPanel = nullptr;
     m_UndoStackDepthAtLastSave = 0;
 
@@ -419,9 +421,15 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
 
         EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
 
+        EditorKeyBindings* pKeys = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
+        uint8 modifiers = static_cast<uint8>( m_pEngineCore->GetEditorState()->m_ModifierKeyStates );
+        uint8 keyCode8 = static_cast<uint8>( keyCode );
+
+#define CheckKey(a) pKeys->KeyMatches( EditorKeyBindings::##a, modifiers, keyCode8 )
+
         if( C  && keyCode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
         if( N  && keyCode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
-        if( C  && keyCode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
+        if( CheckKey( KeyAction_File_SaveScene ) )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
         if( CS && keyCode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return true; }
         if( CS && keyCode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
         if( CS && keyCode == 'P' )   { pEditorPrefs->Display();                                                     return true; }
@@ -451,6 +459,8 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
         // Dump current layout to output window, so it can be cut & pasted to g_DefaultLayouts in the EditorLayoutManager.
         if( CS && keyCode == 'D'   ) { m_pLayoutManager->DumpCurrentLayoutToOutputWindow();                         return true; }
 #endif
+
+#undef CheckKey
     }
 
     return false;
@@ -991,7 +1001,10 @@ bool EditorMainFrame_ImGui::WasItemSlowDoubleClicked(void* pObjectClicked)
 void EditorMainFrame_ImGui::AddMainMenuBar()
 {
     EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
-    
+
+    EditorKeyBindings* pKeys = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
+#define GetShortcut(a) pKeys->GetStringForKey( EditorKeyBindings::##a )
+
     bool wasInEditorMode = true;
 
     if( m_pEngineCore->IsInEditorMode() == false )
@@ -1061,7 +1074,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             ImGui::Separator();
 
-            if( ImGui::MenuItem( "Save Scene", "Ctrl-S" ) )
+            if( ImGui::MenuItem( "Save Scene", GetShortcut( KeyAction_File_SaveScene ) ) )
             {
                 EditorMenuCommand( EditorMenuCommand_File_SaveScene );
             }
@@ -1322,6 +1335,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
     {
         ImGui::PopStyleColor();
     }
+
+#undef GetShortcut
 }
 
 void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()

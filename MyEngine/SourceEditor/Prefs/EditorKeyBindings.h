@@ -49,6 +49,7 @@ public:
 
     enum KeyActions
     {
+        KeyAction_File_SaveScene,
         KeyAction_Camera_Forward,
         KeyAction_Camera_Back,
         KeyAction_Camera_Left,
@@ -67,6 +68,9 @@ protected:
     KeyBinding m_DefaultKeys[5][KeyAction_Num];
     KeyBinding m_Keys[5][KeyAction_Num];
 
+    static const int m_MaxStringLength = 32; // Command-Ctrl-Alt-Shift-F12 <- 26 + 1;
+    char m_KeyStrings[5][KeyAction_Num][m_MaxStringLength];
+
 public:
     EditorKeyBindings();
     ~EditorKeyBindings();
@@ -78,8 +82,12 @@ public:
 
     KeyBinding GetKey(EditorKeyBindings::KeyActions index);
     bool KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint8 keyCode);
+    const char* GetStringForKey(EditorKeyBindings::KeyActions index);
 
     void AddCustomizationTab();
+
+protected:
+    void GenerateKeyStrings();
 };
 
 #endif //__EditorKeyBindings_H__
