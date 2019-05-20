@@ -171,7 +171,6 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui(EngineCore* pEngineCore)
     m_CurrentMouseInEditorWindow_Y = -1;
 
     // Misc.
-    m_RegisteringNewHotkey = false;
     m_pLastGameObjectInteractedWithInObjectPanel = nullptr;
     m_UndoStackDepthAtLastSave = 0;
 
@@ -248,6 +247,10 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
         {
             m_ConfirmCurrentRenameOp = true;
         }
+
+        // When binding new keys, if the mouse is clicked anywhere, cancel the operation.
+        EditorKeyBindings* pKeyBindings = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
+        pKeyBindings->CancelBindingAction();
     }
 
     // For keyboard and other non-mouse events, localx/y will be -1.
@@ -363,7 +366,16 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
     // If neither the game or editor windows used the input, then check for global hotkeys or cancel certain ops.
     if( keyAction != -1 )
     {
-        if( io.WantTextInput == false )
+        EditorKeyBindings* pKeyBindings = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
+
+        // EditorKeyBindings will catch this input and change a hotkey if it's waiting to register one.
+        if( pKeyBindings->HandleInput( keyAction, keyCode ) )
+        {
+            // If a hotkey was pressed, unset that key so 'held' and 'up' messages won't get sent.
+            m_pEngineCore->ForceKeyRelease( keyCode );
+            return true;
+        }
+        else if( io.WantTextInput == false )
         {
             if( CheckForHotkeys( keyAction, keyCode ) )
             {

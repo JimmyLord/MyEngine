@@ -17,9 +17,9 @@ public:
 
     struct keySingle
     {
-        // All members must be unsigned chars.
-        unsigned char m_Flags;
-        unsigned char m_Key;
+        // All members must be uint32.
+        uint32 m_Flags;
+        uint32 m_Key;
     };
 
     struct KeyBinding
@@ -68,8 +68,15 @@ protected:
     KeyBinding m_DefaultKeys[5][KeyAction_Num];
     KeyBinding m_Keys[5][KeyAction_Num];
 
-    static const int m_MaxStringLength = 32; // Command-Ctrl-Alt-Shift-F12 <- 26 + 1;
-    char m_KeyStrings[5][KeyAction_Num][m_MaxStringLength];
+    static const int m_MaxStringLength = 64; // Command-Ctrl-Alt-Shift-ScrollLock <- 33 + 1;
+    char m_KeyStrings[5][KeyAction_Num][MaxKeysPerAction][m_MaxStringLength];
+
+    // New key binding.
+    bool m_RegisteringNewBinding;
+    int m_NewBindingPreset;
+    KeyActions m_NewBindingKeyAction;
+    int m_NewBindingKeyIndex;
+    uint32 m_NewBindingModifiers;
 
 public:
     EditorKeyBindings();
@@ -84,7 +91,11 @@ public:
     bool KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint8 keyCode);
     const char* GetStringForKey(EditorKeyBindings::KeyActions index);
 
+    // ImGui interface methods.
     void AddCustomizationTab();
+    bool HandleInput(int keyAction, int keyCode);
+    
+    void CancelBindingAction();
 
 protected:
     void GenerateKeyStrings();

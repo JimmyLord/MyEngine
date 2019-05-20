@@ -57,6 +57,13 @@ EditorKeyBindings::EditorKeyBindings()
 
     m_CurrentPreset = 0; // Default to MyDefaults.
 
+    // Key binding.
+    m_RegisteringNewBinding = false;
+    m_NewBindingPreset = 0;
+    m_NewBindingKeyAction = KeyAction_Num;
+    m_NewBindingKeyIndex = 0;
+    m_NewBindingModifiers = 0;
+
     GenerateKeyStrings();
 }
 
@@ -87,10 +94,10 @@ void EditorKeyBindings::LoadPrefs(cJSON* jPrefs)
         {
             for( int i=0; i<KeyAction_Num; i++ )
             {
-                int numUnsignedChars = MaxKeysPerAction * 2;
+                int numUnsignedInts = MaxKeysPerAction * 2;
 
                 KeyBinding key = m_DefaultKeys[preset][i];
-                cJSONExt_GetUnsignedCharArray( jPreset, g_KeyBindingStrings[i], reinterpret_cast<unsigned char*>( &key ), numUnsignedChars );
+                cJSONExt_GetUnsignedIntArray( jPreset, g_KeyBindingStrings[i], reinterpret_cast<unsigned int*>( &key ), numUnsignedInts );
                 m_Keys[preset][i] = key;
             }
         }
@@ -114,9 +121,9 @@ void EditorKeyBindings::SavePrefs(cJSON* jPrefs)
         {
             if( m_Keys[preset][i] != m_DefaultKeys[preset][i] )
             {
-                int numUnsignedChars = MaxKeysPerAction * 2;
+                int numUnsignedInts = MaxKeysPerAction * 2;
 
-                cJSONExt_AddUnsignedCharArrayToObject( jPreset, g_KeyBindingStrings[i], reinterpret_cast<unsigned char*>( &m_Keys[preset][i] ), numUnsignedChars );
+                cJSONExt_AddUnsignedIntArrayToObject( jPreset, g_KeyBindingStrings[i], reinterpret_cast<unsigned int*>( &m_Keys[preset][i] ), numUnsignedInts );
             }
         }
     }
@@ -144,7 +151,8 @@ bool EditorKeyBindings::KeyMatches(EditorKeyBindings::KeyActions index, uint8 mo
 
 const char* EditorKeyBindings::GetStringForKey(EditorKeyBindings::KeyActions index)
 {
-    return m_KeyStrings[m_CurrentPreset][index];
+    // Only return the string for the first key.
+    return m_KeyStrings[m_CurrentPreset][index][0];
 }
 
 void EditorKeyBindings::AddCustomizationTab()
@@ -153,47 +161,43 @@ void EditorKeyBindings::AddCustomizationTab()
     {
         ImGui::EndTabItem();
 
-        ImGui::Combo( "Presets", &m_CurrentPreset, m_ppPresetNames, m_NumPresets );
+        if( ImGui::Combo( "Presets", &m_CurrentPreset, m_ppPresetNames, m_NumPresets ) )
+        {
+            CancelBindingAction();
+        }
         ImGui::SameLine();
-        if( ImGui::Button( "Reset" ) ) { ResetCurrentPreset(); }
+        if( ImGui::Button( "Reset" ) )
+        {
+            CancelBindingAction();
+            ResetCurrentPreset();
+        }
 
         ImGui::Columns( 3 );
 
-        for( int i=0; i<KeyAction_Num; i++ )
+        for( uint32 action=0; action<KeyAction_Num; action++ )
         {
-            ImGui::Text( g_KeyBindingStrings[i] );
+            ImGui::Text( g_KeyBindingStrings[action] );
 
             ImGui::NextColumn();
 
-            for( int k=0; k<MaxKeysPerAction; k++ )
+            for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
             {
-                ImGui::PushID( i*MaxKeysPerAction + k );
+                ImGui::PushID( action*MaxKeysPerAction + keyIndex );
 
-                bool flagControl = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags & 1;
-                bool flagAlt     = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags & 2;
-                bool flagShift   = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags & 4;
-                char tempString[2];
-                tempString[0] = m_Keys[m_CurrentPreset][i].m_Keys[k].m_Key;
-                tempString[1] = '\0';
-
-                bool changed = false;
-                if( ImGui::Checkbox( "C", &flagControl ) )  { changed = true; } ImGui::SameLine();
-                if( ImGui::Checkbox( "A", &flagAlt ) )      { changed = true; } ImGui::SameLine();
-                if( ImGui::Checkbox( "S", &flagShift ) )    { changed = true; } ImGui::SameLine();
-                ImGui::PushItemWidth( 20 );
-                if( ImGui::InputText( "Key", tempString, 2, ImGuiInputTextFlags_AutoSelectAll ) ) { changed = true; }
-                ImGui::PopItemWidth();
-
-                if( changed )
+                if( m_RegisteringNewBinding &&
+                    m_CurrentPreset == m_NewBindingPreset &&
+                    m_NewBindingKeyAction == static_cast<KeyActions>( action ) &&
+                    m_NewBindingKeyIndex == keyIndex )
                 {
-                    m_Keys[m_CurrentPreset][i].m_Keys[k].m_Flags = flagControl << 0 | flagAlt << 1 | flagShift << 2;
-                    if( tempString[0] < 32 && tempString[0] != 0 )
-                        tempString[0] = 33;
-                    if( tempString[0] >= 97 && tempString[0] <= 122 )
-                        tempString[0] -= 'a' - 'A';
-                    m_Keys[m_CurrentPreset][i].m_Keys[k].m_Key = static_cast<unsigned char>( tempString[0] );
-
-                    GenerateKeyStrings();
+                    ImGui::Text( "Waiting for key press..." );
+                }
+                else if( ImGui::Button( m_KeyStrings[m_CurrentPreset][action][keyIndex] ) )
+                {
+                    m_RegisteringNewBinding = true;
+                    m_NewBindingPreset = m_CurrentPreset;
+                    m_NewBindingKeyAction = static_cast<KeyActions>( action );
+                    m_NewBindingKeyIndex = keyIndex;
+                    m_NewBindingModifiers = 0;
                 }
 
                 ImGui::NextColumn();
@@ -204,6 +208,56 @@ void EditorKeyBindings::AddCustomizationTab()
 
         ImGui::Columns( 1 );
     }
+    else
+    {
+        CancelBindingAction();
+    }
+}
+
+bool EditorKeyBindings::HandleInput(int keyAction, int keyCode)
+{
+    if( m_RegisteringNewBinding )
+    {
+        if( keyAction == GCBA_Up )
+        {
+            if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_NewBindingModifiers &= ~1; return true; }
+            if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_NewBindingModifiers &= ~2; return true; }
+            if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_NewBindingModifiers &= ~4; return true; }
+        }
+
+        if( keyAction == GCBA_Down )
+        {
+            if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_NewBindingModifiers |= 1; return true; }
+            if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_NewBindingModifiers |= 2; return true; }
+            if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_NewBindingModifiers |= 4; return true; }
+
+            if( keyCode == MYKEYCODE_DELETE )
+            {
+                // Clear the key binding in delete is pressed.
+                keyCode = 0;
+                m_NewBindingModifiers = 0;
+            }
+
+            //LOGInfo( LOGTag, "New key bound: %d - %d", m_NewBindingModifiers, keyCode );
+            m_RegisteringNewBinding = false;
+
+            m_Keys[m_NewBindingPreset][m_NewBindingKeyAction].m_Keys[m_NewBindingKeyIndex].m_Key = keyCode;
+            m_Keys[m_NewBindingPreset][m_NewBindingKeyAction].m_Keys[m_NewBindingKeyIndex].m_Flags = m_NewBindingModifiers;
+
+            GenerateKeyStrings();
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void EditorKeyBindings::CancelBindingAction()
+{
+    // Cancel the last binding action.
+    m_RegisteringNewBinding = false;
+    m_NewBindingModifiers = 0;
 }
 
 void EditorKeyBindings::GenerateKeyStrings()
@@ -212,19 +266,62 @@ void EditorKeyBindings::GenerateKeyStrings()
 
     for( int preset=0; preset<5; preset++ )
     {
-        for( int key=0; key<KeyAction_Num; key++ )
+        for( int action=0; action<KeyAction_Num; action++ )
         {
-            if( m_Keys[m_CurrentPreset][key].m_Keys[0].m_Flags & 1 )
-                strcat_s( m_KeyStrings[preset][key], m_MaxStringLength, "Ctrl-" );
-            if( m_Keys[m_CurrentPreset][key].m_Keys[0].m_Flags & 2 )
-                strcat_s( m_KeyStrings[preset][key], m_MaxStringLength, "Alt-" );
-            if( m_Keys[m_CurrentPreset][key].m_Keys[0].m_Flags & 4 )
-                strcat_s( m_KeyStrings[preset][key], m_MaxStringLength, "Shift-" );
+            for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
+            {
+                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Flags & 1 )
+                    strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, "Ctrl-" );
+                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Flags & 2 )
+                    strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, "Alt-" );
+                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Flags & 4 )
+                    strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, "Shift-" );
 
-            char keyName[8];
-            sprintf_s( keyName, 8, "%c", m_Keys[m_CurrentPreset][key].m_Keys[0].m_Key );
+                static const int bufferSize = 32;
+                char keyName[bufferSize];
+                uint32 keyCode = m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Key;
+                
+                if( keyCode == 0 )                          sprintf_s( keyName, bufferSize, "" );
+                else if( keyCode == 8 )                     sprintf_s( keyName, bufferSize, "BackSpace" );
+                else if( keyCode == 9 )                     sprintf_s( keyName, bufferSize, "Tab" );
+                else if( keyCode == 13 )                    sprintf_s( keyName, bufferSize, "Enter" );
+                else if( keyCode == 19 )                    sprintf_s( keyName, bufferSize, "Pause" );
+                else if( keyCode == 20 )                    sprintf_s( keyName, bufferSize, "CapsLock" );
+                else if( keyCode == 27 )                    sprintf_s( keyName, bufferSize, "Escape" );
+                else if( keyCode == 32 )                    sprintf_s( keyName, bufferSize, "Spacebar" );
+                else if( keyCode == 33 )                    sprintf_s( keyName, bufferSize, "PageUp" );
+                else if( keyCode == 34 )                    sprintf_s( keyName, bufferSize, "PageDown" );
+                else if( keyCode == 35 )                    sprintf_s( keyName, bufferSize, "End" );
+                else if( keyCode == 36 )                    sprintf_s( keyName, bufferSize, "Home" );
+                else if( keyCode == 37 )                    sprintf_s( keyName, bufferSize, "Left" );
+                else if( keyCode == 38 )                    sprintf_s( keyName, bufferSize, "Up" );
+                else if( keyCode == 39 )                    sprintf_s( keyName, bufferSize, "Right" );
+                else if( keyCode == 40 )                    sprintf_s( keyName, bufferSize, "Down" );
+                else if( keyCode == 44 )                    sprintf_s( keyName, bufferSize, "," );
+                else if( keyCode == 45 )                    sprintf_s( keyName, bufferSize, "Insert" );
+                else if( keyCode == 46 )                    sprintf_s( keyName, bufferSize, "." );
+                else if( keyCode >= 48 && keyCode <= 57 )   sprintf_s( keyName, bufferSize, "%c", keyCode ); // 0-9
+                else if( keyCode >= 65 && keyCode <= 90 )   sprintf_s( keyName, bufferSize, "%c", keyCode ); // A-Z
+                else if( keyCode >= 112 && keyCode <= 123 ) sprintf_s( keyName, bufferSize, "F%d", keyCode - 112 + 1 ); // F1-F12
+                else if( keyCode == 91 )                    sprintf_s( keyName, bufferSize, "[" );
+                else if( keyCode == 93 )                    sprintf_s( keyName, bufferSize, "]" );
+                else if( keyCode == 127 )                   sprintf_s( keyName, bufferSize, "Delete" );
+                else if( keyCode == 144 )                   sprintf_s( keyName, bufferSize, "NumLock" );
+                else if( keyCode == 145 )                   sprintf_s( keyName, bufferSize, "ScrollLock" );
+                else if( keyCode == 186 )                   sprintf_s( keyName, bufferSize, ";" );
+                else if( keyCode == 187 )                   sprintf_s( keyName, bufferSize, "=" );
+                else if( keyCode == 188 )                   sprintf_s( keyName, bufferSize, "," );
+                else if( keyCode == 189 )                   sprintf_s( keyName, bufferSize, "-" );
+                else if( keyCode == 191 )                   sprintf_s( keyName, bufferSize, "/" );
+                else if( keyCode == 192 )                   sprintf_s( keyName, bufferSize, "~" );
+                else if( keyCode == 220 )                   sprintf_s( keyName, bufferSize, "\\" );
+                else if( keyCode == 222 )                   sprintf_s( keyName, bufferSize, "'" );
+                else if( keyCode == 226 )                   sprintf_s( keyName, bufferSize, "\\" );
+                else                                        
+                    sprintf_s( keyName, bufferSize, "FixMe - %d - %c", keyCode, keyCode );
 
-            strcat_s( m_KeyStrings[preset][key], m_MaxStringLength, keyName );
+                strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, keyName );
+            }
         }
     }
 }
