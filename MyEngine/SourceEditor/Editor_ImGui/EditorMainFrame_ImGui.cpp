@@ -435,19 +435,16 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
 
         EditorKeyBindings* pKeys = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
         uint8 modifiers = static_cast<uint8>( m_pEngineCore->GetEditorState()->m_ModifierKeyStates );
-        uint8 keyCode8 = static_cast<uint8>( keyCode );
 
-#define CheckKey(a) pKeys->KeyMatches( EditorKeyBindings::##a, modifiers, keyCode8 )
+#define CheckKey(a) pKeys->KeyMatches( EditorKeyBindings::##a, modifiers, keyCode )
 
-        if( C  && keyCode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
-        if( N  && keyCode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
+        if( CheckKey( KeyAction_Global_Find ) )      { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
         if( CheckKey( KeyAction_File_SaveScene ) )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
-        if( CS && keyCode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return true; }
-        if( CS && keyCode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
-        if( CS && keyCode == 'P' )   { pEditorPrefs->Display();                                                     return true; }
-        if( C  && keyCode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
-        if( C  && keyCode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
-        if( CS && keyCode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
+        if( CheckKey( KeyAction_File_SaveAll ) )     { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return true; }
+        if( CheckKey( KeyAction_File_ExportBox2D ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
+        if( CheckKey( KeyAction_File_Preferences ) ) { pEditorPrefs->Display();                                                     return true; }
+        if( CheckKey( KeyAction_Edit_Undo ) )        { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
+        if( CheckKey( KeyAction_Edit_Redo ) )        { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
         if( S  && keyCode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return true; }
         if( CS && keyCode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return true; }
         if( A  && keyCode == '1' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return true; }
@@ -1094,7 +1091,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 EditorMenuCommand( EditorMenuCommand_File_SaveSceneAs );
             }
-            if( ImGui::MenuItem( "Save All" ) )
+            if( ImGui::MenuItem( "Save All", GetShortcut( KeyAction_File_SaveAll ) ) )
             {
                 EditorMenuCommand( EditorMenuCommand_File_SaveAll );
             }
@@ -1103,13 +1100,13 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             if( ImGui::BeginMenu( "Export" ) )
             {
-                if( ImGui::MenuItem( "Box2D Scene...", "Ctrl-Shift-E" ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); }
+                if( ImGui::MenuItem( "Box2D Scene...", GetShortcut( KeyAction_File_ExportBox2D ) ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); }
                 ImGui::EndMenu();
             }
 
             ImGui::Separator();
 
-            if( ImGui::MenuItem( "Preferences...", "Ctrl-Shift-P" ) ) { pEditorPrefs->Display(); }
+            if( ImGui::MenuItem( "Preferences...", GetShortcut( KeyAction_File_Preferences ) ) ) { pEditorPrefs->Display(); }
 
             if( ImGui::MenuItem( "Quit" ) ) { RequestCloseWindow(); }
 
@@ -1125,8 +1122,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Edit" ) )
         {
-            if( ImGui::MenuItem( "Undo", "Ctrl-Z" ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Undo ); }
-            if( ImGui::MenuItem( "Redo", "Ctrl-Y" ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Redo ); }
+            if( ImGui::MenuItem( "Undo", GetShortcut( KeyAction_Edit_Undo ) ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Undo ); }
+            if( ImGui::MenuItem( "Redo", GetShortcut( KeyAction_Edit_Redo ) ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Redo ); }
 
             ImGui::EndMenu();
         }

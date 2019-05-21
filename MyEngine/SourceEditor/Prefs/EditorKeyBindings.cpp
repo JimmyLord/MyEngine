@@ -13,7 +13,13 @@
 
 const char* g_KeyBindingStrings[EditorKeyBindings::KeyAction_Num] =
 {
+    "Global_Find",
     "File_SaveScene",
+    "File_SaveAll",
+    "File_ExportBox2D",
+    "File_Preferences",
+    "Edit_Undo",
+    "Edit_Redo",
     "Camera_Forward",
     "Camera_Back",
     "Camera_Left",
@@ -25,16 +31,29 @@ const char* g_KeyBindingStrings[EditorKeyBindings::KeyAction_Num] =
 
 EditorKeyBindings::EditorKeyBindings()
 {
-    m_DefaultKeys[0][KeyAction_File_SaveScene].m_Keys[0].m_Flags = 1;
-    m_DefaultKeys[0][KeyAction_File_SaveScene].m_Keys[0].m_Key = 'S';
-    m_DefaultKeys[0][KeyAction_Camera_Forward].m_Keys[0].m_Key = 'W';
-    m_DefaultKeys[0][KeyAction_Camera_Back   ].m_Keys[0].m_Key = 'S';
-    m_DefaultKeys[0][KeyAction_Camera_Left   ].m_Keys[0].m_Key = 'A';
-    m_DefaultKeys[0][KeyAction_Camera_Right  ].m_Keys[0].m_Key = 'D';
-    m_DefaultKeys[0][KeyAction_Camera_Up     ].m_Keys[0].m_Key = 'Q';
-    m_DefaultKeys[0][KeyAction_Camera_Down   ].m_Keys[0].m_Key = 'E';
-    m_DefaultKeys[0][KeyAction_Camera_Down   ].m_Keys[1].m_Key = 'Z';
-    m_DefaultKeys[0][KeyAction_Camera_Focus  ].m_Keys[0].m_Key = 'F';
+    uint32 C  = Modifier_ControlOrCommand;
+    uint32 A  = Modifier_Alt;
+    uint32 S  = Modifier_Shift;
+    uint32 CS = Modifier_ControlOrCommand | Modifier_Shift;
+
+    // Global.
+    SetDefaultKeys( 0, KeyAction_Global_Find,        C,  'F',   0,  114 ); // F3
+    // File menu.
+    SetDefaultKeys( 0, KeyAction_File_SaveScene,     C,  'S' );
+    SetDefaultKeys( 0, KeyAction_File_SaveAll,       CS, 'S' );
+    SetDefaultKeys( 0, KeyAction_File_ExportBox2D,   CS, 'E' );
+    SetDefaultKeys( 0, KeyAction_File_Preferences,   CS, 'P' );
+    // Edit menu.
+    SetDefaultKeys( 0, KeyAction_Edit_Undo,          C,  'Z' );
+    SetDefaultKeys( 0, KeyAction_Edit_Redo,          C,  'Y',   CS, 'Z' );
+    // Editor camera.
+    SetDefaultKeys( 0, KeyAction_Camera_Forward,     0,  'W' );
+    SetDefaultKeys( 0, KeyAction_Camera_Back,        0,  'S' );
+    SetDefaultKeys( 0, KeyAction_Camera_Left,        0,  'A' );
+    SetDefaultKeys( 0, KeyAction_Camera_Right,       0,  'D' );
+    SetDefaultKeys( 0, KeyAction_Camera_Up,          0,  'Q' );
+    SetDefaultKeys( 0, KeyAction_Camera_Down,        0,  'E',   0,  'Z' );
+    SetDefaultKeys( 0, KeyAction_Camera_Focus,       0,  'F' );
 
     // Copy preset 0 into other 4 presets.
     for( int i=1; i<5; i++ )
@@ -134,14 +153,15 @@ EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(EditorKeyBindings::KeyAc
     return m_Keys[m_CurrentPreset][index];
 }
 
-bool EditorKeyBindings::KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint8 keyCode)
+bool EditorKeyBindings::KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint32 keyCode)
 {
     // Only keep the first 3 bits of the modifiers.
+    // TODO: Fix on OSX, bit 1 should be "Command", bit 4 should be "Control".
     modifiers &= (1+2+4);
 
     for( int k=0; k<MaxKeysPerAction; k++ )
     {
-        if( m_Keys[m_CurrentPreset][index].m_Keys[k].m_Flags == modifiers &&
+        if( m_Keys[m_CurrentPreset][index].m_Keys[k].m_Modifiers == modifiers &&
             m_Keys[m_CurrentPreset][index].m_Keys[k].m_Key == keyCode )
             return true;
     }
@@ -170,12 +190,30 @@ void EditorKeyBindings::AddCustomizationTab()
         {
             CancelBindingAction();
             ResetCurrentPreset();
+            GenerateKeyStrings();
         }
 
-        ImGui::Columns( 3 );
+        char currentHeader[32] = "noCategory";
+        bool currentHeaderIsCollapsed = false;
 
         for( uint32 action=0; action<KeyAction_Num; action++ )
         {
+            // Compare string before _ to create new header blocks.
+            if( strncmp( currentHeader, g_KeyBindingStrings[action], strlen( currentHeader ) ) )
+            {
+                const char* underscoreLocation = reinterpret_cast<const char*>( memchr( g_KeyBindingStrings[action], '_', strlen( g_KeyBindingStrings[action] ) ) );
+                int underscoreOffset = underscoreLocation ? underscoreLocation - g_KeyBindingStrings[action] : 0;
+
+                ImGui::Columns( 1 );
+                strncpy_s( currentHeader, 32, g_KeyBindingStrings[action], underscoreOffset );
+                currentHeaderIsCollapsed = ImGui::CollapsingHeader( currentHeader );
+                ImGui::Columns( 3 );
+            }
+
+            // Skip this key if the header is collapsed.
+            if( currentHeaderIsCollapsed )
+                continue;
+
             ImGui::Text( g_KeyBindingStrings[action] );
 
             ImGui::NextColumn();
@@ -220,16 +258,16 @@ bool EditorKeyBindings::HandleInput(int keyAction, int keyCode)
     {
         if( keyAction == GCBA_Up )
         {
-            if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_NewBindingModifiers &= ~1; return true; }
-            if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_NewBindingModifiers &= ~2; return true; }
-            if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_NewBindingModifiers &= ~4; return true; }
+            if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_NewBindingModifiers &= ~Modifier_ControlOrCommand; return true; }
+            if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_NewBindingModifiers &= ~Modifier_Alt;              return true; }
+            if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_NewBindingModifiers &= ~Modifier_Shift;            return true; }
         }
 
         if( keyAction == GCBA_Down )
         {
-            if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_NewBindingModifiers |= 1; return true; }
-            if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_NewBindingModifiers |= 2; return true; }
-            if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_NewBindingModifiers |= 4; return true; }
+            if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_NewBindingModifiers |= Modifier_ControlOrCommand;  return true; }
+            if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_NewBindingModifiers |= Modifier_Alt;               return true; }
+            if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_NewBindingModifiers |= Modifier_Shift;             return true; }
 
             if( keyCode == MYKEYCODE_DELETE )
             {
@@ -242,7 +280,7 @@ bool EditorKeyBindings::HandleInput(int keyAction, int keyCode)
             m_RegisteringNewBinding = false;
 
             m_Keys[m_NewBindingPreset][m_NewBindingKeyAction].m_Keys[m_NewBindingKeyIndex].m_Key = keyCode;
-            m_Keys[m_NewBindingPreset][m_NewBindingKeyAction].m_Keys[m_NewBindingKeyIndex].m_Flags = m_NewBindingModifiers;
+            m_Keys[m_NewBindingPreset][m_NewBindingKeyAction].m_Keys[m_NewBindingKeyIndex].m_Modifiers = m_NewBindingModifiers;
 
             GenerateKeyStrings();
 
@@ -260,6 +298,25 @@ void EditorKeyBindings::CancelBindingAction()
     m_NewBindingModifiers = 0;
 }
 
+//====================================================================================================
+// Protected methods.
+//====================================================================================================
+
+void EditorKeyBindings::SetDefaultKey(int preset, EditorKeyBindings::KeyActions index, int keyIndex, uint32 modifiers, uint32 keyCode)
+{
+    m_DefaultKeys[preset][index].m_Keys[keyIndex].m_Modifiers = modifiers;
+    m_DefaultKeys[preset][index].m_Keys[keyIndex].m_Key = keyCode;
+}
+
+void EditorKeyBindings::SetDefaultKeys(int preset, EditorKeyBindings::KeyActions index, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1, uint32 keyCode1)
+{
+    m_DefaultKeys[preset][index].m_Keys[0].m_Modifiers = modifiers0;
+    m_DefaultKeys[preset][index].m_Keys[0].m_Key = keyCode0;
+
+    m_DefaultKeys[preset][index].m_Keys[1].m_Modifiers = modifiers1;
+    m_DefaultKeys[preset][index].m_Keys[1].m_Key = keyCode1;
+}
+
 void EditorKeyBindings::GenerateKeyStrings()
 {
     memset( m_KeyStrings, 0, sizeof( m_KeyStrings ) );
@@ -270,12 +327,18 @@ void EditorKeyBindings::GenerateKeyStrings()
         {
             for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
             {
-                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Flags & 1 )
+                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Modifiers & Modifier_ControlOrCommand )
+#if MYFW_OSX
+                    strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, "Command-" );
+#else
                     strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, "Ctrl-" );
-                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Flags & 2 )
+#endif
+                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Modifiers & Modifier_Alt )
                     strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, "Alt-" );
-                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Flags & 4 )
+                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Modifiers & Modifier_Shift )
                     strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, "Shift-" );
+                if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex].m_Modifiers & Modifier_ControlOSX )
+                    strcat_s( m_KeyStrings[preset][action][keyIndex], m_MaxStringLength, "Ctrl-" );
 
                 static const int bufferSize = 32;
                 char keyName[bufferSize];

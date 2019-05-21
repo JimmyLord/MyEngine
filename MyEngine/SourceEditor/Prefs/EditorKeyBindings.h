@@ -15,23 +15,31 @@ class EditorKeyBindings
 public:
     static const int MaxKeysPerAction = 2;
 
+    enum Modifiers
+    {
+        Modifier_ControlOrCommand = 0x01, // Command on OSX, Control on everything else.
+        Modifier_Alt              = 0x02,
+        Modifier_Shift            = 0x04,
+        Modifier_ControlOSX       = 0x08,
+    };
+
     struct keySingle
     {
         // All members must be uint32.
-        uint32 m_Flags;
+        uint32 m_Modifiers;
         uint32 m_Key;
     };
 
     struct KeyBinding
     {
-        // All members must be unsigned chars.
+        // All members must be uint32.
         keySingle m_Keys[MaxKeysPerAction];
 
         KeyBinding::KeyBinding()
         {
             for( int i=0; i<MaxKeysPerAction; i++ )
             {
-                m_Keys[i].m_Flags = 0;
+                m_Keys[i].m_Modifiers = 0;
                 m_Keys[i].m_Key = 0;
             }
         }
@@ -40,7 +48,7 @@ public:
         {
             for( int i=0; i<MaxKeysPerAction; i++ )
             {
-                if( this->m_Keys[i].m_Flags != o.m_Keys[i].m_Flags ) return true;
+                if( this->m_Keys[i].m_Modifiers != o.m_Keys[i].m_Modifiers ) return true;
                 if( this->m_Keys[i].m_Key != o.m_Keys[i].m_Key ) return true;
             }
             return false;
@@ -49,7 +57,13 @@ public:
 
     enum KeyActions
     {
+        KeyAction_Global_Find,
         KeyAction_File_SaveScene,
+        KeyAction_File_SaveAll,
+        KeyAction_File_ExportBox2D,
+        KeyAction_File_Preferences,
+        KeyAction_Edit_Undo,
+        KeyAction_Edit_Redo,
         KeyAction_Camera_Forward,
         KeyAction_Camera_Back,
         KeyAction_Camera_Left,
@@ -88,7 +102,7 @@ public:
     void SavePrefs(cJSON* jPrefs);
 
     KeyBinding GetKey(EditorKeyBindings::KeyActions index);
-    bool KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint8 keyCode);
+    bool KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint32 keyCode);
     const char* GetStringForKey(EditorKeyBindings::KeyActions index);
 
     // ImGui interface methods.
@@ -98,6 +112,8 @@ public:
     void CancelBindingAction();
 
 protected:
+    void SetDefaultKey(int preset, EditorKeyBindings::KeyActions index, int keyIndex, uint32 modifiers, uint32 keyCode);
+    void SetDefaultKeys(int preset, EditorKeyBindings::KeyActions index, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1 = 0, uint32 keyCode1 = 0);
     void GenerateKeyStrings();
 };
 
