@@ -436,43 +436,70 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
         EditorKeyBindings* pKeys = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
         uint8 modifiers = static_cast<uint8>( m_pEngineCore->GetEditorState()->m_ModifierKeyStates );
 
-#define CheckKey(a) pKeys->KeyMatches( EditorKeyBindings::##a, modifiers, keyCode )
-
-        if( CheckKey( KeyAction_Global_Find ) )      { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
-        if( CheckKey( KeyAction_File_SaveScene ) )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
-        if( CheckKey( KeyAction_File_SaveAll ) )     { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return true; }
-        if( CheckKey( KeyAction_File_ExportBox2D ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
-        if( CheckKey( KeyAction_File_Preferences ) ) { pEditorPrefs->Display();                                                     return true; }
-        if( CheckKey( KeyAction_Edit_Undo ) )        { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
-        if( CheckKey( KeyAction_Edit_Redo ) )        { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
-        if( S  && keyCode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return true; }
-        if( CS && keyCode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return true; }
-        if( A  && keyCode == '1' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return true; }
-        if( A  && keyCode == '2' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );                     return true; }
-        if( A  && keyCode == '3' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );                   return true; }
-        if( A  && keyCode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return true; }
-        if( CS && keyCode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return true; }
-        if( C  && keyCode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return true; }
-        if( CS && keyCode == 'G' )   { m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] = true;          return true; }
-        if( C  && keyCode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return true; }
-        if( C  && keyCode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
-        if( C  && keyCode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
-        if( C  && keyCode == '[' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );                return true; }
-        if( C  && keyCode == VK_F5 ) { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return true; }
-        if( C  && keyCode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
-        if( S  && keyCode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
-        if( CS && keyCode == 'L'   ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return true; }
-        if( CS && keyCode == 'K'   ) { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return true; }
+        // Check all hotkeys and execute their actions if required.
+        for( int i=0; i<(int)HotKeyAction::Num; i++ )
+        {
+            HotKeyAction action = static_cast<HotKeyAction>( i );
+            
+            if( pKeys->KeyMatches( action, modifiers, keyCode ) )
+            {
+                ExecuteHotkeyAction( action );
+                return true;
+            }
+        }
 
 #if _DEBUG
         // Dump current layout to output window, so it can be cut & pasted to g_DefaultLayouts in the EditorLayoutManager.
         if( CS && keyCode == 'D'   ) { m_pLayoutManager->DumpCurrentLayoutToOutputWindow();                         return true; }
 #endif
-
-#undef CheckKey
     }
 
     return false;
+}
+
+void EditorMainFrame_ImGui::ExecuteHotkeyAction(HotKeyAction action)
+{
+    EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+
+    switch( action )
+    {
+    case HotKeyAction::Global_Find:                   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return; }
+    case HotKeyAction::File_SaveScene:                { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return; }
+    case HotKeyAction::File_SaveAll:                  { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return; }
+    case HotKeyAction::File_ExportBox2D:              { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return; }
+    case HotKeyAction::File_Preferences:              { pEditorPrefs->Display();                                                     return; }
+    case HotKeyAction::Edit_Undo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return; }
+    case HotKeyAction::Edit_Redo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return; }
+    case HotKeyAction::View_ShowEditorIcons:          { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return; }
+    case HotKeyAction::View_ToggleEditorCamDeferred:  { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return; }
+    case HotKeyAction::View_Full:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return; }
+    case HotKeyAction::View_Tall:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );                     return; }
+    case HotKeyAction::View_Square:                   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );                   return; }
+    case HotKeyAction::View_Wide:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return; }
+    case HotKeyAction::Grid_Visible:                  { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return; }
+    case HotKeyAction::Grid_SnapEnabled:              { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return; }
+    case HotKeyAction::Grid_Settings:                 { m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] = true;          return; }
+    case HotKeyAction::Mode_TogglePlayStop:           { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return; }
+    case HotKeyAction::Mode_Pause:                    { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return; }
+    case HotKeyAction::Mode_AdvanceOneFrame:          { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return; }
+    case HotKeyAction::Mode_AdvanceOneSecond:         { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );                return; }
+    case HotKeyAction::Mode_LaunchGame:               { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return; }
+    case HotKeyAction::Debug_DrawWireframe:           { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return; }
+    case HotKeyAction::Debug_ShowPhysicsShapes:       { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return; }
+    case HotKeyAction::Lua_RunLuaScript:              { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return; }
+    case HotKeyAction::Objects_MergeIntoFolder:       { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return; }
+
+    // Handled elsewhere.
+    case HotKeyAction::Camera_Forward:
+    case HotKeyAction::Camera_Back:
+    case HotKeyAction::Camera_Left:
+    case HotKeyAction::Camera_Right:
+    case HotKeyAction::Camera_Up:
+    case HotKeyAction::Camera_Down:
+    case HotKeyAction::Camera_Focus:
+    case HotKeyAction::Num:
+        break;
+    }
 }
 
 void EditorMainFrame_ImGui::RequestCloseWindow()
@@ -1007,12 +1034,19 @@ bool EditorMainFrame_ImGui::WasItemSlowDoubleClicked(void* pObjectClicked)
     return false;
 }
 
+void EditorMainFrame_ImGui::AddMenuItemWithHotkeyCheck(const char* string, HotKeyAction action, bool selected)
+{
+    EditorKeyBindings* pKeys = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
+
+    if( ImGui::MenuItem( string, pKeys->GetStringForKey( action ), selected ) )
+    {
+        ExecuteHotkeyAction( action );
+    }
+}
+
 void EditorMainFrame_ImGui::AddMainMenuBar()
 {
     EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
-
-    EditorKeyBindings* pKeys = m_pEngineCore->GetEditorPrefs()->GetKeyBindings();
-#define GetShortcut(a) pKeys->GetStringForKey( EditorKeyBindings::##a )
 
     bool wasInEditorMode = true;
 
@@ -1083,30 +1117,24 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             ImGui::Separator();
 
-            if( ImGui::MenuItem( "Save Scene", GetShortcut( KeyAction_File_SaveScene ) ) )
-            {
-                EditorMenuCommand( EditorMenuCommand_File_SaveScene );
-            }
+            AddMenuItemWithHotkeyCheck( "Save Scene", HotKeyAction::File_SaveScene );
             if( ImGui::MenuItem( "Save Scene As..." ) )
             {
                 EditorMenuCommand( EditorMenuCommand_File_SaveSceneAs );
             }
-            if( ImGui::MenuItem( "Save All", GetShortcut( KeyAction_File_SaveAll ) ) )
-            {
-                EditorMenuCommand( EditorMenuCommand_File_SaveAll );
-            }
+            AddMenuItemWithHotkeyCheck( "Save All", HotKeyAction::File_SaveAll );
 
             ImGui::Separator();
 
             if( ImGui::BeginMenu( "Export" ) )
             {
-                if( ImGui::MenuItem( "Box2D Scene...", GetShortcut( KeyAction_File_ExportBox2D ) ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); }
+                AddMenuItemWithHotkeyCheck( "Box2D Scene...", HotKeyAction::File_ExportBox2D );
                 ImGui::EndMenu();
             }
 
             ImGui::Separator();
 
-            if( ImGui::MenuItem( "Preferences...", GetShortcut( KeyAction_File_Preferences ) ) ) { pEditorPrefs->Display(); }
+            AddMenuItemWithHotkeyCheck( "Preferences...", HotKeyAction::File_Preferences );
 
             if( ImGui::MenuItem( "Quit" ) ) { RequestCloseWindow(); }
 
@@ -1122,8 +1150,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Edit" ) )
         {
-            if( ImGui::MenuItem( "Undo", GetShortcut( KeyAction_Edit_Undo ) ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Undo ); }
-            if( ImGui::MenuItem( "Redo", GetShortcut( KeyAction_Edit_Redo ) ) ) { EditorMenuCommand( EditorMenuCommand_Edit_Redo ); }
+            AddMenuItemWithHotkeyCheck( "Undo", HotKeyAction::Edit_Undo );
+            AddMenuItemWithHotkeyCheck( "Redo", HotKeyAction::Edit_Redo );
 
             ImGui::EndMenu();
         }
@@ -1204,8 +1232,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             if( ImGui::BeginMenu( "Editor Camera" ) )
             {
-                if( ImGui::MenuItem( "Show Icons", "Shift-F7", pEditorPrefs->Get_View_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
-                if( ImGui::MenuItem( "Deferred Render", "Ctrl-Shift-F7", pEditorPrefs->Get_View_EditorCamDeferred() ) ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred ); }
+                AddMenuItemWithHotkeyCheck( "Show Icons", HotKeyAction::View_ShowEditorIcons, pEditorPrefs->Get_View_ShowEditorIcons() );
+                AddMenuItemWithHotkeyCheck( "Deferred Render", HotKeyAction::View_ToggleEditorCamDeferred, pEditorPrefs->Get_View_EditorCamDeferred() );
                 if( ImGui::MenuItem( "Show Deferred G-Buffer", "" ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorCamDeferredGBuffer ); }
 
                 if( ImGui::BeginMenu( "Editor Camera Layers (TODO)" ) )
@@ -1261,19 +1289,19 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
 
-            if( ImGui::MenuItem( "Fill",   "Alt-1", pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Full   ) ) { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );   }
-            if( ImGui::MenuItem( "Tall",   "Alt-2", pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Tall   ) ) { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );   }
-            if( ImGui::MenuItem( "Square", "Alt-3", pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Square ) ) { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square ); }
-            if( ImGui::MenuItem( "Wide",   "Alt-4", pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Wide   ) ) { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );   }
+            AddMenuItemWithHotkeyCheck( "Fill",   HotKeyAction::View_Full, pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Full );
+            AddMenuItemWithHotkeyCheck( "Tall",   HotKeyAction::View_Tall, pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Tall );
+            AddMenuItemWithHotkeyCheck( "Square", HotKeyAction::View_Square, pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Square );
+            AddMenuItemWithHotkeyCheck( "Wide",   HotKeyAction::View_Wide, pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Wide );
 
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Grid" ) )
         {
-            if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", pEditorPrefs->Get_Grid_Visible() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_Visible ); }
-            if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", pEditorPrefs->Get_Grid_SnapEnabled() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled ); }
-            if( ImGui::MenuItem( "Grid Settings", "Ctrl-Shift-G" ) ) { m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] = true; }
+            AddMenuItemWithHotkeyCheck( "Grid Visible", HotKeyAction::Grid_Visible, pEditorPrefs->Get_Grid_Visible() );
+            AddMenuItemWithHotkeyCheck( "Grid Snap Enabled", HotKeyAction::Grid_SnapEnabled, pEditorPrefs->Get_Grid_SnapEnabled() );
+            AddMenuItemWithHotkeyCheck( "Grid Settings", HotKeyAction::Grid_Settings );
 
             ImGui::EndMenu();
         }
@@ -1282,10 +1310,10 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         {
             if( ImGui::MenuItem( "Switch Focus on Play/Stop", nullptr, pEditorPrefs->Get_Mode_SwitchFocusOnPlayStop() ) ) { EditorMenuCommand( EditorMenuCommand_Mode_SwitchFocusOnPlayStop ); }
             // Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
-            if( ImGui::MenuItem( "Play/Stop", "Ctrl-Spacebar" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop ); }
-            if( ImGui::MenuItem( "Pause", "Ctrl-." ) ) { EditorMenuCommand( EditorMenuCommand_Mode_Pause ); }
-            if( ImGui::MenuItem( "Advance 1 Frame", "Ctrl-]" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame ); }
-            if( ImGui::MenuItem( "Advance 1 Second", "Ctrl-[" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond ); }
+            AddMenuItemWithHotkeyCheck( "Play/Stop", HotKeyAction::Mode_TogglePlayStop );
+            AddMenuItemWithHotkeyCheck( "Pause", HotKeyAction::Mode_Pause );
+            AddMenuItemWithHotkeyCheck( "Advance 1 Frame", HotKeyAction::Mode_AdvanceOneFrame );
+            AddMenuItemWithHotkeyCheck( "Advance 1 Second", HotKeyAction::Mode_AdvanceOneSecond );
 
             if( ImGui::BeginMenu( "Launch Platforms" ) )
             {
@@ -1298,7 +1326,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
-            if( ImGui::MenuItem( "Launch Game", "Ctrl-F5" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame ); }
+            AddMenuItemWithHotkeyCheck( "Launch Game", HotKeyAction::Mode_LaunchGame );
 
             ImGui::EndMenu();
         }
@@ -1320,15 +1348,15 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         {
             if( ImGui::MenuItem( "Show Animated Debug View for Selection (TODO)", "F8" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowSelectedAnimatedMesh ); }
             if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowGLStats ); }
-            if( ImGui::MenuItem( "Draw Wireframe", "Ctrl-F9", &m_pEngineCore->m_Debug_DrawWireframe ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe ); }
-            if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", pEditorPrefs->Get_Debug_DrawPhysicsDebugShapes() ) ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
+            AddMenuItemWithHotkeyCheck( "Draw Wireframe", HotKeyAction::Debug_DrawWireframe, m_pEngineCore->GetDebug_DrawWireframe() );
+            AddMenuItemWithHotkeyCheck( "Show Physics Debug Shapes", HotKeyAction::Debug_ShowPhysicsShapes, pEditorPrefs->Get_Debug_DrawPhysicsDebugShapes() );
             if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowProfilingInfo ); }
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Lua" ) )
         {
-            if( ImGui::MenuItem( "Run Lua Script...", "Ctrl-Shift-L" ) ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript ); }
+            AddMenuItemWithHotkeyCheck( "Run Lua Script...", HotKeyAction::Lua_RunLuaScript );
             if( pEditorPrefs->Get_Lua_NumRecentScripts() > 0 )
             {
                 int fileIndex = 0;
@@ -1344,8 +1372,6 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
     {
         ImGui::PopStyleColor();
     }
-
-#undef GetShortcut
 }
 
 void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()

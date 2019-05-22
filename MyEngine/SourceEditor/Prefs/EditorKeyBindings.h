@@ -10,6 +10,43 @@
 #ifndef __EditorKeyBindings_H__
 #define __EditorKeyBindings_H__
 
+enum class HotKeyAction
+{
+    Global_Find,
+    File_SaveScene,
+    File_SaveAll,
+    File_ExportBox2D,
+    File_Preferences,
+    Edit_Undo,
+    Edit_Redo,        
+    View_ShowEditorIcons,
+    View_ToggleEditorCamDeferred,
+    View_Full,
+    View_Tall,
+    View_Square,
+    View_Wide,
+    Grid_Visible,
+    Grid_SnapEnabled,
+    Grid_Settings,
+    Mode_TogglePlayStop,
+    Mode_Pause,
+    Mode_AdvanceOneFrame,
+    Mode_AdvanceOneSecond,
+    Mode_LaunchGame,
+    Debug_DrawWireframe,
+    Debug_ShowPhysicsShapes,
+    Lua_RunLuaScript,
+    Objects_MergeIntoFolder,
+    Camera_Forward,
+    Camera_Back,
+    Camera_Left,
+    Camera_Right,
+    Camera_Up,
+    Camera_Down,
+    Camera_Focus,
+    Num,
+};
+
 class EditorKeyBindings
 {
 public:
@@ -55,40 +92,21 @@ public:
         }
     };
 
-    enum KeyActions
-    {
-        KeyAction_Global_Find,
-        KeyAction_File_SaveScene,
-        KeyAction_File_SaveAll,
-        KeyAction_File_ExportBox2D,
-        KeyAction_File_Preferences,
-        KeyAction_Edit_Undo,
-        KeyAction_Edit_Redo,
-        KeyAction_Camera_Forward,
-        KeyAction_Camera_Back,
-        KeyAction_Camera_Left,
-        KeyAction_Camera_Right,
-        KeyAction_Camera_Up,
-        KeyAction_Camera_Down,
-        KeyAction_Camera_Focus,
-        KeyAction_Num,
-    };
-
 protected:
     int m_CurrentPreset;
     const char** m_ppPresetNames;
     int m_NumPresets;
 
-    KeyBinding m_DefaultKeys[5][KeyAction_Num];
-    KeyBinding m_Keys[5][KeyAction_Num];
+    KeyBinding m_DefaultKeys[5][HotKeyAction::Num];
+    KeyBinding m_Keys[5][HotKeyAction::Num];
 
     static const int m_MaxStringLength = 64; // Command-Ctrl-Alt-Shift-ScrollLock <- 33 + 1;
-    char m_KeyStrings[5][KeyAction_Num][MaxKeysPerAction][m_MaxStringLength];
+    char m_KeyStrings[5][HotKeyAction::Num][MaxKeysPerAction][m_MaxStringLength];
 
     // New key binding.
     bool m_RegisteringNewBinding;
     int m_NewBindingPreset;
-    KeyActions m_NewBindingKeyAction;
+    HotKeyAction m_NewBindingHotKeyAction;
     int m_NewBindingKeyIndex;
     uint32 m_NewBindingModifiers;
 
@@ -101,19 +119,19 @@ public:
     void LoadPrefs(cJSON* jPrefs);
     void SavePrefs(cJSON* jPrefs);
 
-    KeyBinding GetKey(EditorKeyBindings::KeyActions index);
-    bool KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint32 keyCode);
-    const char* GetStringForKey(EditorKeyBindings::KeyActions index);
+    KeyBinding GetKey(HotKeyAction action);
+    bool KeyMatches(HotKeyAction action, uint8 modifiers, uint32 keyCode);
+    const char* GetStringForKey(HotKeyAction action);
 
     // ImGui interface methods.
     void AddCustomizationTab();
-    bool HandleInput(int keyAction, int keyCode);
+    bool HandleInput(int KeyAction, int keyCode);
     
     void CancelBindingAction();
 
 protected:
-    void SetDefaultKey(int preset, EditorKeyBindings::KeyActions index, int keyIndex, uint32 modifiers, uint32 keyCode);
-    void SetDefaultKeys(int preset, EditorKeyBindings::KeyActions index, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1 = 0, uint32 keyCode1 = 0);
+    void SetDefaultKey(int preset, HotKeyAction action, int keyIndex, uint32 modifiers, uint32 keyCode);
+    void SetDefaultKeys(int preset, HotKeyAction action, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1 = 0, uint32 keyCode1 = 0);
     void GenerateKeyStrings();
 };
 

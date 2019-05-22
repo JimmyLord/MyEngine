@@ -451,7 +451,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
         MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
         // Focus camera on selected objects.
-        if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Focus, modifiers, keyCode ) )
+        if( pKeys->KeyMatches( HotKeyAction::Camera_Focus, modifiers, keyCode ) )
         {
             // Make sure there is an object actually selected.
             if( pEditorState->m_pSelectedObjects.size() > 0 )
@@ -472,12 +472,12 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
         {
             Vector3 dir( 0, 0, 0 );
 
-            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Forward, modifiers, keyCode ) ) dir.z +=  1;
-            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Left,    modifiers, keyCode ) ) dir.x += -1;
-            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Back,    modifiers, keyCode ) ) dir.z += -1;
-            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Right,   modifiers, keyCode ) ) dir.x +=  1;
-            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Up,      modifiers, keyCode ) ) dir.y +=  1;
-            if( pKeys->KeyMatches( EditorKeyBindings::KeyAction_Camera_Down,    modifiers, keyCode ) ) dir.y += -1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Forward, modifiers, keyCode ) ) dir.z +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Left,    modifiers, keyCode ) ) dir.x += -1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Back,    modifiers, keyCode ) ) dir.z += -1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Right,   modifiers, keyCode ) ) dir.x +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Up,      modifiers, keyCode ) ) dir.y +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Down,    modifiers, keyCode ) ) dir.y += -1;
 
             float speed = 7.0f;
             if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )

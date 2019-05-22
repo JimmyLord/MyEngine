@@ -21,6 +21,7 @@ class EditorLayout;
 class EngineCore;
 class GameObject;
 class PrefabObject;
+enum class HotKeyAction;
 
 enum EditorWindowTypes
 {
@@ -150,6 +151,7 @@ public:
 
     bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
     bool CheckForHotkeys(int keyAction, int keyCode);
+    void ExecuteHotkeyAction(HotKeyAction action);
 
     void RequestCloseWindow();
 
@@ -171,6 +173,7 @@ protected:
     void StartRenameOp(GameObject* pGameObject, MaterialDefinition* pMaterial, const char* name);
     bool WasItemSlowDoubleClicked(void* pObjectClicked);
 
+    void AddMenuItemWithHotkeyCheck(const char* string, HotKeyAction action, bool selected = false);
     virtual void AddMainMenuBar();
     void AddLoseChangesWarningPopups();
     void AddGameAndEditorWindows();

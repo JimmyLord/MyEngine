@@ -11,7 +11,7 @@
 
 #include "EditorKeyBindings.h"
 
-const char* g_KeyBindingStrings[EditorKeyBindings::KeyAction_Num] =
+const char* g_KeyBindingStrings[HotKeyAction::Num] =
 {
     "Global_Find",
     "File_SaveScene",
@@ -20,6 +20,24 @@ const char* g_KeyBindingStrings[EditorKeyBindings::KeyAction_Num] =
     "File_Preferences",
     "Edit_Undo",
     "Edit_Redo",
+    "View_ShowEditorIcons",
+    "View_ToggleEditorCamDeferred",
+    "View_Full",
+    "View_Tall",
+    "View_Square",
+    "View_Wide",
+    "Grid_Visible",
+    "Grid_SnapEnabled",
+    "Grid_Settings",
+    "Mode_TogglePlayStop",
+    "Mode_Pause",
+    "Mode_AdvanceOneFrame",
+    "Mode_AdvanceOneSecond",
+    "Mode_LaunchGame",
+    "Debug_DrawWireframe",
+    "Debug_ShowPhysicsShapes",
+    "Lua_RunLuaScript",
+    "Objects_MergeIntoFolder",
     "Camera_Forward",
     "Camera_Back",
     "Camera_Left",
@@ -37,28 +55,52 @@ EditorKeyBindings::EditorKeyBindings()
     uint32 CS = Modifier_ControlOrCommand | Modifier_Shift;
 
     // Global.
-    SetDefaultKeys( 0, KeyAction_Global_Find,        C,  'F',   0,  114 ); // F3
+    SetDefaultKeys( 0, HotKeyAction::Global_Find,                   C,  'F',   0,  114 ); // F3
     // File menu.
-    SetDefaultKeys( 0, KeyAction_File_SaveScene,     C,  'S' );
-    SetDefaultKeys( 0, KeyAction_File_SaveAll,       CS, 'S' );
-    SetDefaultKeys( 0, KeyAction_File_ExportBox2D,   CS, 'E' );
-    SetDefaultKeys( 0, KeyAction_File_Preferences,   CS, 'P' );
+    SetDefaultKeys( 0, HotKeyAction::File_SaveScene,                C,  'S' );
+    SetDefaultKeys( 0, HotKeyAction::File_SaveAll,                  CS, 'S' );
+    SetDefaultKeys( 0, HotKeyAction::File_ExportBox2D,              CS, 'E' );
+    SetDefaultKeys( 0, HotKeyAction::File_Preferences,              CS, 'P' );
     // Edit menu.
-    SetDefaultKeys( 0, KeyAction_Edit_Undo,          C,  'Z' );
-    SetDefaultKeys( 0, KeyAction_Edit_Redo,          C,  'Y',   CS, 'Z' );
+    SetDefaultKeys( 0, HotKeyAction::Edit_Undo,                     C,  'Z' );
+    SetDefaultKeys( 0, HotKeyAction::Edit_Redo,                     C,  'Y',   CS, 'Z' );
+    // View menu.
+    SetDefaultKeys( 0, HotKeyAction::View_ShowEditorIcons,          S,  118 ); // F7
+    SetDefaultKeys( 0, HotKeyAction::View_ToggleEditorCamDeferred,  CS, 118 ); // F7
+    SetDefaultKeys( 0, HotKeyAction::View_Full,                     A,  '1' );
+    SetDefaultKeys( 0, HotKeyAction::View_Tall,                     A,  '2' );
+    SetDefaultKeys( 0, HotKeyAction::View_Square,                   A,  '3' );
+    SetDefaultKeys( 0, HotKeyAction::View_Wide,                     A,  '4' );
+    // Grid menu.
+    SetDefaultKeys( 0, HotKeyAction::Grid_Visible,                  CS, 'V' );
+    SetDefaultKeys( 0, HotKeyAction::Grid_SnapEnabled,              C,  'G' );
+    SetDefaultKeys( 0, HotKeyAction::Grid_Settings,                 CS, 'G' );
+    // Mode menu.
+    SetDefaultKeys( 0, HotKeyAction::Mode_TogglePlayStop,           C,  ' ' );
+    SetDefaultKeys( 0, HotKeyAction::Mode_Pause,                    C,  '.' );
+    SetDefaultKeys( 0, HotKeyAction::Mode_AdvanceOneFrame,          C,  ']' );
+    SetDefaultKeys( 0, HotKeyAction::Mode_AdvanceOneSecond,         C,  '[' );
+    SetDefaultKeys( 0, HotKeyAction::Mode_LaunchGame,               C,  116 ); // F5
+    // Debug menu.
+    SetDefaultKeys( 0, HotKeyAction::Debug_DrawWireframe,           C,  120 ); // F9
+    SetDefaultKeys( 0, HotKeyAction::Debug_ShowPhysicsShapes,       S,  119 ); // F8
+    // Lua menu.
+    SetDefaultKeys( 0, HotKeyAction::Lua_RunLuaScript,              CS, 'L' );
+    // Misc.
+    SetDefaultKeys( 0, HotKeyAction::Objects_MergeIntoFolder,       CS, 'K' );
     // Editor camera.
-    SetDefaultKeys( 0, KeyAction_Camera_Forward,     0,  'W' );
-    SetDefaultKeys( 0, KeyAction_Camera_Back,        0,  'S' );
-    SetDefaultKeys( 0, KeyAction_Camera_Left,        0,  'A' );
-    SetDefaultKeys( 0, KeyAction_Camera_Right,       0,  'D' );
-    SetDefaultKeys( 0, KeyAction_Camera_Up,          0,  'Q' );
-    SetDefaultKeys( 0, KeyAction_Camera_Down,        0,  'E',   0,  'Z' );
-    SetDefaultKeys( 0, KeyAction_Camera_Focus,       0,  'F' );
+    SetDefaultKeys( 0, HotKeyAction::Camera_Forward,                0,  'W' );
+    SetDefaultKeys( 0, HotKeyAction::Camera_Back,                   0,  'S' );
+    SetDefaultKeys( 0, HotKeyAction::Camera_Left,                   0,  'A' );
+    SetDefaultKeys( 0, HotKeyAction::Camera_Right,                  0,  'D' );
+    SetDefaultKeys( 0, HotKeyAction::Camera_Up,                     0,  'Q' );
+    SetDefaultKeys( 0, HotKeyAction::Camera_Down,                   0,  'E',   0,  'Z' );
+    SetDefaultKeys( 0, HotKeyAction::Camera_Focus,                  0,  'F' );
 
     // Copy preset 0 into other 4 presets.
     for( int i=1; i<5; i++ )
     {
-        for( int j=0; j<KeyAction_Num; j++ )
+        for( int j=0; j<(int)HotKeyAction::Num; j++ )
         {
             m_DefaultKeys[i][j] = m_DefaultKeys[0][j];
         }
@@ -79,7 +121,7 @@ EditorKeyBindings::EditorKeyBindings()
     // Key binding.
     m_RegisteringNewBinding = false;
     m_NewBindingPreset = 0;
-    m_NewBindingKeyAction = KeyAction_Num;
+    m_NewBindingHotKeyAction = HotKeyAction::Num;
     m_NewBindingKeyIndex = 0;
     m_NewBindingModifiers = 0;
 
@@ -92,7 +134,7 @@ EditorKeyBindings::~EditorKeyBindings()
 
 void EditorKeyBindings::ResetCurrentPreset()
 {
-    for( int i=0; i<KeyAction_Num; i++ )
+    for( int i=0; i<(int)HotKeyAction::Num; i++ )
     {
         m_Keys[m_CurrentPreset][i] = m_DefaultKeys[m_CurrentPreset][i];
     }
@@ -111,7 +153,7 @@ void EditorKeyBindings::LoadPrefs(cJSON* jPrefs)
         cJSON* jPreset = cJSON_GetArrayItem( jPresetsArray, preset );
         if( jPreset )
         {
-            for( int i=0; i<KeyAction_Num; i++ )
+            for( int i=0; i<(int)HotKeyAction::Num; i++ )
             {
                 int numUnsignedInts = MaxKeysPerAction * 2;
 
@@ -136,7 +178,7 @@ void EditorKeyBindings::SavePrefs(cJSON* jPrefs)
     {
         cJSON* jPreset = cJSON_CreateObject();
         cJSON_AddItemToArray( jPresetsArray, jPreset );
-        for( int i=0; i<KeyAction_Num; i++ )
+        for( int i=0; i<(int)HotKeyAction::Num; i++ )
         {
             if( m_Keys[preset][i] != m_DefaultKeys[preset][i] )
             {
@@ -148,12 +190,12 @@ void EditorKeyBindings::SavePrefs(cJSON* jPrefs)
     }
 }
 
-EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(EditorKeyBindings::KeyActions index)
+EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(HotKeyAction action)
 {
-    return m_Keys[m_CurrentPreset][index];
+    return m_Keys[m_CurrentPreset][(int)action];
 }
 
-bool EditorKeyBindings::KeyMatches(EditorKeyBindings::KeyActions index, uint8 modifiers, uint32 keyCode)
+bool EditorKeyBindings::KeyMatches(HotKeyAction action, uint8 modifiers, uint32 keyCode)
 {
     // Only keep the first 3 bits of the modifiers.
     // TODO: Fix on OSX, bit 1 should be "Command", bit 4 should be "Control".
@@ -161,18 +203,18 @@ bool EditorKeyBindings::KeyMatches(EditorKeyBindings::KeyActions index, uint8 mo
 
     for( int k=0; k<MaxKeysPerAction; k++ )
     {
-        if( m_Keys[m_CurrentPreset][index].m_Keys[k].m_Modifiers == modifiers &&
-            m_Keys[m_CurrentPreset][index].m_Keys[k].m_Key == keyCode )
+        if( m_Keys[m_CurrentPreset][(int)action].m_Keys[k].m_Modifiers == modifiers &&
+            m_Keys[m_CurrentPreset][(int)action].m_Keys[k].m_Key == keyCode )
             return true;
     }
 
     return false;
 }
 
-const char* EditorKeyBindings::GetStringForKey(EditorKeyBindings::KeyActions index)
+const char* EditorKeyBindings::GetStringForKey(HotKeyAction action)
 {
     // Only return the string for the first key.
-    return m_KeyStrings[m_CurrentPreset][index][0];
+    return m_KeyStrings[m_CurrentPreset][(int)action][0];
 }
 
 void EditorKeyBindings::AddCustomizationTab()
@@ -196,7 +238,7 @@ void EditorKeyBindings::AddCustomizationTab()
         char currentHeader[32] = "noCategory";
         bool currentHeaderIsCollapsed = false;
 
-        for( uint32 action=0; action<KeyAction_Num; action++ )
+        for( uint32 action=0; action<(int)HotKeyAction::Num; action++ )
         {
             // Compare string before _ to create new header blocks.
             if( strncmp( currentHeader, g_KeyBindingStrings[action], strlen( currentHeader ) ) )
@@ -224,7 +266,7 @@ void EditorKeyBindings::AddCustomizationTab()
 
                 if( m_RegisteringNewBinding &&
                     m_CurrentPreset == m_NewBindingPreset &&
-                    m_NewBindingKeyAction == static_cast<KeyActions>( action ) &&
+                    m_NewBindingHotKeyAction == static_cast<HotKeyAction>( action ) &&
                     m_NewBindingKeyIndex == keyIndex )
                 {
                     ImGui::Text( "Waiting for key press..." );
@@ -233,7 +275,7 @@ void EditorKeyBindings::AddCustomizationTab()
                 {
                     m_RegisteringNewBinding = true;
                     m_NewBindingPreset = m_CurrentPreset;
-                    m_NewBindingKeyAction = static_cast<KeyActions>( action );
+                    m_NewBindingHotKeyAction = static_cast<HotKeyAction>( action );
                     m_NewBindingKeyIndex = keyIndex;
                     m_NewBindingModifiers = 0;
                 }
@@ -279,8 +321,8 @@ bool EditorKeyBindings::HandleInput(int keyAction, int keyCode)
             //LOGInfo( LOGTag, "New key bound: %d - %d", m_NewBindingModifiers, keyCode );
             m_RegisteringNewBinding = false;
 
-            m_Keys[m_NewBindingPreset][m_NewBindingKeyAction].m_Keys[m_NewBindingKeyIndex].m_Key = keyCode;
-            m_Keys[m_NewBindingPreset][m_NewBindingKeyAction].m_Keys[m_NewBindingKeyIndex].m_Modifiers = m_NewBindingModifiers;
+            m_Keys[m_NewBindingPreset][(int)m_NewBindingHotKeyAction].m_Keys[m_NewBindingKeyIndex].m_Key = keyCode;
+            m_Keys[m_NewBindingPreset][(int)m_NewBindingHotKeyAction].m_Keys[m_NewBindingKeyIndex].m_Modifiers = m_NewBindingModifiers;
 
             GenerateKeyStrings();
 
@@ -302,19 +344,19 @@ void EditorKeyBindings::CancelBindingAction()
 // Protected methods.
 //====================================================================================================
 
-void EditorKeyBindings::SetDefaultKey(int preset, EditorKeyBindings::KeyActions index, int keyIndex, uint32 modifiers, uint32 keyCode)
+void EditorKeyBindings::SetDefaultKey(int preset, HotKeyAction action, int keyIndex, uint32 modifiers, uint32 keyCode)
 {
-    m_DefaultKeys[preset][index].m_Keys[keyIndex].m_Modifiers = modifiers;
-    m_DefaultKeys[preset][index].m_Keys[keyIndex].m_Key = keyCode;
+    m_DefaultKeys[preset][(int)action].m_Keys[keyIndex].m_Modifiers = modifiers;
+    m_DefaultKeys[preset][(int)action].m_Keys[keyIndex].m_Key = keyCode;
 }
 
-void EditorKeyBindings::SetDefaultKeys(int preset, EditorKeyBindings::KeyActions index, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1, uint32 keyCode1)
+void EditorKeyBindings::SetDefaultKeys(int preset, HotKeyAction action, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1, uint32 keyCode1)
 {
-    m_DefaultKeys[preset][index].m_Keys[0].m_Modifiers = modifiers0;
-    m_DefaultKeys[preset][index].m_Keys[0].m_Key = keyCode0;
+    m_DefaultKeys[preset][(int)action].m_Keys[0].m_Modifiers = modifiers0;
+    m_DefaultKeys[preset][(int)action].m_Keys[0].m_Key = keyCode0;
 
-    m_DefaultKeys[preset][index].m_Keys[1].m_Modifiers = modifiers1;
-    m_DefaultKeys[preset][index].m_Keys[1].m_Key = keyCode1;
+    m_DefaultKeys[preset][(int)action].m_Keys[1].m_Modifiers = modifiers1;
+    m_DefaultKeys[preset][(int)action].m_Keys[1].m_Key = keyCode1;
 }
 
 void EditorKeyBindings::GenerateKeyStrings()
@@ -323,7 +365,7 @@ void EditorKeyBindings::GenerateKeyStrings()
 
     for( int preset=0; preset<5; preset++ )
     {
-        for( int action=0; action<KeyAction_Num; action++ )
+        for( int action=0; action<(int)HotKeyAction::Num; action++ )
         {
             for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
             {
