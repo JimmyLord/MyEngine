@@ -110,6 +110,10 @@ protected:
     int m_NewBindingKeyIndex;
     uint32 m_NewBindingModifiers;
 
+    // Filter.
+    bool m_SetFilterBoxInFocus;
+    char m_Filter[100];
+
 public:
     EditorKeyBindings();
     ~EditorKeyBindings();

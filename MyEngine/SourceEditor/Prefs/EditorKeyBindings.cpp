@@ -125,6 +125,10 @@ EditorKeyBindings::EditorKeyBindings()
     m_NewBindingKeyIndex = 0;
     m_NewBindingModifiers = 0;
 
+    // Filters.
+    m_SetFilterBoxInFocus = false;
+    m_Filter[0] = '\0';
+
     GenerateKeyStrings();
 }
 
@@ -223,11 +227,15 @@ void EditorKeyBindings::AddCustomizationTab()
     {
         ImGui::EndTabItem();
 
+        // Add Preset selector.
         if( ImGui::Combo( "Presets", &m_CurrentPreset, m_ppPresetNames, m_NumPresets ) )
         {
             CancelBindingAction();
         }
+
         ImGui::SameLine();
+
+        // Button to reset to the default for this preset.
         if( ImGui::Button( "Reset" ) )
         {
             CancelBindingAction();
@@ -235,58 +243,95 @@ void EditorKeyBindings::AddCustomizationTab()
             GenerateKeyStrings();
         }
 
+        // Add an input box for filter.
+        {
+            // For now, it will always auto-select the text when given focus.
+            ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_AutoSelectAll;
+            if( m_SetFilterBoxInFocus )
+            {
+                ImGui::SetKeyboardFocusHere();
+                m_SetFilterBoxInFocus = false;
+            }
+            ImGui::PushItemWidth( 100 );
+            ImGui::InputText( "Filter", m_Filter, 100, inputTextFlags );
+            ImGui::PopItemWidth();
+            ImGui::SameLine();
+            if( ImGui::Button( "X" ) )
+            {
+                m_Filter[0] = '\0';
+            }
+        }
+
+        // Only show the headers if the filter is blank.
+        bool showHeaders = (m_Filter[0] == '\0');
+
         char currentHeader[32] = "noCategory";
         bool currentHeaderIsCollapsed = false;
 
         for( uint32 action=0; action<(int)HotKeyAction::Num; action++ )
         {
             // Compare string before _ to create new header blocks.
-            if( strncmp( currentHeader, g_KeyBindingStrings[action], strlen( currentHeader ) ) )
+            if( showHeaders )
             {
-                const char* underscoreLocation = reinterpret_cast<const char*>( memchr( g_KeyBindingStrings[action], '_', strlen( g_KeyBindingStrings[action] ) ) );
-                int underscoreOffset = underscoreLocation ? underscoreLocation - g_KeyBindingStrings[action] : 0;
+                if( strncmp( currentHeader, g_KeyBindingStrings[action], strlen( currentHeader ) ) )
+                {
+                    const char* underscoreLocation = reinterpret_cast<const char*>( memchr( g_KeyBindingStrings[action], '_', strlen( g_KeyBindingStrings[action] ) ) );
+                    int underscoreOffset = underscoreLocation ? underscoreLocation - g_KeyBindingStrings[action] : 0;
 
-                ImGui::Columns( 1 );
-                strncpy_s( currentHeader, 32, g_KeyBindingStrings[action], underscoreOffset );
-                currentHeaderIsCollapsed = ImGui::CollapsingHeader( currentHeader );
-                ImGui::Columns( 3 );
+                    ImGui::Columns( 1 );
+                    strncpy_s( currentHeader, 32, g_KeyBindingStrings[action], underscoreOffset );
+                    currentHeaderIsCollapsed = ImGui::CollapsingHeader( currentHeader );
+                }
             }
 
             // Skip this key if the header is collapsed.
             if( currentHeaderIsCollapsed )
                 continue;
 
-            ImGui::Text( g_KeyBindingStrings[action] );
-
-            ImGui::NextColumn();
-
-            for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
+            bool showThisItem = true;
+            if( m_Filter[0] != '\0' )
             {
-                ImGui::PushID( action*MaxKeysPerAction + keyIndex );
-
-                if( m_RegisteringNewBinding &&
-                    m_CurrentPreset == m_NewBindingPreset &&
-                    m_NewBindingHotKeyAction == static_cast<HotKeyAction>( action ) &&
-                    m_NewBindingKeyIndex == keyIndex )
+                if( CheckIfMultipleSubstringsAreInString( g_KeyBindingStrings[action], m_Filter ) == false )
                 {
-                    ImGui::Text( "Waiting for key press..." );
+                    showThisItem = false;
                 }
-                else if( ImGui::Button( m_KeyStrings[m_CurrentPreset][action][keyIndex] ) )
-                {
-                    m_RegisteringNewBinding = true;
-                    m_NewBindingPreset = m_CurrentPreset;
-                    m_NewBindingHotKeyAction = static_cast<HotKeyAction>( action );
-                    m_NewBindingKeyIndex = keyIndex;
-                    m_NewBindingModifiers = 0;
-                }
+            }
 
+            if( showThisItem )
+            {
+                ImGui::Columns( 3 );
+
+                ImGui::Text( g_KeyBindingStrings[action] );
                 ImGui::NextColumn();
 
-                ImGui::PopID();
+                for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
+                {
+                    ImGui::PushID( action*MaxKeysPerAction + keyIndex );
+
+                    if( m_RegisteringNewBinding &&
+                        m_CurrentPreset == m_NewBindingPreset &&
+                        m_NewBindingHotKeyAction == static_cast<HotKeyAction>( action ) &&
+                        m_NewBindingKeyIndex == keyIndex )
+                    {
+                        ImGui::Text( "Waiting for key press..." );
+                    }
+                    else if( ImGui::Button( m_KeyStrings[m_CurrentPreset][action][keyIndex] ) )
+                    {
+                        m_RegisteringNewBinding = true;
+                        m_NewBindingPreset = m_CurrentPreset;
+                        m_NewBindingHotKeyAction = static_cast<HotKeyAction>( action );
+                        m_NewBindingKeyIndex = keyIndex;
+                        m_NewBindingModifiers = 0;
+                    }
+
+                    ImGui::NextColumn();
+
+                    ImGui::PopID();
+                }
+
+                ImGui::Columns( 1 );
             }
         }
-
-        ImGui::Columns( 1 );
     }
     else
     {
