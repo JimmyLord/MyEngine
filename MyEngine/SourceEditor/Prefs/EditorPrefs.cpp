@@ -434,6 +434,9 @@ void EditorPrefs::FillGridSettingsWindow()
 void EditorPrefs::Display()
 {
     m_Visible = true;
+
+    // Set the key binding filter box to be in focus next time we switch to that screen.
+    GetKeyBindings()->SetFilterInFocus();
 }
 
 void EditorPrefs::AddCustomizationDialog()

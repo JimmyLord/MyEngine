@@ -96,6 +96,7 @@ protected:
     int m_CurrentPreset;
     const char** m_ppPresetNames;
     int m_NumPresets;
+    uint32 m_ModifiersHeld;
 
     KeyBinding m_DefaultKeys[5][HotKeyAction::Num];
     KeyBinding m_Keys[5][HotKeyAction::Num];
@@ -108,7 +109,6 @@ protected:
     int m_NewBindingPreset;
     HotKeyAction m_NewBindingHotKeyAction;
     int m_NewBindingKeyIndex;
-    uint32 m_NewBindingModifiers;
 
     // Filter.
     bool m_SetFilterBoxInFocus;
@@ -123,13 +123,16 @@ public:
     void LoadPrefs(cJSON* jPrefs);
     void SavePrefs(cJSON* jPrefs);
 
+    uint32 GetModifiersHeld();
     KeyBinding GetKey(HotKeyAction action);
-    bool KeyMatches(HotKeyAction action, uint8 modifiers, uint32 keyCode);
+    bool KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode);
     const char* GetStringForKey(HotKeyAction action);
 
     // ImGui interface methods.
     void AddCustomizationTab();
     bool HandleInput(int KeyAction, int keyCode);
+    void OnFocusLost();
+    void SetFilterInFocus();
     
     void CancelBindingAction();
 

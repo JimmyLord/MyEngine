@@ -31,6 +31,7 @@
 #include "../SourceEditor/Interfaces/EditorInterface_SceneManagement.h"
 #include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"
 #include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
+#include "../SourceEditor/Prefs/EditorKeyBindings.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 #endif
 
@@ -780,6 +781,7 @@ void EngineCore::OnFocusLost()
 
 #if MYFW_EDITOR
     m_pEditorState->OnFocusLost();
+    GetEditorPrefs()->GetKeyBindings()->OnFocusLost();
 #endif
 
     m_pImGuiManager->OnFocusLost();

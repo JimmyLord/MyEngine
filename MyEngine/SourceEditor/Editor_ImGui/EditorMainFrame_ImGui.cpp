@@ -441,7 +441,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
         {
             HotKeyAction action = static_cast<HotKeyAction>( i );
             
-            if( pKeys->KeyMatches( action, modifiers, keyCode ) )
+            if( pKeys->KeyMatches( action, pKeys->GetModifiersHeld(), keyCode ) )
             {
                 ExecuteHotkeyAction( action );
                 return true;

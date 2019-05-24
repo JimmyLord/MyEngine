@@ -123,7 +123,7 @@ EditorKeyBindings::EditorKeyBindings()
     m_NewBindingPreset = 0;
     m_NewBindingHotKeyAction = HotKeyAction::Num;
     m_NewBindingKeyIndex = 0;
-    m_NewBindingModifiers = 0;
+    m_ModifiersHeld = 0;
 
     // Filters.
     m_SetFilterBoxInFocus = false;
@@ -194,16 +194,20 @@ void EditorKeyBindings::SavePrefs(cJSON* jPrefs)
     }
 }
 
+uint32 EditorKeyBindings::GetModifiersHeld()
+{
+    return m_ModifiersHeld;
+}
+
 EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(HotKeyAction action)
 {
     return m_Keys[m_CurrentPreset][(int)action];
 }
 
-bool EditorKeyBindings::KeyMatches(HotKeyAction action, uint8 modifiers, uint32 keyCode)
+bool EditorKeyBindings::KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode)
 {
-    // Only keep the first 3 bits of the modifiers.
-    // TODO: Fix on OSX, bit 1 should be "Command", bit 4 should be "Control".
-    modifiers &= (1+2+4);
+    // Only keep the first 4 bits of the modifiers.
+    modifiers &= (Modifier_ControlOrCommand | Modifier_Alt | Modifier_Shift | Modifier_ControlOSX);
 
     for( int k=0; k<MaxKeysPerAction; k++ )
     {
@@ -321,7 +325,6 @@ void EditorKeyBindings::AddCustomizationTab()
                         m_NewBindingPreset = m_CurrentPreset;
                         m_NewBindingHotKeyAction = static_cast<HotKeyAction>( action );
                         m_NewBindingKeyIndex = keyIndex;
-                        m_NewBindingModifiers = 0;
                     }
 
                     ImGui::NextColumn();
@@ -341,33 +344,35 @@ void EditorKeyBindings::AddCustomizationTab()
 
 bool EditorKeyBindings::HandleInput(int keyAction, int keyCode)
 {
+    if( keyAction == GCBA_Up )
+    {
+        if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_ModifiersHeld &= ~Modifier_ControlOrCommand; return true; }
+        if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_ModifiersHeld &= ~Modifier_Alt;              return true; }
+        if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_ModifiersHeld &= ~Modifier_Shift;            return true; }
+    }
+
+    if( keyAction == GCBA_Down )
+    {
+        if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_ModifiersHeld |= Modifier_ControlOrCommand;  return true; }
+        if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_ModifiersHeld |= Modifier_Alt;               return true; }
+        if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_ModifiersHeld |= Modifier_Shift;             return true; }
+    }
+
     if( m_RegisteringNewBinding )
     {
-        if( keyAction == GCBA_Up )
-        {
-            if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_NewBindingModifiers &= ~Modifier_ControlOrCommand; return true; }
-            if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_NewBindingModifiers &= ~Modifier_Alt;              return true; }
-            if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_NewBindingModifiers &= ~Modifier_Shift;            return true; }
-        }
-
         if( keyAction == GCBA_Down )
         {
-            if( keyCode == MYKEYCODE_LCTRL  || keyCode == MYKEYCODE_RCTRL  ) { m_NewBindingModifiers |= Modifier_ControlOrCommand;  return true; }
-            if( keyCode == MYKEYCODE_LALT   || keyCode == MYKEYCODE_RALT   ) { m_NewBindingModifiers |= Modifier_Alt;               return true; }
-            if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT ) { m_NewBindingModifiers |= Modifier_Shift;             return true; }
-
             if( keyCode == MYKEYCODE_DELETE )
             {
                 // Clear the key binding in delete is pressed.
                 keyCode = 0;
-                m_NewBindingModifiers = 0;
             }
 
-            //LOGInfo( LOGTag, "New key bound: %d - %d", m_NewBindingModifiers, keyCode );
+            //LOGInfo( LOGTag, "New key bound: %d - %d", m_ModifiersHeld, keyCode );
             m_RegisteringNewBinding = false;
 
             m_Keys[m_NewBindingPreset][(int)m_NewBindingHotKeyAction].m_Keys[m_NewBindingKeyIndex].m_Key = keyCode;
-            m_Keys[m_NewBindingPreset][(int)m_NewBindingHotKeyAction].m_Keys[m_NewBindingKeyIndex].m_Modifiers = m_NewBindingModifiers;
+            m_Keys[m_NewBindingPreset][(int)m_NewBindingHotKeyAction].m_Keys[m_NewBindingKeyIndex].m_Modifiers = m_ModifiersHeld;
 
             GenerateKeyStrings();
 
@@ -378,11 +383,21 @@ bool EditorKeyBindings::HandleInput(int keyAction, int keyCode)
     return false;
 }
 
+void EditorKeyBindings::OnFocusLost()
+{
+    // Reset modifiers if window loses focus.
+    m_ModifiersHeld = 0;
+}
+
+void EditorKeyBindings::SetFilterInFocus()
+{
+    m_SetFilterBoxInFocus = true;
+}
+
 void EditorKeyBindings::CancelBindingAction()
 {
     // Cancel the last binding action.
     m_RegisteringNewBinding = false;
-    m_NewBindingModifiers = 0;
 }
 
 //====================================================================================================
