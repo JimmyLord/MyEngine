@@ -65,6 +65,13 @@ public:
         // All members must be uint32.
         uint32 m_Modifiers;
         uint32 m_Key;
+
+        inline bool operator !=(const keySingle& o) const
+        {
+            if( this->m_Modifiers != o.m_Modifiers ) return true;
+            if( this->m_Key != o.m_Key ) return true;
+            return false;
+        }
     };
 
     struct KeyBinding
@@ -85,8 +92,7 @@ public:
         {
             for( int i=0; i<MaxKeysPerAction; i++ )
             {
-                if( this->m_Keys[i].m_Modifiers != o.m_Keys[i].m_Modifiers ) return true;
-                if( this->m_Keys[i].m_Key != o.m_Keys[i].m_Key ) return true;
+                if( this->m_Keys[i] != o.m_Keys[i] ) return true;
             }
             return false;
         }
@@ -110,7 +116,8 @@ protected:
     HotKeyAction m_NewBindingHotKeyAction;
     int m_NewBindingKeyIndex;
 
-    // Filter.
+    // Filters.
+    bool m_OnlyShowModifiedKeys;
     bool m_SetFilterBoxInFocus;
     char m_Filter[100];
 

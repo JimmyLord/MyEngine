@@ -126,6 +126,7 @@ EditorKeyBindings::EditorKeyBindings()
     m_ModifiersHeld = 0;
 
     // Filters.
+    m_OnlyShowModifiedKeys = false;
     m_SetFilterBoxInFocus = false;
     m_Filter[0] = '\0';
 
@@ -264,10 +265,13 @@ void EditorKeyBindings::AddCustomizationTab()
             {
                 m_Filter[0] = '\0';
             }
+
+            ImGui::SameLine();
+            ImGui::Checkbox( "Only show modified keys", &m_OnlyShowModifiedKeys );
         }
 
         // Only show the headers if the filter is blank.
-        bool showHeaders = (m_Filter[0] == '\0');
+        bool showHeaders = ( m_Filter[0] == '\0' ) && ( m_OnlyShowModifiedKeys == false );
 
         char currentHeader[32] = "noCategory";
         bool currentHeaderIsCollapsed = false;
@@ -301,6 +305,16 @@ void EditorKeyBindings::AddCustomizationTab()
                 }
             }
 
+            bool modified = ( m_Keys[m_CurrentPreset][(int)action] != m_DefaultKeys[m_CurrentPreset][(int)action] );
+
+            if( m_OnlyShowModifiedKeys )
+            {
+                if( modified == false )
+                {
+                    showThisItem = false;
+                }
+            }
+
             if( showThisItem )
             {
                 ImGui::Columns( 3 );
@@ -325,6 +339,15 @@ void EditorKeyBindings::AddCustomizationTab()
                         m_NewBindingPreset = m_CurrentPreset;
                         m_NewBindingHotKeyAction = static_cast<HotKeyAction>( action );
                         m_NewBindingKeyIndex = keyIndex;
+                    }
+
+                    // Reset modified flag for just one of the keys.
+                    modified = ( m_Keys[m_CurrentPreset][(int)action].m_Keys[keyIndex] !=
+                                 m_DefaultKeys[m_CurrentPreset][(int)action].m_Keys[keyIndex] );
+                    if( modified )
+                    {
+                        ImGui::SameLine();
+                        ImGui::Text( "*" );
                     }
 
                     ImGui::NextColumn();
