@@ -305,7 +305,7 @@ void EditorKeyBindings::AddCustomizationTab()
                 }
             }
 
-            bool modified = ( m_Keys[m_CurrentPreset][(int)action] != m_DefaultKeys[m_CurrentPreset][(int)action] );
+            bool modified = ( m_Keys[m_CurrentPreset][action] != m_DefaultKeys[m_CurrentPreset][action] );
 
             if( m_OnlyShowModifiedKeys )
             {
@@ -342,12 +342,18 @@ void EditorKeyBindings::AddCustomizationTab()
                     }
 
                     // Reset modified flag for just one of the keys.
-                    modified = ( m_Keys[m_CurrentPreset][(int)action].m_Keys[keyIndex] !=
-                                 m_DefaultKeys[m_CurrentPreset][(int)action].m_Keys[keyIndex] );
+                    modified = ( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex] !=
+                                 m_DefaultKeys[m_CurrentPreset][action].m_Keys[keyIndex] );
                     if( modified )
                     {
                         ImGui::SameLine();
                         ImGui::Text( "*" );
+                    }
+
+                    if( HasConflict( static_cast<HotKeyAction>( action ), keyIndex ) )
+                    {
+                        ImGui::SameLine();
+                        ImGui::Text( "CONFLICT" );
                     }
 
                     ImGui::NextColumn();
@@ -512,4 +518,26 @@ void EditorKeyBindings::GenerateKeyStrings()
             }
         }
     }
+}
+
+bool EditorKeyBindings::HasConflict(HotKeyAction actionToFind, int keyIndexToFind)
+{
+    if( m_Keys[m_CurrentPreset][(int)actionToFind].m_Keys[keyIndexToFind].m_Key == 0 )
+        return false;
+
+    for( int action=0; action<(int)HotKeyAction::Num; action++ )
+    {
+        for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
+        {
+            if( action == (int)actionToFind && keyIndex == keyIndexToFind )
+                continue;
+
+            if( m_Keys[m_CurrentPreset][action].m_Keys[keyIndex] == m_Keys[m_CurrentPreset][(int)actionToFind].m_Keys[keyIndexToFind] )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }

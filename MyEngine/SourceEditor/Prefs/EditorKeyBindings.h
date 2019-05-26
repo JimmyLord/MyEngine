@@ -66,6 +66,13 @@ public:
         uint32 m_Modifiers;
         uint32 m_Key;
 
+        inline bool operator ==(const keySingle& o) const
+        {
+            if( this->m_Modifiers != o.m_Modifiers ) return false;
+            if( this->m_Key != o.m_Key ) return false;
+            return true;
+        }
+
         inline bool operator !=(const keySingle& o) const
         {
             if( this->m_Modifiers != o.m_Modifiers ) return true;
@@ -147,6 +154,7 @@ protected:
     void SetDefaultKey(int preset, HotKeyAction action, int keyIndex, uint32 modifiers, uint32 keyCode);
     void SetDefaultKeys(int preset, HotKeyAction action, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1 = 0, uint32 keyCode1 = 0);
     void GenerateKeyStrings();
+    bool HasConflict(HotKeyAction actionToFind, int keyIndexToFind);
 };
 
 #endif //__EditorKeyBindings_H__
