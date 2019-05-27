@@ -443,8 +443,10 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
             
             if( pKeys->KeyMatches( action, pKeys->GetModifiersHeld(), keyCode ) )
             {
-                ExecuteHotkeyAction( action );
-                return true;
+                if( ExecuteHotkeyAction( action ) )
+                {
+                    return true;
+                }
             }
         }
 
@@ -457,49 +459,51 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
     return false;
 }
 
-void EditorMainFrame_ImGui::ExecuteHotkeyAction(HotKeyAction action)
+bool EditorMainFrame_ImGui::ExecuteHotkeyAction(HotKeyAction action)
 {
     EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
 
     switch( action )
     {
-    case HotKeyAction::Global_Find:                   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return; }
-    case HotKeyAction::File_SaveScene:                { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return; }
-    case HotKeyAction::File_SaveAll:                  { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return; }
-    case HotKeyAction::File_ExportBox2D:              { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return; }
-    case HotKeyAction::File_Preferences:              { pEditorPrefs->Display();                                                     return; }
-    case HotKeyAction::Edit_Undo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return; }
-    case HotKeyAction::Edit_Redo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return; }
-    case HotKeyAction::View_ShowEditorIcons:          { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return; }
-    case HotKeyAction::View_ToggleEditorCamDeferred:  { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return; }
-    case HotKeyAction::View_Full:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return; }
-    case HotKeyAction::View_Tall:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );                     return; }
-    case HotKeyAction::View_Square:                   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );                   return; }
-    case HotKeyAction::View_Wide:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return; }
-    case HotKeyAction::Grid_Visible:                  { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return; }
-    case HotKeyAction::Grid_SnapEnabled:              { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return; }
-    case HotKeyAction::Grid_Settings:                 { m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] = true;          return; }
-    case HotKeyAction::Mode_TogglePlayStop:           { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return; }
-    case HotKeyAction::Mode_Pause:                    { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return; }
-    case HotKeyAction::Mode_AdvanceOneFrame:          { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return; }
-    case HotKeyAction::Mode_AdvanceOneSecond:         { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );                return; }
-    case HotKeyAction::Mode_LaunchGame:               { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return; }
-    case HotKeyAction::Debug_DrawWireframe:           { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return; }
-    case HotKeyAction::Debug_ShowPhysicsShapes:       { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return; }
-    case HotKeyAction::Lua_RunLuaScript:              { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return; }
-    case HotKeyAction::Objects_MergeIntoFolder:       { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return; }
+    case HotKeyAction::Global_Find:                   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
+    case HotKeyAction::File_SaveScene:                { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
+    case HotKeyAction::File_SaveAll:                  { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return true; }
+    case HotKeyAction::File_ExportBox2D:              { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
+    case HotKeyAction::File_Preferences:              { pEditorPrefs->Display();                                                     return true; }
+    case HotKeyAction::Edit_Undo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
+    case HotKeyAction::Edit_Redo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
+    case HotKeyAction::View_ShowEditorIcons:          { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return true; }
+    case HotKeyAction::View_ToggleEditorCamDeferred:  { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return true; }
+    case HotKeyAction::View_Full:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return true; }
+    case HotKeyAction::View_Tall:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );                     return true; }
+    case HotKeyAction::View_Square:                   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );                   return true; }
+    case HotKeyAction::View_Wide:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return true; }
+    case HotKeyAction::Grid_Visible:                  { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return true; }
+    case HotKeyAction::Grid_SnapEnabled:              { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return true; }
+    case HotKeyAction::Grid_Settings:                 { m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] = true;          return true; }
+    case HotKeyAction::Mode_TogglePlayStop:           { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return true; }
+    case HotKeyAction::Mode_Pause:                    { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
+    case HotKeyAction::Mode_AdvanceOneFrame:          { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
+    case HotKeyAction::Mode_AdvanceOneSecond:         { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );                return true; }
+    case HotKeyAction::Mode_LaunchGame:               { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return true; }
+    case HotKeyAction::Debug_DrawWireframe:           { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
+    case HotKeyAction::Debug_ShowPhysicsShapes:       { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
+    case HotKeyAction::Lua_RunLuaScript:              { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return true; }
+    case HotKeyAction::Objects_MergeIntoFolder:       { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return true; }
 
-    // Handled elsewhere.
-    case HotKeyAction::Camera_Forward:
-    case HotKeyAction::Camera_Back:
-    case HotKeyAction::Camera_Left:
-    case HotKeyAction::Camera_Right:
-    case HotKeyAction::Camera_Up:
-    case HotKeyAction::Camera_Down:
-    case HotKeyAction::Camera_Focus:
+    // Handled elsewhere, and will return false so the key states won't be affected.
+    case HotKeyAction::Camera_Forward:                { return false; }
+    case HotKeyAction::Camera_Back:                   { return false; }
+    case HotKeyAction::Camera_Left:                   { return false; }
+    case HotKeyAction::Camera_Right:                  { return false; }
+    case HotKeyAction::Camera_Up:                     { return false; }
+    case HotKeyAction::Camera_Down:                   { return false; }
+    case HotKeyAction::Camera_Focus:                  { return false; }
     case HotKeyAction::Num:
         break;
     }
+
+    return false;
 }
 
 void EditorMainFrame_ImGui::RequestCloseWindow()

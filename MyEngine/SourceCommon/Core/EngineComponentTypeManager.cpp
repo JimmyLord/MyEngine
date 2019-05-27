@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -14,6 +14,7 @@
 #include "ComponentSystem/BaseComponents/ComponentMenuPage.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
+#include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
 #include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
@@ -42,9 +43,9 @@
 #include "Voxels/ComponentVoxelWorld.h"
 
 
-// sort by category, otherwise right-click menu will have duplicates.
-// must be in same order as enum EngineComponentTypes
-// name(2nd column) is saved into the scene files, changing it will break objects.
+// Sort by category, otherwise right-click menu will have duplicates.
+// Must be in same order as enum EngineComponentTypes
+// Name(2nd column) is saved into the scene files, changing it will break objects.
 ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
     { "Base",           "Transform",               },  //ComponentType_Transform,
@@ -53,6 +54,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Renderables",    "Mesh",                    },  //ComponentType_Mesh,
     { "Renderables",    "Mesh-OBJ",                },  //ComponentType_MeshOBJ,
     { "Renderables",    "Mesh-Primitive",          },  //ComponentType_MeshPrimitive,
+    { "Renderables",    "Heightmap",               },  //ComponentType_Heightmap,
     { "Renderables",    "Voxel Mesh",              },  //ComponentType_VoxelMesh,
     { "Renderables",    "Voxel World",             },  //ComponentType_VoxelWorld,
     { "Lighting",       "Light",                   },  //ComponentType_Light,
@@ -88,7 +90,7 @@ EngineComponentTypeManager::~EngineComponentTypeManager()
 
 ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 {
-    ComponentBase* pComponent = 0;
+    ComponentBase* pComponent = nullptr;
 
     MyAssert( type != -1 );
 
@@ -100,6 +102,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_Mesh:                pComponent = MyNew ComponentMesh( m_pComponentSystemManager );               break;
     case ComponentType_MeshOBJ:             pComponent = MyNew ComponentMeshOBJ( m_pComponentSystemManager );            break;
     case ComponentType_MeshPrimitive:       pComponent = MyNew ComponentMeshPrimitive( m_pComponentSystemManager );      break;
+    case ComponentType_Heightmap:           pComponent = MyNew ComponentHeightmap( m_pComponentSystemManager );          break;
     case ComponentType_VoxelMesh:           pComponent = MyNew ComponentVoxelMesh( m_pComponentSystemManager );          break;
     case ComponentType_VoxelWorld:          pComponent = MyNew ComponentVoxelWorld( m_pComponentSystemManager );         break;
     case ComponentType_Light:               pComponent = MyNew ComponentLight( m_pComponentSystemManager );              break;
@@ -126,9 +129,9 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_MenuPage:            pComponent = MyNew ComponentMenuPage( m_pComponentSystemManager );           break;
     }
 
-    MyAssert( pComponent != 0 );
-    if( pComponent == 0 )
-        return 0;
+    MyAssert( pComponent != nullptr );
+    if( pComponent == nullptr )
+        return nullptr;
 
     pComponent->SetType( type );
     return pComponent;
@@ -136,7 +139,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 
 unsigned int EngineComponentTypeManager::GetNumberOfComponentTypes()
 {
-    MyAssert( 0 ); // should never reach here, game level type manager should override and provide a proper value.
+    MyAssert( false ); // Should never reach here, game level type manager should override and provide a proper value.
     return Component_NumEngineComponentTypes;
 }
 

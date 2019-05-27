@@ -16,6 +16,7 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
 #include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
@@ -970,6 +971,7 @@ GL_REPEAT                     = 0x2901;\
     ComponentMesh::LuaRegister( m_pLuaState );
     //ComponentType_MeshOBJ,
     ComponentMeshPrimitive::LuaRegister( m_pLuaState );
+    ComponentHeightmap::LuaRegister( m_pLuaState );
     ComponentVoxelMesh::LuaRegister( m_pLuaState );
     ComponentVoxelWorld::LuaRegister( m_pLuaState );
     //ComponentType_Light,

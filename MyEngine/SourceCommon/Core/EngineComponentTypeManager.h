@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2019 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -22,6 +22,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_Mesh, // this is a base type, shouldn't be in the editor's "add component" list
     ComponentType_MeshOBJ,
     ComponentType_MeshPrimitive,
+    ComponentType_Heightmap,
     ComponentType_VoxelMesh,
     ComponentType_VoxelWorld,
     ComponentType_Light,
@@ -49,15 +50,15 @@ class EngineComponentTypeManager : public ComponentTypeManager
 {
 public:
     EngineComponentTypeManager();
-    virtual ~EngineComponentTypeManager();
+    virtual ~EngineComponentTypeManager() override;
 
-    virtual ComponentBase* CreateComponent(int type);
-    virtual unsigned int GetNumberOfComponentTypes();
+    virtual ComponentBase* CreateComponent(int type) override;
+    virtual unsigned int GetNumberOfComponentTypes() override;
 
-    virtual const char* GetTypeCategory(int type);
-    virtual const char* GetTypeName(int type);
+    virtual const char* GetTypeCategory(int type) override;
+    virtual const char* GetTypeName(int type) override;
 
-    virtual int GetTypeByName(const char* name);
+    virtual int GetTypeByName(const char* name) override;
 };
 
 #endif //__EngineComponentTypeManager_H__

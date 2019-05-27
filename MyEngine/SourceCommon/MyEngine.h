@@ -41,6 +41,7 @@
 #include "ComponentSystem/Core/SceneHandler.h"
 
 // MyEngine components.
+#include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
 #include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
 #include "Voxels/ComponentVoxelMesh.h"
 #include "Voxels/ComponentVoxelWorld.h"
