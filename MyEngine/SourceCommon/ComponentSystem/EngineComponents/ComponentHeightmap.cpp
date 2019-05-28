@@ -43,7 +43,7 @@ void ComponentHeightmap::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
     ComponentMesh::RegisterVariables( pList, pThis );
 
     AddVar( pList, "Size", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
-    AddVar( pList, "VertCountx", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_VertCount ), true, true, "VertCount", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "VertCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_VertCount ), true, true, "VertCount", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
 }
 
 void ComponentHeightmap::Reset()
@@ -186,15 +186,131 @@ void ComponentHeightmap::CreateHeightmap()
 
     // Create a plane. // TODO: Change to a heightmap.
     {
-        bool createTriangles = true;
-        if( m_GLPrimitiveType == MyRE::PrimitiveType_Points )
-            createTriangles = false;
+        GenerateHeightmapMesh();
 
-        m_pMesh->CreatePlane( Vector3(-m_Size.x/2, 0, m_Size.y/2), m_Size, m_VertCount, Vector2(0,0), Vector2(1,1), createTriangles );
+        //bool createTriangles = true;
+        //if( m_GLPrimitiveType == MyRE::PrimitiveType_Points )
+        //    createTriangles = false;
+        //m_pMesh->CreatePlane( Vector3(-m_Size.x/2, 0, m_Size.y/2), m_Size, m_VertCount, Vector2(0,0), Vector2(1,1), createTriangles );
     }
 
     m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
     // Add the Mesh to the main scene graph.
     AddToRenderGraph();
+}
+
+void ComponentHeightmap::GenerateHeightmapMesh()
+{
+    //LOGInfo( LOGTag, "ComponentHeightmap::GenerateHeightmapMesh\n" );
+
+    Vector2 size = m_Size;
+    Vector2Int vertCount = m_VertCount;
+    Vector3 topLeftPos( -m_Size.x/2, 0, m_Size.y/2 );
+    Vector2 uvStart( 0, 0 );
+    Vector2 uvRange( 0, 0 );
+    bool createTriangles = true;
+    if( m_GLPrimitiveType == MyRE::PrimitiveType_Points )
+    {
+        createTriangles = false;
+    }
+
+    if( vertCount.x <= 0 || vertCount.y <= 0 || vertCount.x * vertCount.y > 65535 )
+    {
+        return;
+    }
+
+    unsigned int numTris = (vertCount.x - 1) * (vertCount.y - 1) * 2;
+    unsigned int numVerts = vertCount.x * vertCount.y;
+    unsigned int numIndices = numTris * 3;
+
+    if( createTriangles == false )
+    {
+        numIndices = numVerts;
+    }
+
+    // Reinitialize the submesh properties along with the vertex and index buffers.
+    m_pMesh->RebuildShapeBuffers( numVerts, VertexFormat_XYZUVNorm, MyRE::PrimitiveType_Triangles, numIndices, MyRE::IndexType_U16, "MyMesh_Plane" );
+
+    Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer->GetData( true );
+    unsigned short* pIndices = (unsigned short*)m_pMesh->GetSubmesh( 0 )->m_pIndexBuffer->GetData( true );
+
+    for( int y = 0; y < vertCount.y; y++ )
+    {
+        for( int x = 0; x < vertCount.x; x++ )
+        {
+            unsigned short index = (unsigned short)(y * vertCount.x + x);
+
+            pVerts[index].pos.x = topLeftPos.x + size.x / (vertCount.x - 1) * x;
+            pVerts[index].pos.y = topLeftPos.y + sin( x/10.0f ) + sin( y/10.0f );
+            pVerts[index].pos.z = topLeftPos.z - size.y / (vertCount.y - 1) * y;
+
+            pVerts[index].uv.x = uvStart.x + x * uvRange.x / (vertCount.x - 1);
+            pVerts[index].uv.y = uvStart.y + y * uvRange.y / (vertCount.y - 1);
+
+            if( createTriangles == false )
+            {
+                pIndices[index] = index;
+            }
+        }
+    }
+
+    // Calculate normals.
+    int mx = vertCount.x-1;
+    int my = vertCount.y-1;
+    for( int y = 0; y < vertCount.y; y++ )
+    {
+        for( int x = 0; x < vertCount.x; x++ )
+        {
+            //   TL--TC---TR
+            //     \  |  /  
+            //      \ | /   
+            //        C     
+            //      / | \   
+            //     /  |  \  
+            //   BL--BC---BR
+
+            unsigned short indexC = (unsigned short)(y * vertCount.x + x);
+            unsigned short indexTL = y > 0  && x > 0  ? (unsigned short)((y-1) * vertCount.x + x-1) : indexC;
+            unsigned short indexTC = y > 0            ? (unsigned short)((y-1) * vertCount.x + x  ) : indexC;
+            unsigned short indexTR = y > 0  && x < mx ? (unsigned short)((y-1) * vertCount.x + x+1) : indexC;
+            unsigned short indexBL = y < my && x > 0  ? (unsigned short)((y+1) * vertCount.x + x-1) : indexC;
+            unsigned short indexBC = y < my           ? (unsigned short)((y+1) * vertCount.x + x  ) : indexC;
+            unsigned short indexBR = y < my && x < mx ? (unsigned short)((y+1) * vertCount.x + x+1) : indexC;
+
+            Vector3 posC = pVerts[indexC].pos;
+            Vector3 normalTL = (pVerts[indexTL].pos - posC).Cross( pVerts[indexTC].pos - posC );
+            Vector3 normalTR = (pVerts[indexTC].pos - posC).Cross( pVerts[indexTR].pos - posC );
+            Vector3 normalBL = (pVerts[indexBR].pos - posC).Cross( pVerts[indexBC].pos - posC );
+            Vector3 normalBR = (pVerts[indexBC].pos - posC).Cross( pVerts[indexBL].pos - posC );
+            
+            pVerts[indexC].normal = (normalTL + normalTR + normalBL + normalBR) / 4.0f;
+            pVerts[indexC].normal.Normalize();
+        }
+    }
+
+    if( createTriangles )
+    {
+        for( int y = 0; y < vertCount.y - 1; y++ )
+        {
+            for( int x = 0; x < vertCount.x - 1; x++ )
+            {
+                int elementIndex = (y * (vertCount.x-1) + x) * 6;
+                unsigned short vertexIndex = (unsigned short)(y * vertCount.x + x);
+
+                pIndices[ elementIndex + 0 ] = vertexIndex + 0;
+                pIndices[ elementIndex + 1 ] = vertexIndex + 1;
+                pIndices[ elementIndex + 2 ] = vertexIndex + (unsigned short)vertCount.x;
+
+                pIndices[ elementIndex + 3 ] = vertexIndex + 1;
+                pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned short)vertCount.x + 1;
+                pIndices[ elementIndex + 5 ] = vertexIndex + (unsigned short)vertCount.x;
+            }
+        }
+    }
+
+    Vector3 center( topLeftPos.x + size.x/2, topLeftPos.y, topLeftPos.z + size.y/ 2 );
+    m_pMesh->GetBounds()->Set( center, Vector3(size.x/2, 0, size.y/2) );
+
+    m_pMesh->SetReady();
 }

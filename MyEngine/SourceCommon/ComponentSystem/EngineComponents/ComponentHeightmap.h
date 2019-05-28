@@ -60,6 +60,7 @@ protected:
 #endif //MYFW_EDITOR
 
     void CreateHeightmap();
+    void GenerateHeightmapMesh();
 };
 
 #endif //__ComponentHeightmap_H__

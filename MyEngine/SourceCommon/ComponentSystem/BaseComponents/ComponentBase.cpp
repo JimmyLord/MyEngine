@@ -1075,8 +1075,13 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             break;
 
         case ComponentVariableType_Vector2Int:
-            ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
-            //pVar->m_ControlID = g_pPanelWatch->AddVector2Int( pVar->m_WatchLabel, (Vector2Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            {
+                bool modified = ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
+                if( pObjectAsComponent )
+                {
+                    pObjectAsComponent->TestForVariableModificationAndCreateUndoCommand( pObject, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
+                }
+            }
             break;
 
         case ComponentVariableType_Vector3Int:

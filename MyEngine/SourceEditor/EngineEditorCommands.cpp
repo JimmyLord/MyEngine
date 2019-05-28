@@ -127,6 +127,23 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         }
         break;
 
+    case ComponentVariableType_Vector2Int:
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+
+        // Determine which component of the control changed, assert if more than 1 changed.
+        controlcomponent = -1;
+        if( m_OldValue.GetVector2Int().x != m_NewValue.GetVector2Int().x )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 0;
+        }
+        if( m_OldValue.GetVector2Int().y != m_NewValue.GetVector2Int().y )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
+        break;
+
     //case PanelWatchType_Double:
     //    oldvalue = *(double*)m_pVar->m_Offset;
     //    *(double*)m_pVar->m_Offset += m_Difference;
@@ -151,7 +168,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     case ComponentVariableType_ColorByte:
     //case ComponentVariableType_Vector2:
     //case ComponentVariableType_Vector3:
-    case ComponentVariableType_Vector2Int:
+    //case ComponentVariableType_Vector2Int:
     case ComponentVariableType_Vector3Int:
     case ComponentVariableType_GameObjectPtr:
     case ComponentVariableType_ComponentPtr:
@@ -259,6 +276,23 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         }
         break;
 
+    case ComponentVariableType_Vector2Int:
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+
+        // Determine which component of the control changed, assert if more than 1 changed.
+        controlcomponent = -1;
+        if( m_OldValue.GetVector2Int().x != m_NewValue.GetVector2Int().x )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 0;
+        }
+        if( m_OldValue.GetVector2Int().y != m_NewValue.GetVector2Int().y )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
+        break;
+
     //case PanelWatchType_Double:
     //    oldvalue = *(double*)m_Pointer;
     //    *(double*)m_Pointer -= m_Difference;
@@ -283,7 +317,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     case ComponentVariableType_ColorByte:
     //case ComponentVariableType_Vector2:
     //case ComponentVariableType_Vector3:
-    case ComponentVariableType_Vector2Int:
+    //case ComponentVariableType_Vector2Int:
     case ComponentVariableType_Vector3Int:
     case ComponentVariableType_GameObjectPtr:
     case ComponentVariableType_ComponentPtr:
