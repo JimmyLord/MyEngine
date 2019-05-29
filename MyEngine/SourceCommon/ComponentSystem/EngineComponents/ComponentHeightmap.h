@@ -21,6 +21,7 @@ private:
 public:
     Vector2 m_Size;
     Vector2Int m_VertCount;
+    TextureDefinition* m_pHeightmapTexture;
 
 public:
     ComponentHeightmap(ComponentSystemManager* pComponentSystemManager);
@@ -58,6 +59,8 @@ protected:
     void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
+
+    void SetHeightmapTexture(TextureDefinition* pTexture);
 
     void CreateHeightmap();
     void GenerateHeightmapMesh();

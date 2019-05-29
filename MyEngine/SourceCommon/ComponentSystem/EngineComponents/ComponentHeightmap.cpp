@@ -44,6 +44,7 @@ void ComponentHeightmap::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
 
     AddVar( pList, "Size", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
     AddVar( pList, "VertCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_VertCount ), true, true, "VertCount", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "Texture", ComponentVariableType_TexturePtr, MyOffsetOf( pThis, &pThis->m_pHeightmapTexture ), true, true, "HeightmapTexture", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
 }
 
 void ComponentHeightmap::Reset()
@@ -52,6 +53,7 @@ void ComponentHeightmap::Reset()
 
     m_Size.Set( 10.0f, 10.0f );
     m_VertCount.Set( 128, 128 );
+    m_pHeightmapTexture = nullptr;
 }
 
 #if MYFW_USING_LUA
@@ -82,6 +84,11 @@ void* ComponentHeightmap::OnValueChanged(ComponentVariable* pVar, bool changedBy
     }
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_VertCount ) )
+    {
+        CreateHeightmap();
+    }
+
+    if( pVar->m_Offset == MyOffsetOf( this, &m_pHeightmapTexture ) )
     {
         CreateHeightmap();
     }
@@ -126,6 +133,7 @@ ComponentHeightmap& ComponentHeightmap::operator=(const ComponentHeightmap& othe
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_Size = other.m_Size;
     m_VertCount = other.m_VertCount;
+    SetHeightmapTexture( other.m_pHeightmapTexture );
 
     return *this;
 }
@@ -169,6 +177,13 @@ void ComponentHeightmap::UnregisterCallbacks()
 //void ComponentHeightmap::TickCallback(float deltaTime)
 //{
 //}
+
+void ComponentHeightmap::SetHeightmapTexture(TextureDefinition* pTexture)
+{
+    pTexture->AddRef();
+    SAFE_RELEASE( m_pHeightmapTexture );
+    m_pHeightmapTexture = pTexture;
+}
 
 void ComponentHeightmap::CreateHeightmap()
 {
@@ -215,8 +230,9 @@ void ComponentHeightmap::GenerateHeightmapMesh()
         createTriangles = false;
     }
 
-    if( vertCount.x <= 0 || vertCount.y <= 0 || vertCount.x * vertCount.y > 65535 )
+    if( vertCount.x <= 0 || vertCount.y <= 0 || (uint64)vertCount.x * (uint64)vertCount.y > UINT_MAX )
     {
+        LOGError( LOGTag, "vertCount can't be negative.\n" );
         return;
     }
 
@@ -230,16 +246,16 @@ void ComponentHeightmap::GenerateHeightmapMesh()
     }
 
     // Reinitialize the submesh properties along with the vertex and index buffers.
-    m_pMesh->RebuildShapeBuffers( numVerts, VertexFormat_XYZUVNorm, MyRE::PrimitiveType_Triangles, numIndices, MyRE::IndexType_U16, "MyMesh_Plane" );
+    m_pMesh->RebuildShapeBuffers( numVerts, VertexFormat_XYZUVNorm, MyRE::PrimitiveType_Triangles, numIndices, MyRE::IndexType_U32, "MyMesh_Plane" );
 
     Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer->GetData( true );
-    unsigned short* pIndices = (unsigned short*)m_pMesh->GetSubmesh( 0 )->m_pIndexBuffer->GetData( true );
+    unsigned int* pIndices = (unsigned int*)m_pMesh->GetSubmesh( 0 )->m_pIndexBuffer->GetData( true );
 
     for( int y = 0; y < vertCount.y; y++ )
     {
         for( int x = 0; x < vertCount.x; x++ )
         {
-            unsigned short index = (unsigned short)(y * vertCount.x + x);
+            unsigned int index = (unsigned int)(y * vertCount.x + x);
 
             pVerts[index].pos.x = topLeftPos.x + size.x / (vertCount.x - 1) * x;
             pVerts[index].pos.y = topLeftPos.y + sin( x/10.0f ) + sin( y/10.0f );
@@ -270,13 +286,13 @@ void ComponentHeightmap::GenerateHeightmapMesh()
             //     /  |  \  
             //   BL--BC---BR
 
-            unsigned short indexC = (unsigned short)(y * vertCount.x + x);
-            unsigned short indexTL = y > 0  && x > 0  ? (unsigned short)((y-1) * vertCount.x + x-1) : indexC;
-            unsigned short indexTC = y > 0            ? (unsigned short)((y-1) * vertCount.x + x  ) : indexC;
-            unsigned short indexTR = y > 0  && x < mx ? (unsigned short)((y-1) * vertCount.x + x+1) : indexC;
-            unsigned short indexBL = y < my && x > 0  ? (unsigned short)((y+1) * vertCount.x + x-1) : indexC;
-            unsigned short indexBC = y < my           ? (unsigned short)((y+1) * vertCount.x + x  ) : indexC;
-            unsigned short indexBR = y < my && x < mx ? (unsigned short)((y+1) * vertCount.x + x+1) : indexC;
+            unsigned int indexC = (unsigned int)(y * vertCount.x + x);
+            unsigned int indexTL = y > 0  && x > 0  ? (unsigned int)((y-1) * vertCount.x + x-1) : indexC;
+            unsigned int indexTC = y > 0            ? (unsigned int)((y-1) * vertCount.x + x  ) : indexC;
+            unsigned int indexTR = y > 0  && x < mx ? (unsigned int)((y-1) * vertCount.x + x+1) : indexC;
+            unsigned int indexBL = y < my && x > 0  ? (unsigned int)((y+1) * vertCount.x + x-1) : indexC;
+            unsigned int indexBC = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexC;
+            unsigned int indexBR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexC;
 
             Vector3 posC = pVerts[indexC].pos;
             Vector3 normalTL = (pVerts[indexTL].pos - posC).Cross( pVerts[indexTC].pos - posC );
@@ -296,15 +312,15 @@ void ComponentHeightmap::GenerateHeightmapMesh()
             for( int x = 0; x < vertCount.x - 1; x++ )
             {
                 int elementIndex = (y * (vertCount.x-1) + x) * 6;
-                unsigned short vertexIndex = (unsigned short)(y * vertCount.x + x);
+                unsigned int vertexIndex = (unsigned int)(y * vertCount.x + x);
 
                 pIndices[ elementIndex + 0 ] = vertexIndex + 0;
                 pIndices[ elementIndex + 1 ] = vertexIndex + 1;
-                pIndices[ elementIndex + 2 ] = vertexIndex + (unsigned short)vertCount.x;
+                pIndices[ elementIndex + 2 ] = vertexIndex + (unsigned int)vertCount.x;
 
                 pIndices[ elementIndex + 3 ] = vertexIndex + 1;
-                pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned short)vertCount.x + 1;
-                pIndices[ elementIndex + 5 ] = vertexIndex + (unsigned short)vertCount.x;
+                pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned int)vertCount.x + 1;
+                pIndices[ elementIndex + 5 ] = vertexIndex + (unsigned int)vertCount.x;
             }
         }
     }

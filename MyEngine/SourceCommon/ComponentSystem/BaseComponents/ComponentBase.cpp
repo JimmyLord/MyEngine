@@ -540,6 +540,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
         case ComponentVariableType_ComponentPtr:
         case ComponentVariableType_FilePtr:
         case ComponentVariableType_MaterialPtr:
+        case ComponentVariableType_TexturePtr:
         case ComponentVariableType_SoundCuePtr:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
@@ -1631,6 +1632,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
 
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_MaterialPtr:
+            case ComponentVariableType_TexturePtr:
             case ComponentVariableType_SoundCuePtr:
                 MyAssert( false );
                 break;
@@ -1655,9 +1657,11 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
 
 void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TCPPListHead<ComponentVariable*>* pList, ComponentBase* pObjectAsComponent, SceneID sceneIDLoadedFrom, const char* singleLabelToImport)
 {
-    // TODO: remove this once GetComponentVariableList() is pure virtual
+    // TODO: Remove this once GetComponentVariableList() is pure virtual.
     if( pList == 0 )
         return;
+
+    ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager;
 
     for( CPPListNode* pNode = pList->GetHead(); pNode; pNode = pNode->GetNext() )
     {
@@ -1667,7 +1671,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
         if( pVar->m_SaveLoad == false )
             continue;
 
-        // if we are looking for a single label to import, check if this is it.
+        // If we are looking for a single label to import, check if this is it.
         if( singleLabelToImport != 0 && strcmp( singleLabelToImport, pVar->m_Label ) != 0 )
             continue;
 
@@ -1685,7 +1689,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
 
                     if( obj )
                     {
-                        // try to load the value as a string.
+                        // Try to load the value as a string.
                         if( obj->valuestring != 0 )
                         {
                             for( int i=0; i<pVar->m_NumEnumStrings; i++ )
@@ -1699,7 +1703,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                         }
                         else
                         {
-                            // if a string wasn't found, then treat the value as an int.
+                            // If a string wasn't found, then treat the value as an int.
                             *(int*)((char*)pObject + pVar->m_Offset) = obj->valueint;
                         }
                     }
@@ -1710,15 +1714,15 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 {
                     cJSON* jFlagsArray = cJSON_GetObjectItem( jComponent, pVar->m_Label );
 
-                    // load each array value as a string.
+                    // Load each array value as a string.
                     if( jFlagsArray )
                     {
                         int arraysize = cJSON_GetArraySize( jFlagsArray );
                         if( arraysize == 0 )
                         {
-                            // TODO: remove eventually
-                            // support for old scene files that didn't store visibility flags in arrays
-                            // just load valueint as a single flag.
+                            // TODO: Remove eventually.
+                            // Support for old scene files that didn't store visibility flags in arrays.
+                            // Just load valueint as a single flag.
                             *(unsigned int*)((char*)pObject + pVar->m_Offset) = 1<<(jFlagsArray->valueint-1);
                         }
                         else
@@ -1742,7 +1746,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                                         }
                                     }
 
-                                    // if the flag string wasn't found, popup a warning
+                                    // If the flag string wasn't found, popup a warning.
 #if MYFW_USING_WX
                                     if( found == false )
                                     {
@@ -1807,7 +1811,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                     cJSONExt_GetUnsignedInt( jComponent, pVar->m_Label, &parentid );
                     if( parentid != 0 )
                     {
-                        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneIDLoadedFrom, parentid );
+                        GameObject* pParentGameObject = pComponentSystemManager->FindGameObjectByID( sceneIDLoadedFrom, parentid );
                         *(GameObject**)((char*)pObject + pVar->m_Offset) = pParentGameObject;
                     }
                 }
@@ -1818,7 +1822,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                     cJSON* jComponentRef = cJSON_GetObjectItem( jComponent, pVar->m_Label );
                     if( jComponentRef )
                     {
-                        ComponentBase* pComponent = g_pComponentSystemManager->FindComponentByJSONRef( jComponentRef, sceneIDLoadedFrom );
+                        ComponentBase* pComponent = pComponentSystemManager->FindComponentByJSONRef( jComponentRef, sceneIDLoadedFrom );
                         *(ComponentBase**)((char*)pObject + pVar->m_Offset) = pComponent;
                     }
                 }
@@ -1828,6 +1832,36 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
             case ComponentVariableType_MaterialPtr:
             case ComponentVariableType_SoundCuePtr:
                 MyAssert( false );
+                break;
+
+            case ComponentVariableType_TexturePtr:
+                {
+                    cJSON* jTextureName = cJSON_GetObjectItem( jComponent, pVar->m_Label );
+
+                    if( jTextureName )
+                    {
+                        // TODO: Test this code.
+                        MyAssert( false );
+
+                        // Find the texture, load if needed.
+                        TextureManager* pTextureManager = pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
+                        TextureDefinition* pTexture = pTextureManager->FindTexture( jTextureName->valuestring );
+                        if( pTexture == nullptr )
+                        {
+                            MyFileInfo* pFileInfo = pComponentSystemManager->LoadDataFile( jTextureName->valuestring, sceneIDLoadedFrom, nullptr, false );
+                            pTexture = pFileInfo->GetTexture();
+                        }
+
+                        // Assign the texture to the component.
+                        if( pTexture != nullptr )
+                        {
+                            TextureDefinition** ppTextureDef = (TextureDefinition**)((char*)pObject + pVar->m_Offset);
+                            pTexture->AddRef();
+                            SAFE_RELEASE( *ppTextureDef );
+                            *ppTextureDef = pTexture;
+                        }
+                    }
+                }
                 break;
 
             case ComponentVariableType_PointerIndirect:
@@ -1963,6 +1997,7 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_ComponentPtr:
             case ComponentVariableType_MaterialPtr:
+            case ComponentVariableType_TexturePtr:
             case ComponentVariableType_SoundCuePtr:
                 return *(void**)((char*)this + offset) == *(void**)((char*)pOtherComponent + offset);
 
@@ -2592,6 +2627,7 @@ double ComponentBase::GetCurrentValueFromVariable(ComponentVariable* pVar, int c
     case ComponentVariableType_FilePtr:
     case ComponentVariableType_ComponentPtr:
     case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_TexturePtr:
     case ComponentVariableType_SoundCuePtr:
     case ComponentVariableType_PointerIndirect:                                                         break;
 
@@ -3109,6 +3145,18 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
             g_DragAndDropStruct.Clear();
             g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
             g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, *(void**)((char*)pOtherComponent + offset) );
+            OnDropVariable( pVar, 0, 0, 0 );
+        }
+        break;
+
+    case ComponentVariableType_TexturePtr:
+        {
+            // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
+            assert( addundocommand == true );
+
+            g_DragAndDropStruct.Clear();
+            g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+            g_DragAndDropStruct.Add( DragAndDropType_TextureDefinitionPointer, *(void**)((char*)pOtherComponent + offset) );
             OnDropVariable( pVar, 0, 0, 0 );
         }
         break;
@@ -3698,6 +3746,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
     case ComponentVariableType_FilePtr:
     case ComponentVariableType_ComponentPtr:
     case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_TexturePtr:
     case ComponentVariableType_SoundCuePtr:
         {
             if( fromdraganddrop )
