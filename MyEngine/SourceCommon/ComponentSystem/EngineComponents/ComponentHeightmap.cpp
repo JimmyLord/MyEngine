@@ -12,6 +12,11 @@
 #include "ComponentHeightmap.h"
 #include "Core/EngineCore.h"
 
+#pragma warning( push )
+#pragma warning( disable : 4996 )
+#include "../../Libraries/LodePNG/lodepng.h"
+#pragma warning( pop )
+
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentHeightmap ); //_VARIABLE_LIST
 
@@ -44,7 +49,7 @@ void ComponentHeightmap::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
 
     AddVar( pList, "Size", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
     AddVar( pList, "VertCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_VertCount ), true, true, "VertCount", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
-    AddVar( pList, "Texture", ComponentVariableType_TexturePtr, MyOffsetOf( pThis, &pThis->m_pHeightmapTexture ), true, true, "HeightmapTexture", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "HeightmapTexture", ComponentVariableType_TexturePtr, MyOffsetOf( pThis, &pThis->m_pHeightmapTexture ), true, true, "Texture", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, (CVarFunc_DropTarget)&ComponentHeightmap::OnDrop, nullptr );
 }
 
 void ComponentHeightmap::Reset()
@@ -71,6 +76,18 @@ void ComponentHeightmap::LuaRegister(lua_State* luaState)
 void* ComponentHeightmap::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
     void* oldPointer = 0;
+
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_TextureDefinitionPointer )
+    {
+        oldPointer = m_pHeightmapTexture;
+        SetHeightmapTexture( (TextureDefinition*)pDropItem->m_Value );
+
+        // Rebuild the heightmap.
+        CreateHeightmap();
+    }
+
     return oldPointer;
 }
 
@@ -180,7 +197,8 @@ void ComponentHeightmap::UnregisterCallbacks()
 
 void ComponentHeightmap::SetHeightmapTexture(TextureDefinition* pTexture)
 {
-    pTexture->AddRef();
+    if( pTexture )
+        pTexture->AddRef();
     SAFE_RELEASE( m_pHeightmapTexture );
     m_pHeightmapTexture = pTexture;
 }
@@ -199,15 +217,8 @@ void ComponentHeightmap::CreateHeightmap()
     if( m_pMesh->GetSubmeshListCount() > 0 )
         m_pMesh->GetSubmesh( 0 )->m_PrimitiveType = m_GLPrimitiveType;
 
-    // Create a plane. // TODO: Change to a heightmap.
-    {
-        GenerateHeightmapMesh();
-
-        //bool createTriangles = true;
-        //if( m_GLPrimitiveType == MyRE::PrimitiveType_Points )
-        //    createTriangles = false;
-        //m_pMesh->CreatePlane( Vector3(-m_Size.x/2, 0, m_Size.y/2), m_Size, m_VertCount, Vector2(0,0), Vector2(1,1), createTriangles );
-    }
+    // Generate the actual heightmap.
+    GenerateHeightmapMesh();
 
     m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
@@ -251,24 +262,46 @@ void ComponentHeightmap::GenerateHeightmapMesh()
     Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer->GetData( true );
     unsigned int* pIndices = (unsigned int*)m_pMesh->GetSubmesh( 0 )->m_pIndexBuffer->GetData( true );
 
-    for( int y = 0; y < vertCount.y; y++ )
+    // Generate the vertex positions
     {
-        for( int x = 0; x < vertCount.x; x++ )
+        unsigned char* buffer = (unsigned char*)m_pHeightmapTexture->GetFile()->GetBuffer();
+        if( buffer == 0 )
+            return;
+
+        int length = m_pHeightmapTexture->GetFile()->GetFileLength();
+
+        unsigned char* pixelBuffer;
+        unsigned int texWidth, texHeight;
+
+        // Decode the file into a raw buffer.
+        unsigned int error = lodepng_decode32( &pixelBuffer, &texWidth, &texHeight, buffer, length );
+        MyAssert( error == 0 );
+
+        for( int y = 0; y < vertCount.y; y++ )
         {
-            unsigned int index = (unsigned int)(y * vertCount.x + x);
-
-            pVerts[index].pos.x = topLeftPos.x + size.x / (vertCount.x - 1) * x;
-            pVerts[index].pos.y = topLeftPos.y + sin( x/10.0f ) + sin( y/10.0f );
-            pVerts[index].pos.z = topLeftPos.z - size.y / (vertCount.y - 1) * y;
-
-            pVerts[index].uv.x = uvStart.x + x * uvRange.x / (vertCount.x - 1);
-            pVerts[index].uv.y = uvStart.y + y * uvRange.y / (vertCount.y - 1);
-
-            if( createTriangles == false )
+            for( int x = 0; x < vertCount.x; x++ )
             {
-                pIndices[index] = index;
+                unsigned int index = (unsigned int)(y * vertCount.x + x);
+
+                Vector2 texCoord( (float)x/vertCount.x * texWidth, (float)y/vertCount.y * texHeight );
+                int texIndex = (int)( texCoord.y * texWidth + texCoord.x );
+                float height = pixelBuffer[texIndex*4] / 255.0f;
+
+                pVerts[index].pos.x = topLeftPos.x + size.x / (vertCount.x - 1) * x;
+                pVerts[index].pos.y = topLeftPos.y + height;
+                pVerts[index].pos.z = topLeftPos.z - size.y / (vertCount.y - 1) * y;
+
+                pVerts[index].uv.x = uvStart.x + x * uvRange.x / (vertCount.x - 1);
+                pVerts[index].uv.y = uvStart.y + y * uvRange.y / (vertCount.y - 1);
+
+                if( createTriangles == false )
+                {
+                    pIndices[index] = index;
+                }
             }
         }
+
+        free( pixelBuffer );
     }
 
     // Calculate normals.

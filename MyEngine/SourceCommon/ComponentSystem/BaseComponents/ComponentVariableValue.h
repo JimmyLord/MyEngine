@@ -40,6 +40,7 @@ protected:
         ComponentBase* m_ComponentPtr;
         MyFileObject* m_FilePtr;
         MaterialDefinition* m_MaterialPtr;
+        TextureDefinition* m_TexturePtr;
         SoundCue* m_SoundCuePtr;
         void* m_VoidPtr;
     };
@@ -72,6 +73,7 @@ public:
     MyFileObject*       GetFilePtr()         { MyAssert( m_Type == ComponentVariableType_FilePtr );         return m_FilePtr; }
     ComponentBase*      GetComponentPtr()    { MyAssert( m_Type == ComponentVariableType_ComponentPtr );    return m_ComponentPtr; }
     MaterialDefinition* GetMaterialPtr()     { MyAssert( m_Type == ComponentVariableType_MaterialPtr );     return m_MaterialPtr; }
+    TextureDefinition*  GetTexturePtr()      { MyAssert( m_Type == ComponentVariableType_TexturePtr );      return m_TexturePtr; }
     SoundCue*           GetSoundCuePtr()     { MyAssert( m_Type == ComponentVariableType_SoundCuePtr );     return m_SoundCuePtr; }
     void*               GetPointerIndirect() { MyAssert( m_Type == ComponentVariableType_PointerIndirect ); return m_VoidPtr; }
 };

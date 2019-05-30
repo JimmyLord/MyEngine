@@ -174,6 +174,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     case ComponentVariableType_ComponentPtr:
     case ComponentVariableType_FilePtr:
     case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_TexturePtr:
     case ComponentVariableType_SoundCuePtr:
     case ComponentVariableType_PointerIndirect:
     case ComponentVariableType_NumTypes:
@@ -323,6 +324,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     case ComponentVariableType_ComponentPtr:
     case ComponentVariableType_FilePtr:
     case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_TexturePtr:
     case ComponentVariableType_SoundCuePtr:
     case ComponentVariableType_PointerIndirect:
     case ComponentVariableType_NumTypes:

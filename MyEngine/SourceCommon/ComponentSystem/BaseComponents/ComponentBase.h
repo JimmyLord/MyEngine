@@ -205,8 +205,7 @@ public:
     double GetCurrentValueFromVariable(ComponentVariable* pVar, int controlcomponent);
     void ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo);
 
-    // There are currently 2 versions of this, one for wx and one for imgui based editor.
-    void CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand);
+    void CopyValueFromOtherComponent(ComponentVariable* pVar, int controlComponent, ComponentBase* pOtherComponent, bool addUndoCommand);
 
     void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
     void UpdateChildrenInGameObjectListWithNewValue(GameObject* pFirstGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
