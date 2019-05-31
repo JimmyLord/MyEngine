@@ -18,10 +18,13 @@ private:
     // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentHeightmap );
 
-public:
+protected:
     Vector2 m_Size;
     Vector2Int m_VertCount;
     TextureDefinition* m_pHeightmapTexture;
+    Vector2Int m_HeightmapTextureSize;
+
+    bool m_WaitingForTextureFileToFinishLoading;
 
 public:
     ComponentHeightmap(ComponentSystemManager* pComponentSystemManager);
@@ -35,6 +38,8 @@ public:
     //virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID);
     //virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID);
     virtual void FinishImportingFromJSONObject(cJSON* jComponent) override;
+
+    virtual void AddAllVariablesToWatchPanel() override;
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentHeightmap&)*pObject; }
@@ -61,9 +66,12 @@ protected:
 #endif //MYFW_EDITOR
 
     void SetHeightmapTexture(TextureDefinition* pTexture);
+    void UnregisterFileLoadingCallback();
+    static void StaticOnFileFinishedLoadingHeightmapTexture(void* pObjectPtr, MyFileObject* pFile) { ((ComponentHeightmap*)pObjectPtr)->OnFileFinishedLoadingHeightmapTexture( pFile ); }
+    void OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile);
 
     void CreateHeightmap();
-    void GenerateHeightmapMesh();
+    bool GenerateHeightmapMesh();
 };
 
 #endif //__ComponentHeightmap_H__

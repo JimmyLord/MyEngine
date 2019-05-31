@@ -472,15 +472,17 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
         {
             Vector3 dir( 0, 0, 0 );
 
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Forward, modifiers, keyCode ) ) dir.z +=  1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Left,    modifiers, keyCode ) ) dir.x += -1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Back,    modifiers, keyCode ) ) dir.z += -1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Right,   modifiers, keyCode ) ) dir.x +=  1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Up,      modifiers, keyCode ) ) dir.y +=  1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Down,    modifiers, keyCode ) ) dir.y += -1;
+            uint8 modifiersWithoutShift = modifiers & ~MODIFIERKEY_Shift;
+
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Forward, modifiersWithoutShift, keyCode ) ) dir.z +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Left,    modifiersWithoutShift, keyCode ) ) dir.x += -1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Back,    modifiersWithoutShift, keyCode ) ) dir.z += -1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Right,   modifiersWithoutShift, keyCode ) ) dir.x +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Up,      modifiersWithoutShift, keyCode ) ) dir.y +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Down,    modifiersWithoutShift, keyCode ) ) dir.y += -1;
 
             float speed = 7.0f;
-            if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
+            if( modifiers & MODIFIERKEY_Shift )
                 speed *= 5;
 
             if( dir.LengthSquared() > 0 )

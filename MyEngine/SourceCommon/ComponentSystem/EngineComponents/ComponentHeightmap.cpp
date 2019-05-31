@@ -28,6 +28,9 @@ ComponentHeightmap::ComponentHeightmap(ComponentSystemManager* pComponentSystemM
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Renderable;
+
+    m_pHeightmapTexture = nullptr;
+    m_WaitingForTextureFileToFinishLoading = false;
 }
 
 ComponentHeightmap::~ComponentHeightmap()
@@ -58,7 +61,8 @@ void ComponentHeightmap::Reset()
 
     m_Size.Set( 10.0f, 10.0f );
     m_VertCount.Set( 128, 128 );
-    m_pHeightmapTexture = nullptr;
+    SAFE_RELEASE( m_pHeightmapTexture );
+    m_HeightmapTextureSize.Set( 0, 0 );
 }
 
 #if MYFW_USING_LUA
@@ -141,13 +145,29 @@ void ComponentHeightmap::FinishImportingFromJSONObject(cJSON* jComponent)
     }
 }
 
+void ComponentHeightmap::AddAllVariablesToWatchPanel()
+{
+    ComponentBase::AddAllVariablesToWatchPanel();
+
+    if( m_VertCount != m_HeightmapTextureSize )
+    {
+        ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_HeightmapTextureSize.x, m_HeightmapTextureSize.y );
+        if( ImGui::Button( "Change vertCount" ) )
+        {
+            // TODO: Undo.
+            m_VertCount = m_HeightmapTextureSize;
+            GenerateHeightmapMesh();
+        }
+    }
+}
+
 ComponentHeightmap& ComponentHeightmap::operator=(const ComponentHeightmap& other)
 {
     MyAssert( &other != this );
 
     ComponentMesh::operator=( other );
 
-    // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
+    // TODO: Replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_Size = other.m_Size;
     m_VertCount = other.m_VertCount;
     SetHeightmapTexture( other.m_pHeightmapTexture );
@@ -197,10 +217,28 @@ void ComponentHeightmap::UnregisterCallbacks()
 
 void ComponentHeightmap::SetHeightmapTexture(TextureDefinition* pTexture)
 {
+    UnregisterFileLoadingCallback();
+    m_HeightmapTextureSize.Set( 0, 0 );
+
     if( pTexture )
         pTexture->AddRef();
     SAFE_RELEASE( m_pHeightmapTexture );
     m_pHeightmapTexture = pTexture;
+}
+
+void ComponentHeightmap::UnregisterFileLoadingCallback()
+{
+    if( m_WaitingForTextureFileToFinishLoading )
+    {
+        m_pHeightmapTexture->GetFile()->UnregisterFileFinishedLoadingCallback( this );
+        m_WaitingForTextureFileToFinishLoading = false;
+    }
+}
+
+void ComponentHeightmap::OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile) // StaticOnFileFinishedLoadingHeightmapTexture
+{
+    CreateHeightmap();
+    UnregisterFileLoadingCallback();
 }
 
 void ComponentHeightmap::CreateHeightmap()
@@ -218,65 +256,81 @@ void ComponentHeightmap::CreateHeightmap()
         m_pMesh->GetSubmesh( 0 )->m_PrimitiveType = m_GLPrimitiveType;
 
     // Generate the actual heightmap.
-    GenerateHeightmapMesh();
+    if( GenerateHeightmapMesh() )
+    {
+        m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
-    m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
-
-    // Add the Mesh to the main scene graph.
-    AddToRenderGraph();
+        // Add the Mesh to the main render graph.
+        AddToRenderGraph();
+    }
+    else
+    {
+        RemoveFromRenderGraph();
+    }
 }
 
-void ComponentHeightmap::GenerateHeightmapMesh()
+// Returns true if successfully generated mesh.
+bool ComponentHeightmap::GenerateHeightmapMesh()
 {
     //LOGInfo( LOGTag, "ComponentHeightmap::GenerateHeightmapMesh\n" );
 
+    // Sanity check on vertex count.
+    if( m_VertCount.x <= 0 || m_VertCount.y <= 0 || (uint64)m_VertCount.x * (uint64)m_VertCount.y > UINT_MAX )
+    {
+        LOGError( LOGTag, "vertCount can't be negative.\n" );
+        return false;
+    }
+
+    // If the heightmap texture is still loading, register a callback.
+    if( m_pHeightmapTexture->GetFile()->IsFinishedLoading() == false )
+    {
+        if( m_WaitingForTextureFileToFinishLoading == false )
+        {
+            m_WaitingForTextureFileToFinishLoading = true;
+            m_pHeightmapTexture->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoadingHeightmapTexture );
+        }
+        return false;
+    }
+
+    // Set the parameters. // TODO: Make some of these members.
     Vector2 size = m_Size;
     Vector2Int vertCount = m_VertCount;
     Vector3 topLeftPos( -m_Size.x/2, 0, m_Size.y/2 );
     Vector2 uvStart( 0, 0 );
     Vector2 uvRange( 0, 0 );
-    bool createTriangles = true;
-    if( m_GLPrimitiveType == MyRE::PrimitiveType_Points )
-    {
-        createTriangles = false;
-    }
+    bool createTriangles = (m_GLPrimitiveType == MyRE::PrimitiveType_Points) ? false : true;
 
-    if( vertCount.x <= 0 || vertCount.y <= 0 || (uint64)vertCount.x * (uint64)vertCount.y > UINT_MAX )
-    {
-        LOGError( LOGTag, "vertCount can't be negative.\n" );
-        return;
-    }
-
+    // Calculate the number of triangles, vertices and indices.
+    // TODO: Rewrite this to use triangle strips.
     unsigned int numTris = (vertCount.x - 1) * (vertCount.y - 1) * 2;
     unsigned int numVerts = vertCount.x * vertCount.y;
-    unsigned int numIndices = numTris * 3;
-
-    if( createTriangles == false )
-    {
-        numIndices = numVerts;
-    }
+    unsigned int numIndices = createTriangles ? numTris * 3 : numVerts; // 3 per triangle or 1 per point.
 
     // Reinitialize the submesh properties along with the vertex and index buffers.
     m_pMesh->RebuildShapeBuffers( numVerts, VertexFormat_XYZUVNorm, MyRE::PrimitiveType_Triangles, numIndices, MyRE::IndexType_U32, "MyMesh_Plane" );
-
     Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer->GetData( true );
     unsigned int* pIndices = (unsigned int*)m_pMesh->GetSubmesh( 0 )->m_pIndexBuffer->GetData( true );
 
     // Generate the vertex positions
     {
-        unsigned char* buffer = (unsigned char*)m_pHeightmapTexture->GetFile()->GetBuffer();
-        if( buffer == 0 )
-            return;
-
-        int length = m_pHeightmapTexture->GetFile()->GetFileLength();
-
-        unsigned char* pixelBuffer;
+        unsigned char* pixelBuffer = nullptr;
         unsigned int texWidth, texHeight;
 
         // Decode the file into a raw buffer.
-        unsigned int error = lodepng_decode32( &pixelBuffer, &texWidth, &texHeight, buffer, length );
-        MyAssert( error == 0 );
+        {
+            unsigned char* buffer = (unsigned char*)m_pHeightmapTexture->GetFile()->GetBuffer();
+            MyAssert( buffer != nullptr );
 
+            int length = m_pHeightmapTexture->GetFile()->GetFileLength();
+
+            unsigned int error = lodepng_decode32( &pixelBuffer, &texWidth, &texHeight, buffer, length );
+            MyAssert( error == 0 );
+        }
+
+        // Store the heightmap texture size, so we can show a warning if there's a mismatch.
+        m_HeightmapTextureSize.Set( (int)texWidth, (int)texHeight );
+
+        // Set the vertices.
         for( int y = 0; y < vertCount.y; y++ )
         {
             for( int x = 0; x < vertCount.x; x++ )
@@ -284,7 +338,7 @@ void ComponentHeightmap::GenerateHeightmapMesh()
                 unsigned int index = (unsigned int)(y * vertCount.x + x);
 
                 Vector2 texCoord( (float)x/vertCount.x * texWidth, (float)y/vertCount.y * texHeight );
-                int texIndex = (int)( texCoord.y * texWidth + texCoord.x );
+                int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
                 float height = pixelBuffer[texIndex*4] / 255.0f;
 
                 pVerts[index].pos.x = topLeftPos.x + size.x / (vertCount.x - 1) * x;
@@ -301,6 +355,7 @@ void ComponentHeightmap::GenerateHeightmapMesh()
             }
         }
 
+        // Free the memory allocated by lodepng_decode32.
         free( pixelBuffer );
     }
 
@@ -338,6 +393,7 @@ void ComponentHeightmap::GenerateHeightmapMesh()
         }
     }
 
+    // Setup indices.
     if( createTriangles )
     {
         for( int y = 0; y < vertCount.y - 1; y++ )
@@ -358,8 +414,11 @@ void ComponentHeightmap::GenerateHeightmapMesh()
         }
     }
 
+    // Calculate the bounding box.
     Vector3 center( topLeftPos.x + size.x/2, topLeftPos.y, topLeftPos.z + size.y/ 2 );
     m_pMesh->GetBounds()->Set( center, Vector3(size.x/2, 0, size.y/2) );
 
     m_pMesh->SetReady();
+
+    return true;
 }
