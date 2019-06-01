@@ -358,6 +358,14 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;        
 
+    case EditorMenuCommand_View_ShowEditorCamProperties:
+        {
+            ComponentCamera* pEditorCam = g_pEngineCore->GetEditorState()->GetEditorCamera();
+            g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+            g_pEngineCore->GetEditorState()->SelectComponent( pEditorCam );
+        }
+        break;
+
     case EditorMenuCommand_View_ShowEditorIcons:
         {
             pEditorPrefs->Toggle_View_ShowEditorIcons();

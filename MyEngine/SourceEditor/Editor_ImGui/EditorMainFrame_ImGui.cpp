@@ -472,6 +472,7 @@ bool EditorMainFrame_ImGui::ExecuteHotkeyAction(HotKeyAction action)
     case HotKeyAction::File_Preferences:              { pEditorPrefs->Display();                                                     return true; }
     case HotKeyAction::Edit_Undo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
     case HotKeyAction::Edit_Redo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
+    case HotKeyAction::View_ShowEditorCamProperties:  { EditorMenuCommand( EditorMenuCommand_View_ShowEditorCamProperties );         return true; }
     case HotKeyAction::View_ShowEditorIcons:          { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return true; }
     case HotKeyAction::View_ToggleEditorCamDeferred:  { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return true; }
     case HotKeyAction::View_Full:                     { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return true; }
@@ -1236,6 +1237,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             if( ImGui::BeginMenu( "Editor Camera" ) )
             {
+                AddMenuItemWithHotkeyCheck( "Show Properties", HotKeyAction::View_ShowEditorCamProperties );
                 AddMenuItemWithHotkeyCheck( "Show Icons", HotKeyAction::View_ShowEditorIcons, pEditorPrefs->Get_View_ShowEditorIcons() );
                 AddMenuItemWithHotkeyCheck( "Deferred Render", HotKeyAction::View_ToggleEditorCamDeferred, pEditorPrefs->Get_View_EditorCamDeferred() );
                 if( ImGui::MenuItem( "Show Deferred G-Buffer", "" ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorCamDeferredGBuffer ); }

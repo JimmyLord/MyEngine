@@ -27,6 +27,7 @@ enum EditorMenuCommands
     EditorMenuCommand_Edit_Redo,
     EditorMenuCommand_View_SelectedObjects_ShowWireframe,
     EditorMenuCommand_View_SelectedObjects_ShowEffect,
+    EditorMenuCommand_View_ShowEditorCamProperties,
     EditorMenuCommand_View_ShowEditorIcons,
     EditorMenuCommand_View_ToggleEditorCamDeferred,
     EditorMenuCommand_View_ShowEditorCamDeferredGBuffer,

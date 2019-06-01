@@ -20,6 +20,7 @@ const char* g_KeyBindingStrings[HotKeyAction::Num] =
     "File_Preferences",
     "Edit_Undo",
     "Edit_Redo",
+    "View_ShowEditorCamProperties",
     "View_ShowEditorIcons",
     "View_ToggleEditorCamDeferred",
     "View_Full",
@@ -52,6 +53,7 @@ EditorKeyBindings::EditorKeyBindings()
     uint32 C  = Modifier_ControlOrCommand;
     uint32 A  = Modifier_Alt;
     uint32 S  = Modifier_Shift;
+    uint32 CA = Modifier_ControlOrCommand | Modifier_Alt;
     uint32 CS = Modifier_ControlOrCommand | Modifier_Shift;
 
     // Global.
@@ -65,6 +67,7 @@ EditorKeyBindings::EditorKeyBindings()
     SetDefaultKeys( 0, HotKeyAction::Edit_Undo,                     C,  'Z' );
     SetDefaultKeys( 0, HotKeyAction::Edit_Redo,                     C,  'Y',   CS, 'Z' );
     // View menu.
+    SetDefaultKeys( 0, HotKeyAction::View_ShowEditorCamProperties,  CA, 118 ); // F7
     SetDefaultKeys( 0, HotKeyAction::View_ShowEditorIcons,          S,  118 ); // F7
     SetDefaultKeys( 0, HotKeyAction::View_ToggleEditorCamDeferred,  CS, 118 ); // F7
     SetDefaultKeys( 0, HotKeyAction::View_Full,                     A,  '1' );
