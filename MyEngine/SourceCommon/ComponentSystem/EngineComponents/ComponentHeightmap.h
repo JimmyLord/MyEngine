@@ -24,6 +24,8 @@ protected:
     TextureDefinition* m_pHeightmapTexture;
     Vector2Int m_HeightmapTextureSize;
 
+    float* m_Heights;
+
     bool m_WaitingForTextureFileToFinishLoading;
 
 public:
@@ -72,6 +74,8 @@ protected:
 
     void CreateHeightmap();
     bool GenerateHeightmapMesh();
+
+    bool GetHeightAtWorldXZ(float x, float z, float* pFloat);
 };
 
 #endif //__ComponentHeightmap_H__

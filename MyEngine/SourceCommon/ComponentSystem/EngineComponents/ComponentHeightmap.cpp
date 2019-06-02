@@ -10,6 +10,8 @@
 #include "MyEnginePCH.h"
 
 #include "ComponentHeightmap.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
 
 #pragma warning( push )
@@ -30,11 +32,14 @@ ComponentHeightmap::ComponentHeightmap(ComponentSystemManager* pComponentSystemM
     m_BaseType = BaseComponentType_Renderable;
 
     m_pHeightmapTexture = nullptr;
+    m_Heights = nullptr;
     m_WaitingForTextureFileToFinishLoading = false;
 }
 
 ComponentHeightmap::~ComponentHeightmap()
 {
+    SAFE_DELETE( m_Heights );
+
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
     //MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED( Tick );
@@ -219,6 +224,7 @@ void ComponentHeightmap::SetHeightmapTexture(TextureDefinition* pTexture)
 {
     UnregisterFileLoadingCallback();
     m_HeightmapTextureSize.Set( 0, 0 );
+    SAFE_DELETE( m_Heights );
 
     if( pTexture )
         pTexture->AddRef();
@@ -329,6 +335,9 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
 
         // Store the heightmap texture size, so we can show a warning if there's a mismatch.
         m_HeightmapTextureSize.Set( (int)texWidth, (int)texHeight );
+        
+        // Allocate a buffer to store the vertex heights.
+        m_Heights = MyNew float[vertCount.x * vertCount.y];
 
         // Set the vertices.
         for( int y = 0; y < vertCount.y; y++ )
@@ -340,6 +349,8 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
                 Vector2 texCoord( (float)x/vertCount.x * texWidth, (float)y/vertCount.y * texHeight );
                 int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
                 float height = pixelBuffer[texIndex*4] / 255.0f;
+
+                m_Heights[index] = height;
 
                 pVerts[index].pos.x = topLeftPos.x + size.x / (vertCount.x - 1) * x;
                 pVerts[index].pos.y = topLeftPos.y + height;
@@ -420,5 +431,46 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
 
     m_pMesh->SetReady();
 
+    // TODO: Just a test. Remove me.
+    GetHeightAtWorldXZ( 0, 0, nullptr );
+
     return true;
+}
+
+bool ComponentHeightmap::GetHeightAtWorldXZ(float x, float z, float* pFloat)
+{
+    bool onMap = false;
+
+    float height = 0.0f;
+
+    ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
+    MyAssert( pTransform );
+
+    MyMatrix* pWorldMat = pTransform->GetWorldTransform();
+
+    Vector3 localPos = pWorldMat->GetInverse() * Vector3( x, 0, z );
+
+    //LOGInfo( LOGTag, "LocalPos: %f, %f, %f", localPos.x, localPos.y, localPos.z );
+
+    // Calculate the height at localPos.
+    Vector3 topLeftPos( -m_Size.x/2, 0, -m_Size.y/2 );
+
+    Vector3 posZero = localPos - topLeftPos;
+    Vector2Int posIndex = m_VertCount * (posZero.XZ()/m_Size);
+    posIndex.y = m_VertCount.y - posIndex.y - 1;
+
+    if( posIndex.x < 0 || posIndex.x >= m_VertCount.x ||
+        posIndex.y < 0 || posIndex.y >= m_VertCount.y )
+    {
+        LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: Out of bounds" );
+    }
+
+    unsigned int index = (unsigned int)(posIndex.y * m_VertCount.x + posIndex.x);
+
+    if( pFloat )
+        *pFloat = m_Heights[index];
+
+    LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: (%d,%d) %f", posIndex.x, posIndex.y, m_Heights[index] );
+
+    return onMap;
 }
