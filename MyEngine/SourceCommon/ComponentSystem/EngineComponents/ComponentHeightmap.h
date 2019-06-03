@@ -65,6 +65,8 @@ protected:
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
+
+    void OnButtonEditHeightmap();
 #endif //MYFW_EDITOR
 
     void SetHeightmapTexture(TextureDefinition* pTexture);

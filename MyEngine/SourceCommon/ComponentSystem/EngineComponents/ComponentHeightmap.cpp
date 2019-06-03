@@ -14,6 +14,10 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
 
+#if MYFW_EDITOR
+#include "../SourceEditor/Interfaces/EditorInterface_HeightmapEditor.h"
+#endif
+
 #pragma warning( push )
 #pragma warning( disable : 4996 )
 #include "../../Libraries/LodePNG/lodepng.h"
@@ -121,6 +125,12 @@ void* ComponentHeightmap::OnValueChanged(ComponentVariable* pVar, bool changedBy
 
     return oldPointer;
 }
+
+void ComponentHeightmap::OnButtonEditHeightmap()
+{
+    g_pEngineCore->SetEditorInterface( EditorInterfaceType_HeightmapEditor );
+    ((EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetHeightmap( this );
+}
 #endif //MYFW_EDITOR
 
 //cJSON* ComponentHeightmap::ExportAsJSONObject(bool saveSceneID, bool saveID)
@@ -162,6 +172,14 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel()
             // TODO: Undo.
             m_VertCount = m_HeightmapTextureSize;
             GenerateHeightmapMesh();
+        }
+    }
+
+    if( m_Heights != nullptr )
+    {
+        if( ImGui::Button( "Edit Heightmap" ) )
+        {
+            OnButtonEditHeightmap();
         }
     }
 }
