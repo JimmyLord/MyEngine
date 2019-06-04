@@ -29,7 +29,7 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
 
     m_pPoint = nullptr;
 
-    m_PositionMouseWentDown.SetZero();
+    m_PositionMouseWentDown.Set( 0, 0 );
 
     m_IndexOfPointBeingDragged = -1;
     m_NewMousePress = false;
@@ -168,6 +168,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
         if( mouseAction == GCBA_Down && id == 0 ) // Left mouse button down.
         {
+            m_PositionMouseWentDown.Set( -1, -1 );
         }
 
         if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
@@ -176,6 +177,29 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
         if( mouseAction == GCBA_Held && id == 0 ) //id & 1 << 0 ) // Left mouse button moved.
         {
+            if( m_PositionMouseWentDown != Vector2( x, y ) )
+            {
+                m_PositionMouseWentDown.Set( x, y );
+
+                Vector3 start, end;
+                g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
+                Vector3 result;
+                if( m_pHeightmap->RayCast( start, end, &result ) )
+                {
+                    LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)", result.x, result.y, result.z );
+                }
+
+                //Plane plane;
+                //plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
+                //Vector3 intersectPoint;
+                //plane.IntersectRay( start, end, &intersectPoint );
+
+                //float height = -1.0f;
+                //if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
+                //{
+                //    LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
+                //}
+            }
         }
     }
 

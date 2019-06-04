@@ -77,7 +77,10 @@ protected:
     void CreateHeightmap();
     bool GenerateHeightmapMesh();
 
-    bool GetHeightAtWorldXZ(float x, float z, float* pFloat);
+public:
+    bool GetPixelIndexAtWorldXZ(const float x, const float z, Vector2Int* pLocalPixel) const;
+    bool GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const;
+    bool RayCast(const Vector3& start, const Vector3& end, Vector3* pResult) const;
 };
 
 #endif //__ComponentHeightmap_H__

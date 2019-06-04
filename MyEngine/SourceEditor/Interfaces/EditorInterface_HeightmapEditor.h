@@ -30,7 +30,7 @@ protected:
 
     GameObject* m_pPoint;
     int m_IndexOfPointBeingDragged;
-    b2Vec2 m_PositionMouseWentDown;
+    Vector2 m_PositionMouseWentDown;
     bool m_NewMousePress;
 
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];

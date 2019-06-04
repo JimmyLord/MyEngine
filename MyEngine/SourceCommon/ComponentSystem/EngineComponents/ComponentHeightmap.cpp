@@ -42,7 +42,7 @@ ComponentHeightmap::ComponentHeightmap(ComponentSystemManager* pComponentSystemM
 
 ComponentHeightmap::~ComponentHeightmap()
 {
-    SAFE_DELETE( m_Heights );
+    SAFE_DELETE_ARRAY( m_Heights );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
@@ -455,12 +455,8 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
     return true;
 }
 
-bool ComponentHeightmap::GetHeightAtWorldXZ(float x, float z, float* pFloat)
+bool ComponentHeightmap::GetPixelIndexAtWorldXZ(const float x, const float z, Vector2Int* pLocalPixel) const
 {
-    bool onMap = false;
-
-    float height = 0.0f;
-
     ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
     MyAssert( pTransform );
 
@@ -470,25 +466,61 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(float x, float z, float* pFloat)
 
     //LOGInfo( LOGTag, "LocalPos: %f, %f, %f", localPos.x, localPos.y, localPos.z );
 
-    // Calculate the height at localPos.
+    // Get the pixel index at localPos.
     Vector3 topLeftPos( -m_Size.x/2, 0, -m_Size.y/2 );
 
     Vector3 posZero = localPos - topLeftPos;
-    Vector2Int posIndex = m_VertCount * (posZero.XZ()/m_Size);
-    posIndex.y = m_VertCount.y - posIndex.y - 1;
+    Vector2Int pixelIndex = m_VertCount * (posZero.XZ()/m_Size);
+    pixelIndex.y = m_VertCount.y - pixelIndex.y - 1;
 
-    if( posIndex.x < 0 || posIndex.x >= m_VertCount.x ||
-        posIndex.y < 0 || posIndex.y >= m_VertCount.y )
+    if( pLocalPixel )
+        pLocalPixel->Set( pixelIndex.x, pixelIndex.y );
+
+    if( pixelIndex.x < 0 || pixelIndex.x >= m_VertCount.x ||
+        pixelIndex.y < 0 || pixelIndex.y >= m_VertCount.y )
     {
-        LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: Out of bounds" );
+        //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: Out of bounds" );
+        return false;
     }
 
-    unsigned int index = (unsigned int)(posIndex.y * m_VertCount.x + posIndex.x);
+    //LOGInfo( LOGTag, "ComponentHeightmap::GetLocalPixelAtWorldPos: (%d,%d)", posIndex.x, posIndex.y );
 
-    if( pFloat )
-        *pFloat = m_Heights[index];
+    return true;
+}
 
-    LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: (%d,%d) %f", posIndex.x, posIndex.y, m_Heights[index] );
+bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const
+{
+    float height = 0.0f;
 
-    return onMap;
+    Vector2Int pixelIndex;
+    if( GetPixelIndexAtWorldXZ( x, z, &pixelIndex ) )
+    {
+        unsigned int index = (unsigned int)(pixelIndex.y * m_VertCount.x + pixelIndex.x);
+
+        if( pFloat )
+            *pFloat = m_Heights[index];
+
+        //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: (%d,%d) %f", pixelIndex.x, pixelIndex.y, m_Heights[index] );
+
+        return true;
+    }
+
+    return false;
+}
+
+bool ComponentHeightmap::RayCast(const Vector3& start, const Vector3& end, Vector3* pResult) const
+{
+    bool didHit = false;
+
+    Vector3 currentPosition = start;
+
+    Vector2Int startPixelIndex;
+    Vector2Int endPixelIndex;
+    bool startOnMap = GetPixelIndexAtWorldXZ( start.x, start.z, &startPixelIndex );
+    bool endOnMap = GetPixelIndexAtWorldXZ( end.x, end.z, &endPixelIndex );
+
+    if( pResult )
+        *pResult = currentPosition;
+
+    return didHit;
 }
