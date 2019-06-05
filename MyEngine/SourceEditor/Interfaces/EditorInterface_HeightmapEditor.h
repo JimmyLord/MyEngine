@@ -32,6 +32,7 @@ protected:
     int m_IndexOfPointBeingDragged;
     Vector2 m_PositionMouseWentDown;
     bool m_NewMousePress;
+    Vector3 m_WorldSpaceMousePosition;
 
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];
 

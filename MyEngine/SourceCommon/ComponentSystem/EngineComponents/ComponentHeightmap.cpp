@@ -319,7 +319,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
     // Set the parameters. // TODO: Make some of these members.
     Vector2 size = m_Size;
     Vector2Int vertCount = m_VertCount;
-    Vector3 topLeftPos( -m_Size.x/2, 0, m_Size.y/2 );
+    Vector3 topLeftPos( -m_Size.x/2, 0, -m_Size.y/2 );
     Vector2 uvStart( 0, 0 );
     Vector2 uvRange( 0, 0 );
     bool createTriangles = (m_GLPrimitiveType == MyRE::PrimitiveType_Points) ? false : true;
@@ -372,7 +372,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
 
                 pVerts[index].pos.x = topLeftPos.x + size.x / (vertCount.x - 1) * x;
                 pVerts[index].pos.y = topLeftPos.y + height;
-                pVerts[index].pos.z = topLeftPos.z - size.y / (vertCount.y - 1) * y;
+                pVerts[index].pos.z = topLeftPos.z + size.y / (vertCount.y - 1) * y;
 
                 pVerts[index].uv.x = uvStart.x + x * uvRange.x / (vertCount.x - 1);
                 pVerts[index].uv.y = uvStart.y + y * uvRange.y / (vertCount.y - 1);
@@ -404,12 +404,12 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
             //   BL--BC---BR
 
             unsigned int indexC = (unsigned int)(y * vertCount.x + x);
-            unsigned int indexTL = y > 0  && x > 0  ? (unsigned int)((y-1) * vertCount.x + x-1) : indexC;
-            unsigned int indexTC = y > 0            ? (unsigned int)((y-1) * vertCount.x + x  ) : indexC;
-            unsigned int indexTR = y > 0  && x < mx ? (unsigned int)((y-1) * vertCount.x + x+1) : indexC;
-            unsigned int indexBL = y < my && x > 0  ? (unsigned int)((y+1) * vertCount.x + x-1) : indexC;
-            unsigned int indexBC = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexC;
-            unsigned int indexBR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexC;
+            unsigned int indexTL = y < my && x > 0  ? (unsigned int)((y+1) * vertCount.x + x-1) : indexC;
+            unsigned int indexTC = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexC;
+            unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexC;
+            unsigned int indexBL = y > 0  && x > 0  ? (unsigned int)((y-1) * vertCount.x + x-1) : indexC;
+            unsigned int indexBC = y > 0            ? (unsigned int)((y-1) * vertCount.x + x  ) : indexC;
+            unsigned int indexBR = y > 0  && x < mx ? (unsigned int)((y-1) * vertCount.x + x+1) : indexC;
 
             Vector3 posC = pVerts[indexC].pos;
             Vector3 normalTL = (pVerts[indexTL].pos - posC).Cross( pVerts[indexTC].pos - posC );
@@ -433,12 +433,12 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
                 unsigned int vertexIndex = (unsigned int)(y * vertCount.x + x);
 
                 pIndices[ elementIndex + 0 ] = vertexIndex + 0;
-                pIndices[ elementIndex + 1 ] = vertexIndex + 1;
-                pIndices[ elementIndex + 2 ] = vertexIndex + (unsigned int)vertCount.x;
+                pIndices[ elementIndex + 1 ] = vertexIndex + (unsigned int)vertCount.x;
+                pIndices[ elementIndex + 2 ] = vertexIndex + 1;
 
                 pIndices[ elementIndex + 3 ] = vertexIndex + 1;
-                pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned int)vertCount.x + 1;
-                pIndices[ elementIndex + 5 ] = vertexIndex + (unsigned int)vertCount.x;
+                pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned int)vertCount.x;
+                pIndices[ elementIndex + 5 ] = vertexIndex + (unsigned int)vertCount.x + 1;
             }
         }
     }
@@ -471,7 +471,6 @@ bool ComponentHeightmap::GetPixelIndexAtWorldXZ(const float x, const float z, Ve
 
     Vector3 posZero = localPos - topLeftPos;
     Vector2Int pixelIndex = m_VertCount * (posZero.XZ()/m_Size);
-    pixelIndex.y = m_VertCount.y - pixelIndex.y - 1;
 
     if( pLocalPixel )
         pLocalPixel->Set( pixelIndex.x, pixelIndex.y );
@@ -510,17 +509,53 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float*
 
 bool ComponentHeightmap::RayCast(const Vector3& start, const Vector3& end, Vector3* pResult) const
 {
-    bool didHit = false;
-
     Vector3 currentPosition = start;
 
-    Vector2Int startPixelIndex;
-    Vector2Int endPixelIndex;
-    bool startOnMap = GetPixelIndexAtWorldXZ( start.x, start.z, &startPixelIndex );
-    bool endOnMap = GetPixelIndexAtWorldXZ( end.x, end.z, &endPixelIndex );
+    Vector2Int startPixelCoord;
+    Vector2Int endPixelCoord;
+    bool startOnMap = GetPixelIndexAtWorldXZ( start.x, start.z, &startPixelCoord );
+    bool endOnMap = GetPixelIndexAtWorldXZ( end.x, end.z, &endPixelCoord );
+
+    Vector2 step( (float)endPixelCoord.x - startPixelCoord.x, (float)endPixelCoord.y - startPixelCoord.y );
+    step.Normalize();
+
+    // Adjust the start point to be on the map.
+    if( startOnMap == false )
+    {
+        // Snap to the left/right edge.
+        float steps = 0;        
+        if( startPixelCoord.x < 0 )
+            steps = (0 - startPixelCoord.x) / step.x;
+        if( startPixelCoord.x >= m_VertCount.x )
+            steps = (m_VertCount.x - startPixelCoord.x - 1) / step.x;
+        startPixelCoord += Vector2Int( (int)roundf(steps * step.x), (int)roundf(steps * step.y) );
+
+        // Snap to the top/bottom edge.
+        steps = 0;
+        if( startPixelCoord.y < 0 )
+            steps = (0 - startPixelCoord.y) / step.y;
+        if( startPixelCoord.y >= m_VertCount.y )
+            steps = (m_VertCount.y - startPixelCoord.y - 1) / step.y;
+        startPixelCoord += Vector2Int( (int)roundf(steps * step.x), (int)roundf(steps * step.y) );
+
+        // If the start point isn't on the map, kick out now.
+        if( startPixelCoord.x < 0 || startPixelCoord.x >= m_VertCount.x ||
+            startPixelCoord.y < 0 || startPixelCoord.y >= m_VertCount.y )
+        {
+            LOGInfo( LOGTag, "ComponentHeightmap::RayCast: Out of bounds" );
+            return false;
+        }
+    }
+
+    //int startPixelIndex = startPixelCoord.y * m_VertCount.x + startPixelCoord.x;
+    //int endPixelIndex = endPixelCoord.y * m_VertCount.x + endPixelCoord.x;
+
+    Vector3 tempPos = Vector3( (float)startPixelCoord.x, 0, (float)startPixelCoord.y );
+    currentPosition = Vector3( tempPos.x / m_VertCount.x * m_Size.x - m_Size.x/2.0f, 0,
+                               tempPos.z / m_VertCount.y * m_Size.y - m_Size.y/2.0f );
 
     if( pResult )
         *pResult = currentPosition;
 
-    return didHit;
+    return true;
 }

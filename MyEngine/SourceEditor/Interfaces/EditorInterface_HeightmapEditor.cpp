@@ -34,6 +34,8 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
     m_IndexOfPointBeingDragged = -1;
     m_NewMousePress = false;
 
+    m_WorldSpaceMousePosition.Set( 0, 0, 0 );
+
     for( int i=0; i<Mat_NumMaterials; i++ )
     {
         m_pMaterials[i] = nullptr;
@@ -112,9 +114,9 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
     ComponentRenderable* pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
     pRenderable->SetVisible( true );
 
-    // TEST: Draw a circle at 0,0,0.
+    // TEST: Draw a circle at the mouse position.
     {
-        Vector3 worldPos( 0, 0, 0 );
+        Vector3 worldPos = m_WorldSpaceMousePosition;
 
         m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
@@ -183,9 +185,11 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
                 Vector3 start, end;
                 g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
+
                 Vector3 result;
                 if( m_pHeightmap->RayCast( start, end, &result ) )
                 {
+                    m_WorldSpaceMousePosition = result;
                     LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)", result.x, result.y, result.z );
                 }
 
@@ -197,6 +201,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 //float height = -1.0f;
                 //if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
                 //{
+                //    m_WorldSpaceMousePosition.Set( intersectPoint.x, height, intersectPoint.z );
                 //    LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
                 //}
             }
