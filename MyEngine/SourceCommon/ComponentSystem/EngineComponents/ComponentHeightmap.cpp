@@ -319,7 +319,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
     // Set the parameters. // TODO: Make some of these members.
     Vector2 size = m_Size;
     Vector2Int vertCount = m_VertCount;
-    Vector3 topLeftPos( -m_Size.x/2, 0, -m_Size.y/2 );
+    Vector3 bottomLeftPos( 0, 0, 0 ); // Collision methods will fail if this changes.
     Vector2 uvStart( 0, 0 );
     Vector2 uvRange( 0, 0 );
     bool createTriangles = (m_GLPrimitiveType == MyRE::PrimitiveType_Points) ? false : true;
@@ -355,6 +355,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
         m_HeightmapTextureSize.Set( (int)texWidth, (int)texHeight );
         
         // Allocate a buffer to store the vertex heights.
+        SAFE_DELETE_ARRAY( m_Heights );
         m_Heights = MyNew float[vertCount.x * vertCount.y];
 
         // Set the vertices.
@@ -370,9 +371,9 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
 
                 m_Heights[index] = height;
 
-                pVerts[index].pos.x = topLeftPos.x + size.x / (vertCount.x - 1) * x;
-                pVerts[index].pos.y = topLeftPos.y + height;
-                pVerts[index].pos.z = topLeftPos.z + size.y / (vertCount.y - 1) * y;
+                pVerts[index].pos.x = bottomLeftPos.x + size.x / (vertCount.x - 1) * x;
+                pVerts[index].pos.y = bottomLeftPos.y + height;
+                pVerts[index].pos.z = bottomLeftPos.z + size.y / (vertCount.y - 1) * y;
 
                 pVerts[index].uv.x = uvStart.x + x * uvRange.x / (vertCount.x - 1);
                 pVerts[index].uv.y = uvStart.y + y * uvRange.y / (vertCount.y - 1);
@@ -432,19 +433,21 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
                 int elementIndex = (y * (vertCount.x-1) + x) * 6;
                 unsigned int vertexIndex = (unsigned int)(y * vertCount.x + x);
 
-                pIndices[ elementIndex + 0 ] = vertexIndex + 0;
+                // BL - TL - TR.
+                pIndices[ elementIndex + 0 ] = vertexIndex;
                 pIndices[ elementIndex + 1 ] = vertexIndex + (unsigned int)vertCount.x;
-                pIndices[ elementIndex + 2 ] = vertexIndex + 1;
+                pIndices[ elementIndex + 2 ] = vertexIndex + (unsigned int)vertCount.x + 1;
 
-                pIndices[ elementIndex + 3 ] = vertexIndex + 1;
-                pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned int)vertCount.x;
-                pIndices[ elementIndex + 5 ] = vertexIndex + (unsigned int)vertCount.x + 1;
+                // BL - TR - BR.
+                pIndices[ elementIndex + 3 ] = vertexIndex;
+                pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned int)vertCount.x + 1;
+                pIndices[ elementIndex + 5 ] = vertexIndex + 1;
             }
         }
     }
 
     // Calculate the bounding box.
-    Vector3 center( topLeftPos.x + size.x/2, topLeftPos.y, topLeftPos.z + size.y/ 2 );
+    Vector3 center( bottomLeftPos.x + size.x/2, bottomLeftPos.y, bottomLeftPos.z + size.y/2 );
     m_pMesh->GetBounds()->Set( center, Vector3(size.x/2, 0, size.y/2) );
 
     m_pMesh->SetReady();
@@ -455,22 +458,17 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
     return true;
 }
 
-bool ComponentHeightmap::GetPixelIndexAtWorldXZ(const float x, const float z, Vector2Int* pLocalPixel) const
+bool ComponentHeightmap::GetPixelIndexAtWorldXZ(const float x, const float z, Vector2Int* pLocalPixel, Vector2* pPercIntoTile) const
 {
     ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
     MyAssert( pTransform );
 
+    // Get the local position.
     MyMatrix* pWorldMat = pTransform->GetWorldTransform();
-
     Vector3 localPos = pWorldMat->GetInverse() * Vector3( x, 0, z );
 
-    //LOGInfo( LOGTag, "LocalPos: %f, %f, %f", localPos.x, localPos.y, localPos.z );
-
-    // Get the pixel index at localPos.
-    Vector3 topLeftPos( -m_Size.x/2, 0, -m_Size.y/2 );
-
-    Vector3 posZero = localPos - topLeftPos;
-    Vector2Int pixelIndex = m_VertCount * (posZero.XZ()/m_Size);
+    // Get the pixel index.
+    Vector2Int pixelIndex = (m_VertCount-1) * (localPos.XZ()/m_Size);
 
     if( pLocalPixel )
         pLocalPixel->Set( pixelIndex.x, pixelIndex.y );
@@ -480,6 +478,13 @@ bool ComponentHeightmap::GetPixelIndexAtWorldXZ(const float x, const float z, Ve
     {
         //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: Out of bounds" );
         return false;
+    }
+
+    if( pPercIntoTile )
+    {
+        Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
+        pPercIntoTile->x = (localPos.x - pixelIndex.x * tileSize.x) / tileSize.x;
+        pPercIntoTile->y = (localPos.z - pixelIndex.y * tileSize.y) / tileSize.y;
     }
 
     //LOGInfo( LOGTag, "ComponentHeightmap::GetLocalPixelAtWorldPos: (%d,%d)", posIndex.x, posIndex.y );
@@ -492,12 +497,40 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float*
     float height = 0.0f;
 
     Vector2Int pixelIndex;
-    if( GetPixelIndexAtWorldXZ( x, z, &pixelIndex ) )
+    Vector2 percIntoTile;
+    if( GetPixelIndexAtWorldXZ( x, z, &pixelIndex, &percIntoTile ) )
     {
         unsigned int index = (unsigned int)(pixelIndex.y * m_VertCount.x + pixelIndex.x);
 
+        // Found here: https://codeplea.com/triangular-interpolation
+        //   and here: https://www.youtube.com/watch?v=6E2zjfzMs7c
+        // ----
+        // | /|  Left triangle X < Y
+        // |/ |  Right triangle X > Y
+        // ----
+        Vector3 p1, p2, p3;
+        if( percIntoTile.x <= percIntoTile.y ) // Left triangle X < Y
+        {
+            p1 = Vector3( 0, m_Heights[(pixelIndex.y    ) * m_VertCount.x + pixelIndex.x    ], 0 ); // BL
+            p2 = Vector3( 0, m_Heights[(pixelIndex.y + 1) * m_VertCount.x + pixelIndex.x    ], 1 ); // TL
+            p3 = Vector3( 1, m_Heights[(pixelIndex.y + 1) * m_VertCount.x + pixelIndex.x + 1], 1 ); // TR
+        }
+        else //if( percIntoTile.x > percIntoTile.y ) // Right triangle X > Y
+        {
+            p1 = Vector3( 0, m_Heights[(pixelIndex.y    ) * m_VertCount.x + pixelIndex.x    ], 0 ); // BL
+            p2 = Vector3( 1, m_Heights[(pixelIndex.y + 1) * m_VertCount.x + pixelIndex.x + 1], 1 ); // TR
+            p3 = Vector3( 1, m_Heights[(pixelIndex.y    ) * m_VertCount.x + pixelIndex.x + 1], 0 ); // BR
+        }
+
+        // Barycentric interpolation.
+        float divisor = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+        float w1 = ( (p2.z - p3.z) * (percIntoTile.x - p3.x) + (p3.x - p2.x) * (percIntoTile.y - p3.z) ) / divisor;
+        float w2 = ( (p3.z - p1.z) * (percIntoTile.x - p3.x) + (p1.x - p3.x) * (percIntoTile.y - p3.z) ) / divisor;
+        float w3 = 1.0f - w1 - w2;
+        float height = (w1 * p1.y) + (w2 * p2.y) + (w3 * p3.y);
+
         if( pFloat )
-            *pFloat = m_Heights[index];
+            *pFloat = height;
 
         //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: (%d,%d) %f", pixelIndex.x, pixelIndex.y, m_Heights[index] );
 
@@ -513,8 +546,8 @@ bool ComponentHeightmap::RayCast(const Vector3& start, const Vector3& end, Vecto
 
     Vector2Int startPixelCoord;
     Vector2Int endPixelCoord;
-    bool startOnMap = GetPixelIndexAtWorldXZ( start.x, start.z, &startPixelCoord );
-    bool endOnMap = GetPixelIndexAtWorldXZ( end.x, end.z, &endPixelCoord );
+    bool startOnMap = GetPixelIndexAtWorldXZ( start.x, start.z, &startPixelCoord, nullptr );
+    bool endOnMap = GetPixelIndexAtWorldXZ( end.x, end.z, &endPixelCoord, nullptr );
 
     Vector2 step( (float)endPixelCoord.x - startPixelCoord.x, (float)endPixelCoord.y - startPixelCoord.y );
     step.Normalize();
@@ -551,8 +584,8 @@ bool ComponentHeightmap::RayCast(const Vector3& start, const Vector3& end, Vecto
     //int endPixelIndex = endPixelCoord.y * m_VertCount.x + endPixelCoord.x;
 
     Vector3 tempPos = Vector3( (float)startPixelCoord.x, 0, (float)startPixelCoord.y );
-    currentPosition = Vector3( tempPos.x / m_VertCount.x * m_Size.x - m_Size.x/2.0f, 0,
-                               tempPos.z / m_VertCount.y * m_Size.y - m_Size.y/2.0f );
+    currentPosition = Vector3( tempPos.x / m_VertCount.x * m_Size.x, 0,
+                               tempPos.z / m_VertCount.y * m_Size.y );
 
     if( pResult )
         *pResult = currentPosition;

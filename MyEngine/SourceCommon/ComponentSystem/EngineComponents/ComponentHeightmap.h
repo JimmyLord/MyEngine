@@ -31,7 +31,7 @@ protected:
 public:
     ComponentHeightmap(ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentHeightmap();
-    SetClassnameBase( "HeightmapComponent" ); // Only first 8 characters count.
+    SetClassnameWith2Parents( "HeightmapComponent", ComponentMesh, ComponentRenderable );
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luaState);
@@ -78,7 +78,7 @@ protected:
     bool GenerateHeightmapMesh();
 
 public:
-    bool GetPixelIndexAtWorldXZ(const float x, const float z, Vector2Int* pLocalPixel) const;
+    bool GetPixelIndexAtWorldXZ(const float x, const float z, Vector2Int* pLocalPixel, Vector2* pPercIntoTile) const;
     bool GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const;
     bool RayCast(const Vector3& start, const Vector3& end, Vector3* pResult) const;
 };

@@ -186,24 +186,31 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 Vector3 start, end;
                 g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
 
-                Vector3 result;
-                if( m_pHeightmap->RayCast( start, end, &result ) )
+                if( false )
                 {
-                    m_WorldSpaceMousePosition = result;
-                    LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)", result.x, result.y, result.z );
+                    // Test raycast.
+                    Vector3 result;
+                    if( m_pHeightmap->RayCast( start, end, &result ) )
+                    {
+                        m_WorldSpaceMousePosition = result;
+                        LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)", result.x, result.y, result.z );
+                    }
                 }
+                else
+                {
+                    // Test top-down height check based on x/z of mouse ray intersecting with y=0 plane.
+                    Plane plane;
+                    plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
+                    Vector3 intersectPoint;
+                    plane.IntersectRay( start, end, &intersectPoint );
 
-                //Plane plane;
-                //plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
-                //Vector3 intersectPoint;
-                //plane.IntersectRay( start, end, &intersectPoint );
-
-                //float height = -1.0f;
-                //if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
-                //{
-                //    m_WorldSpaceMousePosition.Set( intersectPoint.x, height, intersectPoint.z );
-                //    LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
-                //}
+                    float height = -1.0f;
+                    if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
+                    {
+                        m_WorldSpaceMousePosition.Set( intersectPoint.x, height, intersectPoint.z );
+                        LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
+                    }
+                }
             }
         }
     }
