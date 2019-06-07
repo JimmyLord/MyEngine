@@ -186,7 +186,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 Vector3 start, end;
                 g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
 
-                if( false )
+                if( true )
                 {
                     // Test raycast.
                     Vector3 result;

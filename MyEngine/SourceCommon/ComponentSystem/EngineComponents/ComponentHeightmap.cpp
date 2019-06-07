@@ -500,8 +500,6 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float*
     Vector2 percIntoTile;
     if( GetPixelIndexAtWorldXZ( x, z, &pixelIndex, &percIntoTile ) )
     {
-        unsigned int index = (unsigned int)(pixelIndex.y * m_VertCount.x + pixelIndex.x);
-
         // Found here: https://codeplea.com/triangular-interpolation
         //   and here: https://www.youtube.com/watch?v=6E2zjfzMs7c
         // ----
@@ -540,52 +538,77 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float*
     return false;
 }
 
-bool ComponentHeightmap::RayCast(const Vector3& start, const Vector3& end, Vector3* pResult) const
+bool ComponentHeightmap::SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const
 {
-    Vector3 currentPosition = start;
+    // Terrain bounds.
+    float minX = 0;
+    float maxX = m_Size.x;
+    float minZ = 0;
+    float maxZ = m_Size.y;
 
-    Vector2Int startPixelCoord;
-    Vector2Int endPixelCoord;
-    bool startOnMap = GetPixelIndexAtWorldXZ( start.x, start.z, &startPixelCoord, nullptr );
-    bool endOnMap = GetPixelIndexAtWorldXZ( end.x, end.z, &endPixelCoord, nullptr );
+    // If starting outside the bounds, kick out early.
+    if( start.x > maxX && dir.x > 0 ) return false;
+    if( start.z > maxZ && dir.z > 0 ) return false;
+    if( start.x < minX && dir.x < 0 ) return false;
+    if( start.z < minZ && dir.z < 0 ) return false;
 
-    Vector2 step( (float)endPixelCoord.x - startPixelCoord.x, (float)endPixelCoord.y - startPixelCoord.y );
-    step.Normalize();
-
-    // Adjust the start point to be on the map.
-    if( startOnMap == false )
+    if( start.x < 0 && dir.x > 0 ) // Left of bounds moving right.
     {
-        // Snap to the left/right edge.
-        float steps = 0;        
-        if( startPixelCoord.x < 0 )
-            steps = (0 - startPixelCoord.x) / step.x;
-        if( startPixelCoord.x >= m_VertCount.x )
-            steps = (m_VertCount.x - startPixelCoord.x - 1) / step.x;
-        startPixelCoord += Vector2Int( (int)roundf(steps * step.x), (int)roundf(steps * step.y) );
-
-        // Snap to the top/bottom edge.
-        steps = 0;
-        if( startPixelCoord.y < 0 )
-            steps = (0 - startPixelCoord.y) / step.y;
-        if( startPixelCoord.y >= m_VertCount.y )
-            steps = (m_VertCount.y - startPixelCoord.y - 1) / step.y;
-        startPixelCoord += Vector2Int( (int)roundf(steps * step.x), (int)roundf(steps * step.y) );
-
-        // If the start point isn't on the map, kick out now.
-        if( startPixelCoord.x < 0 || startPixelCoord.x >= m_VertCount.x ||
-            startPixelCoord.y < 0 || startPixelCoord.y >= m_VertCount.y )
-        {
-            LOGInfo( LOGTag, "ComponentHeightmap::RayCast: Out of bounds" );
-            return false;
-        }
+        float steps = (minX - start.x) / dir.x;
+        start += steps * dir;
     }
+    else if( start.x > maxX && dir.x < 0 ) // Right of bounds moving left.
+    {
+        float steps = (maxX - start.x) / dir.x;
+        start += steps * dir;
+    }
+    if( start.z > maxZ && dir.z > 0 ) return false;
+    if( start.z < minZ && dir.z < 0 ) return false;
+
+    if( start.z < 0 && dir.z > 0 ) // Below bounds moving up.
+    {
+        float steps = (minZ - start.z) / dir.z;
+        start += steps * dir;
+    }
+    else if( start.z > maxZ && dir.z < 0 ) // Above bounds moving down.
+    {
+        float steps = (maxZ - start.z) / dir.z;
+        start += steps * dir;
+    }
+    if( start.x > maxX && dir.x > 0 ) return false;
+    if( start.x < minX && dir.x < 0 ) return false;
+
+    *pResult = start;
+    return true;
+}
+
+bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) const
+{
+    // TODO: Move ray into terrain space.
+    Vector3 dir = (end - start).GetNormalized();
+
+    if( SnapToBounds( start, dir, &start ) == false )
+        return false;
+    //SnapToBounds( end, -dir, &end );
+
+    //Vector2Int startPixelCoord;
+    //Vector2Int endPixelCoord;
+    //bool startOnMap = GetPixelIndexAtWorldXZ( start.x, start.z, &startPixelCoord, nullptr );
+    //bool endOnMap = GetPixelIndexAtWorldXZ( end.x, end.z, &endPixelCoord, nullptr );
+
+    //Vector2 step( (float)endPixelCoord.x - startPixelCoord.x, (float)endPixelCoord.y - startPixelCoord.y );
+    //step.Normalize();
 
     //int startPixelIndex = startPixelCoord.y * m_VertCount.x + startPixelCoord.x;
     //int endPixelIndex = endPixelCoord.y * m_VertCount.x + endPixelCoord.x;
 
-    Vector3 tempPos = Vector3( (float)startPixelCoord.x, 0, (float)startPixelCoord.y );
-    currentPosition = Vector3( tempPos.x / m_VertCount.x * m_Size.x, 0,
-                               tempPos.z / m_VertCount.y * m_Size.y );
+    //Vector3 tempPos = Vector3( (float)startPixelCoord.x, 0, (float)startPixelCoord.y );
+    ////Vector3 tempPos = Vector3( (float)endPixelCoord.x, 0, (float)endPixelCoord.y );
+    //Vector3 currentPosition = Vector3( tempPos.x / m_VertCount.x * m_Size.x, 0,
+    //                                   tempPos.z / m_VertCount.y * m_Size.y );
+
+    //Vector3 currentPosition = start.WithY( 0 );
+    Vector3 currentPosition = end.WithY( 0 );
 
     if( pResult )
         *pResult = currentPosition;
