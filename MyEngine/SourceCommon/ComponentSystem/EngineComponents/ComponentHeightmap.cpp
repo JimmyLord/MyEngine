@@ -458,7 +458,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
     return true;
 }
 
-bool ComponentHeightmap::GetPixelIndexAtWorldXZ(const float x, const float z, Vector2Int* pLocalPixel, Vector2* pPercIntoTile) const
+bool ComponentHeightmap::GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const
 {
     ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
     MyAssert( pTransform );
@@ -467,14 +467,14 @@ bool ComponentHeightmap::GetPixelIndexAtWorldXZ(const float x, const float z, Ve
     MyMatrix* pWorldMat = pTransform->GetWorldTransform();
     Vector3 localPos = pWorldMat->GetInverse() * Vector3( x, 0, z );
 
-    // Get the pixel index.
-    Vector2Int pixelIndex = (m_VertCount-1) * (localPos.XZ()/m_Size);
+    // Get the tile coordinates.
+    Vector2Int tileCoords = (m_VertCount-1) * (localPos.XZ()/m_Size);
 
-    if( pLocalPixel )
-        pLocalPixel->Set( pixelIndex.x, pixelIndex.y );
+    if( pLocalTile )
+        pLocalTile->Set( tileCoords.x, tileCoords.y );
 
-    if( pixelIndex.x < 0 || pixelIndex.x >= m_VertCount.x ||
-        pixelIndex.y < 0 || pixelIndex.y >= m_VertCount.y )
+    if( tileCoords.x < 0 || tileCoords.x >= m_VertCount.x ||
+        tileCoords.y < 0 || tileCoords.y >= m_VertCount.y )
     {
         //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: Out of bounds" );
         return false;
@@ -483,11 +483,11 @@ bool ComponentHeightmap::GetPixelIndexAtWorldXZ(const float x, const float z, Ve
     if( pPercIntoTile )
     {
         Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
-        pPercIntoTile->x = (localPos.x - pixelIndex.x * tileSize.x) / tileSize.x;
-        pPercIntoTile->y = (localPos.z - pixelIndex.y * tileSize.y) / tileSize.y;
+        pPercIntoTile->x = (localPos.x - tileCoords.x * tileSize.x) / tileSize.x;
+        pPercIntoTile->y = (localPos.z - tileCoords.y * tileSize.y) / tileSize.y;
     }
 
-    //LOGInfo( LOGTag, "ComponentHeightmap::GetLocalPixelAtWorldPos: (%d,%d)", posIndex.x, posIndex.y );
+    //LOGInfo( LOGTag, "ComponentHeightmap::GetTileCoordsAtWorldXZ: (%d,%d)", posIndex.x, posIndex.y );
 
     return true;
 }
@@ -496,9 +496,9 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float*
 {
     float height = 0.0f;
 
-    Vector2Int pixelIndex;
+    Vector2Int tileCoords;
     Vector2 percIntoTile;
-    if( GetPixelIndexAtWorldXZ( x, z, &pixelIndex, &percIntoTile ) )
+    if( GetTileCoordsAtWorldXZ( x, z, &tileCoords, &percIntoTile ) )
     {
         // Found here: https://codeplea.com/triangular-interpolation
         //   and here: https://www.youtube.com/watch?v=6E2zjfzMs7c
@@ -509,15 +509,15 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float*
         Vector3 p1, p2, p3;
         if( percIntoTile.x <= percIntoTile.y ) // Left triangle X < Y
         {
-            p1 = Vector3( 0, m_Heights[(pixelIndex.y    ) * m_VertCount.x + pixelIndex.x    ], 0 ); // BL
-            p2 = Vector3( 0, m_Heights[(pixelIndex.y + 1) * m_VertCount.x + pixelIndex.x    ], 1 ); // TL
-            p3 = Vector3( 1, m_Heights[(pixelIndex.y + 1) * m_VertCount.x + pixelIndex.x + 1], 1 ); // TR
+            p1 = Vector3( 0, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x    ], 0 ); // BL
+            p2 = Vector3( 0, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x    ], 1 ); // TL
+            p3 = Vector3( 1, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x + 1], 1 ); // TR
         }
         else //if( percIntoTile.x > percIntoTile.y ) // Right triangle X > Y
         {
-            p1 = Vector3( 0, m_Heights[(pixelIndex.y    ) * m_VertCount.x + pixelIndex.x    ], 0 ); // BL
-            p2 = Vector3( 1, m_Heights[(pixelIndex.y + 1) * m_VertCount.x + pixelIndex.x + 1], 1 ); // TR
-            p3 = Vector3( 1, m_Heights[(pixelIndex.y    ) * m_VertCount.x + pixelIndex.x + 1], 0 ); // BR
+            p1 = Vector3( 0, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x    ], 0 ); // BL
+            p2 = Vector3( 1, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x + 1], 1 ); // TR
+            p3 = Vector3( 1, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x + 1], 0 ); // BR
         }
 
         // Barycentric interpolation.
@@ -530,7 +530,7 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float*
         if( pFloat )
             *pFloat = height;
 
-        //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: (%d,%d) %f", pixelIndex.x, pixelIndex.y, m_Heights[index] );
+        //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: (%d,%d) %f", tileCoords.x, tileCoords.y, m_Heights[index] );
 
         return true;
     }
@@ -582,36 +582,125 @@ bool ComponentHeightmap::SnapToBounds(Vector3 start, const Vector3& dir, Vector3
     return true;
 }
 
+bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, const Vector2Int& tile1, const Vector2Int& tile2, const Vector2Int& tile3, Vector3* pResult) const
+{
+    //int tile1Index = tile1.y * m_VertCount.x + tile1.x; // Previous tile.
+    //int tile2Index = tile2.y * m_VertCount.x + tile2.x; // Start edge of current tile.
+    int tile3Index = tile3.y * m_VertCount.x + tile3.x; // Tile before current tile.
+
+    if( currentPosition.y < m_Heights[tile3Index] )
+    {
+        Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
+
+        if( pResult )
+            //*pResult = currentPosition.WithY( m_Heights[tile3Index] );
+            pResult->Set( (tile3.x + 0.5f) * tileSize.x, m_Heights[tile3Index], (tile3.y + 0.5f) * tileSize.y );
+
+        return true;
+    }
+
+    return false;
+}
+
 bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) const
 {
-    // TODO: Move ray into terrain space.
+    // Move ray into terrain space.
+    ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
+    MyAssert( pTransform );
+    MyMatrix* pWorldMat = pTransform->GetWorldTransform();
+    start = pWorldMat->GetInverse() * start;
+    end = pWorldMat->GetInverse() * end;
+
+    // Get the direction vector.
     Vector3 dir = (end - start).GetNormalized();
 
-    if( SnapToBounds( start, dir, &start ) == false )
+    Vector3 currentPosition = start;
+
+    // Snap start to the edge of the first tile it hits.
+    // If the vector doesn't collide with the heightmap at all, kick out.
+    if( SnapToBounds( start, dir, &currentPosition ) == false )
         return false;
     //SnapToBounds( end, -dir, &end );
 
-    //Vector2Int startPixelCoord;
-    //Vector2Int endPixelCoord;
-    //bool startOnMap = GetPixelIndexAtWorldXZ( start.x, start.z, &startPixelCoord, nullptr );
-    //bool endOnMap = GetPixelIndexAtWorldXZ( end.x, end.z, &endPixelCoord, nullptr );
+    // Get the tile coords.
+    Vector2Int tileCoords = (m_VertCount-1) * (currentPosition.XZ()/m_Size);
+    MyAssert( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y );
+    int tileIndex = tileCoords.y * m_VertCount.x + tileCoords.x;
 
-    //Vector2 step( (float)endPixelCoord.x - startPixelCoord.x, (float)endPixelCoord.y - startPixelCoord.y );
+    // If our currentPosition tile is below the heightmap, kick out.
+    if( currentPosition.y < m_Heights[tileIndex] )
+    {
+        return false;
+    }
+
+    // Calculate the tile size. TODO: Make this a member?
+    Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
+
+    // ---------
+    // |   |   |  d = dir vector
+    // |   d   |
+    // --dd-----  If x > z, make the vector tileSize long on the x-axis.
+    // dd  |   |  Travel from tile edge to tile edge, if we change row then check the height of 3 tiles,
+    // |   |   |    otherwise test current tile and the one to the left.
+    // ---------
+    if( fabs(dir.x) > fabs(dir.z) )
+    {
+        // Make vector 'tileSize' long on the x-axis.
+        dir = dir / dir.x * tileSize.x;
+        Vector2 tilePos( (float)tileCoords.x, currentPosition.z/m_Size.y * (m_VertCount.y-1) );
+        Vector2 tileIncrement( 1, dir.z / dir.x );
+        Vector2Int lastTileCoords( -1, -1 );
+
+        if( dir.x > 0 )
+        {
+            while( currentPosition.x < m_Size.x )
+            {
+                //tileCoords = (m_VertCount-1) * (currentPosition.XZ()/m_Size);
+                tileCoords.Set( (int)tilePos.x, (int)tilePos.y );
+                if( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y )
+                {
+                    //int tileIndex = tileCoords.y * m_VertCount.x + tileCoords.x;
+
+                    // TODO: Test for collisions in up to 3 tiles. //lastTileCoords, tileCoords and tileCoords.WithX-1.
+                    Vector3 result;
+                    if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, tileCoords.WithX( tileCoords.x-1 ), &result ) )
+                    {
+                        // TODO: Find collision point on the triangles of this tile.
+                        if( pResult )
+                            *pResult = result; //currentPosition.WithY( m_Heights[tileIndex] );
+
+                        return true;
+                    }
+                }
+
+                currentPosition += dir;
+                lastTileCoords = tileCoords;
+                tilePos += tileIncrement;
+            }
+        }
+    }
+
+    //Vector2Int startTileCoords;
+    //Vector2Int endTileCoords;
+    //bool startOnMap = GetTileCoordsAtWorldXZ( start.x, start.z, &startTileCoords, nullptr );
+    //bool endOnMap = GetTileCoordsAtWorldXZ( end.x, end.z, &endTileCoords, nullptr );
+
+    //Vector2 step( (float)endTileCoords.x - startTileCoords.x, (float)endTileCoords.y - startTileCoords.y );
     //step.Normalize();
 
-    //int startPixelIndex = startPixelCoord.y * m_VertCount.x + startPixelCoord.x;
-    //int endPixelIndex = endPixelCoord.y * m_VertCount.x + endPixelCoord.x;
+    //int startTileIndex = startTileCoords.y * m_VertCount.x + startTileCoords.x;
+    //int endTileIndex = endTileCoords.y * m_VertCount.x + endTileCoords.x;
 
-    //Vector3 tempPos = Vector3( (float)startPixelCoord.x, 0, (float)startPixelCoord.y );
-    ////Vector3 tempPos = Vector3( (float)endPixelCoord.x, 0, (float)endPixelCoord.y );
+    //Vector3 tempPos = Vector3( (float)startTileCoords.x, 0, (float)startTileCoords.y );
+    ////Vector3 tempPos = Vector3( (float)endTileCoords.x, 0, (float)endTileCoords.y );
     //Vector3 currentPosition = Vector3( tempPos.x / m_VertCount.x * m_Size.x, 0,
     //                                   tempPos.z / m_VertCount.y * m_Size.y );
 
     //Vector3 currentPosition = start.WithY( 0 );
-    Vector3 currentPosition = end.WithY( 0 );
+    ////Vector3 currentPosition = end.WithY( 0 );
 
-    if( pResult )
-        *pResult = currentPosition;
+    //if( pResult )
+    //    *pResult = currentPosition;
 
-    return true;
+    return false;
 }
