@@ -582,19 +582,53 @@ bool ComponentHeightmap::SnapToBounds(Vector3 start, const Vector3& dir, Vector3
     return true;
 }
 
-bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, const Vector2Int& tile1, const Vector2Int& tile2, const Vector2Int& tile3, Vector3* pResult) const
+bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, const Vector2Int& tile1, const Vector2Int& tile2, Vector3* pResult) const
 {
-    //int tile1Index = tile1.y * m_VertCount.x + tile1.x; // Previous tile.
-    //int tile2Index = tile2.y * m_VertCount.x + tile2.x; // Start edge of current tile.
-    int tile3Index = tile3.y * m_VertCount.x + tile3.x; // Tile before current tile.
+    // -----2B----  d = dir vector.
+    // |  / |  / |
+    // | / dd /  |  If x > z, make the vector tileSize long on the x-axis.
+    // 1Bdd-2A----  Travel from tile edge to tile edge, if we change row then check the height of 3 tiles,
+    // dd / |  / |    otherwise test current tile and the one to the left.
+    // | /  | /  |
+    // 1A---------  1A/B,2A/B = heights from heightmap to check against.
+    int tile1AIndex = tile1.y     * m_VertCount.x + tile1.x; // Previous tile.
+    int tile1BIndex = (tile1.y+1) * m_VertCount.x + tile1.x; // Tile above previous tile.
+    int tile2AIndex = tile2.y     * m_VertCount.x + tile2.x; // Start edge of current tile.
+    int tile2BIndex = (tile2.y+1) * m_VertCount.x + tile2.x; // Tile above current tile.
 
-    if( currentPosition.y < m_Heights[tile3Index] )
+    // If all heights are below our position, then don't check triangles.
+    {
+        bool checkTriangles = false;
+
+        if( tile1.x >= 0 && tile1.x < m_VertCount.x && tile1.y >= 0 && tile1.y < m_VertCount.y )
+        {
+            if( currentPosition.y < m_Heights[tile1AIndex] )
+                checkTriangles = true;
+
+            if( (tile1.y+1) < m_VertCount.y && currentPosition.y < m_Heights[tile1BIndex] )
+                checkTriangles = true;
+        }
+        if( tile2.x >= 0 && tile2.x < m_VertCount.x && tile2.y >= 0 && tile2.y < m_VertCount.y )
+        {
+            if( currentPosition.y < m_Heights[tile2AIndex] )
+                checkTriangles = true;
+
+            if( (tile2.y+1) < m_VertCount.y && currentPosition.y < m_Heights[tile2BIndex] )
+                checkTriangles = true;
+        }
+
+        if( checkTriangles == false )
+            return false;
+    }
+
+    // TODO: Cast ray against the 2 triangles between these 4 points.
     {
         Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
 
         if( pResult )
-            //*pResult = currentPosition.WithY( m_Heights[tile3Index] );
-            pResult->Set( (tile3.x + 0.5f) * tileSize.x, m_Heights[tile3Index], (tile3.y + 0.5f) * tileSize.y );
+        {
+            pResult->Set( (tile2.x + 0.5f) * tileSize.x, m_Heights[tile2AIndex], (tile2.y + 0.5f) * tileSize.y );
+        }
 
         return true;
     }
@@ -636,13 +670,13 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
     // Calculate the tile size. TODO: Make this a member?
     Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
 
-    // ---------
-    // |   |   |  d = dir vector
-    // |   d   |
-    // --dd-----  If x > z, make the vector tileSize long on the x-axis.
-    // dd  |   |  Travel from tile edge to tile edge, if we change row then check the height of 3 tiles,
-    // |   |   |    otherwise test current tile and the one to the left.
-    // ---------
+    // -----2-----  d = dir vector.
+    // |  / |  / |
+    // | / dd /  |  If x > z, make the vector tileSize long on the x-axis.
+    // 2-dd-1-----  Travel from tile edge to tile edge, if we change row then check the height of 3 tiles,
+    // dd / |  / |    otherwise test current tile and the one to the left.
+    // | /  | /  |
+    // 1----------  1,2 = heights from heightmap to check against.
     if( fabs(dir.x) > fabs(dir.z) )
     {
         // Make vector 'tileSize' long on the x-axis.
@@ -653,21 +687,17 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
 
         if( dir.x > 0 )
         {
-            while( currentPosition.x < m_Size.x )
+            while( tileCoords.x < m_VertCount.x )
             {
-                //tileCoords = (m_VertCount-1) * (currentPosition.XZ()/m_Size);
                 tileCoords.Set( (int)tilePos.x, (int)tilePos.y );
                 if( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y )
                 {
-                    //int tileIndex = tileCoords.y * m_VertCount.x + tileCoords.x;
-
-                    // TODO: Test for collisions in up to 3 tiles. //lastTileCoords, tileCoords and tileCoords.WithX-1.
+                    // Test for collisions in up to 2 edges. //lastTileCoords and WithY+1, tileCoords and WithY+1.
                     Vector3 result;
-                    if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, tileCoords.WithX( tileCoords.x-1 ), &result ) )
+                    if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, &result ) )
                     {
-                        // TODO: Find collision point on the triangles of this tile.
                         if( pResult )
-                            *pResult = result; //currentPosition.WithY( m_Heights[tileIndex] );
+                            *pResult = result;
 
                         return true;
                     }
