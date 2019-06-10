@@ -584,6 +584,8 @@ bool ComponentHeightmap::SnapToBounds(Vector3 start, const Vector3& dir, Vector3
 
 bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, const Vector2Int& tile1, const Vector2Int& tile2, Vector3* pResult) const
 {
+    // TODO: Currently only deals with x>z direction vector where z is positive.
+
     // -----2B----  d = dir vector.
     // |  / |  / |
     // | / dd /  |  If x > z, make the vector tileSize long on the x-axis.
@@ -621,16 +623,62 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
             return false;
     }
 
-    // TODO: Cast ray against the 2 triangles between these 4 points.
+    // Cast ray against the 2 triangles between these 4 points.
     {
         Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
 
-        if( pResult )
+        // 2 cases for x>z with positive z.
+        //     2B
+        //    / |
+        //   / dd
+        // 1Bdd2A   or   1B--2B
+        // dd /          |  /dd
+        // | /           dd/  |
+        // 1A            1A--2A
+        Vector3 tile1APos( tile1.x * tileSize.x, m_Heights[tile1AIndex], tile1.y     * tileSize.y );
+        Vector3 tile1BPos( tile1.x * tileSize.x, m_Heights[tile1BIndex], (tile1.y+1) * tileSize.y );
+        Vector3 tile2APos( tile2.x * tileSize.x, m_Heights[tile2AIndex], tile2.y     * tileSize.y );
+        Vector3 tile2BPos( tile2.x * tileSize.x, m_Heights[tile2BIndex], (tile2.y+1) * tileSize.y );
+
+        Plane plane;
+        Vector3 result;
+        Vector3 normal;
+
+        // Left triangle. 1A-1B-2A or 1A-1B-2B
+        if( tile1.y != tile2.y )
+            normal = (tile1BPos - tile1APos).Cross( tile2APos - tile1APos ); // 1A-1B-2A
+        else
+            normal = (tile1BPos - tile1APos).Cross( tile2BPos - tile1APos ); // 1A-1B-2B
+        plane.Set( normal, tile1APos );
+        if( plane.IntersectRay( currentPosition, dir, &result ) )
         {
-            pResult->Set( (tile2.x + 0.5f) * tileSize.x, m_Heights[tile2AIndex], (tile2.y + 0.5f) * tileSize.y );
+            if( result.x >= tile1APos.x && result.x < tile2APos.x &&
+                result.z >= tile1APos.z && result.z < tile1BPos.z &&
+                result.x - tile1.x * tileSize.x < result.z - tile1.y * tileSize.y )
+            {
+                if( pResult )
+                    *pResult = result;
+                return true;
+            }
         }
 
-        return true;
+        // Right triangle. 1B-2B-2A or 1A-2B-2A
+        if( tile1.y != tile2.y )
+            normal = (tile2BPos - tile1BPos).Cross( tile2APos - tile1BPos ); // 1B-2B-2A
+        else
+            normal = (tile2BPos - tile1APos).Cross( tile2APos - tile1APos ); // 1A-2B-2A
+        plane.Set( normal, tile2APos );
+        if( plane.IntersectRay( currentPosition, dir, &result ) )
+        {
+            if( result.x >= tile1APos.x && result.x < tile2APos.x &&
+                result.z >= tile2APos.z && result.z < tile2BPos.z &&
+                result.x - tile1.x * tileSize.x > result.z - tile2.y * tileSize.y )
+            {
+                if( pResult )
+                    *pResult = result;
+                return true;
+            }
+        }
     }
 
     return false;
