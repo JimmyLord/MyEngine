@@ -369,6 +369,10 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
                 int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
                 float height = pixelBuffer[texIndex*4] / 255.0f;
 
+                //height = 0.0f;
+                //if( index == 4 )
+                //    height = 2.0f;
+
                 m_Heights[index] = height;
 
                 pVerts[index].pos.x = bottomLeftPos.x + size.x / (vertCount.x - 1) * x;
@@ -582,7 +586,7 @@ bool ComponentHeightmap::SnapToBounds(Vector3 start, const Vector3& dir, Vector3
     return true;
 }
 
-bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, const Vector2Int& tile1, const Vector2Int& tile2, Vector3* pResult) const
+bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const
 {
     // TODO: Currently only deals with x>z direction vector where z is positive.
 
@@ -593,92 +597,217 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
     // dd / |  / |    otherwise test current tile and the one to the left.
     // | /  | /  |
     // 1A---------  1A/B,2A/B = heights from heightmap to check against.
-    int tile1AIndex = tile1.y     * m_VertCount.x + tile1.x; // Previous tile.
-    int tile1BIndex = (tile1.y+1) * m_VertCount.x + tile1.x; // Tile above previous tile.
-    int tile2AIndex = tile2.y     * m_VertCount.x + tile2.x; // Start edge of current tile.
-    int tile2BIndex = (tile2.y+1) * m_VertCount.x + tile2.x; // Tile above current tile.
 
-    // If all heights are below our position, then don't check triangles.
-    {
-        bool checkTriangles = false;
-
-        if( tile1.x >= 0 && tile1.x < m_VertCount.x && tile1.y >= 0 && tile1.y < m_VertCount.y )
-        {
-            if( currentPosition.y < m_Heights[tile1AIndex] )
-                checkTriangles = true;
-
-            if( (tile1.y+1) < m_VertCount.y && currentPosition.y < m_Heights[tile1BIndex] )
-                checkTriangles = true;
-        }
-        if( tile2.x >= 0 && tile2.x < m_VertCount.x && tile2.y >= 0 && tile2.y < m_VertCount.y )
-        {
-            if( currentPosition.y < m_Heights[tile2AIndex] )
-                checkTriangles = true;
-
-            if( (tile2.y+1) < m_VertCount.y && currentPosition.y < m_Heights[tile2BIndex] )
-                checkTriangles = true;
-        }
-
-        if( checkTriangles == false )
-            return false;
-    }
-
-    // Cast ray against the 2 triangles between these 4 points.
+    // Cast ray against the triangles between these 4 points.
     {
         Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
 
-        // 2 cases for x>z with positive z.
-        //     2B
-        //    / |
-        //   / dd
-        // 1Bdd2A   or   1B--2B
-        // dd /          |  /dd
-        // | /           dd/  |
-        // 1A            1A--2A
-        Vector3 tile1APos( tile1.x * tileSize.x, m_Heights[tile1AIndex], tile1.y     * tileSize.y );
-        Vector3 tile1BPos( tile1.x * tileSize.x, m_Heights[tile1BIndex], (tile1.y+1) * tileSize.y );
-        Vector3 tile2APos( tile2.x * tileSize.x, m_Heights[tile2AIndex], tile2.y     * tileSize.y );
-        Vector3 tile2BPos( tile2.x * tileSize.x, m_Heights[tile2BIndex], (tile2.y+1) * tileSize.y );
-
-        Plane plane;
-        Vector3 result;
-        Vector3 normal;
-
-        // Left triangle. 1A-1B-2A or 1A-1B-2B
-        if( tile1.y != tile2.y )
-            normal = (tile1BPos - tile1APos).Cross( tile2APos - tile1APos ); // 1A-1B-2A
-        else
-            normal = (tile1BPos - tile1APos).Cross( tile2BPos - tile1APos ); // 1A-1B-2B
-        plane.Set( normal, tile1APos );
-        if( plane.IntersectRay( currentPosition, dir, &result ) )
+        struct tri
         {
-            if( result.x >= tile1APos.x && result.x < tile2APos.x &&
-                result.z >= tile1APos.z && result.z < tile1BPos.z &&
-                result.x - tile1.x * tileSize.x < result.z - tile1.y * tileSize.y )
+            Vector2Int tiles[3];
+            int indices[3];
+        };
+
+        int numTris = 0;
+        tri tris[4];
+
+        // 3 cases for x>z with x direction being positive.
+        //      positive z                negative z
+        // 2 tris        2 tris      4 tris        2 tris
+        //     2B                    1B--2C     (repeat case)
+        //    / |                    |  / |
+        //   / dd>                  >dd/  |
+        // 1Bdd2A   or   1B--2B      1Add2B   or   1B--2B
+        //>dd /          |  /dd>     |  /dd>      >ddd/ |
+        // | /          >dd/  |      | /  |        | /ddd>
+        // 1A            1A--2A      1Z--2A        1A--2A
+        if( dir.x > dir.z )
+        {
+            if( tile1.y == tile2.y ) // Case 2 & 4.
             {
-                if( pResult )
-                    *pResult = result;
-                return true;
+                numTris = 2;
+                tris[0].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //  2 tris
+                tris[0].tiles[1].Set( tile1.x, tile1.y+1 ); // 1B   //
+                tris[0].tiles[2].Set( tile2.x, tile2.y+1 ); // 2B   //  1B--2B
+                                                                    // >ddd/ |
+                tris[1].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //  | /ddd>
+                tris[1].tiles[1].Set( tile2.x, tile2.y+1 ); // 2B   //  1A--2A
+                tris[1].tiles[2].Set( tile2.x, tile2.y   ); // 2A
+            }
+            else if( dir.z > 0 ) // Case 1.
+            {
+                numTris = 2;                                        //  2 tris 
+                tris[0].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //      2B 
+                tris[0].tiles[1].Set( tile1.x, tile1.y+1 ); // 1B   //     / | 
+                tris[0].tiles[2].Set( tile2.x, tile2.y   ); // 2A   //    / dd>
+                                                                    //  1Bdd2A 
+                tris[1].tiles[0].Set( tile1.x, tile1.y+1 ); // 1B   // >dd /   
+                tris[1].tiles[1].Set( tile2.x, tile2.y+1 ); // 2B   //  | /    
+                tris[1].tiles[2].Set( tile2.x, tile2.y   ); // 2A   //  1A     
+            }                                                      
+            else //if( dir.z < 0 ) // Case 3.
+            {
+                numTris = 4;
+                tris[0].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //  4 tris
+                tris[0].tiles[1].Set( tile1.x, tile1.y+1 ); // 1B   //  1B--2C
+                tris[0].tiles[2].Set( tile2.x, tile2.y+2 ); // 2C   //  |  / |
+                                                                    // >dd/  |
+                tris[1].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //  1Add2B
+                tris[1].tiles[1].Set( tile2.x, tile2.y+2 ); // 2C   //  |  /dd>
+                tris[1].tiles[2].Set( tile2.x, tile2.y+1 ); // 2B   //  | /  |
+                                                                    //  1Z--2A
+                tris[2].tiles[0].Set( tile1.x, tile1.y-1 ); // 1Z
+                tris[2].tiles[1].Set( tile1.x, tile1.y   ); // 1A
+                tris[2].tiles[2].Set( tile2.x, tile2.y+1 ); // 2B
+
+                tris[3].tiles[0].Set( tile1.x, tile1.y-1 ); // 1Z
+                tris[3].tiles[1].Set( tile2.x, tile2.y+1 ); // 2B
+                tris[3].tiles[2].Set( tile2.x, tile2.y   ); // 2A
             }
         }
 
-        // Right triangle. 1B-2B-2A or 1A-2B-2A
-        if( tile1.y != tile2.y )
-            normal = (tile2BPos - tile1BPos).Cross( tile2APos - tile1BPos ); // 1B-2B-2A
-        else
-            normal = (tile2BPos - tile1APos).Cross( tile2APos - tile1APos ); // 1A-2B-2A
-        plane.Set( normal, tile2APos );
-        if( plane.IntersectRay( currentPosition, dir, &result ) )
+        for( int t=0; t<numTris; t++ )
         {
-            if( result.x >= tile1APos.x && result.x < tile2APos.x &&
-                result.z >= tile2APos.z && result.z < tile2BPos.z &&
-                result.x - tile1.x * tileSize.x > result.z - tile2.y * tileSize.y )
+            tri* pTri = &tris[t];
+
+            // If all heights are below our position, then don't check triangles. Also checking bounds.
+            bool checkTriangles = false;
+            for( int i=0; i<3; i++ )
             {
-                if( pResult )
-                    *pResult = result;
-                return true;
+                // If out of bounds, then skip this triangle.
+                if( pTri->tiles[i].x < 0 || pTri->tiles[i].x >= m_VertCount.x || pTri->tiles[i].y < 0 || pTri->tiles[i].y >= m_VertCount.y )
+                {
+                    checkTriangles = false;
+                    break;
+                }
+
+                tris[t].indices[i] = tris[t].tiles[i].y * m_VertCount.x + tris[t].tiles[i].x;
+                if( currentPosition.y < m_Heights[pTri->indices[i]] )
+                    checkTriangles = true;
+            }
+            
+            if( checkTriangles == false )
+                continue; // Go next next triangle if there is one.
+
+            // Intersect against the single triangle.
+            // Assumes it's a right-angle triangle with matching width/height with diagonal going from lower-left to upper-right.
+            Vector3 pos0( pTri->tiles[0].x * tileSize.x, m_Heights[pTri->indices[0]], pTri->tiles[0].y * tileSize.y );
+            Vector3 pos1( pTri->tiles[1].x * tileSize.x, m_Heights[pTri->indices[1]], pTri->tiles[1].y * tileSize.y );
+            Vector3 pos2( pTri->tiles[2].x * tileSize.x, m_Heights[pTri->indices[2]], pTri->tiles[2].y * tileSize.y );
+
+            Plane plane;
+            Vector3 result;
+
+            Vector3 normal = (pos1 - pos0).Cross( pos2 - pos0 );
+            plane.Set( normal, pos0 );
+            if( plane.IntersectRay( currentPosition, dir, &result ) )
+            {
+                // t%2 == 0 if the right-angle of the tri is at upper right of tri (i.e. x's < y's )
+                // t%2 == 1 if the right-angle of the tri is at lower right of tri (i.e. x's > y's )
+                // TODO: t%x likely will be broken for other cases, so fix it.
+                if( result.x >= pos0.x && result.x < pos2.x &&
+                    result.z >= pos0.z && result.z < pos1.z &&
+                    ( t%2 == 1 || result.x - pTri->tiles[0].x * tileSize.x < result.z - pTri->tiles[0].y * tileSize.y ) )
+                {
+                    if( pResult )
+                        *pResult = result;
+                    return true;
+                }
             }
         }
+
+        //int numLoops = 1;
+        //if( dir.z < 0 && tile1.y != tile2.y )
+        //{
+        //    // For the "negative z / 4 tris" case, shift tile2 to test against the top quad.
+        //    tile2.y++;
+        //    numLoops = 2;
+        //}
+
+        //for( int i=0; i<numLoops; i++ )
+        //{
+        //    // If on the second loop for the "negative z / 4 tris" case, shift to lower quad.
+        //    if( i == 1 )
+        //    {
+        //        tile1.y--;
+        //        tile2.y--;
+        //    }
+
+        //    int tile1AIndex = tile1.y     * m_VertCount.x + tile1.x; // Previous tile.
+        //    int tile1BIndex = (tile1.y+1) * m_VertCount.x + tile1.x; // Tile above previous tile.
+        //    int tile2AIndex = tile2.y     * m_VertCount.x + tile2.x; // Start edge of current tile.
+        //    int tile2BIndex = (tile2.y+1) * m_VertCount.x + tile2.x; // Tile above current tile.
+
+        //    // If all heights are below our position, then don't check triangles.
+        //    {
+        //        bool checkTriangles = false;
+
+        //        if( tile1.x >= 0 && tile1.x < m_VertCount.x && tile1.y >= 0 && tile1.y < m_VertCount.y )
+        //        {
+        //            if( currentPosition.y < m_Heights[tile1AIndex] )
+        //                checkTriangles = true;
+
+        //            if( (tile1.y+1) < m_VertCount.y && currentPosition.y < m_Heights[tile1BIndex] )
+        //                checkTriangles = true;
+        //        }
+        //        if( tile2.x >= 0 && tile2.x < m_VertCount.x && tile2.y >= 0 && tile2.y < m_VertCount.y )
+        //        {
+        //            if( currentPosition.y < m_Heights[tile2AIndex] )
+        //                checkTriangles = true;
+
+        //            if( (tile2.y+1) < m_VertCount.y && currentPosition.y < m_Heights[tile2BIndex] )
+        //                checkTriangles = true;
+        //        }
+
+        //        if( checkTriangles == false )
+        //            continue; // Go next next quad if there is one.
+        //    }
+
+        //    Vector3 tile1APos( tile1.x * tileSize.x, m_Heights[tile1AIndex], tile1.y     * tileSize.y );
+        //    Vector3 tile1BPos( tile1.x * tileSize.x, m_Heights[tile1BIndex], (tile1.y+1) * tileSize.y );
+        //    Vector3 tile2APos( tile2.x * tileSize.x, m_Heights[tile2AIndex], tile2.y     * tileSize.y );
+        //    Vector3 tile2BPos( tile2.x * tileSize.x, m_Heights[tile2BIndex], (tile2.y+1) * tileSize.y );
+
+        //    Plane plane;
+        //    Vector3 result;
+        //    Vector3 normal;
+
+        //    // Left triangle. 1A-1B-2A or 1A-1B-2B
+        //    if( tile1.y != tile2.y )
+        //        normal = (tile1BPos - tile1APos).Cross( tile2APos - tile1APos ); // 1A-1B-2A
+        //    else
+        //        normal = (tile1BPos - tile1APos).Cross( tile2BPos - tile1APos ); // 1A-1B-2B
+        //    plane.Set( normal, tile1APos );
+        //    if( plane.IntersectRay( currentPosition, dir, &result ) )
+        //    {
+        //        if( result.x >= tile1APos.x && result.x < tile2APos.x &&
+        //            result.z >= tile1APos.z && result.z < tile1BPos.z &&
+        //            result.x - tile1.x * tileSize.x < result.z - tile1.y * tileSize.y )
+        //        {
+        //            if( pResult )
+        //                *pResult = result;
+        //            return true;
+        //        }
+        //    }
+
+        //    // Right triangle. 1B-2B-2A or 1A-2B-2A
+        //    if( tile1.y != tile2.y )
+        //        normal = (tile2BPos - tile1BPos).Cross( tile2APos - tile1BPos ); // 1B-2B-2A
+        //    else
+        //        normal = (tile2BPos - tile1APos).Cross( tile2APos - tile1APos ); // 1A-2B-2A
+        //    plane.Set( normal, tile2APos );
+        //    if( plane.IntersectRay( currentPosition, dir, &result ) )
+        //    {
+        //        if( result.x >= tile1APos.x && result.x < tile2APos.x &&
+        //            result.z >= tile2APos.z && result.z < tile2BPos.z &&
+        //            result.x - tile1.x * tileSize.x > result.z - tile2.y * tileSize.y )
+        //        {
+        //            if( pResult )
+        //                *pResult = result;
+        //            return true;
+        //        }
+        //    }
+        //}
     }
 
     return false;

@@ -78,7 +78,7 @@ protected:
     bool GenerateHeightmapMesh();
 
     bool SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const;
-    bool FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, const Vector2Int& tile1, const Vector2Int& tile2, Vector3* pResult) const;
+    bool FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const;
 
 public:
     bool GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const;
