@@ -588,15 +588,17 @@ bool ComponentHeightmap::SnapToBounds(Vector3 start, const Vector3& dir, Vector3
 
 bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const
 {
-    // TODO: Currently only deals with x>z direction vector where x is positive.
+    // Tile 1 and tile 2 are passed in.
+    // There are 16 cases based on the general direction of the vector and whether it crosses a row/column.
+    // There are 6 cases handled explicitly (2 more are duplicates) and the other 8 are the vectors in reverse.
 
     // -----2B----  d = dir vector.
     // |  / |  / |
-    // | / dd /  |  If x > z, make the vector tileSize long on the x-axis.
-    // 1Bdd-2A----  Travel from tile edge to tile edge, if we change row then check the height of 3 tiles,
-    // dd / |  / |    otherwise test current tile and the one to the left.
-    // | /  | /  |
-    // 1A---------  1A/B,2A/B = heights from heightmap to check against.
+    // | / dd /  |  1A = tile1.
+    // 1Bdd-2A----  2A = tile2.
+    // dd / |  / |
+    // | /  | /  |  1B = 1 tile higher or to the right of tile1.
+    // 1A---------  1Z = 1 tile lower or to the left of tile1.
 
     // Cast ray against the triangles between these 4 points.
     {
@@ -611,7 +613,7 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
         int numTris = 0;
         tri tris[4];
 
-        // 3 cases for x>z with x direction being positive.
+        // 4 cases (1 duplicate) for x>z with x direction being positive.
         //      positive z                negative z
         // 2 tris        2 tris      4 tris        2 tris
         //     2B                    1B--2C     (repeat case)
@@ -623,9 +625,15 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
         // 1A            1A--2A      1Z--2A        1A--2A
         if( fabs(dir.x) > fabs(dir.z) )
         {
+            // Code below relies on tile1 being to the left of tile2.
+            if( dir.x < 0 )
+            {
+                MySwap( tile1, tile2 );
+            }
+
             // Add all possible triangles to a list.
-            // Triangles in even entries of list must be "upper left" triangles
-            // Triangles in odd entries of list must be "lower right" triangles
+            // Triangles in even entries of list must be "upper left" triangles.
+            // Triangles in odd entries of list must be "lower right" triangles.
             //  ------
             //  |UL/ |
             //  | /LR|
@@ -641,7 +649,7 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
                 tris[1].tiles[1].Set( tile2.x, tile2.y+1 ); // 2B   //  1A--2A
                 tris[1].tiles[2].Set( tile2.x, tile2.y   ); // 2A
             }
-            else if( dir.z > 0 ) // Case 1.
+            else if( (dir.x > 0 && dir.z > 0) || (dir.x < 0 && dir.z < 0) ) // Case 1.
             {
                 numTris = 2;                                        //  2 tris 
                 tris[0].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //      2B 
@@ -672,7 +680,7 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
                 tris[3].tiles[2].Set( tile2.x, tile2.y   ); // 2A
             }
         }
-        // 3 cases for z>x with z direction being positive.
+        // 4 cases (1 duplicate) for z>x with z direction being positive.
         //        positive x                    negative x
         //    2 tris        2 tris          4 tris        2 tris
         //                                             (repeat case)
@@ -682,11 +690,17 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
         //   / d| /         | d  |       | /  |d/  |      | /d |
         // 1A-d1B       or  1Ad-1B       1Z--1A-d-1B  or  1A-d1B
         //    ^               ^                 ^            ^
-        else if( fabs(dir.z) > fabs(dir.x) )
+        else //if( fabs(dir.z) > fabs(dir.x) )
         {
+            // Code below relies on tile1 being to the below of tile2.
+            if( dir.z < 0 )
+            {
+                MySwap( tile1, tile2 );
+            }
+
             // Add all possible triangles to a list.
-            // Triangles in even entries of list must be "lower right" triangles
-            // Triangles in odd entries of list must be "upper left" triangles
+            // Triangles in even entries of list must be "lower right" triangles.
+            // Triangles in odd entries of list must be "upper left" triangles.
             //  ------
             //  |UL/ |
             //  | /LR|
@@ -702,7 +716,8 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
                 tris[1].tiles[1].Set( tile2.x+1, tile2.y ); // 2B   //   ^
                 tris[1].tiles[2].Set( tile1.x+1, tile1.y ); // 1B
             }
-            else if( dir.x > 0 ) // Case 1.
+            //else if( dir.x > 0 ) // Case 1.
+            else if( (dir.z > 0 && dir.x > 0) || (dir.z < 0 && dir.x < 0) ) // Case 1.
             {
                 numTris = 2;                                        //   2 tris
                 tris[0].tiles[0].Set( tile1.x  , tile1.y ); // 1A   //       ^    
@@ -738,7 +753,7 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
         {
             tri* pTri;
 
-            // If direction is going in the negative x direction, loop over the list above in reverse.
+            // If direction is going in the negative x direction, loop over the triangle list in reverse.
             if( dir.x > 0 )
                 pTri = &tris[t];
             else
@@ -840,69 +855,112 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
     // dd / |  / |    otherwise test current tile and the one to the left.
     // | /  | /  |
     // 1----------  1,2 = heights from heightmap to check against.
+    int* loopVariable; // We either loop over the edges on the x-axis or the y-axis.
+    int loopLimit; // Which tile to stop looping on, either -1 if moving left over the tiles, or vertCount if moving right.
+    Vector2 tilePos = currentPosition.XZ() / m_Size * Vector2( m_VertCount.x-1.0f, m_VertCount.y-1.0f );
+    Vector2 tileIncrement;
+    Vector2Int lastTileCoords( -1, -1 );
+
     if( fabs(dir.x) > fabs(dir.z) )
     {
-        // Make vector 'tileSize' long on the x-axis.
-        dir = dir / dir.x * tileSize.x;
-        Vector2 tilePos( (float)tileCoords.x, currentPosition.z/m_Size.y * (m_VertCount.y-1) );
-        Vector2 tileIncrement( 1, dir.z / dir.x );
-        Vector2Int lastTileCoords( -1, -1 );
+        loopVariable = &tileCoords.x;
 
+        // Make vector 'tileSize' long on the x-axis.
+        dir = dir / fabs(dir.x) * tileSize.x;
+        tileIncrement.Set( dir.x >= 0 ? 1.0f : -1.0f, dir.z / fabs(dir.x) );
+
+        // Set the vertex that the loop will stop on.
+        // If the vector is partway into a tile, take a partial step to reach the edge of that tile.
+        // If the vector is sitting on the starting edge of a tile, take a full step to the next tile.
         if( dir.x > 0 )
         {
-            while( tileCoords.x < m_VertCount.x )
+            loopLimit = m_VertCount.x;
+
+            float perc = 1 - fmod( tilePos.x, 1.0f );
+            currentPosition += dir * perc;
+            lastTileCoords = tileCoords;
+            tilePos += tileIncrement * perc;
+        }
+        else //if( dir.x <= 0 )
+        {
+            loopLimit = -1;
+
+            float perc = fmod( tilePos.x, 1.0f );
+            if( currentPosition.x == m_Size.x )
             {
-                tileCoords.Set( (int)tilePos.x, (int)tilePos.y );
-                if( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y )
-                {
-                    // Test for collisions in up to 2 edges. //lastTileCoords and WithY+1, tileCoords and WithY+1.
-                    Vector3 result;
-                    if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, &result ) )
-                    {
-                        if( pResult )
-                            *pResult = result;
-
-                        return true;
-                    }
-                }
-
-                currentPosition += dir;
-                lastTileCoords = tileCoords;
-                tilePos += tileIncrement;
+                perc = 1.0f;
+                lastTileCoords.Set( tileCoords.x, tileCoords.y );
             }
+            else
+            {
+                lastTileCoords.Set( tileCoords.x + 1, tileCoords.y );
+            }
+            currentPosition += dir * perc;
+            tilePos += tileIncrement * perc;
         }
     }
     else //if( fabs(dir.x) > fabs(dir.z) )
     {
-        // Make vector 'tileSize' long on the z-axis.
-        dir = dir / dir.z * tileSize.y;
-        Vector2 tilePos( currentPosition.x/m_Size.x * (m_VertCount.x-1), (float)tileCoords.y );
-        Vector2 tileIncrement( dir.x / dir.z, 1 );
-        Vector2Int lastTileCoords( -1, -1 );
+        loopVariable = &tileCoords.y;
 
+        // Make dir vector 'tileSize' long on the z-axis.
+        dir = dir / fabs(dir.z) * tileSize.y;
+        tileIncrement.Set( dir.x / fabs(dir.z), dir.z >= 0 ? 1.0f : -1.0f );
+
+        // Set the vertex that the loop will stop on.
+        // If the vector is partway into a tile, take a partial step to reach the edge of that tile.
+        // If the vector is sitting on the starting edge of a tile, take a full step to the next tile.
         if( dir.z > 0 )
         {
-            while( tileCoords.y < m_VertCount.y )
+            loopLimit = m_VertCount.y;
+
+            float perc = 1 - fmod( tilePos.y, 1.0f );
+            currentPosition += dir * perc;
+            lastTileCoords = tileCoords;
+            tilePos += tileIncrement * perc;
+        }
+        else //if( dir.z <= 0 )
+        {
+            loopLimit = -1;
+
+            float perc = fmod( tilePos.y, 1.0f );
+            if( currentPosition.z == m_Size.y )
             {
-                tileCoords.Set( (int)tilePos.x, (int)tilePos.y );
-                if( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y )
-                {
-                    // Test for collisions in up to 2 edges. //lastTileCoords and WithX+1, tileCoords and WithX+1.
-                    Vector3 result;
-                    if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, &result ) )
-                    {
-                        if( pResult )
-                            *pResult = result;
+                perc = 1.0f;
+                lastTileCoords.Set( tileCoords.x, tileCoords.y );
+            }
+            else
+            {
+                lastTileCoords.Set( tileCoords.x, tileCoords.y + 1 );
+            }
+            //if( currentPosition.z == m_Size.y )
+            //    perc = 1.0f;
+            //lastTileCoords.Set( tileCoords.x, tileCoords.y + 1 );
+            currentPosition += dir * perc;
+            tilePos += tileIncrement * perc;
+        }
+    }
 
-                        return true;
-                    }
-                }
+    // Loop through tiles checking for intersection point.
+    while( *loopVariable != loopLimit )
+    {
+        tileCoords.Set( (int)tilePos.x, (int)tilePos.y );
 
-                currentPosition += dir;
-                lastTileCoords = tileCoords;
-                tilePos += tileIncrement;
+        if( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y )
+        {
+            Vector3 result;
+            if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, &result ) )
+            {
+                if( pResult )
+                    *pResult = result;
+
+                return true;
             }
         }
+
+        currentPosition += dir;
+        lastTileCoords = tileCoords;
+        tilePos += tileIncrement;
     }
 
     //Vector2Int startTileCoords;
