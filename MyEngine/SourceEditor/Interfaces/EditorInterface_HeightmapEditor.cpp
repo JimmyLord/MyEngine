@@ -40,6 +40,10 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
     {
         m_pMaterials[i] = nullptr;
     }
+
+    // Editor settings.
+    m_RaiseHeight = 2.0f;
+    m_RaiseRadius = 2.0f;
 }
 
 EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
@@ -74,6 +78,7 @@ void EditorInterface_HeightmapEditor::OnActivated()
 
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
         pGameObject->SetName( "Heightmap editor - point" );
+        pGameObject->GetTransform()->SetLocalRotation( Vector3( -90, 0, 0 ) );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects, g_pComponentSystemManager );
         if( pComponentMesh )
@@ -119,16 +124,32 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         Vector3 worldPos = m_WorldSpaceMousePosition;
 
         m_pPoint->GetTransform()->SetLocalPosition( worldPos );
+        //m_pPoint->GetTransform()->SetLocalRotation( Vector3( -90, 0, 0 ) );
 
         ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
-        float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldPos).Length();
-        m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
+        //float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldPos).Length();
+        //m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
 
         g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
     }
+
+    // TODO: Fix ImGui, global context isn't set at this point.
+    //// Show some heightmap editor controls.
+    //ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
+    //ImGui::Begin( "Heightmap Editor" );
+
+    //if( ImGui::CollapsingHeader( "Raise" ) )
+    //{
+    //    ImGui::DragFloat( "Height", &m_RaiseHeight );
+    //    ImGui::DragFloat( "Radius", &m_RaiseRadius );
+    //}
+
+    //if( ImGui::Button( "TODO: Save" ) )
+    //{
+    //}
 }
 
 void EditorInterface_HeightmapEditor::CancelCurrentOperation()
@@ -155,6 +176,21 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
     }
 
     EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
+
+    if( pEditorState->m_ModifierKeyStates == 0 )
+    {
+        if( mouseAction == GCBA_Held )
+        {
+            Vector3 start, end;
+            g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
+
+            Vector3 result;
+            if( m_pHeightmap->RayCast( start, end, &result ) )
+            {
+                m_WorldSpaceMousePosition = result;
+            }
+        }
+    }
 
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
@@ -192,8 +228,9 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                     Vector3 result;
                     if( m_pHeightmap->RayCast( start, end, &result ) )
                     {
+                        m_pHeightmap->RaiseToHeight( result, m_RaiseHeight, m_RaiseRadius, true );
                         m_WorldSpaceMousePosition = result;
-                        LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)", result.x, result.y, result.z );
+                        //LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)\n", result.x, result.y, result.z );
                     }
                 }
                 else

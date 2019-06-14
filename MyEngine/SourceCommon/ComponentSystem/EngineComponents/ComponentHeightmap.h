@@ -75,7 +75,7 @@ protected:
     void OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile);
 
     void CreateHeightmap();
-    bool GenerateHeightmapMesh();
+    bool GenerateHeightmapMesh(bool createFromFile);
 
     bool SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const;
     bool FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const;
@@ -84,6 +84,9 @@ public:
     bool GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const;
     bool GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const;
     bool RayCast(Vector3 start, Vector3 end, Vector3* pResult) const;
+
+    // Editor tools.
+    void RaiseToHeight(Vector3 position, float height, float radius, bool rebuild);
 };
 
 #endif //__ComponentHeightmap_H__

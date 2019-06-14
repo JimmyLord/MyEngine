@@ -171,7 +171,7 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel()
         {
             // TODO: Undo.
             m_VertCount = m_HeightmapTextureSize;
-            GenerateHeightmapMesh();
+            GenerateHeightmapMesh( true );
         }
     }
 
@@ -280,7 +280,7 @@ void ComponentHeightmap::CreateHeightmap()
         m_pMesh->GetSubmesh( 0 )->m_PrimitiveType = m_GLPrimitiveType;
 
     // Generate the actual heightmap.
-    if( GenerateHeightmapMesh() )
+    if( GenerateHeightmapMesh( true ) )
     {
         m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
@@ -294,8 +294,13 @@ void ComponentHeightmap::CreateHeightmap()
 }
 
 // Returns true if successfully generated mesh.
-bool ComponentHeightmap::GenerateHeightmapMesh()
+bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile)
 {
+    if( createFromFile && (m_pHeightmapTexture == nullptr || m_pHeightmapTexture->GetFile() == nullptr) )
+    {
+        MyAssert( false );
+    }
+
     //LOGInfo( LOGTag, "ComponentHeightmap::GenerateHeightmapMesh\n" );
 
     // Sanity check on vertex count.
@@ -306,7 +311,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
     }
 
     // If the heightmap texture is still loading, register a callback.
-    if( m_pHeightmapTexture->GetFile()->IsFinishedLoading() == false )
+    if( createFromFile == true && m_pHeightmapTexture->GetFile()->IsFinishedLoading() == false )
     {
         if( m_WaitingForTextureFileToFinishLoading == false )
         {
@@ -337,26 +342,46 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
 
     // Generate the vertex positions
     {
-        unsigned char* pixelBuffer = nullptr;
-        unsigned int texWidth, texHeight;
-
-        // Decode the file into a raw buffer.
+        if( createFromFile )
         {
-            unsigned char* buffer = (unsigned char*)m_pHeightmapTexture->GetFile()->GetBuffer();
-            MyAssert( buffer != nullptr );
+            unsigned char* pixelBuffer = nullptr;
+            unsigned int texWidth, texHeight;
 
-            int length = m_pHeightmapTexture->GetFile()->GetFileLength();
+            // Decode the file into a raw buffer.
+            {
+                unsigned char* buffer = (unsigned char*)m_pHeightmapTexture->GetFile()->GetBuffer();
+                MyAssert( buffer != nullptr );
 
-            unsigned int error = lodepng_decode32( &pixelBuffer, &texWidth, &texHeight, buffer, length );
-            MyAssert( error == 0 );
-        }
+                int length = m_pHeightmapTexture->GetFile()->GetFileLength();
 
-        // Store the heightmap texture size, so we can show a warning if there's a mismatch.
-        m_HeightmapTextureSize.Set( (int)texWidth, (int)texHeight );
+                unsigned int error = lodepng_decode32( &pixelBuffer, &texWidth, &texHeight, buffer, length );
+                MyAssert( error == 0 );
+            }
+
+            // Store the heightmap texture size, so we can show a warning if there's a mismatch.
+            m_HeightmapTextureSize.Set( (int)texWidth, (int)texHeight );
         
-        // Allocate a buffer to store the vertex heights.
-        SAFE_DELETE_ARRAY( m_Heights );
-        m_Heights = MyNew float[vertCount.x * vertCount.y];
+            // Allocate a buffer to store the vertex heights.
+            SAFE_DELETE_ARRAY( m_Heights );
+            m_Heights = MyNew float[vertCount.x * vertCount.y];
+
+            for( int y = 0; y < vertCount.y; y++ )
+            {
+                for( int x = 0; x < vertCount.x; x++ )
+                {
+                    unsigned int index = (unsigned int)(y * vertCount.x + x);
+
+                    Vector2 texCoord( (float)x/vertCount.x * texWidth, (float)y/vertCount.y * texHeight );
+                    int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
+                    float height = pixelBuffer[texIndex*4] / 255.0f;
+
+                    m_Heights[index] = height;
+                }
+            }
+
+            // Free the memory allocated by lodepng_decode32.
+            free( pixelBuffer );
+        }
 
         // Set the vertices.
         for( int y = 0; y < vertCount.y; y++ )
@@ -365,18 +390,8 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
             {
                 unsigned int index = (unsigned int)(y * vertCount.x + x);
 
-                Vector2 texCoord( (float)x/vertCount.x * texWidth, (float)y/vertCount.y * texHeight );
-                int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
-                float height = pixelBuffer[texIndex*4] / 255.0f;
-
-                //height = 0.0f;
-                //if( index == 4 )
-                //    height = 2.0f;
-
-                m_Heights[index] = height;
-
                 pVerts[index].pos.x = bottomLeftPos.x + size.x / (vertCount.x - 1) * x;
-                pVerts[index].pos.y = bottomLeftPos.y + height;
+                pVerts[index].pos.y = bottomLeftPos.y + m_Heights[index];
                 pVerts[index].pos.z = bottomLeftPos.z + size.y / (vertCount.y - 1) * y;
 
                 pVerts[index].uv.x = uvStart.x + x * uvRange.x / (vertCount.x - 1);
@@ -388,9 +403,6 @@ bool ComponentHeightmap::GenerateHeightmapMesh()
                 }
             }
         }
-
-        // Free the memory allocated by lodepng_decode32.
-        free( pixelBuffer );
     }
 
     // Calculate normals.
@@ -832,7 +844,6 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
     // If the vector doesn't collide with the heightmap at all, kick out.
     if( SnapToBounds( start, dir, &currentPosition ) == false )
         return false;
-    //SnapToBounds( end, -dir, &end );
 
     // Get the tile coords.
     Vector2Int tileCoords = (m_VertCount-1) * (currentPosition.XZ()/m_Size);
@@ -933,9 +944,7 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
             {
                 lastTileCoords.Set( tileCoords.x, tileCoords.y + 1 );
             }
-            //if( currentPosition.z == m_Size.y )
-            //    perc = 1.0f;
-            //lastTileCoords.Set( tileCoords.x, tileCoords.y + 1 );
+
             currentPosition += dir * perc;
             tilePos += tileIncrement * perc;
         }
@@ -963,27 +972,40 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
         tilePos += tileIncrement;
     }
 
-    //Vector2Int startTileCoords;
-    //Vector2Int endTileCoords;
-    //bool startOnMap = GetTileCoordsAtWorldXZ( start.x, start.z, &startTileCoords, nullptr );
-    //bool endOnMap = GetTileCoordsAtWorldXZ( end.x, end.z, &endTileCoords, nullptr );
-
-    //Vector2 step( (float)endTileCoords.x - startTileCoords.x, (float)endTileCoords.y - startTileCoords.y );
-    //step.Normalize();
-
-    //int startTileIndex = startTileCoords.y * m_VertCount.x + startTileCoords.x;
-    //int endTileIndex = endTileCoords.y * m_VertCount.x + endTileCoords.x;
-
-    //Vector3 tempPos = Vector3( (float)startTileCoords.x, 0, (float)startTileCoords.y );
-    ////Vector3 tempPos = Vector3( (float)endTileCoords.x, 0, (float)endTileCoords.y );
-    //Vector3 currentPosition = Vector3( tempPos.x / m_VertCount.x * m_Size.x, 0,
-    //                                   tempPos.z / m_VertCount.y * m_Size.y );
-
-    //Vector3 currentPosition = start.WithY( 0 );
-    ////Vector3 currentPosition = end.WithY( 0 );
-
-    //if( pResult )
-    //    *pResult = currentPosition;
-
     return false;
+}
+
+// Editor tools.
+void ComponentHeightmap::RaiseToHeight(Vector3 position, float height, float radius, bool rebuild)
+{
+    Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
+    Vector2Int center = (m_VertCount-1) * (position.XZ()/m_Size) + Vector2( 0.5f, 0.5f );
+
+    Vector2Int start( center.x - (int)(radius/tileSize.x), center.y - (int)(radius/tileSize.x) );
+    Vector2Int end( center.x + (int)(radius/tileSize.x), center.y + (int)(radius/tileSize.x) );
+
+    if( start.x < 0 ) start.x = 0;
+    if( start.y < 0 ) start.y = 0;
+    if( end.x >= m_VertCount.x ) end.x = m_VertCount.x-1;
+    if( end.y >= m_VertCount.y ) end.y = m_VertCount.x-1;
+
+    for( int y=start.y; y<=end.y; y++ )
+    {
+        float diffY = y*tileSize.y - position.z;
+
+        for( int x=start.x; x<=end.x; x++ )
+        {
+            float diffX = x*tileSize.x - position.x;
+
+            if( diffX*diffX + diffY*diffY < radius*radius )
+            {
+                m_Heights[y * m_VertCount.x + x] = height;
+            }
+        }
+    }
+
+    if( rebuild )
+    {
+        GenerateHeightmapMesh( false );
+    }
 }

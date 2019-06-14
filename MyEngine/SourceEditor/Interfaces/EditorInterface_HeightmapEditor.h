@@ -36,6 +36,10 @@ protected:
 
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];
 
+    // Editor settings.
+    float m_RaiseHeight;
+    float m_RaiseRadius;
+
 public:
     EditorInterface_HeightmapEditor(EngineCore* pEngineCore);
     virtual ~EditorInterface_HeightmapEditor();
