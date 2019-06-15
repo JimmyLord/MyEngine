@@ -42,8 +42,9 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
     }
 
     // Editor settings.
-    m_RaiseHeight = 2.0f;
-    m_RaiseRadius = 2.0f;
+    m_BrushSoftness = 1.0f;
+    m_RaiseHeight = 1.0f;
+    m_RaiseRadius = 1.0f;
 }
 
 EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
@@ -136,20 +137,26 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
     }
 
-    // TODO: Fix ImGui, global context isn't set at this point.
-    //// Show some heightmap editor controls.
-    //ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
-    //ImGui::Begin( "Heightmap Editor" );
+    // Show some heightmap editor controls.
+    ImGui::SetNextWindowSize( ImVec2(150,200), ImGuiSetCond_FirstUseEver );
+    ImGui::Begin( "Heightmap Editor" );
 
-    //if( ImGui::CollapsingHeader( "Raise" ) )
-    //{
-    //    ImGui::DragFloat( "Height", &m_RaiseHeight );
-    //    ImGui::DragFloat( "Radius", &m_RaiseRadius );
-    //}
+    if( ImGui::CollapsingHeader( "Brush", ImGuiTreeNodeFlags_DefaultOpen ) )
+    {
+        ImGui::DragFloat( "Softness", &m_BrushSoftness, 0.001f, 0.0f, 1.0f );
+    }
 
-    //if( ImGui::Button( "TODO: Save" ) )
-    //{
-    //}
+    if( ImGui::CollapsingHeader( "Raise", ImGuiTreeNodeFlags_DefaultOpen ) )
+    {
+        ImGui::DragFloat( "Height", &m_RaiseHeight, 0.01f, 0.0f, FLT_MAX );
+        ImGui::DragFloat( "Radius", &m_RaiseRadius, 0.01f, 0.0f, FLT_MAX );
+    }
+
+    if( ImGui::Button( "TODO: Save" ) )
+    {
+    }
+
+    ImGui::End();
 }
 
 void EditorInterface_HeightmapEditor::CancelCurrentOperation()
@@ -228,7 +235,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                     Vector3 result;
                     if( m_pHeightmap->RayCast( start, end, &result ) )
                     {
-                        m_pHeightmap->RaiseToHeight( result, m_RaiseHeight, m_RaiseRadius, true );
+                        m_pHeightmap->RaiseToHeight( result, m_RaiseHeight, m_RaiseRadius, m_BrushSoftness, true );
                         m_WorldSpaceMousePosition = result;
                         //LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)\n", result.x, result.y, result.z );
                     }

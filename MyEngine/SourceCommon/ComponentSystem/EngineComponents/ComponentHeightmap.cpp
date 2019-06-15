@@ -976,7 +976,7 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
 }
 
 // Editor tools.
-void ComponentHeightmap::RaiseToHeight(Vector3 position, float height, float radius, bool rebuild)
+void ComponentHeightmap::RaiseToHeight(Vector3 position, float height, float radius, float softness, bool rebuild)
 {
     Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
     Vector2Int center = (m_VertCount-1) * (position.XZ()/m_Size) + Vector2( 0.5f, 0.5f );
@@ -997,9 +997,16 @@ void ComponentHeightmap::RaiseToHeight(Vector3 position, float height, float rad
         {
             float diffX = x*tileSize.x - position.x;
 
-            if( diffX*diffX + diffY*diffY < radius*radius )
+            float diff2 = diffX*diffX + diffY*diffY;
+            float radius2 = radius*radius;
+
+            if( diff2 < radius2 )
             {
-                m_Heights[y * m_VertCount.x + x] = height;
+                float expDist = diff2 / radius2; // 0 at center, 1 at edge.
+
+                float perc = min( 1.0f, 1 - expDist + softness );
+
+                m_Heights[y * m_VertCount.x + x] = height * perc;
             }
         }
     }

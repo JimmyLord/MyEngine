@@ -86,7 +86,7 @@ public:
     bool RayCast(Vector3 start, Vector3 end, Vector3* pResult) const;
 
     // Editor tools.
-    void RaiseToHeight(Vector3 position, float height, float radius, bool rebuild);
+    void RaiseToHeight(Vector3 position, float height, float radius, float softness, bool rebuild);
 };
 
 #endif //__ComponentHeightmap_H__
