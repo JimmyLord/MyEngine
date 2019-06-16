@@ -14,6 +14,8 @@
 
 class ComponentHeightmap : public ComponentMesh
 {
+    friend class EditorInterface_HeightmapEditor;
+
 private:
     // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentHeightmap );
@@ -75,7 +77,7 @@ protected:
     void OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile);
 
     void CreateHeightmap();
-    bool GenerateHeightmapMesh(bool createFromFile);
+    bool GenerateHeightmapMesh(bool createFromFile, bool sizeChanged, bool rebuildNormals);
 
     bool SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const;
     bool FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const;
@@ -85,8 +87,8 @@ public:
     bool GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const;
     bool RayCast(Vector3 start, Vector3 end, Vector3* pResult) const;
 
-    // Editor tools.
-    void RaiseToHeight(Vector3 position, float height, float radius, float softness, bool rebuild);
+    // Editor tools, will all return true if they affect the vertices.
+    bool Raise(Vector3 position, float amount, float radius, float softness, bool rebuild);
 };
 
 #endif //__ComponentHeightmap_H__

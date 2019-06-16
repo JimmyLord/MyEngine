@@ -171,7 +171,7 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel()
         {
             // TODO: Undo.
             m_VertCount = m_HeightmapTextureSize;
-            GenerateHeightmapMesh( true );
+            GenerateHeightmapMesh( true, true, true );
         }
     }
 
@@ -280,7 +280,7 @@ void ComponentHeightmap::CreateHeightmap()
         m_pMesh->GetSubmesh( 0 )->m_PrimitiveType = m_GLPrimitiveType;
 
     // Generate the actual heightmap.
-    if( GenerateHeightmapMesh( true ) )
+    if( GenerateHeightmapMesh( true, true, true ) )
     {
         m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
@@ -294,7 +294,7 @@ void ComponentHeightmap::CreateHeightmap()
 }
 
 // Returns true if successfully generated mesh.
-bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile)
+bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile, bool sizeChanged, bool rebuildNormals)
 {
     if( createFromFile && (m_pHeightmapTexture == nullptr || m_pHeightmapTexture->GetFile() == nullptr) )
     {
@@ -336,7 +336,10 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile)
     unsigned int numIndices = createTriangles ? numTris * 3 : numVerts; // 3 per triangle or 1 per point.
 
     // Reinitialize the submesh properties along with the vertex and index buffers.
-    m_pMesh->RebuildShapeBuffers( numVerts, VertexFormat_XYZUVNorm, MyRE::PrimitiveType_Triangles, numIndices, MyRE::IndexType_U32, "MyMesh_Plane" );
+    if( sizeChanged )
+    {
+        m_pMesh->RebuildShapeBuffers( numVerts, VertexFormat_XYZUVNorm, MyRE::PrimitiveType_Triangles, numIndices, MyRE::IndexType_U32, "MyMesh_Plane" );
+    }
     Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer->GetData( true );
     unsigned int* pIndices = (unsigned int*)m_pMesh->GetSubmesh( 0 )->m_pIndexBuffer->GetData( true );
 
@@ -406,70 +409,73 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile)
     }
 
     // Calculate normals.
-    int mx = vertCount.x-1;
-    int my = vertCount.y-1;
-    for( int y = 0; y < vertCount.y; y++ )
+    if( rebuildNormals )
     {
-        for( int x = 0; x < vertCount.x; x++ )
+        int mx = vertCount.x-1;
+        int my = vertCount.y-1;
+        for( int y = 0; y < vertCount.y; y++ )
         {
-            //   TL--TC---TR
-            //     \  |  /  
-            //      \ | /   
-            //        C     
-            //      / | \   
-            //     /  |  \  
-            //   BL--BC---BR
-
-            unsigned int indexC = (unsigned int)(y * vertCount.x + x);
-            unsigned int indexTL = y < my && x > 0  ? (unsigned int)((y+1) * vertCount.x + x-1) : indexC;
-            unsigned int indexTC = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexC;
-            unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexC;
-            unsigned int indexBL = y > 0  && x > 0  ? (unsigned int)((y-1) * vertCount.x + x-1) : indexC;
-            unsigned int indexBC = y > 0            ? (unsigned int)((y-1) * vertCount.x + x  ) : indexC;
-            unsigned int indexBR = y > 0  && x < mx ? (unsigned int)((y-1) * vertCount.x + x+1) : indexC;
-
-            Vector3 posC = pVerts[indexC].pos;
-            Vector3 normalTL = (pVerts[indexTL].pos - posC).Cross( pVerts[indexTC].pos - posC );
-            Vector3 normalTR = (pVerts[indexTC].pos - posC).Cross( pVerts[indexTR].pos - posC );
-            Vector3 normalBL = (pVerts[indexBR].pos - posC).Cross( pVerts[indexBC].pos - posC );
-            Vector3 normalBR = (pVerts[indexBC].pos - posC).Cross( pVerts[indexBL].pos - posC );
-            
-            pVerts[indexC].normal = (normalTL + normalTR + normalBL + normalBR) / 4.0f;
-            pVerts[indexC].normal.Normalize();
-        }
-    }
-
-    // Setup indices.
-    if( createTriangles )
-    {
-        for( int y = 0; y < vertCount.y - 1; y++ )
-        {
-            for( int x = 0; x < vertCount.x - 1; x++ )
+            for( int x = 0; x < vertCount.x; x++ )
             {
-                int elementIndex = (y * (vertCount.x-1) + x) * 6;
-                unsigned int vertexIndex = (unsigned int)(y * vertCount.x + x);
+                //   TL--TC---TR
+                //     \  |  /  
+                //      \ | /   
+                //        C     
+                //      / | \   
+                //     /  |  \  
+                //   BL--BC---BR
 
-                // BL - TL - TR.
-                pIndices[ elementIndex + 0 ] = vertexIndex;
-                pIndices[ elementIndex + 1 ] = vertexIndex + (unsigned int)vertCount.x;
-                pIndices[ elementIndex + 2 ] = vertexIndex + (unsigned int)vertCount.x + 1;
+                unsigned int indexC = (unsigned int)(y * vertCount.x + x);
+                unsigned int indexTL = y < my && x > 0  ? (unsigned int)((y+1) * vertCount.x + x-1) : indexC;
+                unsigned int indexTC = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexC;
+                unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexC;
+                unsigned int indexBL = y > 0  && x > 0  ? (unsigned int)((y-1) * vertCount.x + x-1) : indexC;
+                unsigned int indexBC = y > 0            ? (unsigned int)((y-1) * vertCount.x + x  ) : indexC;
+                unsigned int indexBR = y > 0  && x < mx ? (unsigned int)((y-1) * vertCount.x + x+1) : indexC;
 
-                // BL - TR - BR.
-                pIndices[ elementIndex + 3 ] = vertexIndex;
-                pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned int)vertCount.x + 1;
-                pIndices[ elementIndex + 5 ] = vertexIndex + 1;
+                Vector3 posC = pVerts[indexC].pos;
+                Vector3 normalTL = (pVerts[indexTL].pos - posC).Cross( pVerts[indexTC].pos - posC );
+                Vector3 normalTR = (pVerts[indexTC].pos - posC).Cross( pVerts[indexTR].pos - posC );
+                Vector3 normalBL = (pVerts[indexBR].pos - posC).Cross( pVerts[indexBC].pos - posC );
+                Vector3 normalBR = (pVerts[indexBC].pos - posC).Cross( pVerts[indexBL].pos - posC );
+            
+                pVerts[indexC].normal = (normalTL + normalTR + normalBL + normalBR) / 4.0f;
+                pVerts[indexC].normal.Normalize();
             }
         }
     }
 
-    // Calculate the bounding box.
-    Vector3 center( bottomLeftPos.x + size.x/2, bottomLeftPos.y, bottomLeftPos.z + size.y/2 );
-    m_pMesh->GetBounds()->Set( center, Vector3(size.x/2, 0, size.y/2) );
+    if( sizeChanged )
+    {
+        // Setup indices.
+        if( createTriangles )
+        {
+            for( int y = 0; y < vertCount.y - 1; y++ )
+            {
+                for( int x = 0; x < vertCount.x - 1; x++ )
+                {
+                    int elementIndex = (y * (vertCount.x-1) + x) * 6;
+                    unsigned int vertexIndex = (unsigned int)(y * vertCount.x + x);
+
+                    // BL - TL - TR.
+                    pIndices[ elementIndex + 0 ] = vertexIndex;
+                    pIndices[ elementIndex + 1 ] = vertexIndex + (unsigned int)vertCount.x;
+                    pIndices[ elementIndex + 2 ] = vertexIndex + (unsigned int)vertCount.x + 1;
+
+                    // BL - TR - BR.
+                    pIndices[ elementIndex + 3 ] = vertexIndex;
+                    pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned int)vertCount.x + 1;
+                    pIndices[ elementIndex + 5 ] = vertexIndex + 1;
+                }
+            }
+        }
+
+        // Calculate the bounding box.
+        Vector3 center( bottomLeftPos.x + size.x/2, bottomLeftPos.y, bottomLeftPos.z + size.y/2 );
+        m_pMesh->GetBounds()->Set( center, Vector3(size.x/2, 0, size.y/2) );
+    }
 
     m_pMesh->SetReady();
-
-    // TODO: Just a test. Remove me.
-    GetHeightAtWorldXZ( 0, 0, nullptr );
 
     return true;
 }
@@ -976,8 +982,10 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
 }
 
 // Editor tools.
-void ComponentHeightmap::RaiseToHeight(Vector3 position, float height, float radius, float softness, bool rebuild)
+bool ComponentHeightmap::Raise(Vector3 position, float amount, float radius, float softness, bool rebuild)
 {
+    bool meshChanged = false;
+
     Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
     Vector2Int center = (m_VertCount-1) * (position.XZ()/m_Size) + Vector2( 0.5f, 0.5f );
 
@@ -1006,13 +1014,16 @@ void ComponentHeightmap::RaiseToHeight(Vector3 position, float height, float rad
 
                 float perc = min( 1.0f, 1 - expDist + softness );
 
-                m_Heights[y * m_VertCount.x + x] = height * perc;
+                m_Heights[y * m_VertCount.x + x] += amount * perc;
+                meshChanged = true;
             }
         }
     }
 
-    if( rebuild )
+    if( rebuild && meshChanged )
     {
-        GenerateHeightmapMesh( false );
+        GenerateHeightmapMesh( false, false, false );
     }
+
+    return meshChanged;
 }

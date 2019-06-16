@@ -36,9 +36,11 @@ protected:
 
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];
 
+    bool m_HeightmapNormalsNeedRebuilding;
+
     // Editor settings.
     float m_BrushSoftness;
-    float m_RaiseHeight;
+    float m_RaiseAmount;
     float m_RaiseRadius;
 
 public:

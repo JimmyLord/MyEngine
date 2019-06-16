@@ -41,9 +41,11 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
         m_pMaterials[i] = nullptr;
     }
 
+    m_HeightmapNormalsNeedRebuilding = false;
+
     // Editor settings.
-    m_BrushSoftness = 1.0f;
-    m_RaiseHeight = 1.0f;
+    m_BrushSoftness = 0.1f;
+    m_RaiseAmount = 0.1f;
     m_RaiseRadius = 1.0f;
 }
 
@@ -143,12 +145,12 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     if( ImGui::CollapsingHeader( "Brush", ImGuiTreeNodeFlags_DefaultOpen ) )
     {
-        ImGui::DragFloat( "Softness", &m_BrushSoftness, 0.001f, 0.0f, 1.0f );
+        ImGui::DragFloat( "Softness", &m_BrushSoftness, 0.01f, 0.0f, 1.0f );
     }
 
     if( ImGui::CollapsingHeader( "Raise", ImGuiTreeNodeFlags_DefaultOpen ) )
     {
-        ImGui::DragFloat( "Height", &m_RaiseHeight, 0.01f, 0.0f, FLT_MAX );
+        ImGui::DragFloat( "Amount", &m_RaiseAmount, 0.01f, 0.0f, FLT_MAX );
         ImGui::DragFloat( "Radius", &m_RaiseRadius, 0.01f, 0.0f, FLT_MAX );
     }
 
@@ -218,11 +220,16 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
         if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
         {
+            if( m_HeightmapNormalsNeedRebuilding )
+            {
+                m_HeightmapNormalsNeedRebuilding = false;
+                m_pHeightmap->GenerateHeightmapMesh( false, false, true );
+            }
         }
 
         if( mouseAction == GCBA_Held && id == 0 ) //id & 1 << 0 ) // Left mouse button moved.
         {
-            if( m_PositionMouseWentDown != Vector2( x, y ) )
+            //if( m_PositionMouseWentDown != Vector2( x, y ) )
             {
                 m_PositionMouseWentDown.Set( x, y );
 
@@ -235,7 +242,10 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                     Vector3 result;
                     if( m_pHeightmap->RayCast( start, end, &result ) )
                     {
-                        m_pHeightmap->RaiseToHeight( result, m_RaiseHeight, m_RaiseRadius, m_BrushSoftness, true );
+                        if( m_pHeightmap->Raise( result, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true ) )
+                        {
+                            m_HeightmapNormalsNeedRebuilding = true;
+                        }
                         m_WorldSpaceMousePosition = result;
                         //LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)\n", result.x, result.y, result.z );
                     }
