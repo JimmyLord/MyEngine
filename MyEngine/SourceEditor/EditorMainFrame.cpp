@@ -10,7 +10,7 @@
 #include "MyEnginePCH.h"
 
 #include "EditorMainFrame.h"
-#include "EditorMenuCommands.h"
+#include "Commands/EditorMenuCommands.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"

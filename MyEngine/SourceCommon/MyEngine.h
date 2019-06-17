@@ -104,10 +104,10 @@
 #include "../SourceEditor/DragAndDropHackeryExtended.h"
 #include "../SourceEditor/EditorMainFrame.h"
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EngineCommandStack.h"
-#include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Commands/EngineCommandStack.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 
 #if MYFW_USING_IMGUI

@@ -18,7 +18,7 @@
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 

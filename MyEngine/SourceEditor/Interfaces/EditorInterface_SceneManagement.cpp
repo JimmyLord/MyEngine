@@ -16,8 +16,8 @@
 #include "ComponentSystem/FrameworkComponents/ComponentCameraShadow.h"
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 
 EditorInterface_SceneManagement::EditorInterface_SceneManagement(EngineCore* pEngineCore)

@@ -16,7 +16,7 @@
 
 #if MYFW_EDITOR
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
 #endif
 
 // ============================================================================================================================

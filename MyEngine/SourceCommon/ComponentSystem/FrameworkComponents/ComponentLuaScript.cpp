@@ -18,7 +18,7 @@
 
 #if MYFW_EDITOR
 #include "GUI/ImGuiExtensions.h"
-#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
 #endif
 
 #if MYFW_USING_LUA

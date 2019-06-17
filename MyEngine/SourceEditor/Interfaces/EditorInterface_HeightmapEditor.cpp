@@ -18,7 +18,8 @@
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
+#include "../SourceEditor/Commands/HeightmapEditorCommands.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
@@ -203,6 +204,14 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
+        // Find the mouse intersection point on the heightmap.
+        Vector3 start, end;
+        g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
+
+        Vector3 mouseIntersectionPoint;
+        bool mouseRayIntersected = m_pHeightmap->RayCast( start, end, &mouseIntersectionPoint );
+        //LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)\n", mouseIntersectionPoint.x, mouseIntersectionPoint.y, mouseIntersectionPoint.z );
+
         if( mouseAction == GCBA_Down )
         {
             if( id == 1 ) // Right mouse button to cancel current operation.
@@ -215,11 +224,24 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
         if( mouseAction == GCBA_Down && id == 0 ) // Left mouse button down.
         {
-            m_PositionMouseWentDown.Set( -1, -1 );
+            m_PositionMouseWentDown.Set( x, y );
+
+            if( mouseRayIntersected )
+            {
+                // Raise the terrain and add to command stack. Don't attach to previous command.
+                if( m_pHeightmap->Raise( mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true ) )
+                {
+                    EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness );
+                    m_pEngineCore->GetCommandStack()->Add( pCommand, false );
+
+                    m_HeightmapNormalsNeedRebuilding = true;
+                }
+            }
         }
 
         if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
         {
+            // Rebuild heightmap normals when mouse is lifted after 'raise' command.
             if( m_HeightmapNormalsNeedRebuilding )
             {
                 m_HeightmapNormalsNeedRebuilding = false;
@@ -227,45 +249,36 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
             }
         }
 
-        if( mouseAction == GCBA_Held && id == 0 ) //id & 1 << 0 ) // Left mouse button moved.
+        if( mouseAction == GCBA_Held && id == 0 ) // Left mouse button moved.
         {
-            //if( m_PositionMouseWentDown != Vector2( x, y ) )
+            if( mouseRayIntersected )
             {
-                m_PositionMouseWentDown.Set( x, y );
-
-                Vector3 start, end;
-                g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
-
-                if( true )
+                // Raise the terrain and add to command stack. Attach to previous 'raise' command.
+                if( m_pHeightmap->Raise( mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true ) )
                 {
-                    // Test raycast.
-                    Vector3 result;
-                    if( m_pHeightmap->RayCast( start, end, &result ) )
-                    {
-                        if( m_pHeightmap->Raise( result, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true ) )
-                        {
-                            m_HeightmapNormalsNeedRebuilding = true;
-                        }
-                        m_WorldSpaceMousePosition = result;
-                        //LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)\n", result.x, result.y, result.z );
-                    }
-                }
-                else
-                {
-                    // Test top-down height check based on x/z of mouse ray intersecting with y=0 plane.
-                    Plane plane;
-                    plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
-                    Vector3 intersectPoint;
-                    plane.IntersectRay( start, end, &intersectPoint );
+                    EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness );
+                    m_pEngineCore->GetCommandStack()->Add( pCommand, true );
 
-                    float height = -1.0f;
-                    if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
-                    {
-                        m_WorldSpaceMousePosition.Set( intersectPoint.x, height, intersectPoint.z );
-                        LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
-                    }
+                    m_HeightmapNormalsNeedRebuilding = true;
                 }
+                
+                m_WorldSpaceMousePosition = mouseIntersectionPoint;
             }
+
+            //{
+            //    // Test top-down height check based on x/z of mouse ray intersecting with y=0 plane.
+            //    Plane plane;
+            //    plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
+            //    Vector3 intersectPoint;
+            //    plane.IntersectRay( start, end, &intersectPoint );
+
+            //    float height = -1.0f;
+            //    if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
+            //    {
+            //        m_WorldSpaceMousePosition.Set( intersectPoint.x, height, intersectPoint.z );
+            //        LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
+            //    }
+            //}
         }
     }
 

@@ -31,8 +31,8 @@
 
 #if MYFW_EDITOR
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/GameObjectTemplateManager.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Exporters/ExportBox2DScene.h"
 #endif //MYFW_EDITOR
 

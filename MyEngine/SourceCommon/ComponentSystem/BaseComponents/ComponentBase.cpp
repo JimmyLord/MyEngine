@@ -16,8 +16,8 @@
 #include "Core/EngineCore.h"
 
 #if MYFW_EDITOR
-#include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 #endif
 

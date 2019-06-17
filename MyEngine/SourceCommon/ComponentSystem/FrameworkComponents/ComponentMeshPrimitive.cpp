@@ -14,7 +14,7 @@
 #include "Core/EngineCore.h"
 
 #if MYFW_EDITOR
-#include "../../../SourceEditor/EngineEditorCommands.h"
+#include "../../../SourceEditor/Commands/EngineEditorCommands.h"
 #endif
 
 // Component Variable List.

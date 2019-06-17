@@ -14,7 +14,7 @@
 #include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
-#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/TransformGizmo.h"
 #include "../SourceEditor/Documents/EditorDocument.h"
 
