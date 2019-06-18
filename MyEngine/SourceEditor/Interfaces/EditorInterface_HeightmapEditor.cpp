@@ -28,6 +28,9 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
 {
     m_pHeightmap = nullptr;
 
+    m_CurrentTool = Tool::Raise;
+    m_CurrentToolState = ToolState::Idle;
+
     m_pPoint = nullptr;
 
     m_PositionMouseWentDown.Set( 0, 0 );
@@ -65,11 +68,11 @@ void EditorInterface_HeightmapEditor::Initialize()
     MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
 
     if( m_pMaterials[Mat_Lines] == nullptr )
-        m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
+        m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
     if( m_pMaterials[Mat_Points] == nullptr )
-        m_pMaterials[Mat_Points] = MyNew MaterialDefinition( pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
+        m_pMaterials[Mat_Points] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
     if( m_pMaterials[Mat_SelectedPoint] == nullptr )
-        m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( pMaterialManager, g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
+        m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
 }
 
 void EditorInterface_HeightmapEditor::OnActivated()
@@ -130,7 +133,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         m_pPoint->GetTransform()->SetLocalPosition( worldPos );
         //m_pPoint->GetTransform()->SetLocalRotation( Vector3( -90, 0, 0 ) );
 
-        ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
+        ComponentCamera* pCamera = m_pEngineCore->GetEditorState()->GetEditorCamera();
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
@@ -151,6 +154,11 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     if( ImGui::CollapsingHeader( "Raise", ImGuiTreeNodeFlags_DefaultOpen ) )
     {
+        if( ImGui::Button( "Select Tool" ) )
+        {
+            m_CurrentTool = Tool::Raise;
+        }
+
         ImGui::DragFloat( "Amount", &m_RaiseAmount, 0.01f, 0.0f, FLT_MAX );
         ImGui::DragFloat( "Radius", &m_RaiseRadius, 0.01f, 0.0f, FLT_MAX );
     }
@@ -164,121 +172,103 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
 void EditorInterface_HeightmapEditor::CancelCurrentOperation()
 {
+    m_CurrentToolState = ToolState::Idle;
+    g_pGameCore->GetCommandStack()->Undo( 1 );
 }
 
 bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
     bool inputHandled = false;
 
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
-    if( keyAction == GCBA_Up && keyCode == MYKEYCODE_ESC )
+    // Deal with keys.
+    if( keyAction != -1 )
     {
-        //if( m_IndexOfPointBeingDragged != -1 )
-        //    CancelCurrentOperation();
-        //else
-            g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
-    }
-
-    // TODO: Store last used vertex and handle delete key.
-    if( keyAction == GCBA_Up && keyCode == MYKEYCODE_DELETE )
-    {
-    }
-
-    EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
-
-    if( pEditorState->m_ModifierKeyStates == 0 )
-    {
-        if( mouseAction == GCBA_Held )
+        // Escape to cancel current tool or exit heightmap editor.
+        if( keyAction == GCBA_Up && keyCode == MYKEYCODE_ESC )
         {
-            Vector3 start, end;
-            g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
-
-            Vector3 result;
-            if( m_pHeightmap->RayCast( start, end, &result ) )
-            {
-                m_WorldSpaceMousePosition = result;
-            }
+            if( m_CurrentToolState == ToolState::Active )
+                CancelCurrentOperation();
+            else
+                m_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
         }
     }
 
-    if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+    // Deal with mouse.
+    if( mouseAction != -1 )
     {
         // Find the mouse intersection point on the heightmap.
         Vector3 start, end;
-        g_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
+        m_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
 
         Vector3 mouseIntersectionPoint;
         bool mouseRayIntersected = m_pHeightmap->RayCast( start, end, &mouseIntersectionPoint );
+
+        // Show a 2d circle at that point. 
+        m_WorldSpaceMousePosition = mouseIntersectionPoint;
         //LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)\n", mouseIntersectionPoint.x, mouseIntersectionPoint.y, mouseIntersectionPoint.z );
 
-        if( mouseAction == GCBA_Down )
+        EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
+
+        if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
         {
-            if( id == 1 ) // Right mouse button to cancel current operation.
+            // Right mouse button to cancel current operation.
+            if( mouseAction == GCBA_Down && id == 1 )
             {
-                LOGDebug( "HeightmapEditor", "Cancelled operation on point %d\n", m_IndexOfPointBeingDragged );
                 CancelCurrentOperation();
                 inputHandled = true;
             }
-        }
 
-        if( mouseAction == GCBA_Down && id == 0 ) // Left mouse button down.
-        {
-            m_PositionMouseWentDown.Set( x, y );
-
-            if( mouseRayIntersected )
+            // Left mouse button down.
+            if( mouseAction == GCBA_Down && id == 0 )
             {
-                // Raise the terrain and add to command stack. Don't attach to previous command.
-                if( m_pHeightmap->Raise( mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true ) )
-                {
-                    EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness );
-                    m_pEngineCore->GetCommandStack()->Add( pCommand, false );
+                m_PositionMouseWentDown.Set( x, y );
 
-                    m_HeightmapNormalsNeedRebuilding = true;
+                if( mouseRayIntersected )
+                {
+                    m_CurrentToolState = ToolState::Active;
+                    ApplyCurrentTool( mouseIntersectionPoint, mouseAction );
                 }
             }
-        }
 
-        if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
-        {
-            // Rebuild heightmap normals when mouse is lifted after 'raise' command.
-            if( m_HeightmapNormalsNeedRebuilding )
+            if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
             {
-                m_HeightmapNormalsNeedRebuilding = false;
-                m_pHeightmap->GenerateHeightmapMesh( false, false, true );
-            }
-        }
-
-        if( mouseAction == GCBA_Held && id == 0 ) // Left mouse button moved.
-        {
-            if( mouseRayIntersected )
-            {
-                // Raise the terrain and add to command stack. Attach to previous 'raise' command.
-                if( m_pHeightmap->Raise( mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true ) )
+                // Rebuild heightmap normals when mouse is lifted after 'raise' command.
+                if( m_HeightmapNormalsNeedRebuilding )
                 {
-                    EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness );
-                    m_pEngineCore->GetCommandStack()->Add( pCommand, true );
-
-                    m_HeightmapNormalsNeedRebuilding = true;
+                    m_CurrentToolState = ToolState::Idle;
+                    m_HeightmapNormalsNeedRebuilding = false;
+                    m_pHeightmap->GenerateHeightmapMesh( false, false, true );
                 }
-                
-                m_WorldSpaceMousePosition = mouseIntersectionPoint;
             }
 
-            //{
-            //    // Test top-down height check based on x/z of mouse ray intersecting with y=0 plane.
-            //    Plane plane;
-            //    plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
-            //    Vector3 intersectPoint;
-            //    plane.IntersectRay( start, end, &intersectPoint );
+            if( mouseAction == GCBA_Held && id == 0 ) // Left mouse button moved.
+            {
+                if( m_CurrentToolState == ToolState::Active )
+                {
+                    if( mouseRayIntersected )
+                    {
+                        ApplyCurrentTool( mouseIntersectionPoint, mouseAction );                
+                        m_WorldSpaceMousePosition = mouseIntersectionPoint;
+                    }
+                }
 
-            //    float height = -1.0f;
-            //    if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
-            //    {
-            //        m_WorldSpaceMousePosition.Set( intersectPoint.x, height, intersectPoint.z );
-            //        LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
-            //    }
-            //}
+                //{
+                //    // Test top-down height check based on x/z of mouse ray intersecting with y=0 plane.
+                //    Plane plane;
+                //    plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
+                //    Vector3 intersectPoint;
+                //    plane.IntersectRay( start, end, &intersectPoint );
+
+                //    float height = -1.0f;
+                //    if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
+                //    {
+                //        m_WorldSpaceMousePosition.Set( intersectPoint.x, height, intersectPoint.z );
+                //        LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
+                //    }
+                //}
+            }
         }
     }
 
@@ -306,4 +296,33 @@ MaterialDefinition* EditorInterface_HeightmapEditor::GetMaterial(MaterialTypes t
     MyAssert( type >= 0 && type < Mat_NumMaterials );
 
     return m_pMaterials[type];
+}
+
+void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersectionPoint, int mouseAction)
+{
+    if( m_CurrentToolState != ToolState::Active )
+        return;
+
+    switch( m_CurrentTool )
+    {
+    case Tool::Raise:
+        {
+            // Raise the terrain and add to command stack.
+            if( m_pHeightmap->Raise( mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true ) )
+            {
+                EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness );
+
+                // Attach to previous 'raise' command if this is a held message,
+                //   otherwise it's a mouse down so create a new message.
+                bool attachToPrevious = mouseAction == GCBA_Held ? true : false;
+                m_pEngineCore->GetCommandStack()->Add( pCommand, attachToPrevious );
+
+                m_HeightmapNormalsNeedRebuilding = true;
+            }
+        }
+        break;
+
+    case Tool::None:
+        break;
+    }
 }

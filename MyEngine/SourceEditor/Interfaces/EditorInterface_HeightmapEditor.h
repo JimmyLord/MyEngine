@@ -25,8 +25,23 @@ public:
         Mat_NumMaterials,
     };
 
+    enum class Tool
+    {
+        Raise,
+        None,
+    };
+
+    enum class ToolState
+    {
+        Idle,
+        Active,
+    };
+
 protected:
     ComponentHeightmap* m_pHeightmap;
+
+    Tool m_CurrentTool;
+    ToolState m_CurrentToolState;
 
     GameObject* m_pPoint;
     int m_IndexOfPointBeingDragged;
@@ -61,6 +76,8 @@ public:
     void SetHeightmap(ComponentHeightmap* pHeightmap);
 
     MaterialDefinition* GetMaterial(MaterialTypes type);
+
+    void ApplyCurrentTool(Vector3 mouseIntersectionPoint, int mouseAction);
 };
 
 #endif //__EditorInterface_HeightmapEditor_H__
