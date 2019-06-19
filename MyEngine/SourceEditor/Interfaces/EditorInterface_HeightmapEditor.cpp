@@ -39,6 +39,7 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
     m_NewMousePress = false;
 
     m_WorldSpaceMousePosition.Set( 0, 0, 0 );
+    m_WorldSpaceMousePositionWhenToolStarted.Set( 0, 0, 0 );
 
     for( int i=0; i<Mat_NumMaterials; i++ )
     {
@@ -228,6 +229,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 if( mouseRayIntersected )
                 {
                     m_CurrentToolState = ToolState::Active;
+                    m_WorldSpaceMousePositionWhenToolStarted = mouseIntersectionPoint;
                     ApplyCurrentTool( mouseIntersectionPoint, mouseAction );
                 }
             }
@@ -247,27 +249,19 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
             {
                 if( m_CurrentToolState == ToolState::Active )
                 {
-                    if( mouseRayIntersected )
+                    // Once the tool is active, intersect with the y=height plane of the initial ray.
+                    // This will prevent the raise tool from moving around as the height changes.
+                    Plane plane;
+                    float heightWanted = m_WorldSpaceMousePositionWhenToolStarted.y;
+                    plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, heightWanted, 0 ) );
+
+                    Vector3 flatIntersectPoint;
+                    if( plane.IntersectRay( start, end, &flatIntersectPoint ) )
                     {
-                        ApplyCurrentTool( mouseIntersectionPoint, mouseAction );                
-                        m_WorldSpaceMousePosition = mouseIntersectionPoint;
+                        ApplyCurrentTool( flatIntersectPoint, mouseAction );                
+                        m_WorldSpaceMousePosition = flatIntersectPoint;
                     }
                 }
-
-                //{
-                //    // Test top-down height check based on x/z of mouse ray intersecting with y=0 plane.
-                //    Plane plane;
-                //    plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
-                //    Vector3 intersectPoint;
-                //    plane.IntersectRay( start, end, &intersectPoint );
-
-                //    float height = -1.0f;
-                //    if( m_pHeightmap->GetHeightAtWorldXZ( intersectPoint.x, intersectPoint.z, &height ) )
-                //    {
-                //        m_WorldSpaceMousePosition.Set( intersectPoint.x, height, intersectPoint.z );
-                //        LOGInfo( LOGTag, "Height at (%0.2f, %0.2f) is %f", intersectPoint.x, intersectPoint.z, height );
-                //    }
-                //}
             }
         }
     }

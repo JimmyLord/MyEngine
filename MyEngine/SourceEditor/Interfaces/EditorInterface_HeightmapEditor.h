@@ -48,6 +48,7 @@ protected:
     Vector2 m_PositionMouseWentDown;
     bool m_NewMousePress;
     Vector3 m_WorldSpaceMousePosition;
+    Vector3 m_WorldSpaceMousePositionWhenToolStarted;
 
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];
 
