@@ -28,6 +28,7 @@ public:
     enum class Tool
     {
         Raise,
+        Lower,
         None,
     };
 

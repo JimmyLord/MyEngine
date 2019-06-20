@@ -17,6 +17,7 @@
 #include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
+#include "GUI/EditorIcons.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Commands/HeightmapEditorCommands.h"
@@ -148,18 +149,39 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
     ImGui::SetNextWindowSize( ImVec2(150,200), ImGuiSetCond_FirstUseEver );
     ImGui::Begin( "Heightmap Editor" );
 
+    // Icon bar to select tools.
+    // TODO: Make new icons.
+    ImVec2 normalSize = ImVec2( 20, 20 );
+    ImVec2 selectedSize = ImVec2( 30, 30 );
+    if( ImGui::Button( EditorIcon_Prefab, m_CurrentTool == Tool::Raise ? selectedSize : normalSize ) )
+    {
+        m_CurrentTool = Tool::Raise;
+    }
+    if( ImGui::IsItemHovered() )
+    {
+        ImGui::BeginTooltip();
+        ImGui::Text( "Raise" );
+        ImGui::EndTooltip();
+    }
+    ImGui::SameLine();
+    if( ImGui::Button( EditorIcon_Folder, m_CurrentTool == Tool::Lower ? selectedSize : normalSize ) )
+    {
+        m_CurrentTool = Tool::Lower;
+    }
+    if( ImGui::IsItemHovered() )
+    {
+        ImGui::BeginTooltip();
+        ImGui::Text( "Lower" );
+        ImGui::EndTooltip();
+    }
+
     if( ImGui::CollapsingHeader( "Brush", ImGuiTreeNodeFlags_DefaultOpen ) )
     {
         ImGui::DragFloat( "Softness", &m_BrushSoftness, 0.01f, 0.0f, 1.0f );
     }
 
-    if( ImGui::CollapsingHeader( "Raise", ImGuiTreeNodeFlags_DefaultOpen ) )
+    if( ImGui::CollapsingHeader( "Raise/Lower", ImGuiTreeNodeFlags_DefaultOpen ) )
     {
-        if( ImGui::Button( "Select Tool" ) )
-        {
-            m_CurrentTool = Tool::Raise;
-        }
-
         ImGui::DragFloat( "Amount", &m_RaiseAmount, 0.01f, 0.0f, FLT_MAX );
         ImGui::DragFloat( "Radius", &m_RaiseRadius, 0.01f, 0.0f, FLT_MAX );
     }
@@ -300,11 +322,16 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
     switch( m_CurrentTool )
     {
     case Tool::Raise:
+    case Tool::Lower:
         {
+            float amount = m_RaiseAmount;
+            if( m_CurrentTool == Tool::Lower )
+                amount *= -1;
+
             // Raise the terrain and add to command stack.
-            if( m_pHeightmap->Raise( mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true ) )
+            if( m_pHeightmap->Raise( mouseIntersectionPoint, amount, m_RaiseRadius, m_BrushSoftness, true ) )
             {
-                EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness );
+                EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, amount, m_RaiseRadius, m_BrushSoftness );
 
                 // Attach to previous 'raise' command if this is a held message,
                 //   otherwise it's a mouse down so create a new message.
