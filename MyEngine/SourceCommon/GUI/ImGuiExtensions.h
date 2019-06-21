@@ -26,6 +26,8 @@ namespace ImGuiExt
     void ClearDragDrop();
 
     void DrawBlock(float offsetX, float offsetY, float sizeX, float sizeY, ImGuiCol colorIndex);
+
+    bool ButtonWithTooltip(const char* label, const ImVec2& size, const char* tooltipLabel);
 }
 
 #endif //__ImGuiExtensions_H__

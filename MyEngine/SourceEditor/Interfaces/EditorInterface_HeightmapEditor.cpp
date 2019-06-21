@@ -18,6 +18,7 @@
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
 #include "GUI/EditorIcons.h"
+#include "GUI/ImGuiExtensions.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Commands/HeightmapEditorCommands.h"
@@ -150,29 +151,19 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
     ImGui::Begin( "Heightmap Editor" );
 
     // Icon bar to select tools.
-    // TODO: Make new icons.
-    ImVec2 normalSize = ImVec2( 20, 20 );
-    ImVec2 selectedSize = ImVec2( 30, 30 );
-    if( ImGui::Button( EditorIcon_Prefab, m_CurrentTool == Tool::Raise ? selectedSize : normalSize ) )
     {
-        m_CurrentTool = Tool::Raise;
-    }
-    if( ImGui::IsItemHovered() )
-    {
-        ImGui::BeginTooltip();
-        ImGui::Text( "Raise" );
-        ImGui::EndTooltip();
-    }
-    ImGui::SameLine();
-    if( ImGui::Button( EditorIcon_Folder, m_CurrentTool == Tool::Lower ? selectedSize : normalSize ) )
-    {
-        m_CurrentTool = Tool::Lower;
-    }
-    if( ImGui::IsItemHovered() )
-    {
-        ImGui::BeginTooltip();
-        ImGui::Text( "Lower" );
-        ImGui::EndTooltip();
+        // TODO: Make new icons.
+        ImVec2 normalSize = ImVec2( 20, 20 );
+        ImVec2 selectedSize = ImVec2( 30, 30 );
+        if( ImGuiExt::ButtonWithTooltip( EditorIcon_Prefab, m_CurrentTool == Tool::Raise ? selectedSize : normalSize, "Raise" ) )
+        {
+            m_CurrentTool = Tool::Raise;
+        }
+        ImGui::SameLine();
+        if( ImGuiExt::ButtonWithTooltip( EditorIcon_Folder, m_CurrentTool == Tool::Lower ? selectedSize : normalSize, "Lower" ) )
+        {
+            m_CurrentTool = Tool::Lower;
+        }
     }
 
     if( ImGui::CollapsingHeader( "Brush", ImGuiTreeNodeFlags_DefaultOpen ) )

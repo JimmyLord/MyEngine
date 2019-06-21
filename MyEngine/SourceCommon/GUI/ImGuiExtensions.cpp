@@ -107,4 +107,18 @@ void DrawBlock(float offsetX, float offsetY, float sizeX, float sizeY, ImGuiCol 
     window->DrawList->AddLine( bb.Min, ImVec2(bb.Max.x,bb.Min.y), ImGui::GetColorU32(colorIndex), sizeY );
 }
 
+bool ButtonWithTooltip(const char* label, const ImVec2& size, const char* tooltipLabel)
+{
+    bool wasPressed = ImGui::Button( label, size );
+    
+    if( ImGui::IsItemHovered() )
+    {
+        ImGui::BeginTooltip();
+        ImGui::Text( tooltipLabel );
+        ImGui::EndTooltip();
+    }
+
+    return wasPressed;
+}
+
 }

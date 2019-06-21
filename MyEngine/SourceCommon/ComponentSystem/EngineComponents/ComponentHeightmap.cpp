@@ -164,7 +164,7 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel()
 {
     ComponentBase::AddAllVariablesToWatchPanel();
 
-    if( m_VertCount != m_HeightmapTextureSize )
+    if( m_VertCount != m_HeightmapTextureSize && m_HeightmapTextureSize.x != 0 )
     {
         ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_HeightmapTextureSize.x, m_HeightmapTextureSize.y );
         if( ImGui::Button( "Change vertCount" ) )
@@ -242,7 +242,7 @@ void ComponentHeightmap::SetHeightmapTexture(TextureDefinition* pTexture)
 {
     UnregisterFileLoadingCallback();
     m_HeightmapTextureSize.Set( 0, 0 );
-    SAFE_DELETE( m_Heights );
+    SAFE_DELETE_ARRAY( m_Heights );
 
     if( pTexture )
         pTexture->AddRef();
@@ -280,7 +280,16 @@ void ComponentHeightmap::CreateHeightmap()
         m_pMesh->GetSubmesh( 0 )->m_PrimitiveType = m_GLPrimitiveType;
 
     // Generate the actual heightmap.
-    if( GenerateHeightmapMesh( true, true, true ) )
+    bool createFromFile = true;
+    if( m_pHeightmapTexture == nullptr )
+    {
+        createFromFile = false;
+        MyAssert( m_Heights == nullptr );
+        m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
+        memset( m_Heights, 0, sizeof(float) * m_VertCount.x * m_VertCount.y );
+    }
+
+    if( GenerateHeightmapMesh( createFromFile, true, true ) )
     {
         m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
