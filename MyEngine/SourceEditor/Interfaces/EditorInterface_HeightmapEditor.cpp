@@ -152,6 +152,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     // Icon bar to select tools.
     {
+        // TOOLKEYS: Keep these icons in sync with the keys in ::HandleInput.
         // TODO: Make new icons.
         ImVec2 normalSize = ImVec2( 20, 20 );
         ImVec2 selectedSize = ImVec2( 30, 30 );
@@ -207,6 +208,10 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
             else
                 m_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
         }
+
+        // TOOLKEYS: Keep these keys in sync with the icons in ::OnDrawFrame.
+        if( keyAction == GCBA_Down && keyCode == '1' ) m_CurrentTool = Tool::Raise;
+        if( keyAction == GCBA_Down && keyCode == '2' ) m_CurrentTool = Tool::Lower;
     }
 
     // Deal with mouse.
