@@ -381,7 +381,7 @@ void ComponentVoxelMesh::OnButtonCreateMesh(int buttonid)
 
 void ComponentVoxelMesh::OnButtonEditMesh(int buttonid)
 {
-    g_pEngineCore->SetEditorInterface( EditorInterfaceType_VoxelMeshEditor );
+    g_pEngineCore->SetEditorInterface( EditorInterfaceType::VoxelMeshEditor );
     ((EditorInterface_VoxelMeshEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetMeshToEdit( this );
 }
 #endif //MYFW_EDITOR

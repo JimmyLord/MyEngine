@@ -47,13 +47,13 @@ enum LayerValues
     Layer_EditorFG              = 0x8000,
 };
 
-enum EditorInterfaceTypes
+enum class EditorInterfaceType
 {
-    EditorInterfaceType_SceneManagement,
-    EditorInterfaceType_2DPointEditor,
-    EditorInterfaceType_HeightmapEditor,
-    EditorInterfaceType_VoxelMeshEditor,
-    EditorInterfaceType_NumInterfaces,
+    SceneManagement,
+    The2DPointEditor,
+    HeightmapEditor,
+    VoxelMeshEditor,
+    NumInterfaces,
 };
 
 struct RequestedSceneInfo
@@ -166,8 +166,8 @@ protected:
     FontDefinition* m_pDebugFont;
     MyMeshText* m_pDebugTextMesh; // DEBUG_HACK_SHOWGLSTATS
 
-    EditorInterface* m_pEditorInterfaces[EditorInterfaceType_NumInterfaces];
-    EditorInterfaceTypes m_CurrentEditorInterfaceType;
+    EditorInterface* m_pEditorInterfaces[EditorInterfaceType::NumInterfaces];
+    EditorInterfaceType m_CurrentEditorInterfaceType;
     EditorInterface* m_pCurrentEditorInterface;
 #endif //MYFW_EDITOR
 
@@ -305,10 +305,10 @@ public:
 
     void SetGridVisible(bool visible);
 
-    void SetEditorInterface(EditorInterfaceTypes type);
-    EditorInterface* GetEditorInterface(EditorInterfaceTypes type);
+    void SetEditorInterface(EditorInterfaceType type);
+    EditorInterface* GetEditorInterface(EditorInterfaceType type);
     EditorInterface* GetCurrentEditorInterface();
-    EditorInterfaceTypes GetCurrentEditorInterfaceType() { return m_CurrentEditorInterfaceType; }
+    EditorInterfaceType GetCurrentEditorInterfaceType() { return m_CurrentEditorInterfaceType; }
 #endif //MYFW_EDITOR
 };
 

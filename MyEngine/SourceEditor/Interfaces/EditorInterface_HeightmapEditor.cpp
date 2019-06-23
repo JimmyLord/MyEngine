@@ -206,12 +206,12 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
             if( m_CurrentToolState == ToolState::Active )
                 CancelCurrentOperation();
             else
-                m_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
+                m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );        
         }
 
         // TOOLKEYS: Keep these keys in sync with the icons in ::OnDrawFrame.
-        if( keyAction == GCBA_Down && keyCode == '1' ) m_CurrentTool = Tool::Raise;
-        if( keyAction == GCBA_Down && keyCode == '2' ) m_CurrentTool = Tool::Lower;
+        if( keyAction == GCBA_Down && keyCode == '1' ) { m_CurrentTool = Tool::Raise; return true; }
+        if( keyAction == GCBA_Down && keyCode == '2' ) { m_CurrentTool = Tool::Lower; return true; }
     }
 
     // Deal with mouse.

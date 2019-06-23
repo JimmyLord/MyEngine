@@ -128,7 +128,7 @@ void* ComponentHeightmap::OnValueChanged(ComponentVariable* pVar, bool changedBy
 
 void ComponentHeightmap::OnButtonEditHeightmap()
 {
-    g_pEngineCore->SetEditorInterface( EditorInterfaceType_HeightmapEditor );
+    g_pEngineCore->SetEditorInterface( EditorInterfaceType::HeightmapEditor );
     ((EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetHeightmap( this );
 }
 #endif //MYFW_EDITOR

@@ -116,11 +116,11 @@ EngineCore::EngineCore(Renderer_Base* pRenderer, bool createAndOwnGlobalManagers
     m_pDebugFont = nullptr;
     m_pDebugTextMesh = nullptr;
 
-    m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement( this );
-    m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor( this );
-    m_pEditorInterfaces[EditorInterfaceType_HeightmapEditor] = MyNew EditorInterface_HeightmapEditor( this );
-    m_pEditorInterfaces[EditorInterfaceType_VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor( this );
-    m_CurrentEditorInterfaceType = EditorInterfaceType_NumInterfaces;
+    m_pEditorInterfaces[(int)EditorInterfaceType::SceneManagement] = MyNew EditorInterface_SceneManagement( this );
+    m_pEditorInterfaces[(int)EditorInterfaceType::The2DPointEditor] = MyNew EditorInterface_2DPointEditor( this );
+    m_pEditorInterfaces[(int)EditorInterfaceType::HeightmapEditor] = MyNew EditorInterface_HeightmapEditor( this );
+    m_pEditorInterfaces[(int)EditorInterfaceType::VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor( this );
+    m_CurrentEditorInterfaceType = EditorInterfaceType::NumInterfaces;
     m_pCurrentEditorInterface = nullptr;
 #endif //MYFW_EDITOR
 
@@ -159,7 +159,7 @@ void EngineCore::Cleanup()
 #endif //MYFW_USING_LUA
 
 #if MYFW_EDITOR
-    for( int i=0; i<EditorInterfaceType_NumInterfaces; i++ )
+    for( int i=0; i<(int)EditorInterfaceType::NumInterfaces; i++ )
         SAFE_DELETE( m_pEditorInterfaces[i] );
 #endif //MYFW_EDITOR
 
@@ -364,7 +364,7 @@ void EngineCore::OneTimeInit()
 #endif
     }
 
-    SetEditorInterface( EditorInterfaceType_SceneManagement );
+    SetEditorInterface( EditorInterfaceType::SceneManagement );
 #endif //MYFW_EDITOR
 
     TextureDefinition* pErrorTexture = GetManagers()->GetTextureManager()->GetErrorTexture();
@@ -421,7 +421,7 @@ void EngineCore::OneTimeInit()
     CreateDefaultEditorSceneObjects();
 
     // Initialize our editor interfaces (load materials, etc).
-    for( int i=0; i<EditorInterfaceType_NumInterfaces; i++ )
+    for( int i=0; i<(int)EditorInterfaceType::NumInterfaces; i++ )
     {
         m_pEditorInterfaces[i]->Initialize();
     }
@@ -2088,22 +2088,22 @@ void EngineCore::SetGridVisible(bool visible)
     }
 }
 
-void EngineCore::SetEditorInterface(EditorInterfaceTypes type)
+void EngineCore::SetEditorInterface(EditorInterfaceType type)
 {
-    MyAssert( type >= 0 && type < EditorInterfaceType_NumInterfaces );
+    MyAssert( (int)type >= 0 && (int)type < (int)EditorInterfaceType::NumInterfaces );
 
     if( m_pCurrentEditorInterface )
         m_pCurrentEditorInterface->OnDeactivated();
 
     m_CurrentEditorInterfaceType = type;
-    m_pCurrentEditorInterface = m_pEditorInterfaces[type];
+    m_pCurrentEditorInterface = m_pEditorInterfaces[(int)type];
 
     m_pCurrentEditorInterface->OnActivated();
 }
 
-EditorInterface* EngineCore::GetEditorInterface(EditorInterfaceTypes type)
+EditorInterface* EngineCore::GetEditorInterface(EditorInterfaceType type)
 {
-    return m_pEditorInterfaces[type];
+    return m_pEditorInterfaces[(int)type];
 }
 
 EditorInterface* EngineCore::GetCurrentEditorInterface()

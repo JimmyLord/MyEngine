@@ -180,7 +180,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyAction, int keyCode, int 
         if( m_IndexOfPointBeingDragged != -1 )
             CancelCurrentOperation();
         else
-            g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
+            g_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );        
     }
 
     // TODO: Store last used vertex and handle delete key.

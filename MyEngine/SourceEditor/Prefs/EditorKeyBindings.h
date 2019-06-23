@@ -10,6 +10,8 @@
 #ifndef __EditorKeyBindings_H__
 #define __EditorKeyBindings_H__
 
+#include "Core/EngineCore.h" // For EditorInterfaceType.
+
 enum class HotKeyAction
 {
     Global_Find,
@@ -45,6 +47,10 @@ enum class HotKeyAction
     Camera_Up,
     Camera_Down,
     Camera_Focus,
+    HeightmapEditor_FirstAction,
+    HeightmapEditor_SelectTool_Raise = HeightmapEditor_FirstAction,
+    HeightmapEditor_SelectTool_Lower,
+    HeightmapEditor_LastAction = HeightmapEditor_SelectTool_Lower,
     Num,
 };
 
@@ -112,6 +118,8 @@ protected:
     int m_NumPresets;
     uint32 m_ModifiersHeld;
 
+    EditorInterfaceType m_EditorInterfaceThisKeyIsActiveFor[HotKeyAction::Num];
+
     KeyBinding m_DefaultKeys[5][HotKeyAction::Num];
     KeyBinding m_Keys[5][HotKeyAction::Num];
 
@@ -140,7 +148,7 @@ public:
 
     uint32 GetModifiersHeld();
     KeyBinding GetKey(HotKeyAction action);
-    bool KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode);
+    bool KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode, EditorInterfaceType currentEditorInterfaceType);
     const char* GetStringForKey(HotKeyAction action);
 
     // ImGui interface methods.

@@ -441,12 +441,25 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyAction, int keyCode)
         {
             HotKeyAction action = static_cast<HotKeyAction>( i );
             
-            if( pKeys->KeyMatches( action, pKeys->GetModifiersHeld(), keyCode ) )
+            EditorInterface* pCurrentEditorInterface = m_pEngineCore->GetCurrentEditorInterface();
+            EditorInterfaceType currentEditorInterfaceType = m_pEngineCore->GetCurrentEditorInterfaceType();
+
+            if( pKeys->KeyMatches( action, pKeys->GetModifiersHeld(), keyCode, currentEditorInterfaceType ) )
             {
-                if( ExecuteHotkeyAction( action ) )
+                //if( pKeys->IsAGlobalHotkey( action ) )
                 {
-                    return true;
+                    if( ExecuteHotkeyAction( action ) )
+                    {
+                        return true;
+                    }
                 }
+                //else
+                //{
+                //    if( pCurrentEditorInterface->ExecuteHotkeyAction( action ) )
+                //    {
+                //        return true;
+                //    }
+                //}
             }
         }
 
@@ -500,6 +513,10 @@ bool EditorMainFrame_ImGui::ExecuteHotkeyAction(HotKeyAction action)
     case HotKeyAction::Camera_Up:                     { return false; }
     case HotKeyAction::Camera_Down:                   { return false; }
     case HotKeyAction::Camera_Focus:                  { return false; }
+
+    case HotKeyAction::HeightmapEditor_SelectTool_Raise:    { return false; }
+    case HotKeyAction::HeightmapEditor_SelectTool_Lower:    { return false; }
+
     case HotKeyAction::Num:
         break;
     }

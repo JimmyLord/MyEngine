@@ -193,7 +193,7 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
         SaveVoxelMesh();
 
         //CancelCurrentOperation();
-        g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
+        g_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );        
     }
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_DELETE )

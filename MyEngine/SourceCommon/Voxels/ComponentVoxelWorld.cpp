@@ -373,7 +373,7 @@ void ComponentVoxelWorld::OnButtonCreateSaveFile(int buttonid)
 
 void ComponentVoxelWorld::OnButtonEditMesh(int buttonid)
 {
-    g_pEngineCore->SetEditorInterface( EditorInterfaceType_VoxelMeshEditor );
+    g_pEngineCore->SetEditorInterface( EditorInterfaceType::VoxelMeshEditor );
     ((EditorInterface_VoxelMeshEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetWorldToEdit( this );
 }
 #endif //MYFW_EDITOR

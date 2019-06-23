@@ -40,7 +40,7 @@ void LoadScene(const char* sceneName, bool unloadScenes)
         g_pEngineCore->GetCommandStack()->ClearStacks();
         g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
         g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-        g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
+        g_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
 
         g_pEngineCore->UnloadScene( SCENEID_AllScenes, false ); // don't unload editor objects.
     }
@@ -206,7 +206,7 @@ void EditorMenuCommand(EditorMenuCommands command)
         {
             g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
             g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-            g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
+            g_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
 
             //this->SetTitle( "New scene" );
             g_pEngineCore->UnloadScene( SCENEID_AllScenes, false );

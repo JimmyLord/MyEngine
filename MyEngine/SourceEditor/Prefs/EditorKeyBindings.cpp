@@ -10,6 +10,7 @@
 #include "MyEnginePCH.h"
 
 #include "EditorKeyBindings.h"
+#include "Core/EngineCore.h"
 
 const char* g_KeyBindingStrings[HotKeyAction::Num] =
 {
@@ -99,6 +100,16 @@ EditorKeyBindings::EditorKeyBindings()
     SetDefaultKeys( 0, HotKeyAction::Camera_Up,                     0,  'Q' );
     SetDefaultKeys( 0, HotKeyAction::Camera_Down,                   0,  'E',   0,  'Z' );
     SetDefaultKeys( 0, HotKeyAction::Camera_Focus,                  0,  'F' );
+
+    for( int j=0; j<(int)HotKeyAction::Num; j++ )
+    {
+        m_EditorInterfaceThisKeyIsActiveFor[j] = EditorInterfaceType::NumInterfaces;
+
+        if( j >= (int)HotKeyAction::HeightmapEditor_FirstAction && j <= (int)HotKeyAction::HeightmapEditor_LastAction )
+        {
+            m_EditorInterfaceThisKeyIsActiveFor[j] = EditorInterfaceType::HeightmapEditor; 
+        }
+    }
 
     // Copy preset 0 into other 4 presets.
     for( int i=1; i<5; i++ )
@@ -208,16 +219,21 @@ EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(HotKeyAction action)
     return m_Keys[m_CurrentPreset][(int)action];
 }
 
-bool EditorKeyBindings::KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode)
+bool EditorKeyBindings::KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode, EditorInterfaceType currentEditorInterfaceType)
 {
     // Only keep the first 4 bits of the modifiers.
     modifiers &= (Modifier_ControlOrCommand | Modifier_Alt | Modifier_Shift | Modifier_ControlOSX);
 
-    for( int k=0; k<MaxKeysPerAction; k++ )
+    KeyBinding* pHotKey = &m_Keys[m_CurrentPreset][(int)action];
+    if( m_EditorInterfaceThisKeyIsActiveFor[(int)action] == EditorInterfaceType::NumInterfaces ||
+        m_EditorInterfaceThisKeyIsActiveFor[(int)action] == currentEditorInterfaceType )
     {
-        if( m_Keys[m_CurrentPreset][(int)action].m_Keys[k].m_Modifiers == modifiers &&
-            m_Keys[m_CurrentPreset][(int)action].m_Keys[k].m_Key == keyCode )
-            return true;
+        for( int k=0; k<MaxKeysPerAction; k++ )
+        {
+            if( pHotKey->m_Keys[k].m_Modifiers == modifiers &&
+                pHotKey->m_Keys[k].m_Key == keyCode )
+                return true;
+        }
     }
 
     return false;

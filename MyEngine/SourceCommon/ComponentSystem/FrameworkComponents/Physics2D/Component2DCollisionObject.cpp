@@ -372,7 +372,7 @@ void Component2DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& ne
 
 void Component2DCollisionObject::OnButtonEditChain(int buttonid)
 {
-    g_pEngineCore->SetEditorInterface( EditorInterfaceType_2DPointEditor );
+    g_pEngineCore->SetEditorInterface( EditorInterfaceType::The2DPointEditor );
     ((EditorInterface_2DPointEditor*)g_pEngineCore->GetCurrentEditorInterface())->Set2DCollisionObjectToEdit( this );
 }
 #endif //MYFW_EDITOR
@@ -727,8 +727,8 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         return;
 
     // Kick out early if we don't want to draw the lines for the vertices.
-    EditorInterfaceTypes interfacetype = g_pEngineCore->GetCurrentEditorInterfaceType();
-    if( interfacetype == EditorInterfaceType_2DPointEditor )
+    EditorInterfaceType interfacetype = g_pEngineCore->GetCurrentEditorInterfaceType();
+    if( interfacetype == EditorInterfaceType::The2DPointEditor )
     {
         // if we're not the chain being edited, don't draw the lines.
         EditorInterface_2DPointEditor* pInterface = (EditorInterface_2DPointEditor*)g_pEngineCore->GetCurrentEditorInterface();
@@ -746,7 +746,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
     //MaterialDefinition* pMaterial = g_pEngineCore->GetEditorState()->m_pTransformGizmo->m_pMaterial_Translate1Axis[1];
-    EditorInterface_2DPointEditor* pInterface = ((EditorInterface_2DPointEditor*)g_pEngineCore->GetEditorInterface(EditorInterfaceType_2DPointEditor));
+    EditorInterface_2DPointEditor* pInterface = ((EditorInterface_2DPointEditor*)g_pEngineCore->GetEditorInterface( EditorInterfaceType::The2DPointEditor ));
     MyAssert( pInterface );
     MaterialDefinition* pMaterial = pInterface->GetMaterial( EditorInterface_2DPointEditor::Mat_Lines );
     MyAssert( pMaterial );
