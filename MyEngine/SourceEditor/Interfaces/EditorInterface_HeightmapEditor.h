@@ -71,6 +71,7 @@ public:
     virtual void OnDrawFrame(unsigned int canvasID);
 
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+    virtual bool ExecuteHotkeyAction(HotKeyAction action);
 
     void CancelCurrentOperation();
 

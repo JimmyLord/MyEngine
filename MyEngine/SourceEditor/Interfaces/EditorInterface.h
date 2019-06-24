@@ -10,6 +10,8 @@
 #ifndef __EditorInterface_H__
 #define __EditorInterface_H__
 
+#include "../SourceEditor/Prefs/EditorKeyBindings.h"
+
 class GameObject;
 
 class EditorInterface
@@ -32,6 +34,7 @@ public:
     virtual void OnDrawFrame(unsigned int canvasid);
 
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) = 0;
+    virtual bool ExecuteHotkeyAction(HotKeyAction action);
 
     virtual void RenderObjectIDsToFBO();
     virtual unsigned int GetIDAtPixel(unsigned int x, unsigned int y, bool createNewBitmap, bool includeTransformGizmo);

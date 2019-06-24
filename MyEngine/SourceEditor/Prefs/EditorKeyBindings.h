@@ -48,9 +48,9 @@ enum class HotKeyAction
     Camera_Down,
     Camera_Focus,
     HeightmapEditor_FirstAction,
-    HeightmapEditor_SelectTool_Raise = HeightmapEditor_FirstAction,
-    HeightmapEditor_SelectTool_Lower,
-    HeightmapEditor_LastAction = HeightmapEditor_SelectTool_Lower,
+    HeightmapEditor_Tool_Raise = HeightmapEditor_FirstAction,
+    HeightmapEditor_Tool_Lower,
+    HeightmapEditor_LastAction = HeightmapEditor_Tool_Lower,
     Num,
 };
 
@@ -148,6 +148,7 @@ public:
 
     uint32 GetModifiersHeld();
     KeyBinding GetKey(HotKeyAction action);
+    EditorInterfaceType GetEditorInterfaceType(HotKeyAction action);
     bool KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode, EditorInterfaceType currentEditorInterfaceType);
     const char* GetStringForKey(HotKeyAction action);
 

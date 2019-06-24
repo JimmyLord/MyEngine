@@ -152,7 +152,6 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     // Icon bar to select tools.
     {
-        // TOOLKEYS: Keep these icons in sync with the keys in ::HandleInput.
         // TODO: Make new icons.
         ImVec2 normalSize = ImVec2( 20, 20 );
         ImVec2 selectedSize = ImVec2( 30, 30 );
@@ -208,10 +207,6 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
             else
                 m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );        
         }
-
-        // TOOLKEYS: Keep these keys in sync with the icons in ::OnDrawFrame.
-        if( keyAction == GCBA_Down && keyCode == '1' ) { m_CurrentTool = Tool::Raise; return true; }
-        if( keyAction == GCBA_Down && keyCode == '2' ) { m_CurrentTool = Tool::Lower; return true; }
     }
 
     // Deal with mouse.
@@ -289,6 +284,22 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
     {
         EditorInterface::HandleInputForEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure );
     }
+
+    return false;
+}
+
+bool EditorInterface_HeightmapEditor::ExecuteHotkeyAction(HotKeyAction action)
+{
+    EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+
+#pragma warning( push )
+#pragma warning( disable : 4062 )
+    switch( action )
+    {
+    case HotKeyAction::HeightmapEditor_Tool_Raise:    { m_CurrentTool = Tool::Raise; return true; }
+    case HotKeyAction::HeightmapEditor_Tool_Lower:    { m_CurrentTool = Tool::Lower; return true; }
+    }
+#pragma warning( pop )
 
     return false;
 }

@@ -509,6 +509,11 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
     return false;
 }
 
+bool EditorInterface::ExecuteHotkeyAction(HotKeyAction action)
+{
+    return false;
+}
+
 void EditorInterface::RenderObjectIDsToFBO()
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();

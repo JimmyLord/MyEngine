@@ -100,6 +100,9 @@ EditorKeyBindings::EditorKeyBindings()
     SetDefaultKeys( 0, HotKeyAction::Camera_Up,                     0,  'Q' );
     SetDefaultKeys( 0, HotKeyAction::Camera_Down,                   0,  'E',   0,  'Z' );
     SetDefaultKeys( 0, HotKeyAction::Camera_Focus,                  0,  'F' );
+    // Heightmap editor tools.
+    SetDefaultKeys( 0, HotKeyAction::HeightmapEditor_Tool_Raise,    0,  '1' );
+    SetDefaultKeys( 0, HotKeyAction::HeightmapEditor_Tool_Lower,    0,  '2' );
 
     for( int j=0; j<(int)HotKeyAction::Num; j++ )
     {
@@ -217,6 +220,11 @@ uint32 EditorKeyBindings::GetModifiersHeld()
 EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(HotKeyAction action)
 {
     return m_Keys[m_CurrentPreset][(int)action];
+}
+
+EditorInterfaceType EditorKeyBindings::GetEditorInterfaceType(HotKeyAction action)
+{
+    return m_EditorInterfaceThisKeyIsActiveFor[(int)action];
 }
 
 bool EditorKeyBindings::KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode, EditorInterfaceType currentEditorInterfaceType)
