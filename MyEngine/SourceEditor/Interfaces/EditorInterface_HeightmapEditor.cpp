@@ -177,8 +177,14 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         ImGui::DragFloat( "Radius", &m_RaiseRadius, 0.01f, 0.0f, FLT_MAX );
     }
 
-    if( ImGui::Button( "TODO: Save" ) )
+    if( ImGui::Button( "Export as MyMesh" ) )
     {
+        m_pHeightmap->SaveAsMyMesh( "Data/Meshes/TestHeightmap.mymesh" );
+    }
+
+    if( ImGui::Button( "Save" ) )
+    {
+        m_pHeightmap->SaveAsHeightmap( "Data/Meshes/TestHeightmap.myheightmap" );
     }
 
     ImGui::End();

@@ -80,6 +80,10 @@ protected:
     void CreateHeightmap();
     bool GenerateHeightmapMesh(bool createFromFile, bool sizeChanged, bool rebuildNormals);
 
+    void SaveAsMyMesh(const char* filename);
+    void SaveAsHeightmap(const char* filename);
+    void LoadFromHeightmap(const char* filename);
+
     bool SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const;
     bool FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const;
 

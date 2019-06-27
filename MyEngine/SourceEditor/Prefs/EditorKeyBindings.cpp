@@ -47,6 +47,8 @@ const char* g_KeyBindingStrings[HotKeyAction::Num] =
     "Camera_Up",
     "Camera_Down",
     "Camera_Focus",
+    "HeightmapEditor_Tool_Raise",
+    "HeightmapEditor_Tool_Lower",
 };
 
 EditorKeyBindings::EditorKeyBindings()

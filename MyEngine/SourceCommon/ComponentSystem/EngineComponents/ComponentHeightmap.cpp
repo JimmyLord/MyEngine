@@ -283,10 +283,21 @@ void ComponentHeightmap::CreateHeightmap()
     bool createFromFile = true;
     if( m_pHeightmapTexture == nullptr )
     {
-        createFromFile = false;
-        MyAssert( m_Heights == nullptr );
-        m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
-        memset( m_Heights, 0, sizeof(float) * m_VertCount.x * m_VertCount.y );
+#if MYFW_EDITOR
+        if( true )
+        {
+            createFromFile = false;
+            MyAssert( m_Heights == nullptr );
+            LoadFromHeightmap( "Data/Meshes/TestHeightmap.myheightmap" );
+        }
+        else
+#endif
+        {
+            createFromFile = false;
+            MyAssert( m_Heights == nullptr );
+            m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
+            memset( m_Heights, 0, sizeof(float) * m_VertCount.x * m_VertCount.y );
+        }
     }
 
     if( GenerateHeightmapMesh( createFromFile, true, true ) )
@@ -487,6 +498,58 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile, bool sizeCha
     m_pMesh->SetReady();
 
     return true;
+}
+
+void ComponentHeightmap::SaveAsMyMesh(const char* filename)
+{
+    m_pMesh->ExportToFile( filename );
+}
+
+void ComponentHeightmap::SaveAsHeightmap(const char* filename)
+{
+    char outputFilename[260];
+    size_t filenameLen = strlen( filename );
+    if( filenameLen > 12 && strcmp( &filename[filenameLen-12], ".myheightmap" ) == 0 )
+        sprintf_s( outputFilename, 260, "%s", filename );
+    else
+        sprintf_s( outputFilename, 260, "%s.myheightmap", filename );
+
+    FILE* file;
+#if MYFW_WINDOWS
+    fopen_s( &file, outputFilename, "wb" );
+#else
+    file = fopen( outputFilename, "wb" );
+#endif
+
+    int versionCode = 1;
+    fwrite( &versionCode, 4, 1, file );
+    fwrite( &m_VertCount.x, 4, 1, file );
+    fwrite( &m_VertCount.y, 4, 1, file );
+    fwrite( m_Heights, 4, m_VertCount.x * m_VertCount.y, file );
+
+    fclose( file );
+}
+
+void ComponentHeightmap::LoadFromHeightmap(const char* filename)
+{
+    FILE* file;
+#if MYFW_WINDOWS
+    fopen_s( &file, filename, "rb" );
+#else
+    file = fopen( outputFilename, "rb" );
+#endif
+
+    int versionCode;
+    fread( &versionCode, 4, 1, file );
+    MyAssert( versionCode == 1 );
+
+    fread( &m_VertCount.x, 4, 2, file );
+
+    SAFE_DELETE_ARRAY( m_Heights );
+    m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
+    fread( m_Heights, 4, m_VertCount.x * m_VertCount.y, file );
+
+    fclose( file );
 }
 
 bool ComponentHeightmap::GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const
