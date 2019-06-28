@@ -35,8 +35,12 @@ ComponentHeightmap::ComponentHeightmap(ComponentSystemManager* pComponentSystemM
 
     m_BaseType = BaseComponentType_Renderable;
 
-    m_pHeightmapTexture = nullptr;
     m_Heights = nullptr;
+
+    m_pHeightmapFile = nullptr;
+    m_WaitingForHeightmapFileToFinishLoading = false;
+
+    m_pHeightmapTexture = nullptr;
     m_WaitingForTextureFileToFinishLoading = false;
 }
 
@@ -61,6 +65,7 @@ void ComponentHeightmap::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
 
     AddVar( pList, "Size", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
     AddVar( pList, "VertCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_VertCount ), true, true, "VertCount", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "HeightmapFile", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pHeightmapFile ), true, true, "File Heightmap", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, (CVarFunc_DropTarget)&ComponentHeightmap::OnDrop, nullptr );
     AddVar( pList, "HeightmapTexture", ComponentVariableType_TexturePtr, MyOffsetOf( pThis, &pThis->m_pHeightmapTexture ), true, true, "Texture", (CVarFunc_ValueChanged)&ComponentHeightmap::OnValueChanged, (CVarFunc_DropTarget)&ComponentHeightmap::OnDrop, nullptr );
 }
 
@@ -70,6 +75,12 @@ void ComponentHeightmap::Reset()
 
     m_Size.Set( 10.0f, 10.0f );
     m_VertCount.Set( 128, 128 );
+
+    UnregisterHeightmapFileLoadingCallbacks( true );
+    SAFE_RELEASE( m_pHeightmapFile );
+    m_HeightmapFileSize.Set( 0, 0 );
+
+    UnregisterHeightmapTextureLoadingCallbacks( true );
     SAFE_RELEASE( m_pHeightmapTexture );
     m_HeightmapTextureSize.Set( 0, 0 );
 }
@@ -91,6 +102,32 @@ void* ComponentHeightmap::OnDrop(ComponentVariable* pVar, bool changedByInterfac
     void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
+    {
+        MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
+
+        // Check if file is either a texture or a .myheightmap file and assign it if it is.
+        TextureManager* pTextureManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
+        TextureDefinition* pTexture = pTextureManager->FindTexture( pFile );
+
+        if( pTexture != nullptr )
+        {
+            oldPointer = m_pHeightmapTexture;
+            SetHeightmapTexture( pTexture );
+
+            // Rebuild the heightmap.
+            CreateHeightmap();
+        }
+        else if( pFile == nullptr || strcmp( pFile->GetExtensionWithDot(), ".myheightmap" ) == 0 )
+        {
+            oldPointer = m_pHeightmapFile;
+            SetHeightmapFile( pFile );
+
+            // Rebuild the heightmap.
+            CreateHeightmap();
+        }
+    }
 
     if( pDropItem->m_Type == DragAndDropType_TextureDefinitionPointer )
     {
@@ -114,6 +151,11 @@ void* ComponentHeightmap::OnValueChanged(ComponentVariable* pVar, bool changedBy
     }
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_VertCount ) )
+    {
+        CreateHeightmap();
+    }
+
+    if( pVar->m_Offset == MyOffsetOf( this, &m_pHeightmapFile ) )
     {
         CreateHeightmap();
     }
@@ -164,6 +206,17 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel()
 {
     ComponentBase::AddAllVariablesToWatchPanel();
 
+    if( m_VertCount != m_HeightmapFileSize && m_HeightmapFileSize.x != 0 )
+    {
+        ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_HeightmapFileSize.x, m_HeightmapFileSize.y );
+        if( ImGui::Button( "Change vertCount" ) )
+        {
+            // TODO: Undo.
+            m_VertCount = m_HeightmapFileSize;
+            GenerateHeightmapMesh( true, true, true );
+        }
+    }
+
     if( m_VertCount != m_HeightmapTextureSize && m_HeightmapTextureSize.x != 0 )
     {
         ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_HeightmapTextureSize.x, m_HeightmapTextureSize.y );
@@ -193,6 +246,7 @@ ComponentHeightmap& ComponentHeightmap::operator=(const ComponentHeightmap& othe
     // TODO: Replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_Size = other.m_Size;
     m_VertCount = other.m_VertCount;
+    SetHeightmapFile( other.m_pHeightmapFile );
     SetHeightmapTexture( other.m_pHeightmapTexture );
 
     return *this;
@@ -238,9 +292,39 @@ void ComponentHeightmap::UnregisterCallbacks()
 //{
 //}
 
+void ComponentHeightmap::SetHeightmapFile(MyFileObject* pFile)
+{
+    UnregisterHeightmapFileLoadingCallbacks( true );
+    m_HeightmapFileSize.Set( 0, 0 );
+    SAFE_DELETE_ARRAY( m_Heights );
+
+    if( pFile )
+        pFile->AddRef();
+    SAFE_RELEASE( m_pHeightmapFile );
+    m_pHeightmapFile = pFile;
+}
+
+void ComponentHeightmap::UnregisterHeightmapFileLoadingCallbacks(bool force)
+{
+    if( m_WaitingForHeightmapFileToFinishLoading )
+    {
+        if( m_pHeightmapFile->IsFinishedLoading() || force )
+        {
+            m_pHeightmapFile->UnregisterFileFinishedLoadingCallback( this );
+            m_WaitingForHeightmapFileToFinishLoading = false;
+        }
+    }
+}
+
+void ComponentHeightmap::OnFileFinishedLoadingHeightmapFile(MyFileObject* pFile) // StaticOnFileFinishedLoadingHeightmapFile
+{
+    CreateHeightmap();
+    UnregisterHeightmapFileLoadingCallbacks( false );
+}
+
 void ComponentHeightmap::SetHeightmapTexture(TextureDefinition* pTexture)
 {
-    UnregisterFileLoadingCallback();
+    UnregisterHeightmapTextureLoadingCallbacks( true );
     m_HeightmapTextureSize.Set( 0, 0 );
     SAFE_DELETE_ARRAY( m_Heights );
 
@@ -250,19 +334,22 @@ void ComponentHeightmap::SetHeightmapTexture(TextureDefinition* pTexture)
     m_pHeightmapTexture = pTexture;
 }
 
-void ComponentHeightmap::UnregisterFileLoadingCallback()
+void ComponentHeightmap::UnregisterHeightmapTextureLoadingCallbacks(bool force)
 {
     if( m_WaitingForTextureFileToFinishLoading )
     {
-        m_pHeightmapTexture->GetFile()->UnregisterFileFinishedLoadingCallback( this );
-        m_WaitingForTextureFileToFinishLoading = false;
+        if( m_pHeightmapFile->IsFinishedLoading() || force )
+        {
+            m_pHeightmapTexture->GetFile()->UnregisterFileFinishedLoadingCallback( this );
+            m_WaitingForTextureFileToFinishLoading = false;
+        }
     }
 }
 
 void ComponentHeightmap::OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile) // StaticOnFileFinishedLoadingHeightmapTexture
 {
     CreateHeightmap();
-    UnregisterFileLoadingCallback();
+    UnregisterHeightmapTextureLoadingCallbacks( false );
 }
 
 void ComponentHeightmap::CreateHeightmap()
@@ -280,27 +367,34 @@ void ComponentHeightmap::CreateHeightmap()
         m_pMesh->GetSubmesh( 0 )->m_PrimitiveType = m_GLPrimitiveType;
 
     // Generate the actual heightmap.
-    bool createFromFile = true;
+    bool createFromTexture = true;
     if( m_pHeightmapTexture == nullptr )
     {
-#if MYFW_EDITOR
-        if( true )
+//#if MYFW_EDITOR
+//        if( true )
+//        {
+//            createFromFile = false;
+//            MyAssert( m_Heights == nullptr );
+//            LoadFromHeightmap( "Data/Meshes/TestHeightmap.myheightmap" );
+//        }
+//        else
+//#endif
+        if( m_pHeightmapFile )
         {
-            createFromFile = false;
+            createFromTexture = false;
             MyAssert( m_Heights == nullptr );
-            LoadFromHeightmap( "Data/Meshes/TestHeightmap.myheightmap" );
+            LoadFromHeightmap();
         }
         else
-#endif
         {
-            createFromFile = false;
+            createFromTexture = false;
             MyAssert( m_Heights == nullptr );
             m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
             memset( m_Heights, 0, sizeof(float) * m_VertCount.x * m_VertCount.y );
         }
     }
 
-    if( GenerateHeightmapMesh( createFromFile, true, true ) )
+    if( GenerateHeightmapMesh( createFromTexture, true, true ) )
     {
         m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
@@ -314,9 +408,9 @@ void ComponentHeightmap::CreateHeightmap()
 }
 
 // Returns true if successfully generated mesh.
-bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile, bool sizeChanged, bool rebuildNormals)
+bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool sizeChanged, bool rebuildNormals)
 {
-    if( createFromFile && (m_pHeightmapTexture == nullptr || m_pHeightmapTexture->GetFile() == nullptr) )
+    if( createFromTexture && (m_pHeightmapTexture == nullptr || m_pHeightmapTexture->GetFile() == nullptr) )
     {
         MyAssert( false );
     }
@@ -331,14 +425,33 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile, bool sizeCha
     }
 
     // If the heightmap texture is still loading, register a callback.
-    if( createFromFile == true && m_pHeightmapTexture->GetFile()->IsFinishedLoading() == false )
+    if( createFromTexture == true )
     {
-        if( m_WaitingForTextureFileToFinishLoading == false )
+        if( m_pHeightmapTexture )
         {
-            m_WaitingForTextureFileToFinishLoading = true;
-            m_pHeightmapTexture->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoadingHeightmapTexture );
+            if( m_pHeightmapTexture->GetFile()->IsFinishedLoading() == false )
+            {
+                if( m_WaitingForTextureFileToFinishLoading == false )
+                {
+                    m_WaitingForTextureFileToFinishLoading = true;
+                    m_pHeightmapTexture->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoadingHeightmapTexture );
+                }
+                return false;
+            }
         }
-        return false;
+
+        if( m_pHeightmapFile )
+        {
+            if( m_pHeightmapFile->IsFinishedLoading() == false )
+            {
+                if( m_WaitingForTextureFileToFinishLoading == false )
+                {
+                    m_WaitingForTextureFileToFinishLoading = true;
+                    m_pHeightmapFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoadingHeightmapTexture );
+                }
+                return false;
+            }
+        }
     }
 
     // Set the parameters. // TODO: Make some of these members.
@@ -365,7 +478,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromFile, bool sizeCha
 
     // Generate the vertex positions
     {
-        if( createFromFile )
+        if( createFromTexture )
         {
             unsigned char* pixelBuffer = nullptr;
             unsigned int texWidth, texHeight;
@@ -521,15 +634,16 @@ void ComponentHeightmap::SaveAsHeightmap(const char* filename)
     file = fopen( outputFilename, "wb" );
 #endif
 
-    int versionCode = 1;
-    fwrite( &versionCode, 4, 1, file );
-    fwrite( &m_VertCount.x, 4, 1, file );
-    fwrite( &m_VertCount.y, 4, 1, file );
-    fwrite( m_Heights, 4, m_VertCount.x * m_VertCount.y, file );
+    unsigned int versionCode = 1;
+    fwrite( &versionCode, sizeof(int), 1, file );
+    fwrite( &m_VertCount.x, sizeof(int), 1, file );
+    fwrite( &m_VertCount.y, sizeof(int), 1, file );
+    fwrite( m_Heights, sizeof(float), m_VertCount.x * m_VertCount.y, file );
 
     fclose( file );
 }
 
+#if MYFW_EDITOR
 void ComponentHeightmap::LoadFromHeightmap(const char* filename)
 {
     FILE* file;
@@ -550,6 +664,25 @@ void ComponentHeightmap::LoadFromHeightmap(const char* filename)
     fread( m_Heights, 4, m_VertCount.x * m_VertCount.y, file );
 
     fclose( file );
+}
+#endif
+
+void ComponentHeightmap::LoadFromHeightmap()
+{
+    MyAssert( m_pHeightmapFile && m_pHeightmapFile->IsFinishedLoading() );
+
+    const char* pBuffer = m_pHeightmapFile->GetBuffer();
+
+    unsigned int offset = 0;
+    unsigned int versionCode = *(unsigned int*)&pBuffer[offset]; offset += sizeof(unsigned int);
+    MyAssert( versionCode == 1 );
+
+    m_VertCount.x = *(int*)&pBuffer[offset]; offset += sizeof(int);
+    m_VertCount.y = *(int*)&pBuffer[offset]; offset += sizeof(int);
+
+    SAFE_DELETE_ARRAY( m_Heights );
+    m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
+    memcpy( m_Heights, &pBuffer[offset], sizeof(float) * m_VertCount.x * m_VertCount.y );
 }
 
 bool ComponentHeightmap::GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const

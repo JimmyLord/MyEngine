@@ -1735,6 +1735,8 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 break;
 
             case ComponentVariableType_FilePtr:
+                break;
+
             case ComponentVariableType_MaterialPtr:
             case ComponentVariableType_SoundCuePtr:
                 MyAssert( false );

@@ -24,11 +24,14 @@ private:
 protected:
     Vector2 m_Size;
     Vector2Int m_VertCount;
-    TextureDefinition* m_pHeightmapTexture;
-    Vector2Int m_HeightmapTextureSize;
-
     float* m_Heights;
 
+    MyFileObject* m_pHeightmapFile;
+    Vector2Int m_HeightmapFileSize;
+    bool m_WaitingForHeightmapFileToFinishLoading;
+
+    TextureDefinition* m_pHeightmapTexture;
+    Vector2Int m_HeightmapTextureSize;
     bool m_WaitingForTextureFileToFinishLoading;
 
 public:
@@ -72,17 +75,25 @@ protected:
     void OnButtonEditHeightmap();
 #endif //MYFW_EDITOR
 
+    void SetHeightmapFile(MyFileObject* pFile);
+    void UnregisterHeightmapFileLoadingCallbacks(bool force);
+    static void StaticOnFileFinishedLoadingHeightmapFile(void* pObjectPtr, MyFileObject* pFile) { ((ComponentHeightmap*)pObjectPtr)->OnFileFinishedLoadingHeightmapFile( pFile ); }
+    void OnFileFinishedLoadingHeightmapFile(MyFileObject* pFile);
+
     void SetHeightmapTexture(TextureDefinition* pTexture);
-    void UnregisterFileLoadingCallback();
+    void UnregisterHeightmapTextureLoadingCallbacks(bool force);
     static void StaticOnFileFinishedLoadingHeightmapTexture(void* pObjectPtr, MyFileObject* pFile) { ((ComponentHeightmap*)pObjectPtr)->OnFileFinishedLoadingHeightmapTexture( pFile ); }
     void OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile);
 
     void CreateHeightmap();
-    bool GenerateHeightmapMesh(bool createFromFile, bool sizeChanged, bool rebuildNormals);
+    bool GenerateHeightmapMesh(bool createFromTexture, bool sizeChanged, bool rebuildNormals);
 
     void SaveAsMyMesh(const char* filename);
     void SaveAsHeightmap(const char* filename);
+#if MYFW_EDITOR
     void LoadFromHeightmap(const char* filename);
+#endif
+    void LoadFromHeightmap();
 
     bool SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const;
     bool FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const;
