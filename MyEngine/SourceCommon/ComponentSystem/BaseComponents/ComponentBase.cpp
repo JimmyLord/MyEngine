@@ -1527,6 +1527,16 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 break;
 
             case ComponentVariableType_FilePtr:
+                {
+                    MyFileObject* pFile = *(MyFileObject**)((char*)pObject + pVar->m_Offset);
+
+                    if( pFile != nullptr )
+                    {
+                        cJSON_AddStringToObject( jComponent, pVar->m_Label, pFile->GetFullPath() );
+                    }
+                }
+                break;
+
             case ComponentVariableType_MaterialPtr:
             case ComponentVariableType_SoundCuePtr:
                 MyAssert( false );
@@ -1735,6 +1745,30 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 break;
 
             case ComponentVariableType_FilePtr:
+                {
+                    cJSON* jFileName = cJSON_GetObjectItem( jComponent, pVar->m_Label );
+
+                    if( jFileName )
+                    {
+                        // Find the file, load if needed.
+                        FileManager* pFileManager = pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+                        MyFileObject* pFile = pFileManager->FindFileByName( jFileName->valuestring );
+                        if( pFile == nullptr )
+                        {
+                            MyFileInfo* pFileInfo = pComponentSystemManager->LoadDataFile( jFileName->valuestring, sceneIDLoadedFrom, nullptr, false );
+                            pFile = pFileInfo->GetFile();
+                        }
+
+                        // Assign the file to the component.
+                        if( pFile != nullptr )
+                        {
+                            MyFileObject** ppFile = (MyFileObject**)((char*)pObject + pVar->m_Offset);
+                            pFile->AddRef();
+                            SAFE_RELEASE( *ppFile );
+                            *ppFile = pFile;
+                        }
+                    }
+                }
                 break;
 
             case ComponentVariableType_MaterialPtr:

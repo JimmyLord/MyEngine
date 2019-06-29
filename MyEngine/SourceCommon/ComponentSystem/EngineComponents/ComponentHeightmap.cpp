@@ -46,6 +46,9 @@ ComponentHeightmap::ComponentHeightmap(ComponentSystemManager* pComponentSystemM
 
 ComponentHeightmap::~ComponentHeightmap()
 {
+    SAFE_RELEASE( m_pHeightmapFile );
+    SAFE_RELEASE( m_pHeightmapTexture );
+
     SAFE_DELETE_ARRAY( m_Heights );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
@@ -383,7 +386,16 @@ void ComponentHeightmap::CreateHeightmap()
         {
             createFromTexture = false;
             MyAssert( m_Heights == nullptr );
-            LoadFromHeightmap();
+            if( m_pHeightmapFile->IsFinishedLoading() )
+            {
+                LoadFromHeightmap();
+            }
+            else
+            {
+                m_WaitingForHeightmapFileToFinishLoading = true;
+                m_pHeightmapFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoadingHeightmapFile );
+                return;
+            }
         }
         else
         {
