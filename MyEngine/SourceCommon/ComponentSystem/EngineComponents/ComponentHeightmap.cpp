@@ -86,6 +86,8 @@ void ComponentHeightmap::Reset()
     UnregisterHeightmapTextureLoadingCallbacks( true );
     SAFE_RELEASE( m_pHeightmapTexture );
     m_HeightmapTextureSize.Set( 0, 0 );
+
+    CreateHeightmap();
 }
 
 #if MYFW_USING_LUA
@@ -195,12 +197,13 @@ void ComponentHeightmap::FinishImportingFromJSONObject(cJSON* jComponent)
     // This will be hit on initial load and on quickload.
     // Only create the mesh on initial load.
     // TODO: Also will rebuild if changes are made during runtime inside editor.
-    if( m_pMesh == nullptr
-//#if MYFW_EDITOR
-//        || m_PrimitiveSettingsChangedAtRuntime
-//#endif
-        )
+//    if( m_pMesh == nullptr
+////#if MYFW_EDITOR
+////        || m_PrimitiveSettingsChangedAtRuntime
+////#endif
+//        )
     {
+        SAFE_DELETE_ARRAY( m_Heights );
         CreateHeightmap();
     }
 }

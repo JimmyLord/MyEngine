@@ -22,6 +22,7 @@
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Commands/HeightmapEditorCommands.h"
+#include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
@@ -184,7 +185,40 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     if( ImGui::Button( "Save" ) )
     {
-        m_pHeightmap->SaveAsHeightmap( "Data/Meshes/TestHeightmap.myheightmap" );
+        if( m_pHeightmap->m_pHeightmapFile )
+        {
+            m_pHeightmap->SaveAsHeightmap( m_pHeightmap->m_pHeightmapFile->GetFullPath() );
+        }
+        else
+        {
+            const char* path = FileSaveDialog( "Data\\Meshes\\", "Heightmap Files\0*.myheightmap\0All\0*.*\0" );
+            if( path[0] != 0 )
+            {
+                int len = (int)strlen( path );
+
+                // Append '.myvisualscript' to end of filename if it wasn't already there.
+                char fullPath[MAX_PATH];
+                if( strcmp( &path[len-12], ".myheightmap" ) == 0 )
+                {
+                    strcpy_s( fullPath, MAX_PATH, path );
+                }
+                else
+                {
+                    sprintf_s( fullPath, MAX_PATH, "%s.myheightmap", path );
+                }
+
+                // Only set the filename and save if the path is relative.
+                const char* relativePath = ::GetRelativePath( path );
+                if( relativePath )
+                {
+                    m_pHeightmap->SaveAsHeightmap( relativePath );
+                }
+                else
+                {
+                    LOGError( LOGTag, "Document not saved, path must be relative to the editor." );
+                }
+            }
+        }
     }
 
     ImGui::End();
