@@ -2887,6 +2887,7 @@ void EditorMainFrame_ImGui::AddContextMenuOptionsForAddingComponents(GameObject*
                         EditorCommand_CreateComponent* pCommand = MyNew EditorCommand_CreateComponent( pGameObject, i );
                         g_pGameCore->GetCommandStack()->Do( pCommand );
                         pComponent = pCommand->GetCreatedObject();
+                        pComponent->OnLoad();
                     }
                     else
                     {

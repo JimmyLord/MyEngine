@@ -53,6 +53,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentHeightmap&)*pObject; }
     ComponentHeightmap& operator=(const ComponentHeightmap& other);
 
+    virtual void OnLoad();
+
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
