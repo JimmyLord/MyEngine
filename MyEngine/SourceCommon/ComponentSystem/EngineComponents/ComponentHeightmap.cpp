@@ -293,6 +293,12 @@ void ComponentHeightmap::UnregisterCallbacks()
 
 void ComponentHeightmap::SetHeightmapFile(MyFileObject* pFile)
 {
+    // Don't allow a heightmap to have both a heightmap file and a texture.
+    if( pFile != nullptr )
+    {
+        SetHeightmapTexture( nullptr );
+    }
+
     UnregisterHeightmapFileLoadingCallbacks( true );
     m_HeightmapFileSize.Set( 0, 0 );
     SAFE_DELETE_ARRAY( m_Heights );

@@ -212,6 +212,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
                 if( relativePath )
                 {
                     m_pHeightmap->SaveAsHeightmap( relativePath );
+                    MyFileInfo* pFileInfo = m_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativePath, m_pHeightmap->GetSceneID(), nullptr, false );
+                    m_pHeightmap->SetHeightmapFile( pFileInfo->GetFile() );
                 }
                 else
                 {
