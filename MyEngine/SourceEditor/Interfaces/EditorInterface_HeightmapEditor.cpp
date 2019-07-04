@@ -261,8 +261,9 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
         Vector3 mouseIntersectionPoint;
         bool mouseRayIntersected = m_pHeightmap->RayCast( start, end, &mouseIntersectionPoint );
 
-        // Show a 2d circle at that point. 
-        m_WorldSpaceMousePosition = mouseIntersectionPoint;
+        // Show a 2d circle at that point.
+        MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+        m_WorldSpaceMousePosition = *pWorldMat * mouseIntersectionPoint;
         //LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)\n", mouseIntersectionPoint.x, mouseIntersectionPoint.y, mouseIntersectionPoint.z );
 
         EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
@@ -284,7 +285,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 if( mouseRayIntersected )
                 {
                     m_CurrentToolState = ToolState::Active;
-                    m_WorldSpaceMousePositionWhenToolStarted = mouseIntersectionPoint;
+                    m_WorldSpaceMousePositionWhenToolStarted = m_WorldSpaceMousePosition;
                     ApplyCurrentTool( mouseIntersectionPoint, mouseAction );
                 }
             }
@@ -313,7 +314,9 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                     Vector3 flatIntersectPoint;
                     if( plane.IntersectRay( start, end, &flatIntersectPoint ) )
                     {
-                        ApplyCurrentTool( flatIntersectPoint, mouseAction );                
+                        Vector3 localSpacePoint = pWorldMat->GetInverse() * flatIntersectPoint;
+                        ApplyCurrentTool( localSpacePoint, mouseAction );
+
                         m_WorldSpaceMousePosition = flatIntersectPoint;
                     }
                 }
