@@ -1137,23 +1137,35 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
 
                 if( ImGui::BeginDragDropTarget() )
                 {
+                    TextureDefinition* pTextureDropped = nullptr;
+
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Texture" ) )
                     {
-                        TextureDefinition* pNewTex = (TextureDefinition*)*(void**)payload->Data;
+                        pTextureDropped = (TextureDefinition*)*(void**)payload->Data;
+                    }
 
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
+                    {
+                        if( pObjectAsComponent )
+                        {
+                            TextureManager* pTextureManager = pObjectAsComponent->m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
+
+                            MyFileObject* pFile = (MyFileObject*)*(void**)payload->Data;
+                            MyAssert( pFile );
+                            pTextureDropped = pTextureManager->FindTexture( pFile );
+                        }
+                    }
+
+                    if( pTextureDropped != nullptr )
+                    {
                         g_DragAndDropStruct.Clear();
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
-                        g_DragAndDropStruct.Add( DragAndDropType_TextureDefinitionPointer, pNewTex );
+                        g_DragAndDropStruct.Add( DragAndDropType_TextureDefinitionPointer, pTextureDropped );
 
                         if( pObjectAsComponent )
                         {
                             pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
                         }
-                    }
-
-                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
-                    {
-                        //(this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
                     }
 
                     ImGui::EndDragDropTarget();
