@@ -89,6 +89,8 @@ protected:
 
     void CreateHeightmap();
     bool GenerateHeightmapMesh(bool createFromTexture, bool sizeChanged, bool rebuildNormals);
+    void RecalculateNormals();
+    void RecalculateNormals(Vertex_XYZUVNorm* pVerts);
 
     void SaveAsMyMesh(const char* filename);
     void SaveAsHeightmap(const char* filename);

@@ -59,6 +59,8 @@ protected:
     float m_BrushSoftness;
     float m_RaiseAmount;
     float m_RaiseRadius;
+    
+    bool m_AlwaysRecalculateNormals;
 
 public:
     EditorInterface_HeightmapEditor(EngineCore* pEngineCore);

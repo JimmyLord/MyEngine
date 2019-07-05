@@ -55,6 +55,8 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
     m_BrushSoftness = 0.1f;
     m_RaiseAmount = 0.1f;
     m_RaiseRadius = 1.0f;
+
+    m_AlwaysRecalculateNormals = false;
 }
 
 EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
@@ -178,6 +180,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         ImGui::DragFloat( "Radius", &m_RaiseRadius, 0.01f, 0.0f, FLT_MAX );
     }
 
+    ImGui::Checkbox( "Always recalculate normals", &m_AlwaysRecalculateNormals );
+
     if( ImGui::Button( "Export as MyMesh" ) )
     {
         m_pHeightmap->SaveAsMyMesh( "Data/Meshes/TestHeightmap.mymesh" );
@@ -297,7 +301,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 {
                     m_CurrentToolState = ToolState::Idle;
                     m_HeightmapNormalsNeedRebuilding = false;
-                    m_pHeightmap->GenerateHeightmapMesh( false, false, true );
+                    m_pHeightmap->RecalculateNormals();
                 }
             }
 
@@ -390,7 +394,14 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
                 bool attachToPrevious = mouseAction == GCBA_Held ? true : false;
                 m_pEngineCore->GetCommandStack()->Add( pCommand, attachToPrevious );
 
-                m_HeightmapNormalsNeedRebuilding = true;
+                if( m_AlwaysRecalculateNormals )
+                {
+                    m_pHeightmap->RecalculateNormals();
+                }
+                else
+                {
+                    m_HeightmapNormalsNeedRebuilding = true;
+                }
             }
         }
         break;

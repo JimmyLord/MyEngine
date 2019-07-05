@@ -555,41 +555,9 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
         }
     }
 
-    // Calculate normals.
     if( rebuildNormals )
     {
-        int mx = vertCount.x-1;
-        int my = vertCount.y-1;
-        for( int y = 0; y < vertCount.y; y++ )
-        {
-            for( int x = 0; x < vertCount.x; x++ )
-            {
-                //   TL--TC---TR
-                //     \  |  /  
-                //      \ | /   
-                //        C     
-                //      / | \   
-                //     /  |  \  
-                //   BL--BC---BR
-
-                unsigned int indexC = (unsigned int)(y * vertCount.x + x);
-                unsigned int indexTL = y < my && x > 0  ? (unsigned int)((y+1) * vertCount.x + x-1) : indexC;
-                unsigned int indexTC = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexC;
-                unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexC;
-                unsigned int indexBL = y > 0  && x > 0  ? (unsigned int)((y-1) * vertCount.x + x-1) : indexC;
-                unsigned int indexBC = y > 0            ? (unsigned int)((y-1) * vertCount.x + x  ) : indexC;
-                unsigned int indexBR = y > 0  && x < mx ? (unsigned int)((y-1) * vertCount.x + x+1) : indexC;
-
-                Vector3 posC = pVerts[indexC].pos;
-                Vector3 normalTL = (pVerts[indexTL].pos - posC).Cross( pVerts[indexTC].pos - posC );
-                Vector3 normalTR = (pVerts[indexTC].pos - posC).Cross( pVerts[indexTR].pos - posC );
-                Vector3 normalBL = (pVerts[indexBR].pos - posC).Cross( pVerts[indexBC].pos - posC );
-                Vector3 normalBR = (pVerts[indexBC].pos - posC).Cross( pVerts[indexBL].pos - posC );
-            
-                pVerts[indexC].normal = (normalTL + normalTR + normalBL + normalBR) / 4.0f;
-                pVerts[indexC].normal.Normalize();
-            }
-        }
+        RecalculateNormals( pVerts );
     }
 
     if( sizeChanged )
@@ -625,6 +593,54 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
     m_pMesh->SetReady();
 
     return true;
+}
+
+void ComponentHeightmap::RecalculateNormals()
+{
+    Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer->GetData( true );
+
+    RecalculateNormals( pVerts );
+
+    m_pMesh->SetReady();
+}
+
+void ComponentHeightmap::RecalculateNormals(Vertex_XYZUVNorm* pVerts)
+{
+    Vector2Int vertCount = m_VertCount;
+
+    // Calculate normals.
+    int mx = vertCount.x-1;
+    int my = vertCount.y-1;
+    for( int y = 0; y < vertCount.y; y++ )
+    {
+        for( int x = 0; x < vertCount.x; x++ )
+        {
+            //   TL--TC---TR
+            //     \  |  /  
+            //      \ | /   
+            //        C     
+            //      / | \   
+            //     /  |  \  
+            //   BL--BC---BR
+
+            unsigned int indexC = (unsigned int)(y * vertCount.x + x);
+            unsigned int indexTL = y < my && x > 0  ? (unsigned int)((y+1) * vertCount.x + x-1) : indexC;
+            unsigned int indexTC = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexC;
+            unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexC;
+            unsigned int indexBL = y > 0  && x > 0  ? (unsigned int)((y-1) * vertCount.x + x-1) : indexC;
+            unsigned int indexBC = y > 0            ? (unsigned int)((y-1) * vertCount.x + x  ) : indexC;
+            unsigned int indexBR = y > 0  && x < mx ? (unsigned int)((y-1) * vertCount.x + x+1) : indexC;
+
+            Vector3 posC = pVerts[indexC].pos;
+            Vector3 normalTL = (pVerts[indexTL].pos - posC).Cross( pVerts[indexTC].pos - posC );
+            Vector3 normalTR = (pVerts[indexTC].pos - posC).Cross( pVerts[indexTR].pos - posC );
+            Vector3 normalBL = (pVerts[indexBR].pos - posC).Cross( pVerts[indexBC].pos - posC );
+            Vector3 normalBR = (pVerts[indexBC].pos - posC).Cross( pVerts[indexBL].pos - posC );
+
+            pVerts[indexC].normal = (normalTL + normalTR + normalBL + normalBR) / 4.0f;
+            pVerts[indexC].normal.Normalize();
+        }
+    }
 }
 
 void ComponentHeightmap::SaveAsMyMesh(const char* filename)
