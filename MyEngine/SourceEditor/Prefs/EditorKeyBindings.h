@@ -50,7 +50,8 @@ enum class HotKeyAction
     HeightmapEditor_FirstAction,
     HeightmapEditor_Tool_Raise = HeightmapEditor_FirstAction,
     HeightmapEditor_Tool_Lower,
-    HeightmapEditor_LastAction = HeightmapEditor_Tool_Lower,
+    HeightmapEditor_Tool_Level,
+    HeightmapEditor_LastAction = HeightmapEditor_Tool_Level,
     Num,
 };
 

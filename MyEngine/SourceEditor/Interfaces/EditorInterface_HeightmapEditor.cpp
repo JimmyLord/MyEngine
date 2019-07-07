@@ -167,6 +167,11 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         {
             m_CurrentTool = Tool::Lower;
         }
+        ImGui::SameLine();
+        if( ImGuiExt::ButtonWithTooltip( EditorIcon_GameObject, m_CurrentTool == Tool::Level ? selectedSize : normalSize, "Level" ) )
+        {
+            m_CurrentTool = Tool::Level;
+        }
     }
 
     if( ImGui::CollapsingHeader( "Brush", ImGuiTreeNodeFlags_DefaultOpen ) )
@@ -347,6 +352,7 @@ bool EditorInterface_HeightmapEditor::ExecuteHotkeyAction(HotKeyAction action)
     {
     case HotKeyAction::HeightmapEditor_Tool_Raise:    { m_CurrentTool = Tool::Raise; return true; }
     case HotKeyAction::HeightmapEditor_Tool_Lower:    { m_CurrentTool = Tool::Lower; return true; }
+    case HotKeyAction::HeightmapEditor_Tool_Level:    { m_CurrentTool = Tool::Level; return true; }
     }
 #pragma warning( pop )
 
@@ -385,7 +391,7 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
                 amount *= -1;
 
             // Raise the terrain and add to command stack.
-            if( m_pHeightmap->Raise( mouseIntersectionPoint, amount, m_RaiseRadius, m_BrushSoftness, true ) )
+            if( m_pHeightmap->Tool_Raise( mouseIntersectionPoint, amount, m_RaiseRadius, m_BrushSoftness, true ) )
             {
                 EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, amount, m_RaiseRadius, m_BrushSoftness );
 
@@ -393,6 +399,24 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
                 //   otherwise it's a mouse down so create a new message.
                 bool attachToPrevious = mouseAction == GCBA_Held ? true : false;
                 m_pEngineCore->GetCommandStack()->Add( pCommand, attachToPrevious );
+
+                if( m_AlwaysRecalculateNormals )
+                {
+                    m_pHeightmap->RecalculateNormals();
+                }
+                else
+                {
+                    m_HeightmapNormalsNeedRebuilding = true;
+                }
+            }
+        }
+        break;
+
+    case Tool::Level:
+        {
+            if( m_pHeightmap->Tool_Level( mouseIntersectionPoint, mouseIntersectionPoint.y, m_RaiseRadius, m_BrushSoftness, true ) )
+            {
+                // TODO: Undo/Redo.
 
                 if( m_AlwaysRecalculateNormals )
                 {

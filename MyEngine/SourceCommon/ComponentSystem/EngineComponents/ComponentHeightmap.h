@@ -108,7 +108,8 @@ public:
     bool RayCast(Vector3 start, Vector3 end, Vector3* pResult) const;
 
     // Editor tools, will all return true if they affect the vertices.
-    bool Raise(Vector3 position, float amount, float radius, float softness, bool rebuild);
+    bool Tool_Raise(Vector3 position, float amount, float radius, float softness, bool rebuild);
+    bool Tool_Level(Vector3 position, float desiredHeight, float radius, float softness, bool rebuild);
 };
 
 #endif //__ComponentHeightmap_H__

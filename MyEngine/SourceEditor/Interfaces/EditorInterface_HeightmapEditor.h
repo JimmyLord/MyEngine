@@ -29,6 +29,7 @@ public:
     {
         Raise,
         Lower,
+        Level,
         None,
     };
 

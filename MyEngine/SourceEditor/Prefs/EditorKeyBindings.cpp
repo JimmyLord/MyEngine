@@ -49,6 +49,7 @@ const char* g_KeyBindingStrings[HotKeyAction::Num] =
     "Camera_Focus",
     "HeightmapEditor_Tool_Raise",
     "HeightmapEditor_Tool_Lower",
+    "HeightmapEditor_Tool_Level",
 };
 
 EditorKeyBindings::EditorKeyBindings()
@@ -105,6 +106,7 @@ EditorKeyBindings::EditorKeyBindings()
     // Heightmap editor tools.
     SetDefaultKeys( 0, HotKeyAction::HeightmapEditor_Tool_Raise,    0,  '1' );
     SetDefaultKeys( 0, HotKeyAction::HeightmapEditor_Tool_Lower,    0,  '2' );
+    SetDefaultKeys( 0, HotKeyAction::HeightmapEditor_Tool_Level,    0,  '3' );
 
     for( int j=0; j<(int)HotKeyAction::Num; j++ )
     {

@@ -519,6 +519,7 @@ bool EditorMainFrame_ImGui::ExecuteHotkeyAction(HotKeyAction action)
 
     case HotKeyAction::HeightmapEditor_Tool_Raise:    { return false; }
     case HotKeyAction::HeightmapEditor_Tool_Lower:    { return false; }
+    case HotKeyAction::HeightmapEditor_Tool_Level:    { return false; }
 
     case HotKeyAction::Num:
         break;

@@ -34,7 +34,7 @@ EditorCommand_Heightmap_Raise::~EditorCommand_Heightmap_Raise()
 
 void EditorCommand_Heightmap_Raise::Do()
 {
-    m_pHeightmap->Raise( m_Position, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true );
+    m_pHeightmap->Tool_Raise( m_Position, m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true );
 
     // Regenerate the heightmap normals when redoing the last 'raise' command in the clump.
     if( this->m_LinkedToNextCommandOnRedoStack == false )
@@ -45,7 +45,7 @@ void EditorCommand_Heightmap_Raise::Do()
 
 void EditorCommand_Heightmap_Raise::Undo()
 {
-    m_pHeightmap->Raise( m_Position, -m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true );
+    m_pHeightmap->Tool_Raise( m_Position, -m_RaiseAmount, m_RaiseRadius, m_BrushSoftness, true );
 
     // Regenerate the heightmap normals when undoing the last 'raise' command in the clump.
     if( this->m_LinkedToPreviousCommandOnUndoStack == false )

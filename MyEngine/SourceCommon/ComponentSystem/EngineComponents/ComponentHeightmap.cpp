@@ -1217,7 +1217,7 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
 }
 
 // Editor tools.
-bool ComponentHeightmap::Raise(Vector3 position, float amount, float radius, float softness, bool rebuild)
+bool ComponentHeightmap::Tool_Raise(Vector3 position, float amount, float radius, float softness, bool rebuild)
 {
     bool meshChanged = false;
 
@@ -1247,9 +1247,58 @@ bool ComponentHeightmap::Raise(Vector3 position, float amount, float radius, flo
             {
                 float expDist = diff2 / radius2; // 0 at center, 1 at edge.
 
-                float perc = min( 1.0f, 1 - expDist + softness );
+                float perc = min( 1.0f, 1 - expDist + softness ); // 1 at center, 0 at edge.
 
                 m_Heights[y * m_VertCount.x + x] += amount * perc;
+                meshChanged = true;
+            }
+        }
+    }
+
+    if( rebuild && meshChanged )
+    {
+        GenerateHeightmapMesh( false, false, false );
+    }
+
+    return meshChanged;
+}
+
+bool ComponentHeightmap::Tool_Level(Vector3 position, float desiredHeight, float radius, float softness, bool rebuild)
+{
+    bool meshChanged = false;
+
+    Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
+    Vector2Int center = (m_VertCount-1) * (position.XZ()/m_Size) + Vector2( 0.5f, 0.5f );
+
+    Vector2Int start( center.x - (int)(radius/tileSize.x), center.y - (int)(radius/tileSize.x) );
+    Vector2Int end( center.x + (int)(radius/tileSize.x), center.y + (int)(radius/tileSize.x) );
+
+    if( start.x < 0 ) start.x = 0;
+    if( start.y < 0 ) start.y = 0;
+    if( end.x >= m_VertCount.x ) end.x = m_VertCount.x-1;
+    if( end.y >= m_VertCount.y ) end.y = m_VertCount.x-1;
+
+    for( int y=start.y; y<=end.y; y++ )
+    {
+        float diffY = y*tileSize.y - position.z;
+
+        for( int x=start.x; x<=end.x; x++ )
+        {
+            float diffX = x*tileSize.x - position.x;
+
+            float diff2 = diffX*diffX + diffY*diffY;
+            float radius2 = radius*radius;
+
+            if( diff2 < radius2 )
+            {
+                float expDist = diff2 / radius2; // 0 at center, 1 at edge.
+
+                float perc = min( 1.0f, 1 - expDist + softness ); // 1 at center, 0 at edge.
+
+                float currentHeight = m_Heights[y * m_VertCount.x + x];
+                float amount = desiredHeight - currentHeight;
+
+                m_Heights[y * m_VertCount.x + x] += amount * perc * 0.1f;
                 meshChanged = true;
             }
         }
