@@ -25,7 +25,7 @@ protected:
     Vector3 m_Position;
     float m_BrushSoftness;
     float m_RaiseAmount;
-    float m_RaiseRadius;
+    float m_BrushRadius;
 
 public:
     EditorCommand_Heightmap_Raise(ComponentHeightmap* pHeightmap, Vector3 position, float amount, float radius, float softness);

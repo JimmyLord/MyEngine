@@ -58,9 +58,11 @@ protected:
 
     // Editor settings.
     float m_BrushSoftness;
+    float m_BrushRadius;
     float m_RaiseAmount;
-    float m_RaiseRadius;
-    
+    bool m_LevelUseBrushHeight;
+    float m_LevelHeight;
+
     bool m_AlwaysRecalculateNormals;
 
 public:

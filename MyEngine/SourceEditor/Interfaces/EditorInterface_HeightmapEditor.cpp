@@ -53,8 +53,10 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
 
     // Editor settings.
     m_BrushSoftness = 0.1f;
+    m_BrushRadius = 1.0f;
     m_RaiseAmount = 0.1f;
-    m_RaiseRadius = 1.0f;
+    m_LevelUseBrushHeight = true;
+    m_LevelHeight = 0.0f;
 
     m_AlwaysRecalculateNormals = false;
 }
@@ -174,18 +176,32 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         }
     }
 
+    // General options.
+    if( ImGui::CollapsingHeader( "General", ImGuiTreeNodeFlags_DefaultOpen ) )
+    {
+        ImGui::Checkbox( "Always recalculate normals", &m_AlwaysRecalculateNormals );
+    }
+
+    // Tool specific values.
     if( ImGui::CollapsingHeader( "Brush", ImGuiTreeNodeFlags_DefaultOpen ) )
     {
         ImGui::DragFloat( "Softness", &m_BrushSoftness, 0.01f, 0.0f, 1.0f );
+        ImGui::DragFloat( "Radius", &m_BrushRadius, 0.01f, 0.0f, FLT_MAX );
     }
 
     if( ImGui::CollapsingHeader( "Raise/Lower", ImGuiTreeNodeFlags_DefaultOpen ) )
     {
         ImGui::DragFloat( "Amount", &m_RaiseAmount, 0.01f, 0.0f, FLT_MAX );
-        ImGui::DragFloat( "Radius", &m_RaiseRadius, 0.01f, 0.0f, FLT_MAX );
     }
 
-    ImGui::Checkbox( "Always recalculate normals", &m_AlwaysRecalculateNormals );
+    if( ImGui::CollapsingHeader( "Level", ImGuiTreeNodeFlags_DefaultOpen ) )
+    {
+        ImGui::Checkbox( "Use brush height", &m_LevelUseBrushHeight );
+        ImGui::DragFloat( "Height", &m_LevelHeight, 0.01f, 0.0f, FLT_MAX );
+    }
+
+    // Other.
+    ImGui::Separator();
 
     if( ImGui::Button( "Export as MyMesh" ) )
     {
@@ -391,9 +407,9 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
                 amount *= -1;
 
             // Raise the terrain and add to command stack.
-            if( m_pHeightmap->Tool_Raise( mouseIntersectionPoint, amount, m_RaiseRadius, m_BrushSoftness, true ) )
+            if( m_pHeightmap->Tool_Raise( mouseIntersectionPoint, amount, m_BrushRadius, m_BrushSoftness, true ) )
             {
-                EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, amount, m_RaiseRadius, m_BrushSoftness );
+                EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, amount, m_BrushRadius, m_BrushSoftness );
 
                 // Attach to previous 'raise' command if this is a held message,
                 //   otherwise it's a mouse down so create a new message.
@@ -414,7 +430,9 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
 
     case Tool::Level:
         {
-            if( m_pHeightmap->Tool_Level( mouseIntersectionPoint, mouseIntersectionPoint.y, m_RaiseRadius, m_BrushSoftness, true ) )
+            float height = m_LevelUseBrushHeight ? mouseIntersectionPoint.y : m_LevelHeight;
+
+            if( m_pHeightmap->Tool_Level( mouseIntersectionPoint, height, m_BrushRadius, m_BrushSoftness, true ) )
             {
                 // TODO: Undo/Redo.
 
