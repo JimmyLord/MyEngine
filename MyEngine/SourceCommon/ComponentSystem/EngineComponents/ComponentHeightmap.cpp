@@ -1216,6 +1216,36 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
     return false;
 }
 
+bool ComponentHeightmap::RayCastAtLocalHeight(Vector3 start, Vector3 end, float height, Vector3* pResultAtDesiredHeight, Vector3* pResultOnGround) const
+{
+    // Move ray into terrain space.
+    ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
+    MyAssert( pTransform );
+    MyMatrix* pWorldMat = pTransform->GetWorldTransform();
+    start = pWorldMat->GetInverse() * start;
+    end = pWorldMat->GetInverse() * end;
+
+    // Get the direction vector.
+    Vector3 dir = (end - start).GetNormalized();
+
+    Plane plane;
+    Vector3 result;
+
+    plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, height, 0 ) );
+    if( plane.IntersectRay( start, dir, &result ) )
+    {
+        *pResultAtDesiredHeight = result;
+
+        pResultOnGround->x = result.x;
+        GetHeightAtWorldXZ( result.x, result.z, &pResultOnGround->y );
+        pResultOnGround->z = result.z;
+
+        return true;
+    }
+
+    return false;
+}
+
 // Editor tools.
 bool ComponentHeightmap::Tool_Raise(Vector3 position, float amount, float radius, float softness, bool rebuild)
 {

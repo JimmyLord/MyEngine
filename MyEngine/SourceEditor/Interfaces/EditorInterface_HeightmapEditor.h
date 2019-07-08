@@ -46,11 +46,13 @@ protected:
     ToolState m_CurrentToolState;
 
     GameObject* m_pPoint;
+    GameObject* m_p2ndPoint;
     int m_IndexOfPointBeingDragged;
     Vector2 m_PositionMouseWentDown;
     bool m_NewMousePress;
     Vector3 m_WorldSpaceMousePosition;
     Vector3 m_WorldSpaceMousePositionWhenToolStarted;
+    Vector3 m_WorldSpaceMousePositionAtDesiredHeight; // Used by "level" tool.
 
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];
 
