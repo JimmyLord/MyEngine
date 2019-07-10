@@ -28,27 +28,24 @@
 
 class Job_CalculateNormals : public MyJob
 {
-    friend class EditorInterface_HeightmapEditor;
-
 protected:
     EditorInterface_HeightmapEditor* m_pHeightmapEditor;
-    ComponentHeightmap* m_pHeightmap;
 
 public:
     Job_CalculateNormals()
     {
         m_pHeightmapEditor = nullptr;
-        m_pHeightmap = nullptr;
     }
     virtual ~Job_CalculateNormals() {}
 
+    void SetEditor(EditorInterface_HeightmapEditor* pHeightmapEditor)
+    {
+        m_pHeightmapEditor = pHeightmapEditor;
+    }
+
     virtual void DoWork()
     {
-        if( m_pHeightmapEditor->m_HeightmapNormalsNeedRebuilding )
-        {
-            m_pHeightmap->RecalculateNormals();
-            m_pHeightmapEditor->m_HeightmapNormalsNeedRebuilding = false;
-        }
+        m_pHeightmapEditor->GetHeightmapBeingEdited()->RecalculateNormals();
     }
 };
 
@@ -411,6 +408,9 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
             if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
             {
+                // Wait for any outstanding jobs to complete.
+                m_pEngineCore->GetManagers()->GetJobManager()->WaitForJobToComplete( m_pJob_CalculateNormals );
+
                 // Rebuild heightmap normals when mouse is lifted after 'raise' command.
                 if( m_HeightmapNormalsNeedRebuilding )
                 {
@@ -476,10 +476,7 @@ void EditorInterface_HeightmapEditor::SetHeightmap(ComponentHeightmap* pHeightma
     if( m_pJob_CalculateNormals == nullptr )
     {
         m_pJob_CalculateNormals = MyNew Job_CalculateNormals();
-        m_pJob_CalculateNormals->m_pHeightmap = pHeightmap;
-        m_pJob_CalculateNormals->m_pHeightmapEditor = this;
-
-        m_pEngineCore->GetManagers()->GetJobManager()->AddJob( m_pJob_CalculateNormals, false );
+        m_pJob_CalculateNormals->SetEditor( this );
     }
 
     if( m_pHeightmap )
@@ -553,12 +550,14 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
         }
         else
         {
-            m_HeightmapNormalsNeedRebuilding = true;
-            if( m_pJob_CalculateNormals->m_IsFinished )
+            // Add a job to regenerate the normals on another thread.
+            if( m_pJob_CalculateNormals->IsQueued() == false )
             {
-                m_pJob_CalculateNormals->m_IsStarted = false;
-                m_pJob_CalculateNormals->m_IsFinished = false;
-                m_pEngineCore->GetManagers()->GetJobManager()->AddJob( m_pJob_CalculateNormals, false );
+                m_pEngineCore->GetManagers()->GetJobManager()->AddJob( m_pJob_CalculateNormals );
+            }
+            else
+            {
+                m_HeightmapNormalsNeedRebuilding = true;
             }
         }
     }
