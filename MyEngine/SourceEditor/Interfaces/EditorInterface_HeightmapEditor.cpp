@@ -26,6 +26,32 @@
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
+class Job_CalculateNormals : public MyJob
+{
+    friend class EditorInterface_HeightmapEditor;
+
+protected:
+    EditorInterface_HeightmapEditor* m_pHeightmapEditor;
+    ComponentHeightmap* m_pHeightmap;
+
+public:
+    Job_CalculateNormals()
+    {
+        m_pHeightmapEditor = nullptr;
+        m_pHeightmap = nullptr;
+    }
+    virtual ~Job_CalculateNormals() {}
+
+    virtual void DoWork()
+    {
+        if( m_pHeightmapEditor->m_HeightmapNormalsNeedRebuilding )
+        {
+            m_pHeightmap->RecalculateNormals();
+            m_pHeightmapEditor->m_HeightmapNormalsNeedRebuilding = false;
+        }
+    }
+};
+
 EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEngineCore)
 : EditorInterface( pEngineCore )
 {
@@ -51,6 +77,7 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
     }
 
     m_HeightmapNormalsNeedRebuilding = false;
+    m_pJob_CalculateNormals = nullptr;
 
     // Editor settings.
     m_BrushSoftness = 0.1f;
@@ -64,6 +91,8 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
 
 EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
 {
+    SAFE_DELETE( m_pJob_CalculateNormals );
+
     SAFE_DELETE( m_pPoint );
     SAFE_DELETE( m_p2ndPoint );
 
@@ -444,6 +473,15 @@ void EditorInterface_HeightmapEditor::SetHeightmap(ComponentHeightmap* pHeightma
 {
     m_pHeightmap = pHeightmap;
 
+    if( m_pJob_CalculateNormals == nullptr )
+    {
+        m_pJob_CalculateNormals = MyNew Job_CalculateNormals();
+        m_pJob_CalculateNormals->m_pHeightmap = pHeightmap;
+        m_pJob_CalculateNormals->m_pHeightmapEditor = this;
+
+        m_pEngineCore->GetManagers()->GetJobManager()->AddJob( m_pJob_CalculateNormals, false );
+    }
+
     if( m_pHeightmap )
     {
         // TODO: If no heightmap is created, then make a default flat one.
@@ -516,6 +554,12 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
         else
         {
             m_HeightmapNormalsNeedRebuilding = true;
+            if( m_pJob_CalculateNormals->m_IsFinished )
+            {
+                m_pJob_CalculateNormals->m_IsStarted = false;
+                m_pJob_CalculateNormals->m_IsFinished = false;
+                m_pEngineCore->GetManagers()->GetJobManager()->AddJob( m_pJob_CalculateNormals, false );
+            }
         }
     }
 }

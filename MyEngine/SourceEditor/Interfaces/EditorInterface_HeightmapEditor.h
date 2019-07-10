@@ -13,9 +13,11 @@
 #include "EditorInterface.h"
 
 class ComponentHeightmap;
+class Job_CalculateNormals;
 
 class EditorInterface_HeightmapEditor : public EditorInterface
 {
+    friend class Job_CalculateNormals;
 public:
     enum MaterialTypes
     {
@@ -57,6 +59,7 @@ protected:
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];
 
     bool m_HeightmapNormalsNeedRebuilding;
+    Job_CalculateNormals* m_pJob_CalculateNormals;
 
     // Editor settings.
     float m_BrushSoftness;

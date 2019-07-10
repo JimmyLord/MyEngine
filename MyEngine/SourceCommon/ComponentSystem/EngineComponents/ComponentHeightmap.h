@@ -16,6 +16,7 @@ class ComponentHeightmap : public ComponentMesh
 {
     friend class EditorInterface_HeightmapEditor;
     friend class EditorCommand_Heightmap_Raise;
+    friend class Job_CalculateNormals;
 
 private:
     // Component Variable List.
