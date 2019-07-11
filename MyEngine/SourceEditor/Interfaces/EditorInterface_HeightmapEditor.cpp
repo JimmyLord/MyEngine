@@ -111,6 +111,17 @@ void EditorInterface_HeightmapEditor::Initialize()
         m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
 }
 
+bool EditorInterface_HeightmapEditor::IsBusy()
+{
+    if( m_pJob_CalculateNormals )
+    {
+        if( m_pJob_CalculateNormals->IsQueued() )
+            return true;
+    }
+
+    return false;
+}
+
 void EditorInterface_HeightmapEditor::OnActivated()
 {
     // Create a gameobject for the points that we'll draw.

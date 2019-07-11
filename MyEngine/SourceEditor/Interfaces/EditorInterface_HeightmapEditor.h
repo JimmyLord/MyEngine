@@ -74,14 +74,16 @@ public:
     EditorInterface_HeightmapEditor(EngineCore* pEngineCore);
     virtual ~EditorInterface_HeightmapEditor();
 
-    virtual void Initialize();
+    virtual void Initialize() override;
 
-    virtual void OnActivated();
-    virtual void OnDeactivated();
-    virtual void OnDrawFrame(unsigned int canvasID);
+    virtual bool IsBusy() override;
 
-    virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
-    virtual bool ExecuteHotkeyAction(HotKeyAction action);
+    virtual void OnActivated() override;
+    virtual void OnDeactivated() override;
+    virtual void OnDrawFrame(unsigned int canvasID) override;
+
+    virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) override;
+    virtual bool ExecuteHotkeyAction(HotKeyAction action) override;
 
     void CancelCurrentOperation();
 

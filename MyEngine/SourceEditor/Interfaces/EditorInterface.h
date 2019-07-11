@@ -27,6 +27,8 @@ public:
 
     virtual void Initialize() = 0;
 
+    virtual bool IsBusy() { return false; }
+
     virtual void OnActivated();
     virtual void OnDeactivated();
 

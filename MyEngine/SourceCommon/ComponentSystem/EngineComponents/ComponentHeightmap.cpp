@@ -198,6 +198,32 @@ void ComponentHeightmap::FinishImportingFromJSONObject(cJSON* jComponent)
 
 void ComponentHeightmap::AddAllVariablesToWatchPanel()
 {
+    if( m_WaitingForHeightmapFileToFinishLoading )
+    {
+        ImGui::Text( "Heightmap file is still loading..." );
+        return;
+    }
+
+    if( g_pEngineCore->GetCurrentEditorInterfaceType() == EditorInterfaceType::HeightmapEditor )
+    {
+        EditorInterface_HeightmapEditor* pHeightmapEditor = (EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface();
+
+        if( pHeightmapEditor->GetHeightmapBeingEdited() == this )
+        {
+            if( pHeightmapEditor->IsBusy() )
+            {
+                ImGui::Text( "Heightmap is being edited." );
+                ImGui::Text( "   Recalculating normals..." );
+            }
+            else
+            {
+                ImGui::Text( "Heightmap is being edited." );
+            }
+
+            return;
+        }
+    }
+
     ComponentBase::AddAllVariablesToWatchPanel();
 
     if( m_VertCount != m_HeightmapFileSize && m_HeightmapFileSize.x != 0 )
@@ -375,16 +401,7 @@ void ComponentHeightmap::CreateHeightmap()
     bool createFromTexture = true;
     if( m_pHeightmapTexture == nullptr )
     {
-//#if MYFW_EDITOR
-//        if( true )
-//        {
-//            createFromFile = false;
-//            MyAssert( m_Heights == nullptr );
-//            LoadFromHeightmap( "Data/Meshes/TestHeightmap.myheightmap" );
-//        }
-//        else
-//#endif
-        if( m_pHeightmapFile )
+        if( m_pHeightmapFile && m_Heights == nullptr )
         {
             createFromTexture = false;
             MyAssert( m_Heights == nullptr );
@@ -402,7 +419,7 @@ void ComponentHeightmap::CreateHeightmap()
         else
         {
             createFromTexture = false;
-            MyAssert( m_Heights == nullptr );
+            SAFE_DELETE_ARRAY( m_Heights );
             m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
             memset( m_Heights, 0, sizeof(float) * m_VertCount.x * m_VertCount.y );
         }
@@ -597,10 +614,13 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
 
 void ComponentHeightmap::RecalculateNormals()
 {
-    Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer->GetData( true );
+    BufferDefinition* pVertexBuffer = m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer;
+    Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)pVertexBuffer->GetData( true );
 
     RecalculateNormals( pVerts );
 
+    // Mark the vertex data dirty again after changing the data, since this gets called on a thread.
+    pVertexBuffer->MarkDirty();
     m_pMesh->SetReady();
 }
 
