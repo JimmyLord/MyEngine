@@ -38,6 +38,7 @@ const char* g_KeyBindingStrings[HotKeyAction::Num] =
     "Mode_LaunchGame",
     "Debug_DrawWireframe",
     "Debug_ShowPhysicsShapes",
+    "Debug_ShowStats",
     "Lua_RunLuaScript",
     "Objects_MergeIntoFolder",
     "Camera_Forward",
@@ -91,6 +92,7 @@ EditorKeyBindings::EditorKeyBindings()
     // Debug menu.
     SetDefaultKeys( 0, HotKeyAction::Debug_DrawWireframe,           C,  120 ); // F9
     SetDefaultKeys( 0, HotKeyAction::Debug_ShowPhysicsShapes,       S,  119 ); // F8
+    SetDefaultKeys( 0, HotKeyAction::Debug_ShowStats,               CS, 119 ); // F8
     // Lua menu.
     SetDefaultKeys( 0, HotKeyAction::Lua_RunLuaScript,              CS, 'L' );
     // Misc.

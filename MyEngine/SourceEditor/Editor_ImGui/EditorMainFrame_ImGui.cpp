@@ -505,6 +505,7 @@ bool EditorMainFrame_ImGui::ExecuteHotkeyAction(HotKeyAction action)
     case HotKeyAction::Mode_LaunchGame:               { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return true; }
     case HotKeyAction::Debug_DrawWireframe:           { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
     case HotKeyAction::Debug_ShowPhysicsShapes:       { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
+    case HotKeyAction::Debug_ShowStats:               { EditorMenuCommand( EditorMenuCommand_Debug_ShowStats );              return true; }
     case HotKeyAction::Lua_RunLuaScript:              { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return true; }
     case HotKeyAction::Objects_MergeIntoFolder:       { EditorMenuCommand( EditorMenuCommand_Objects_MergeIntoFolder );              return true; }
 
@@ -1377,6 +1378,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowGLStats ); }
             AddMenuItemWithHotkeyCheck( "Draw Wireframe", HotKeyAction::Debug_DrawWireframe, m_pEngineCore->GetDebug_DrawWireframe() );
             AddMenuItemWithHotkeyCheck( "Show Physics Debug Shapes", HotKeyAction::Debug_ShowPhysicsShapes, pEditorPrefs->Get_Debug_DrawPhysicsDebugShapes() );
+            AddMenuItemWithHotkeyCheck( "Show Basic Stats", HotKeyAction::Debug_ShowStats, pEditorPrefs->Get_Debug_DrawStats() );
             if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowProfilingInfo ); }
             ImGui::EndMenu();
         }

@@ -80,6 +80,7 @@ protected:
     bool m_Mode_SwitchFocusOnPlayStop;
     LaunchPlatforms m_Mode_CurrentLaunchPlatform;
     bool m_Debug_DrawPhysicsDebugShapes;
+    bool m_Debug_DrawStats;
     std::vector<std::string> m_Lua_RecentScripts;
     std::vector<std::string> m_File_RecentScenes;
     std::vector<std::string> m_Document_RecentDocuments;
@@ -123,6 +124,7 @@ public:
     bool Get_Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
     LaunchPlatforms Get_Mode_LaunchPlatform() { return m_Mode_CurrentLaunchPlatform; }
     bool Get_Debug_DrawPhysicsDebugShapes() { return m_Debug_DrawPhysicsDebugShapes; }
+    bool Get_Debug_DrawStats() { return m_Debug_DrawStats; }
     uint32 Get_Lua_NumRecentScripts() { return (uint32)m_Lua_RecentScripts.size(); }
     std::string Get_Lua_RecentScript(int index) { return m_Lua_RecentScripts[index]; }
     uint32 Get_File_NumRecentScenes() { return (uint32)m_File_RecentScenes.size(); }
@@ -150,6 +152,7 @@ public:
     void Toggle_Mode_SwitchFocusOnPlayStop() { m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop; }
     void Set_Mode_LaunchPlatform(LaunchPlatforms platform) { m_Mode_CurrentLaunchPlatform = platform; }
     void Toggle_Debug_DrawPhysicsDebugShapes() { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
+    void Toggle_Debug_DrawStats() { m_Debug_DrawStats = !m_Debug_DrawStats; }
 
     void AddRecentLuaScript(const char* relativePath);
     void AddRecentScene(const char* relativePath);

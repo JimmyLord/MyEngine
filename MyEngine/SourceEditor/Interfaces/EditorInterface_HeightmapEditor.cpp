@@ -364,7 +364,13 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
             if( m_CurrentToolState == ToolState::Active )
                 CancelCurrentOperation();
             else
-                m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );        
+            {
+                // Don't allow users leave this editor mode if there are jobs pending.
+                if( IsBusy() == false )
+                {
+                    m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+                }
+            }
         }
     }
 
@@ -422,10 +428,11 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 // Wait for any outstanding jobs to complete.
                 m_pEngineCore->GetManagers()->GetJobManager()->WaitForJobToComplete( m_pJob_CalculateNormals );
 
+                m_CurrentToolState = ToolState::Idle;
+
                 // Rebuild heightmap normals when mouse is lifted after 'raise' command.
                 if( m_HeightmapNormalsNeedRebuilding )
                 {
-                    m_CurrentToolState = ToolState::Idle;
                     m_HeightmapNormalsNeedRebuilding = false;
                     m_pHeightmap->RecalculateNormals();
                 }

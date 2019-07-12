@@ -38,6 +38,7 @@ enum class HotKeyAction
     Mode_LaunchGame,
     Debug_DrawWireframe,
     Debug_ShowPhysicsShapes,
+    Debug_ShowStats,
     Lua_RunLuaScript,
     Objects_MergeIntoFolder,
     Camera_Forward,

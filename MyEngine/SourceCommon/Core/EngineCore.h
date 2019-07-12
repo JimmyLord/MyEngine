@@ -166,6 +166,7 @@ protected:
     FontDefinition* m_pDebugFont;
     MyMeshText* m_pDebugTextMesh; // DEBUG_HACK_SHOWGLSTATS
 
+protected:
     EditorInterface* m_pEditorInterfaces[EditorInterfaceType::NumInterfaces];
     EditorInterfaceType m_CurrentEditorInterfaceType;
     EditorInterface* m_pCurrentEditorInterface;
@@ -309,6 +310,12 @@ public:
     EditorInterface* GetEditorInterface(EditorInterfaceType type);
     EditorInterface* GetCurrentEditorInterface();
     EditorInterfaceType GetCurrentEditorInterfaceType() { return m_CurrentEditorInterfaceType; }
+
+    // Debug Stat Getters.
+    MyMeshText* GetDebugTextMesh() { return m_pDebugTextMesh; }
+    float GetDebugFPS() { return m_DebugFPS; }
+    int GetLuaMemoryUsedThisFrame() { return m_LuaMemoryUsedThisFrame; }
+    int GetLuaMemoryUsedLastFrame() { return m_LuaMemoryUsedLastFrame; }
 #endif //MYFW_EDITOR
 };
 

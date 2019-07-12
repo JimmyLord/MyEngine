@@ -19,6 +19,7 @@
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 #include "../SourceEditor/Prefs/EditorKeyBindings.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
+#include "../../../SharedGameCode/Core/MyMeshText.h"
 
 EditorInterface::EditorInterface(EngineCore* pEngineCore)
 {
@@ -141,6 +142,109 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                     g_pRenderer->SetBlendEnabled( false );
 
                     g_pRenderer->SetCullingEnabled( true );
+                    g_pRenderer->SetDepthTestEnabled( true );
+                }
+            }
+
+            if( i == 0 && m_pEngineCore->GetEditorPrefs()->Get_Debug_DrawStats() )
+            {
+                MyMeshText* pDebugTextMesh = m_pEngineCore->GetDebugTextMesh();
+
+                if( pDebugTextMesh )
+                {
+                    MyRect windowrect( pCamera->m_Viewport.GetX(), pCamera->m_Viewport.GetY(), pCamera->m_Viewport.GetWidth(), pCamera->m_Viewport.GetHeight() );
+
+                    if( pDebugTextMesh->GetMaterial( 0 ) == nullptr )
+                    {
+                        MaterialDefinition* pMaterial = m_pEngineCore->GetManagers()->GetMaterialManager()->LoadMaterial( "Data/DataEngine/Materials/Nevis60.mymaterial" );
+                        MyAssert( pMaterial );
+                        if( pMaterial )
+                        {
+                            pDebugTextMesh->SetMaterial( pMaterial, 0 );
+                            pMaterial->Release();
+                        }
+                    }
+
+                    //pDebugTextMesh->CreateStringWhite( false, 15, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h, Justify_TopRight, Vector2(0,0),
+                    //                                     "GLStats - buffers(%0.2fM) - draws(%d) - fps(%d)", pBufferManager->CalculateTotalMemoryUsedByBuffers()/1000000.0f, g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
+                    pDebugTextMesh->CreateStringWhite( false, 15, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h, Justify_TopRight, Vector2(0,0),
+                        "GL - draws(%d) - fps(%d)", g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_pEngineCore->GetDebugFPS() );
+
+                    // Draw Lua memory usage.
+                    {
+                        int ramUsedThisFrame = m_pEngineCore->GetLuaMemoryUsedThisFrame();
+                        int ramUsedLastFrame = m_pEngineCore->GetLuaMemoryUsedLastFrame();
+
+                        int megs = ramUsedThisFrame/1000000;
+                        int kilos = (ramUsedThisFrame - megs*1000000)/1000;
+                        int bytes = ramUsedThisFrame%1000;
+
+                        int change = ramUsedThisFrame - ramUsedLastFrame;
+
+                        if( megs == 0 )
+                        {
+                            pDebugTextMesh->CreateStringWhite( true, 15, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-15, Justify_TopRight, Vector2(0,0),
+                                "Lua - memory(%d,%03d) - (%d)", kilos, bytes, change );
+                        }
+                        else
+                        {
+                            pDebugTextMesh->CreateStringWhite( true, 15, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-15, Justify_TopRight, Vector2(0,0),
+                                "Lua - memory(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
+                        }
+                    }
+
+#if MYFW_WINDOWS
+                    // Draw Main ram memory usage.
+                    {
+                        //size_t bytesused = MyMemory_GetNumberOfBytesAllocated();
+                        //int megs = (int)(bytesused/1000000);
+                        //int kilos = (int)((bytesused - megs*1000000)/1000);
+                        //int bytes = bytesused%1000;
+
+                        //int change = (int)(bytesused - m_TotalMemoryAllocatedLastFrame);
+
+                        //if( megs == 0 )
+                        //{
+                        //    pDebugTextMesh->CreateStringWhite( true, 15, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-30, Justify_TopRight, Vector2(0,0),
+                        //        "Memory(%03d,%03d) - (%d)", kilos, bytes, change );
+                        //}
+                        //else
+                        //{
+                        //    pDebugTextMesh->CreateStringWhite( true, 15, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-30, Justify_TopRight, Vector2(0,0),
+                        //        "Memory(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
+                        //}
+
+                        //m_TotalMemoryAllocatedLastFrame = bytesused;
+                    }
+#endif
+
+                    // Draw single frame stack ram memory usage.
+                    {
+                        //unsigned int bytesused = m_SingleFrameStackSizeThisFrame;
+                        //int megs = bytesused/1000000;
+                        //int kilos = (bytesused - megs*1000000)/1000;
+                        //int bytes = bytesused%1000;
+
+                        //int change = bytesused - m_SingleFrameStackSizeLastFrame;
+
+                        //if( megs == 0 )
+                        //{
+                        //    pDebugTextMesh->CreateStringWhite( true, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-30, Justify_TopRight, Vector2(0,0),
+                        //        "Frame Stack(%03d,%03d) - (%d)", kilos, bytes, change );
+                        //}
+                        //else
+                        //{
+                        //    pDebugTextMesh->CreateStringWhite( true, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-30, Justify_TopRight, Vector2(0,0),
+                        //        "Frame Stack(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
+                        //}
+                    }
+
+                    //windowrect.Set( pCamera->m_Viewport.GetX(), pCamera->m_Viewport.GetY(), pCamera->m_Viewport.GetWidth(), pCamera->m_Viewport.GetHeight() );
+
+                    MyMatrix matProj;
+                    matProj.CreateOrtho( (float)windowrect.x, (float)windowrect.x+windowrect.w, (float)windowrect.y, (float)windowrect.y+windowrect.h, -1, 1 );
+                    g_pRenderer->SetDepthTestEnabled( false );
+                    pDebugTextMesh->Draw( &matProj, nullptr, nullptr, nullptr,nullptr,nullptr,0,nullptr,nullptr,nullptr,nullptr );
                     g_pRenderer->SetDepthTestEnabled( true );
                 }
             }

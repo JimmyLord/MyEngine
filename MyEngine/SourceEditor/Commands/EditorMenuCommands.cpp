@@ -454,6 +454,12 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+    case EditorMenuCommand_Debug_ShowStats:
+        {
+            pEditorPrefs->Toggle_Debug_DrawStats();
+        }
+        break;
+
     case EditorMenuCommand_Lua_RunLuaScript:
         {
             const char* filename = FileOpenDialog( "DataEditor\\", "Lua Files\0*.lua\0All\0*.*\0" );

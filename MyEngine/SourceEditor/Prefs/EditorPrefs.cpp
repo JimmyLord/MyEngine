@@ -52,6 +52,7 @@ EditorPrefs::EditorPrefs()
 #endif
 
     m_Debug_DrawPhysicsDebugShapes = true;
+    m_Debug_DrawStats = false;
 
     m_pImGuiStylePrefs = MyNew ImGuiStylePrefs;
     m_pKeyBindings = MyNew EditorKeyBindings;
@@ -170,6 +171,7 @@ void EditorPrefs::LoadPrefs()
 
     // Debug menu options.
     cJSONExt_GetBool( m_jEditorPrefs, "Debug_DrawPhysicsDebugShapes", &m_Debug_DrawPhysicsDebugShapes );
+    cJSONExt_GetBool( m_jEditorPrefs, "Debug_DrawStats", &m_Debug_DrawStats );
 
     // Lua script menu options.
     cJSON* jRecentFilesArray = cJSON_GetObjectItem( m_jEditorPrefs, "Lua_RecentFiles" );
@@ -323,6 +325,7 @@ cJSON* EditorPrefs::SaveStart()
 
         // Debug menu options.
         cJSON_AddNumberToObject( jPrefs, "Debug_DrawPhysicsDebugShapes", m_Debug_DrawPhysicsDebugShapes );
+        cJSON_AddNumberToObject( jPrefs, "Debug_DrawStats", m_Debug_DrawStats );
 
         // Lua script menu options.
         cJSON* jRecentFilesArray = cJSON_CreateArray();

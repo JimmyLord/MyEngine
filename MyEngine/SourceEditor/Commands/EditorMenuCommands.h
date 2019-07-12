@@ -44,6 +44,7 @@ enum EditorMenuCommands
     EditorMenuCommand_Data_LoadDatafiles,
     EditorMenuCommand_Debug_DrawWireframe,
     EditorMenuCommand_Debug_ShowPhysicsShapes,
+    EditorMenuCommand_Debug_ShowStats,
     EditorMenuCommand_Lua_RunLuaScript,
     EditorMenuCommand_Lua_RunRecentLuaScript,
     // Space for EditorPrefs::MAX_RECENT_LUA_SCRIPTS.
