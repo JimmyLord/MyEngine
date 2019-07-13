@@ -81,6 +81,7 @@ public:
     virtual void OnActivated() override;
     virtual void OnDeactivated() override;
     virtual void OnDrawFrame(unsigned int canvasID) override;
+    virtual void AddImGuiOverlayItems() override;
 
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) override;
     virtual bool ExecuteHotkeyAction(HotKeyAction action) override;

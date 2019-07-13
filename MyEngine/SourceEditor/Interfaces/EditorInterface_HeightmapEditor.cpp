@@ -22,6 +22,7 @@
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Commands/HeightmapEditorCommands.h"
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
@@ -341,6 +342,14 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
     }
 
     ImGui::End();
+}
+
+void EditorInterface_HeightmapEditor::AddImGuiOverlayItems()
+{
+    if( m_pJob_CalculateNormals && m_pJob_CalculateNormals->IsQueued() )
+    {
+        ImGui::Text( "Recalculating normals." );
+    }
 }
 
 void EditorInterface_HeightmapEditor::CancelCurrentOperation()

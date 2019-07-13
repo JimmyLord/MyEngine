@@ -34,6 +34,7 @@ public:
 
     virtual void Tick(float deltaTime);
     virtual void OnDrawFrame(unsigned int canvasid);
+    virtual void AddImGuiOverlayItems() {};
 
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) = 0;
     virtual bool ExecuteHotkeyAction(HotKeyAction action);

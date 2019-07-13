@@ -142,9 +142,12 @@ public:
     EngineCore* GetEngineCore() { return m_pEngineCore; }
     EditorLayoutManager_ImGui* GetLayoutManager() { return m_pLayoutManager; }
     Vector2 GetEditorWindowCenterPosition();
-    Vector2 GetGameWindowSize() { return m_GameWindowSize; }
     bool IsGameWindowFocused() { return m_GameWindowFocused; }
     EditorLogWindow_ImGui* GetLogWindow() { return m_pLogWindow; }
+    Vector2 GetEditorWindowPos() { return m_EditorWindowPos; }
+    Vector2 GetEditorWindowSize() { return m_EditorWindowSize; }
+    Vector2 GetGameWindowPos() { return m_GameWindowPos; }
+    Vector2 GetGameWindowSize() { return m_GameWindowSize; }
 
     void StoreCurrentUndoStackSize();
     unsigned int GetUndoStackDepthAtLastSave() { return m_UndoStackDepthAtLastSave; }

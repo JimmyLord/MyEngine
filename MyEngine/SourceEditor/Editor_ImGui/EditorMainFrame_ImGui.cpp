@@ -1607,6 +1607,12 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                         ImGui::EndDragDropTarget();
                     }
                 }
+
+                // Allow the current editor interface to add some overlay items to the window.
+                {
+                    ImGui::SetCursorPos( ImVec2( 8, 28 ) );
+                    m_pEngineCore->GetCurrentEditorInterface()->AddImGuiOverlayItems();
+                }
             }
         }
         else
