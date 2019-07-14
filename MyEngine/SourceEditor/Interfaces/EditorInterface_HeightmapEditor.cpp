@@ -203,6 +203,20 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     ComponentRenderable* pRenderable;
 
+    // TEST: Draw the heightmap with the brush circle projected on it.
+    {
+        bool wasVisible = m_pHeightmap->IsVisible();
+        m_pHeightmap->SetVisible( true );
+
+        ComponentCamera* pCamera = m_pEngineCore->GetEditorState()->GetEditorCamera();
+        MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
+        MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
+
+        g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, nullptr );
+
+        m_pHeightmap->SetVisible( wasVisible );
+    }
+
     // TEST: Draw a circle at the mouse position.
     pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
     {
@@ -220,7 +234,9 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         //float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldPos).Length();
         //m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
 
+        m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
         g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
+        m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
     }
 
     // TEST: Draw another circle at the mouse position for the height desired by the level tool.
@@ -237,7 +253,9 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
+        m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
         g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_p2ndPoint, nullptr );
+        m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
     }
     else
     {
@@ -346,6 +364,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
 void EditorInterface_HeightmapEditor::AddImGuiOverlayItems()
 {
+    ImGui::Text( "Editing Heightmap: %s", m_pHeightmap->GetGameObject()->GetName() );
     if( m_pJob_CalculateNormals && m_pJob_CalculateNormals->IsQueued() )
     {
         ImGui::Text( "Recalculating normals." );

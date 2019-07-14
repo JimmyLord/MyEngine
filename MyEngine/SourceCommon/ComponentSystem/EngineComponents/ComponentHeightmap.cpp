@@ -274,6 +274,8 @@ ComponentHeightmap& ComponentHeightmap::operator=(const ComponentHeightmap& othe
 
 void ComponentHeightmap::OnLoad()
 {
+    ComponentBase::OnLoad();
+
     CreateHeightmap();
 }
 
@@ -287,7 +289,7 @@ void ComponentHeightmap::RegisterCallbacks()
 
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentHeightmap, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentHeightmap, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentHeightmap, Draw );
+        MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentHeightmap, Draw ); //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentHeightmap, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentHeightmap, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentHeightmap, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentHeightmap, OnKeys );

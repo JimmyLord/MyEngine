@@ -3132,6 +3132,24 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMat
     }
 }
 
+void ComponentSystemManager::DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* pMatView, ComponentRenderable* pComponent, ShaderGroup* pShaderOverride)
+{
+    MyAssert( pComponent != nullptr );
+
+    if( pComponent )
+    {
+        pComponent->Draw( pMatProj, pMatView );
+
+        ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
+
+        ComponentBase* pCallbackComponent = (ComponentBase*)pCallbackStruct->pObj;
+        if( pCallbackComponent != nullptr && pCallbackStruct->pFunc != nullptr )
+        {
+            (pCallbackComponent->*pCallbackStruct->pFunc)( nullptr, pMatProj, pMatView, pShaderOverride );
+        }
+    }
+}
+
 #if MYFW_EDITOR
 void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialCheck)
 {

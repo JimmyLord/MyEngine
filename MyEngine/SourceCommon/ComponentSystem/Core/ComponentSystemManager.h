@@ -13,6 +13,7 @@
 #include "SceneHandler.h"
 #include "ComponentSystem/BaseComponents/ComponentBase.h"
 
+class ComponentRenderable;
 class ComponentSystemManager;
 class ComponentTypeManager;
 class PrefabManager;
@@ -319,6 +320,7 @@ public:
 public:
 #if MYFW_EDITOR
     void DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMatView, GameObject* pObject, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
+    void DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* pMatView, ComponentRenderable* pComponent, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
 
 #if MYFW_EDITOR
     void CheckForUpdatedDataSourceFiles(bool initialCheck);
