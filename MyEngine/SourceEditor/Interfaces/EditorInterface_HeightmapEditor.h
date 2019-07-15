@@ -21,9 +21,9 @@ class EditorInterface_HeightmapEditor : public EditorInterface
 public:
     enum MaterialTypes
     {
-        Mat_Lines, // Drawn by box2d debug draw code.
-        Mat_Points,
-        Mat_SelectedPoint,
+        Mat_Point1,
+        Mat_Point2,
+        Mat_BrushOverlay,
         Mat_NumMaterials,
     };
 

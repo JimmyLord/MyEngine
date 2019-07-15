@@ -37,6 +37,7 @@ EditorPrefs::EditorPrefs()
     m_View_EditorCamDeferred = false;
     m_View_SelectedObjects_ShowWireframe = true;
     m_View_SelectedObjects_ShowEffect = true;
+    m_Internal_ShowSpecialEffectsForSelectedItems = true;
 
     m_Aspect_CurrentGameWindowAspectRatio = GLView_Full;
 

@@ -320,7 +320,7 @@ public:
 public:
 #if MYFW_EDITOR
     void DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMatView, GameObject* pObject, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
-    void DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* pMatView, ComponentRenderable* pComponent, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
+    void DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* pMatView, ComponentRenderable* pComponent, MaterialDefinition** ppMaterialOverrides, uint32 numMaterialOverrides);
 
 #if MYFW_EDITOR
     void CheckForUpdatedDataSourceFiles(bool initialCheck);

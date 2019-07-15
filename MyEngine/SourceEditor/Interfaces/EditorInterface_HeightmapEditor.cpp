@@ -104,12 +104,12 @@ void EditorInterface_HeightmapEditor::Initialize()
 {
     MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
 
-    if( m_pMaterials[Mat_Lines] == nullptr )
-        m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
-    if( m_pMaterials[Mat_Points] == nullptr )
-        m_pMaterials[Mat_Points] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
-    if( m_pMaterials[Mat_SelectedPoint] == nullptr )
-        m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
+    if( m_pMaterials[Mat_Point1] == nullptr )
+        m_pMaterials[Mat_Point1] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
+    if( m_pMaterials[Mat_Point2] == nullptr )
+        m_pMaterials[Mat_Point2] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
+    if( m_pMaterials[Mat_BrushOverlay] == nullptr )
+        m_pMaterials[Mat_BrushOverlay] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
 }
 
 bool EditorInterface_HeightmapEditor::IsBusy()
@@ -125,6 +125,9 @@ bool EditorInterface_HeightmapEditor::IsBusy()
 
 void EditorInterface_HeightmapEditor::OnActivated()
 {
+    // Prevent any overlays on selected items.
+    m_pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( false );
+
     // Create a gameobject for the points that we'll draw.
     if( m_pPoint == nullptr )
     {
@@ -139,7 +142,7 @@ void EditorInterface_HeightmapEditor::OnActivated()
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( m_pMaterials[Mat_Points], 0 );
+            pComponentMesh->SetMaterial( m_pMaterials[Mat_Point1], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh( g_pComponentSystemManager->GetEngineCore() );
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
@@ -164,7 +167,7 @@ void EditorInterface_HeightmapEditor::OnActivated()
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( m_pMaterials[Mat_Lines], 0 );
+            pComponentMesh->SetMaterial( m_pMaterials[Mat_Point2], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh( g_pComponentSystemManager->GetEngineCore() );
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
@@ -179,6 +182,9 @@ void EditorInterface_HeightmapEditor::OnActivated()
 
 void EditorInterface_HeightmapEditor::OnDeactivated()
 {
+    // Allow overlays on selected items.
+    m_pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( true );
+
     ComponentRenderable* pRenderable;
 
     pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
@@ -212,7 +218,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
-        g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, nullptr );
+        g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, &m_pMaterials[Mat_BrushOverlay], 1 );
 
         m_pHeightmap->SetVisible( wasVisible );
     }

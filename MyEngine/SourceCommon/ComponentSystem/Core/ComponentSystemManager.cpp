@@ -3132,9 +3132,10 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMat
     }
 }
 
-void ComponentSystemManager::DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* pMatView, ComponentRenderable* pComponent, ShaderGroup* pShaderOverride)
+void ComponentSystemManager::DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* pMatView, ComponentRenderable* pComponent, MaterialDefinition** ppMaterialOverrides, uint32 numMaterialOverrides)
 {
     MyAssert( pComponent != nullptr );
+    MyAssert( numMaterialOverrides >= 1 && numMaterialOverrides <= 4 );
 
     if( pComponent )
     {
@@ -3143,9 +3144,31 @@ void ComponentSystemManager::DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* p
         ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
 
         ComponentBase* pCallbackComponent = (ComponentBase*)pCallbackStruct->pObj;
-        if( pCallbackComponent != nullptr && pCallbackStruct->pFunc != nullptr )
+        MyAssert( pCallbackComponent == pComponent );
+        if( pCallbackStruct->pFunc != nullptr )
         {
-            (pCallbackComponent->*pCallbackStruct->pFunc)( nullptr, pMatProj, pMatView, pShaderOverride );
+            // Backup materials and set new ones.
+            MaterialDefinition* pOldMaterials[4];
+            for( uint32 i=0; i<4; i++ )
+            {
+                pOldMaterials[i] = pComponent->GetMaterial( i );
+                if( i >= numMaterialOverrides )
+                {
+                    pComponent->SetMaterial( ppMaterialOverrides[0], i );
+                }
+                else
+                {
+                    pComponent->SetMaterial( ppMaterialOverrides[i], i );
+                }
+            }
+
+            (pComponent->*pCallbackStruct->pFunc)( nullptr, pMatProj, pMatView, nullptr );
+
+            // Restore Materials.
+            for( uint32 i=0; i<4; i++ )
+            {
+                pComponent->SetMaterial( pOldMaterials[i], i );
+            }
         }
     }
 }

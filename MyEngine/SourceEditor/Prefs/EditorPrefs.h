@@ -75,6 +75,7 @@ protected:
     bool m_View_EditorCamDeferred;
     bool m_View_SelectedObjects_ShowWireframe;
     bool m_View_SelectedObjects_ShowEffect;
+    bool m_Internal_ShowSpecialEffectsForSelectedItems;
     GLViewTypes m_Aspect_CurrentGameWindowAspectRatio;
     GridSettings m_GridSettings;
     bool m_Mode_SwitchFocusOnPlayStop;
@@ -118,6 +119,7 @@ public:
     bool Get_View_EditorCamDeferred() { return m_View_EditorCamDeferred; }
     bool Get_View_SelectedObjects_ShowWireframe() { return m_View_SelectedObjects_ShowWireframe; }
     bool Get_View_SelectedObjects_ShowEffect() { return m_View_SelectedObjects_ShowEffect; }
+    bool Get_Internal_ShowSpecialEffectsForSelectedItems() { return m_Internal_ShowSpecialEffectsForSelectedItems; }
     GLViewTypes Get_Aspect_GameAspectRatio() { return m_Aspect_CurrentGameWindowAspectRatio; }
     bool Get_Grid_Visible() { return m_GridSettings.visible; }
     bool Get_Grid_SnapEnabled() { return m_GridSettings.snapEnabled; }
@@ -146,6 +148,7 @@ public:
     void Toggle_View_EditorCamDeferred() { m_View_EditorCamDeferred = !m_View_EditorCamDeferred; }
     void Toggle_View_SelectedObjects_ShowWireframe() { m_View_SelectedObjects_ShowWireframe = !m_View_SelectedObjects_ShowWireframe; }
     void Toggle_View_SelectedObjects_ShowEffect() { m_View_SelectedObjects_ShowEffect = !m_View_SelectedObjects_ShowEffect; }
+    void Set_Internal_ShowSpecialEffectsForSelectedItems(bool value) { m_Internal_ShowSpecialEffectsForSelectedItems = value; }
     void Set_Aspect_GameAspectRatio(GLViewTypes newaspect) { m_Aspect_CurrentGameWindowAspectRatio = newaspect; }
     void Toggle_Grid_Visible();
     void Toggle_Grid_SnapEnabled();

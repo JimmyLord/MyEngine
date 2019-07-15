@@ -44,17 +44,17 @@ void EditorInterface::OnDeactivated()
 void EditorInterface::Tick(float deltaTime)
 {
     // Force compile of m_pShader_TintColor (0 lights, 4 bones) to avoid stall on first click in mouse picker code.
-    if( g_pEngineCore->GetShader_TintColor() )
+    if( m_pEngineCore->GetShader_TintColor() )
     {
         Shader_Base* pShader;
 
         // No lights, 4 bones. Used by mouse picker.
-        pShader = (Shader_Base*)g_pEngineCore->GetShader_TintColor()->GlobalPass( 0, 4 );
+        pShader = (Shader_Base*)m_pEngineCore->GetShader_TintColor()->GlobalPass( 0, 4 );
         if( pShader->m_Initialized == false )
             pShader->CompileShader();
 
         // 4 lights, 0 bones. Used by transform gizmo.
-        pShader = (Shader_Base*)g_pEngineCore->GetShader_TintColor()->GlobalPass( 4, 0 );
+        pShader = (Shader_Base*)m_pEngineCore->GetShader_TintColor()->GlobalPass( 4, 0 );
         if( pShader->m_Initialized == false )
             pShader->CompileShader();
     }
@@ -73,7 +73,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
 {
     MyAssert( canvasid == 1 );
 
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
     MyAssert( pEditorState->m_pEditorCamera );
     if( pEditorState->m_pEditorCamera )
@@ -87,62 +87,66 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
             {
                 pCamera->OnDrawFrame();
 
-                if( pCamera->m_LayersToRender & Layer_MainScene ) // Only draw selected objects over "main" layer.
+                // Draw overlays for selected objects in editor view.
+                if( m_pEngineCore->GetEditorPrefs()->Get_Internal_ShowSpecialEffectsForSelectedItems() )
                 {
-                    //g_pRenderer->SetDepthTestEnabled( false );
-                    g_pRenderer->SetCullingEnabled( false );
-                    g_pRenderer->SetDepthFunction( MyRE::DepthFunc_LEqual );
-
-                    // Draw selected objects in editor view.
-                    ShaderGroup* pShaderOverride = g_pEngineCore->GetShader_SelectedObjects();
-
-                    Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
-                    if( pShader->Activate() )
+                    // Only draw selected objects over "main" layer.
+                    if( pCamera->m_LayersToRender & Layer_MainScene )
                     {
-                        for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                        //g_pRenderer->SetDepthTestEnabled( false );
+                        g_pRenderer->SetCullingEnabled( false );
+                        g_pRenderer->SetDepthFunction( MyRE::DepthFunc_LEqual );
+
+                        ShaderGroup* pShaderOverride = m_pEngineCore->GetShader_SelectedObjects();
+
+                        Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
+                        if( pShader->Activate() )
                         {
-                            // Draw an outline around the selected object.
-                            if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() )
+                            for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                             {
-                                g_pRenderer->SetBlendEnabled( true );
-                                g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
+                                // Draw an outline around the selected object.
+                                if( m_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() )
+                                {
+                                    g_pRenderer->SetBlendEnabled( true );
+                                    g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
-                                g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
-                                g_pRenderer->SetPolygonOffset( true, -0.5f, -0.5f );
-                                pShader->ProgramTint( ColorByte(255,255,255,50) );
-                                g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matProj,
-                                                                             &pCamera->m_Camera3D.m_matView,
-                                                                             pEditorState->m_pSelectedObjects[i],
-                                                                             pShaderOverride );
+                                    g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
+                                    g_pRenderer->SetPolygonOffset( true, -0.5f, -0.5f );
+                                    pShader->ProgramTint( ColorByte(255,255,255,50) );
+                                    g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matProj,
+                                                                                 &pCamera->m_Camera3D.m_matView,
+                                                                                 pEditorState->m_pSelectedObjects[i],
+                                                                                 pShaderOverride );
 
-                                g_pRenderer->SetPolygonOffset( false, 0, 0 );
-                                g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
-                            }
+                                    g_pRenderer->SetPolygonOffset( false, 0, 0 );
+                                    g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Fill );
+                                }
                             
-                            // Draw the entire selected shape with the shader.
-                            if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowEffect() )
-                            {
-                                g_pRenderer->SetBlendEnabled( true );
-                                g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
+                                // Draw the entire selected shape with the shader.
+                                if( m_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowEffect() )
+                                {
+                                    g_pRenderer->SetBlendEnabled( true );
+                                    g_pRenderer->SetBlendFunc( MyRE::BlendFactor_SrcAlpha, MyRE::BlendFactor_OneMinusSrcAlpha );
 
-                                pShader->ProgramMaterialProperties( nullptr, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
-                                pShader->ProgramTransforms( nullptr, nullptr, nullptr );
-                                pShader->ProgramTint( ColorByte(0,0,0,0) );
-                                g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matProj,
-                                                                             &pCamera->m_Camera3D.m_matView,
-                                                                             pEditorState->m_pSelectedObjects[i],
-                                                                             pShaderOverride );
+                                    pShader->ProgramMaterialProperties( nullptr, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
+                                    pShader->ProgramTransforms( nullptr, nullptr, nullptr );
+                                    pShader->ProgramTint( ColorByte(0,0,0,0) );
+                                    g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matProj,
+                                                                                 &pCamera->m_Camera3D.m_matView,
+                                                                                 pEditorState->m_pSelectedObjects[i],
+                                                                                 pShaderOverride );
+                                }
                             }
                         }
+
+                        pShader->DeactivateShader( nullptr, true );
+
+                        // Always disable blending.
+                        g_pRenderer->SetBlendEnabled( false );
+
+                        g_pRenderer->SetCullingEnabled( true );
+                        g_pRenderer->SetDepthTestEnabled( true );
                     }
-
-                    pShader->DeactivateShader( nullptr, true );
-
-                    // Always disable blending.
-                    g_pRenderer->SetBlendEnabled( false );
-
-                    g_pRenderer->SetCullingEnabled( true );
-                    g_pRenderer->SetDepthTestEnabled( true );
                 }
             }
 
@@ -254,14 +258,14 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
     // Draw our mouse picker frame over the screen.
     if( g_pEngineCore->GetDebug_DrawMousePickerFBO() && g_GLCanvasIDActive == 1 )
     {
-        MySprite* pDebugQuad = g_pEngineCore->GetSprite_DebugQuad();
+        MySprite* pDebugQuad = m_pEngineCore->GetSprite_DebugQuad();
 
         if( pDebugQuad )
         {
             BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
             pDebugQuad->CreateInPlace( pBufferManager, "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
-            g_pEngineCore->GetMaterial_MousePicker()->SetTextureColor( pEditorState->m_pMousePickerFBO->GetColorTexture( 0 ) );
-            pDebugQuad->SetMaterial( g_pEngineCore->GetMaterial_MousePicker() );
+            m_pEngineCore->GetMaterial_MousePicker()->SetTextureColor( pEditorState->m_pMousePickerFBO->GetColorTexture( 0 ) );
+            pDebugQuad->SetMaterial( m_pEngineCore->GetMaterial_MousePicker() );
             pDebugQuad->Draw( nullptr, nullptr, nullptr );
         }
     }
@@ -269,7 +273,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
 
 void EditorInterface::SetModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
     if( keyAction == GCBA_Down )
     {
@@ -332,7 +336,7 @@ void EditorInterface::SetModifierKeyStates(int keyAction, int keyCode, int mouse
 
 void EditorInterface::ClearModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
     if( keyAction == GCBA_Up )
     {
@@ -383,7 +387,7 @@ void EditorInterface::ClearModifierKeyStates(int keyAction, int keyCode, int mou
 
 bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
     ComponentCamera* pCamera = pEditorState->GetEditorCamera();
     MyMatrix startCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
@@ -410,7 +414,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
                 speed *= 5;
 
             if( dir.LengthSquared() > 0 )
-                matCamera->TranslatePreRotScale( dir * speed * 1/60.0f); //* g_pEngineCore->GetTimePassedUnpausedLastFrame() );
+                matCamera->TranslatePreRotScale( dir * speed * 1/60.0f); //* m_pEngineCore->GetTimePassedUnpausedLastFrame() );
         }
 
         // If left mouse down, reset the transform gizmo tool.
@@ -590,7 +594,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
                 speed *= 5;
 
             if( dir.LengthSquared() > 0 )
-                matCamera->TranslatePreRotScale( dir * speed * g_pEngineCore->GetTimePassedUnpausedLastFrame() );
+                matCamera->TranslatePreRotScale( dir * speed * m_pEngineCore->GetTimePassedUnpausedLastFrame() );
         }
 
         pCamera->m_pComponentTransform->UpdateLocalSRT();
@@ -620,7 +624,7 @@ bool EditorInterface::ExecuteHotkeyAction(HotKeyAction action)
 
 void EditorInterface::RenderObjectIDsToFBO()
 {
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return;
@@ -643,7 +647,7 @@ void EditorInterface::RenderObjectIDsToFBO()
         pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
         if( pCamera )
         {
-            g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, g_pEngineCore->GetShader_TintColor() );
+            g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, m_pEngineCore->GetShader_TintColor() );
             g_pRenderer->ClearBuffers( false, true, false );
         }
     }
@@ -655,7 +659,7 @@ void EditorInterface::RenderObjectIDsToFBO()
 
 unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool createNewBitmap, bool includeTransformGizmo)
 {
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return 0;
@@ -709,7 +713,7 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
 
 GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bool createNewBitmap, bool includeTransformGizmo)
 {
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
     unsigned int id = GetIDAtPixel( x, y, createNewBitmap, includeTransformGizmo );
 
@@ -757,7 +761,7 @@ GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bo
 
 void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey)
 {
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    EditorState* pEditorState = m_pEngineCore->GetEditorState();
     unsigned int fboWidth = pEditorState->m_pMousePickerFBO->GetWidth();
     unsigned int fboHeight = pEditorState->m_pMousePickerFBO->GetHeight();
 
