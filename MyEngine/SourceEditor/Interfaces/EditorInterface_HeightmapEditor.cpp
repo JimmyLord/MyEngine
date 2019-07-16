@@ -109,7 +109,7 @@ void EditorInterface_HeightmapEditor::Initialize()
     if( m_pMaterials[Mat_Point2] == nullptr )
         m_pMaterials[Mat_Point2] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
     if( m_pMaterials[Mat_BrushOverlay] == nullptr )
-        m_pMaterials[Mat_BrushOverlay] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
+        m_pMaterials[Mat_BrushOverlay] = pMaterialManager->LoadMaterial( "Data/DataEngine/Materials/HeightmapBrush.mymaterial" );
 }
 
 bool EditorInterface_HeightmapEditor::IsBusy()
@@ -211,6 +211,9 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     // TEST: Draw the heightmap with the brush circle projected on it.
     {
+        MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+        Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
+
         bool wasVisible = m_pHeightmap->IsVisible();
         m_pHeightmap->SetVisible( true );
 
@@ -218,13 +221,20 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
-        g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, &m_pMaterials[Mat_BrushOverlay], 1 );
+        MaterialDefinition* pMaterial = m_pMaterials[Mat_BrushOverlay];
+        Vector2 scale = Vector2( m_BrushRadius / m_pHeightmap->m_Size.x, m_BrushRadius / m_pHeightmap->m_Size.y ) * 2;
+        Vector2 size = m_pHeightmap->m_Size;
+        pMaterial->SetUVScale( 1.0f/scale );
+        pMaterial->SetUVOffset( Vector2( -localSpacePoint.x/size.x + scale.x/2.0f, -localSpacePoint.z/size.y + scale.y/2.0f ) );
+        m_pEngineCore->GetRenderer()->SetTextureWrapModes( pMaterial->GetTextureColor(), MyRE::WrapMode_Clamp, MyRE::WrapMode_Clamp );
+        g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, &pMaterial, 1 );
 
         m_pHeightmap->SetVisible( wasVisible );
     }
 
     // TEST: Draw a circle at the mouse position.
     pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+    if( false )
     {
         pRenderable->SetVisible( true );
 

@@ -1,0 +1,14 @@
+{
+	"Material":	{
+		"Name":	"HeightmapBrush",
+		"Shader":	"Data/DataEngine/Shaders/HeightmapBrush.glsl",
+		"TexColor":	"Data/DataEngine/Textures/HeightmapBrush.png",
+		"ColorAmbient":	[1, 1, 1, 1],
+		"ColorDiffuse":	[1, 1, 1, 1],
+		"ColorSpecular":	[1, 1, 1, 1],
+		"Shininess":	200,
+		"Blend":	2,
+		"UVScale":	[1, 1],
+		"UVOffset":	[0, 0]
+	}
+}

@@ -492,7 +492,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
     Vector2Int vertCount = m_VertCount;
     Vector3 bottomLeftPos( 0, 0, 0 ); // Collision methods will fail if this changes.
     Vector2 uvStart( 0, 0 );
-    Vector2 uvRange( 0, 0 );
+    Vector2 uvRange( 1, 1 );
     bool createTriangles = (m_GLPrimitiveType == MyRE::PrimitiveType_Points) ? false : true;
 
     // Calculate the number of triangles, vertices and indices.
