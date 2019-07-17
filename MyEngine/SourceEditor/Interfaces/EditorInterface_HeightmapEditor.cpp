@@ -59,7 +59,6 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
     m_CurrentToolState = ToolState::Idle;
 
     m_pPoint = nullptr;
-    m_p2ndPoint = nullptr;
 
     m_PositionMouseWentDown.Set( 0, 0 );
 
@@ -92,7 +91,6 @@ EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
     SAFE_DELETE( m_pJob_CalculateNormals );
 
     SAFE_DELETE( m_pPoint );
-    SAFE_DELETE( m_p2ndPoint );
 
     for( int i=0; i<Mat_NumMaterials; i++ )
     {
@@ -104,10 +102,8 @@ void EditorInterface_HeightmapEditor::Initialize()
 {
     MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
 
-    if( m_pMaterials[Mat_Point1] == nullptr )
-        m_pMaterials[Mat_Point1] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
-    if( m_pMaterials[Mat_Point2] == nullptr )
-        m_pMaterials[Mat_Point2] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
+    if( m_pMaterials[Mat_Point] == nullptr )
+        m_pMaterials[Mat_Point] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
     if( m_pMaterials[Mat_BrushOverlay] == nullptr )
         m_pMaterials[Mat_BrushOverlay] = pMaterialManager->LoadMaterial( "Data/DataEngine/Materials/HeightmapBrush.mymaterial" );
 }
@@ -128,7 +124,7 @@ void EditorInterface_HeightmapEditor::OnActivated()
     // Prevent any overlays on selected items.
     m_pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( false );
 
-    // Create a gameobject for the points that we'll draw.
+    // Create a gameobject for the point that we'll draw.
     if( m_pPoint == nullptr )
     {
         GameObject* pGameObject;
@@ -142,7 +138,7 @@ void EditorInterface_HeightmapEditor::OnActivated()
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( m_pMaterials[Mat_Point1], 0 );
+            pComponentMesh->SetMaterial( m_pMaterials[Mat_Point], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh( g_pComponentSystemManager->GetEngineCore() );
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
@@ -150,33 +146,8 @@ void EditorInterface_HeightmapEditor::OnActivated()
 
             pComponentMesh->OnLoad();
         }
-        
+
         m_pPoint = pGameObject;
-    }
-
-    if( m_p2ndPoint == nullptr )
-    {
-        GameObject* pGameObject;
-        ComponentMesh* pComponentMesh;
-
-        pGameObject = g_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
-        pGameObject->SetName( "Heightmap editor - point" );
-        pGameObject->GetTransform()->SetLocalRotation( Vector3( -90, 0, 0 ) );
-
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects, g_pComponentSystemManager );
-        if( pComponentMesh )
-        {
-            pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( m_pMaterials[Mat_Point2], 0 );
-            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
-            pComponentMesh->m_pMesh = MyNew MyMesh( g_pComponentSystemManager->GetEngineCore() );
-            pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
-
-            pComponentMesh->OnLoad();
-        }
-
-        m_p2ndPoint = pGameObject;
     }
 }
 
@@ -188,9 +159,6 @@ void EditorInterface_HeightmapEditor::OnDeactivated()
     ComponentRenderable* pRenderable;
 
     pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-    pRenderable->SetVisible( false );
-
-    pRenderable = (ComponentRenderable*)m_p2ndPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
     pRenderable->SetVisible( false );
 }
 
@@ -209,7 +177,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     ComponentRenderable* pRenderable;
 
-    // TEST: Draw the heightmap with the brush circle projected on it.
+    // Draw the heightmap with the brush circle projected on it.
     {
         MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
         Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
@@ -222,55 +190,32 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
         MaterialDefinition* pMaterial = m_pMaterials[Mat_BrushOverlay];
-        Vector2 scale = Vector2( m_BrushRadius / m_pHeightmap->m_Size.x, m_BrushRadius / m_pHeightmap->m_Size.y ) * 2;
         Vector2 size = m_pHeightmap->m_Size;
+        Vector2 scale = Vector2( m_BrushRadius, m_BrushRadius ) * 2;
         pMaterial->SetUVScale( 1.0f/scale );
-        pMaterial->SetUVOffset( Vector2( -localSpacePoint.x/size.x + scale.x/2.0f, -localSpacePoint.z/size.y + scale.y/2.0f ) );
+        pMaterial->SetUVOffset( Vector2( -localSpacePoint.x + scale.x/2.0f, -localSpacePoint.z + scale.y/2.0f ) );
         m_pEngineCore->GetRenderer()->SetTextureWrapModes( pMaterial->GetTextureColor(), MyRE::WrapMode_Clamp, MyRE::WrapMode_Clamp );
         g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, &pMaterial, 1 );
 
         m_pHeightmap->SetVisible( wasVisible );
     }
 
-    // TEST: Draw a circle at the mouse position.
+    // Draw a circle at the mouse position for the height desired by the level tool.
     pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-    if( false )
-    {
-        pRenderable->SetVisible( true );
-
-        Vector3 worldPos = m_WorldSpaceMousePosition;
-
-        m_pPoint->GetTransform()->SetLocalPosition( worldPos );
-        //m_pPoint->GetTransform()->SetLocalRotation( Vector3( -90, 0, 0 ) );
-
-        ComponentCamera* pCamera = m_pEngineCore->GetEditorState()->GetEditorCamera();
-        MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
-        MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
-
-        //float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldPos).Length();
-        //m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
-
-        m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
-        g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
-        m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
-    }
-
-    // TEST: Draw another circle at the mouse position for the height desired by the level tool.
-    pRenderable = (ComponentRenderable*)m_p2ndPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
     if( m_CurrentTool == Tool::Level && m_LevelUseBrushHeight == false )
     {
         pRenderable->SetVisible( true );
 
         Vector3 worldPos = m_WorldSpaceMousePositionAtDesiredHeight;
 
-        m_p2ndPoint->GetTransform()->SetLocalPosition( worldPos );
+        m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
         ComponentCamera* pCamera = m_pEngineCore->GetEditorState()->GetEditorCamera();
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
         m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
-        g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_p2ndPoint, nullptr );
+        g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
         m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
     }
     else

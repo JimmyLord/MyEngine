@@ -21,8 +21,7 @@ class EditorInterface_HeightmapEditor : public EditorInterface
 public:
     enum MaterialTypes
     {
-        Mat_Point1,
-        Mat_Point2,
+        Mat_Point,
         Mat_BrushOverlay,
         Mat_NumMaterials,
     };
@@ -48,7 +47,6 @@ protected:
     ToolState m_CurrentToolState;
 
     GameObject* m_pPoint;
-    GameObject* m_p2ndPoint;
     int m_IndexOfPointBeingDragged;
     Vector2 m_PositionMouseWentDown;
     bool m_NewMousePress;

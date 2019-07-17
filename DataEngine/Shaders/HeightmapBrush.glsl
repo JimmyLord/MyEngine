@@ -10,7 +10,6 @@ varying vec2 v_UVCoord;
 #ifdef VertexShader
 
 attribute vec4 a_Position;
-attribute vec2 a_UVCoord;
 
 uniform mat4 u_WorldViewProj;
 uniform vec2 u_UVScale;
@@ -20,7 +19,7 @@ void main()
 {
     gl_Position = u_WorldViewProj * a_Position;
 
-    v_UVCoord = (a_UVCoord + u_UVOffset) * u_UVScale;
+    v_UVCoord = (a_Position.xz + u_UVOffset) * u_UVScale;
 }
 
 #endif
