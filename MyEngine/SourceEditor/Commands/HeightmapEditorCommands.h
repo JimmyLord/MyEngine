@@ -13,6 +13,7 @@
 #include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
 
 class EditorCommand_Heightmap_Raise;
+class EditorCommand_Heightmap_FullBackup;
 
 //====================================================================================================
 // EditorCommand_Heightmap_Raise
@@ -30,6 +31,28 @@ protected:
 public:
     EditorCommand_Heightmap_Raise(ComponentHeightmap* pHeightmap, Vector3 position, float amount, float radius, float softness);
     virtual ~EditorCommand_Heightmap_Raise();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+// EditorCommand_Heightmap_FullBackup
+//====================================================================================================
+
+class EditorCommand_Heightmap_FullBackup : public EditorCommand
+{
+protected:
+    ComponentHeightmap* m_pHeightmap;
+    float* m_PreviousHeights;
+    float* m_FinalHeights;
+
+public:
+    EditorCommand_Heightmap_FullBackup(ComponentHeightmap* pHeightmap);
+    virtual ~EditorCommand_Heightmap_FullBackup();
+
+    void CopyInFinalHeights();
 
     virtual void Do();
     virtual void Undo();

@@ -414,6 +414,10 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
             if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
             {
+                MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+                Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
+                ApplyCurrentTool( localSpacePoint, mouseAction );
+
                 // Wait for any outstanding jobs to complete.
                 m_pEngineCore->GetManagers()->GetJobManager()->WaitForJobToComplete( m_pJob_CalculateNormals );
 
@@ -511,6 +515,10 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
     case Tool::Raise:
     case Tool::Lower:
         {
+            // Ignore mouse up's.
+            if( mouseAction == GCBA_Up )
+                break;
+
             float amount = m_RaiseAmount;
             if( m_CurrentTool == Tool::Lower )
                 amount *= -1;
@@ -532,6 +540,18 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
 
     case Tool::Level:
         {
+            if( mouseAction == GCBA_Down )
+            {
+                EditorCommand_Heightmap_FullBackup* pCommand = MyNew EditorCommand_Heightmap_FullBackup( m_pHeightmap );
+                m_pEngineCore->GetCommandStack()->Add( pCommand, false );
+            }
+            if( mouseAction == GCBA_Up )
+            {
+                EditorCommand_Heightmap_FullBackup* pCommand = (EditorCommand_Heightmap_FullBackup*)m_pEngineCore->GetCommandStack()->GetUndoCommandAtIndex( m_pEngineCore->GetCommandStack()->GetUndoStackSize() - 1 );
+                pCommand->CopyInFinalHeights();
+                break;
+            }
+
             float height = m_LevelUseBrushHeight ? mouseIntersectionPoint.y : m_LevelHeight;
             Vector3 point = m_LevelUseBrushHeight ? mouseIntersectionPoint : m_WorldSpaceMousePositionAtDesiredHeight;
 

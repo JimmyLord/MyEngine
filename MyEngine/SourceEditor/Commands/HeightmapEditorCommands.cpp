@@ -60,3 +60,75 @@ EditorCommand* EditorCommand_Heightmap_Raise::Repeat()
 
     return nullptr;
 }
+
+//====================================================================================================
+// EditorCommand_Heightmap_FullBackup
+//====================================================================================================
+
+EditorCommand_Heightmap_FullBackup::EditorCommand_Heightmap_FullBackup(ComponentHeightmap* pHeightmap)
+{
+    m_Name = "EditorCommand_Heightmap_FullBackup";
+
+    MyAssert( pHeightmap != nullptr );
+
+    m_pHeightmap = pHeightmap;
+    uint32 numVerts = m_pHeightmap->m_VertCount.x * m_pHeightmap->m_VertCount.y;
+    m_PreviousHeights = new float[numVerts];
+    for( uint32 i=0; i<numVerts; i++ )
+    {
+        m_PreviousHeights[i] = m_pHeightmap->m_Heights[i];
+    }
+    m_FinalHeights = new float[numVerts];
+}
+
+EditorCommand_Heightmap_FullBackup::~EditorCommand_Heightmap_FullBackup()
+{
+    delete[] m_PreviousHeights;
+    delete[] m_FinalHeights;
+}
+
+void EditorCommand_Heightmap_FullBackup::CopyInFinalHeights()
+{
+    uint32 numVerts = m_pHeightmap->m_VertCount.x * m_pHeightmap->m_VertCount.y;
+    for( uint32 i=0; i<numVerts; i++ )
+    {
+        m_FinalHeights[i] = m_pHeightmap->m_Heights[i];
+    }
+}
+
+void EditorCommand_Heightmap_FullBackup::Do()
+{
+    uint32 numVerts = m_pHeightmap->m_VertCount.x * m_pHeightmap->m_VertCount.y;
+    for( uint32 i=0; i<numVerts; i++ )
+    {
+        m_pHeightmap->m_Heights[i] = m_FinalHeights[i];
+    }
+
+    // Regenerate the heightmap when redoing the last 'raise' command in the clump.
+    //if( this->m_LinkedToNextCommandOnRedoStack == false )
+    {
+        m_pHeightmap->GenerateHeightmapMesh( false, false, true );
+    }
+}
+
+void EditorCommand_Heightmap_FullBackup::Undo()
+{
+    uint32 numVerts = m_pHeightmap->m_VertCount.x * m_pHeightmap->m_VertCount.y;
+    for( uint32 i=0; i<numVerts; i++ )
+    {
+        m_pHeightmap->m_Heights[i] = m_PreviousHeights[i];
+    }
+
+    // Regenerate the heightmap when undoing the last 'raise' command in the clump.
+    //if( this->m_LinkedToPreviousCommandOnUndoStack == false )
+    {
+        m_pHeightmap->GenerateHeightmapMesh( false, false, true );
+    }
+}
+
+EditorCommand* EditorCommand_Heightmap_FullBackup::Repeat()
+{
+    // Do nothing.
+
+    return nullptr;
+}
