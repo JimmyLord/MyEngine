@@ -76,6 +76,9 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
     m_HeightmapNormalsNeedRebuilding = false;
     m_pJob_CalculateNormals = nullptr;
 
+    // Warnings.
+    m_ShowWarning_CloseEditor = false;
+
     // Editor settings.
     m_BrushSoftness = 0.1f;
     m_BrushRadius = 1.0f;
@@ -282,53 +285,58 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     if( ImGui::Button( "Save" ) )
     {
-        if( m_pHeightmap->m_pHeightmapFile )
-        {
-            m_pHeightmap->SaveAsHeightmap( m_pHeightmap->m_pHeightmapFile->GetFullPath() );
-        }
-        else
-        {
-            const char* path = FileSaveDialog( "Data\\Meshes\\", "Heightmap Files\0*.myheightmap\0All\0*.*\0" );
-            if( path[0] != 0 )
-            {
-                int len = (int)strlen( path );
-
-                // Append '.myvisualscript' to end of filename if it wasn't already there.
-                char fullPath[MAX_PATH];
-                if( strcmp( &path[len-12], ".myheightmap" ) == 0 )
-                {
-                    strcpy_s( fullPath, MAX_PATH, path );
-                }
-                else
-                {
-                    sprintf_s( fullPath, MAX_PATH, "%s.myheightmap", path );
-                }
-
-                // Only set the filename and save if the path is relative.
-                const char* relativePath = ::GetRelativePath( path );
-                if( relativePath )
-                {
-                    m_pHeightmap->SaveAsHeightmap( relativePath );
-                    MyFileInfo* pFileInfo = m_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativePath, m_pHeightmap->GetSceneID(), nullptr, false );
-                    m_pHeightmap->SetHeightmapFile( pFileInfo->GetFile() );
-                }
-                else
-                {
-                    LOGError( LOGTag, "Document not saved, path must be relative to the editor." );
-                }
-            }
-        }
+        Save();
     }
 
     ImGui::End();
+
+    if( m_ShowWarning_CloseEditor )
+    {
+        m_ShowWarning_CloseEditor = false;
+        ImGui::OpenPopup( "Close Heightmap Editor Warning" );
+    }
+    if( ImGui::BeginPopupModal( "Close Heightmap Editor Warning" ) )
+    {
+        ImGui::Text( "Some changes aren't saved." );
+        ImGui::Dummy( ImVec2( 0, 10 ) );
+
+        if( ImGui::Button( "Revert changes" ) )
+        {
+            while( m_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+                m_pEngineCore->GetCommandStack()->Undo( 1 );
+            ImGui::CloseCurrentPopup();
+            m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+        }
+
+        if( ImGui::Button( "Save" ) )
+        {
+            ImGui::CloseCurrentPopup();
+            Save();
+            m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+        }
+
+        if( ImGui::Button( "Keep changes without saving" ) )
+        {
+            ImGui::CloseCurrentPopup();
+            m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+        }
+
+        ImGui::EndPopup();
+    }
 }
 
 void EditorInterface_HeightmapEditor::AddImGuiOverlayItems()
 {
     ImGui::Text( "Editing Heightmap: %s", m_pHeightmap->GetGameObject()->GetName() );
+
+    if( m_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+    {
+        ImGui::Text( "Unsaved changes" );
+    }
+
     if( m_pJob_CalculateNormals && m_pJob_CalculateNormals->IsQueued() )
     {
-        ImGui::Text( "Recalculating normals." );
+        ImGui::Text( "Recalculating normals" );
     }
 }
 
@@ -351,13 +359,22 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
         if( keyAction == GCBA_Up && keyCode == MYKEYCODE_ESC )
         {
             if( m_CurrentToolState == ToolState::Active )
+            {
                 CancelCurrentOperation();
+            }
             else
             {
                 // Don't allow users leave this editor mode if there are jobs pending.
                 if( IsBusy() == false )
                 {
-                    m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+                    if( m_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+                    {
+                        m_ShowWarning_CloseEditor = true;
+                    }
+                    else
+                    {
+                        m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+                    }
                 }
             }
         }
@@ -585,6 +602,49 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
             else
             {
                 m_HeightmapNormalsNeedRebuilding = true;
+            }
+        }
+    }
+}
+
+//====================================================================================================
+// Protected Methods.
+//====================================================================================================
+void EditorInterface_HeightmapEditor::Save()
+{
+    if( m_pHeightmap->m_pHeightmapFile )
+    {
+        m_pHeightmap->SaveAsHeightmap( m_pHeightmap->m_pHeightmapFile->GetFullPath() );
+    }
+    else
+    {
+        const char* path = FileSaveDialog( "Data\\Meshes\\", "Heightmap Files\0*.myheightmap\0All\0*.*\0" );
+        if( path[0] != 0 )
+        {
+            int len = (int)strlen( path );
+
+            // Append '.myheightmap' to end of filename if it wasn't already there.
+            char fullPath[MAX_PATH];
+            if( strcmp( &path[len-12], ".myheightmap" ) == 0 )
+            {
+                strcpy_s( fullPath, MAX_PATH, path );
+            }
+            else
+            {
+                sprintf_s( fullPath, MAX_PATH, "%s.myheightmap", path );
+            }
+
+            // Only set the filename and save if the path is relative.
+            const char* relativePath = ::GetRelativePath( path );
+            if( relativePath )
+            {
+                m_pHeightmap->SaveAsHeightmap( relativePath );
+                MyFileInfo* pFileInfo = m_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativePath, m_pHeightmap->GetSceneID(), nullptr, false );
+                m_pHeightmap->SetHeightmapFile( pFileInfo->GetFile() );
+            }
+            else
+            {
+                LOGError( LOGTag, "Document not saved, path must be relative to the editor." );
             }
         }
     }

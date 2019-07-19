@@ -59,6 +59,9 @@ protected:
     bool m_HeightmapNormalsNeedRebuilding;
     Job_CalculateNormals* m_pJob_CalculateNormals;
 
+    // Warnings.
+    bool m_ShowWarning_CloseEditor;
+
     // Editor settings.
     float m_BrushSoftness;
     float m_BrushRadius;
@@ -92,6 +95,9 @@ public:
     MaterialDefinition* GetMaterial(MaterialTypes type);
 
     void ApplyCurrentTool(Vector3 mouseIntersectionPoint, int mouseAction);
+
+protected:
+    void Save();
 };
 
 #endif //__EditorInterface_HeightmapEditor_H__
