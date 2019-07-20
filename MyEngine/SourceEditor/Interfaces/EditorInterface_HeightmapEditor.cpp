@@ -52,6 +52,7 @@ public:
 
 EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEngineCore)
 : EditorInterface( pEngineCore )
+, EditorDocument( pEngineCore )
 {
     m_pHeightmap = nullptr;
 
@@ -103,10 +104,11 @@ EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
 
 void EditorInterface_HeightmapEditor::Initialize()
 {
-    MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    MaterialManager* pMaterialManager = pEngineCore->GetManagers()->GetMaterialManager();
 
     if( m_pMaterials[Mat_Point] == nullptr )
-        m_pMaterials[Mat_Point] = MyNew MaterialDefinition( pMaterialManager, m_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
+        m_pMaterials[Mat_Point] = MyNew MaterialDefinition( pMaterialManager, pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
     if( m_pMaterials[Mat_BrushOverlay] == nullptr )
         m_pMaterials[Mat_BrushOverlay] = pMaterialManager->LoadMaterial( "Data/DataEngine/Materials/HeightmapBrush.mymaterial" );
 }
@@ -124,8 +126,10 @@ bool EditorInterface_HeightmapEditor::IsBusy()
 
 void EditorInterface_HeightmapEditor::OnActivated()
 {
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+
     // Prevent any overlays on selected items.
-    m_pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( false );
+    pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( false );
 
     // Create a gameobject for the point that we'll draw.
     if( m_pPoint == nullptr )
@@ -156,8 +160,10 @@ void EditorInterface_HeightmapEditor::OnActivated()
 
 void EditorInterface_HeightmapEditor::OnDeactivated()
 {
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+
     // Allow overlays on selected items.
-    m_pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( true );
+    pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( true );
 
     ComponentRenderable* pRenderable;
 
@@ -167,6 +173,8 @@ void EditorInterface_HeightmapEditor::OnDeactivated()
 
 void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 {
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+
     // EditorInterface class will draw the main editor view.
     EditorInterface::OnDrawFrame( canvasID );
 
@@ -188,7 +196,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         bool wasVisible = m_pHeightmap->IsVisible();
         m_pHeightmap->SetVisible( true );
 
-        ComponentCamera* pCamera = m_pEngineCore->GetEditorState()->GetEditorCamera();
+        ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
@@ -197,7 +205,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
         Vector2 scale = Vector2( m_BrushRadius, m_BrushRadius ) * 2;
         pMaterial->SetUVScale( 1.0f/scale );
         pMaterial->SetUVOffset( Vector2( -localSpacePoint.x + scale.x/2.0f, -localSpacePoint.z + scale.y/2.0f ) );
-        m_pEngineCore->GetRenderer()->SetTextureWrapModes( pMaterial->GetTextureColor(), MyRE::WrapMode_Clamp, MyRE::WrapMode_Clamp );
+        pEngineCore->GetRenderer()->SetTextureWrapModes( pMaterial->GetTextureColor(), MyRE::WrapMode_Clamp, MyRE::WrapMode_Clamp );
         g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, &pMaterial, 1 );
 
         m_pHeightmap->SetVisible( wasVisible );
@@ -213,13 +221,13 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
         m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
-        ComponentCamera* pCamera = m_pEngineCore->GetEditorState()->GetEditorCamera();
+        ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
         MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
         MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
-        m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
+        pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
         g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
-        m_pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
+        pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
     }
     else
     {
@@ -302,23 +310,23 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
         if( ImGui::Button( "Revert changes" ) )
         {
-            while( m_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
-                m_pEngineCore->GetCommandStack()->Undo( 1 );
+            while( pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+                pEngineCore->GetCommandStack()->Undo( 1 );
             ImGui::CloseCurrentPopup();
-            m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+            pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
         }
 
         if( ImGui::Button( "Save" ) )
         {
             ImGui::CloseCurrentPopup();
             Save();
-            m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+            pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
         }
 
         if( ImGui::Button( "Keep changes without saving" ) )
         {
             ImGui::CloseCurrentPopup();
-            m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+            pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
         }
 
         ImGui::EndPopup();
@@ -327,9 +335,11 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
 void EditorInterface_HeightmapEditor::AddImGuiOverlayItems()
 {
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+
     ImGui::Text( "Editing Heightmap: %s", m_pHeightmap->GetGameObject()->GetName() );
 
-    if( m_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+    if( pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
     {
         ImGui::Text( "Unsaved changes" );
     }
@@ -350,7 +360,8 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 {
     bool inputHandled = false;
 
-    EditorState* pEditorState = m_pEngineCore->GetEditorState();
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EditorState* pEditorState = pEngineCore->GetEditorState();
 
     // Deal with keys.
     if( keyAction != -1 )
@@ -367,13 +378,13 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 // Don't allow users leave this editor mode if there are jobs pending.
                 if( IsBusy() == false )
                 {
-                    if( m_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+                    if( pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
                     {
                         m_ShowWarning_CloseEditor = true;
                     }
                     else
                     {
-                        m_pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+                        pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
                     }
                 }
             }
@@ -385,7 +396,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
     {
         // Find the mouse intersection point on the heightmap.
         Vector3 start, end;
-        m_pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
+        pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
 
         Vector3 mouseIntersectionPoint;
         bool mouseRayIntersected = m_pHeightmap->RayCast( start, end, &mouseIntersectionPoint );
@@ -436,7 +447,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                 ApplyCurrentTool( localSpacePoint, mouseAction );
 
                 // Wait for any outstanding jobs to complete.
-                m_pEngineCore->GetManagers()->GetJobManager()->WaitForJobToComplete( m_pJob_CalculateNormals );
+                pEngineCore->GetManagers()->GetJobManager()->WaitForJobToComplete( m_pJob_CalculateNormals );
 
                 m_CurrentToolState = ToolState::Idle;
 
@@ -482,7 +493,8 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
 bool EditorInterface_HeightmapEditor::ExecuteHotkeyAction(HotKeyAction action)
 {
-    EditorPrefs* pEditorPrefs = m_pEngineCore->GetEditorPrefs();
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EditorPrefs* pEditorPrefs = pEngineCore->GetEditorPrefs();
 
 #pragma warning( push )
 #pragma warning( disable : 4062 )
@@ -495,6 +507,11 @@ bool EditorInterface_HeightmapEditor::ExecuteHotkeyAction(HotKeyAction action)
 #pragma warning( pop )
 
     return false;
+}
+
+void EditorInterface_HeightmapEditor::Update()
+{
+    ImGui::Text( "Testing Heightmap EditorDocument." );
 }
 
 void EditorInterface_HeightmapEditor::SetHeightmap(ComponentHeightmap* pHeightmap)
@@ -522,6 +539,8 @@ MaterialDefinition* EditorInterface_HeightmapEditor::GetMaterial(MaterialTypes t
 
 void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersectionPoint, int mouseAction)
 {
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+
     if( m_CurrentToolState != ToolState::Active )
         return;
 
@@ -548,7 +567,7 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
                 // Attach to previous 'raise' command if this is a held message,
                 //   otherwise it's a mouse down so create a new message.
                 bool attachToPrevious = mouseAction == GCBA_Held ? true : false;
-                m_pEngineCore->GetCommandStack()->Add( pCommand, attachToPrevious );
+                pEngineCore->GetCommandStack()->Add( pCommand, attachToPrevious );
 
                 valuesChanged = true;
             }
@@ -560,11 +579,11 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
             if( mouseAction == GCBA_Down )
             {
                 EditorCommand_Heightmap_FullBackup* pCommand = MyNew EditorCommand_Heightmap_FullBackup( m_pHeightmap );
-                m_pEngineCore->GetCommandStack()->Add( pCommand, false );
+                pEngineCore->GetCommandStack()->Add( pCommand, false );
             }
             if( mouseAction == GCBA_Up )
             {
-                EditorCommand_Heightmap_FullBackup* pCommand = (EditorCommand_Heightmap_FullBackup*)m_pEngineCore->GetCommandStack()->GetUndoCommandAtIndex( m_pEngineCore->GetCommandStack()->GetUndoStackSize() - 1 );
+                EditorCommand_Heightmap_FullBackup* pCommand = (EditorCommand_Heightmap_FullBackup*)pEngineCore->GetCommandStack()->GetUndoCommandAtIndex( pEngineCore->GetCommandStack()->GetUndoStackSize() - 1 );
                 pCommand->CopyInFinalHeights();
                 break;
             }
@@ -597,7 +616,7 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
             // Add a job to regenerate the normals on another thread.
             if( m_pJob_CalculateNormals->IsQueued() == false )
             {
-                m_pEngineCore->GetManagers()->GetJobManager()->AddJob( m_pJob_CalculateNormals );
+                pEngineCore->GetManagers()->GetJobManager()->AddJob( m_pJob_CalculateNormals );
             }
             else
             {
@@ -612,6 +631,8 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
 //====================================================================================================
 void EditorInterface_HeightmapEditor::Save()
 {
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+
     if( m_pHeightmap->m_pHeightmapFile )
     {
         m_pHeightmap->SaveAsHeightmap( m_pHeightmap->m_pHeightmapFile->GetFullPath() );
@@ -639,7 +660,7 @@ void EditorInterface_HeightmapEditor::Save()
             if( relativePath )
             {
                 m_pHeightmap->SaveAsHeightmap( relativePath );
-                MyFileInfo* pFileInfo = m_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativePath, m_pHeightmap->GetSceneID(), nullptr, false );
+                MyFileInfo* pFileInfo = pEngineCore->GetComponentSystemManager()->LoadDataFile( relativePath, m_pHeightmap->GetSceneID(), nullptr, false );
                 m_pHeightmap->SetHeightmapFile( pFileInfo->GetFile() );
             }
             else

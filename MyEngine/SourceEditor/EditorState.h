@@ -108,6 +108,8 @@ public:
     void SaveAllOpenDocuments();
     bool DoAnyOpenDocumentsHaveUnsavedChanges();
 
+    void OpenDocument(EditorDocument* pDocument);
+
     EngineCore* GetEngineCore() { return m_pEngineCore; }
     ComponentCamera* GetEditorCamera();
 

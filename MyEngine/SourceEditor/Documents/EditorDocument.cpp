@@ -23,7 +23,7 @@ EditorDocument::EditorDocument(EngineCore* pEngineCore)
 {
     m_pEngineCore = pEngineCore;
 
-    m_pCommandStack = nullptr;
+    m_pCommandStack = MyNew CommandStack();
     m_UndoStackDepthAtLastSave = 0;
     m_SaveRequested = false;
 
@@ -256,6 +256,49 @@ void EditorDocument::Load()
 {
     m_pCommandStack->ClearStacks();
     m_UndoStackDepthAtLastSave = 0;
+}
+
+bool EditorDocument::CreateWindowAndUpdate(bool* pDocumentStillOpen)
+{
+    bool inFocus = false;
+
+    const char* filename = GetFilename();
+    if( filename[0] == '\0' )
+        filename = "Untitled";
+
+    char tempTitle[MAX_PATH*2+5];
+    if( HasUnsavedChanges() )
+    {
+        sprintf_s( tempTitle, 512, "%s*###%p", filename, this );
+    }
+    else
+    {
+        sprintf_s( tempTitle, 512, "%s###%p", filename, this );
+    }
+
+    if( ImGui::Begin( tempTitle, pDocumentStillOpen ) )
+    {
+        if( ImGui::BeginPopupContextItem() )
+        {
+            if( ImGui::MenuItem( "Close" ) )
+            {
+                *pDocumentStillOpen = false;
+            }
+            ImGui::EndPopup();
+        }
+
+        Update();
+
+        inFocus = ImGui::IsRootWindowOrAnyChildFocused();
+    }
+    ImGui::End();
+
+    return inFocus;
+}
+
+void EditorDocument::Update()
+{
+    m_pCommandStack->IncrementFrameCount();
 }
 
 void EditorDocument::SetRelativePath(const char* relativePath)

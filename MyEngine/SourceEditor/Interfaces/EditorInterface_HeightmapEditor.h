@@ -11,11 +11,12 @@
 #define __EditorInterface_HeightmapEditor_H__
 
 #include "EditorInterface.h"
+#include "../SourceEditor/Documents/EditorDocument.h"
 
 class ComponentHeightmap;
 class Job_CalculateNormals;
 
-class EditorInterface_HeightmapEditor : public EditorInterface
+class EditorInterface_HeightmapEditor : public EditorInterface, public EditorDocument
 {
     friend class Job_CalculateNormals;
 public:
@@ -86,6 +87,8 @@ public:
 
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) override;
     virtual bool ExecuteHotkeyAction(HotKeyAction action) override;
+
+    virtual void Update() override; // From EditorDocument.
 
     void CancelCurrentOperation();
 

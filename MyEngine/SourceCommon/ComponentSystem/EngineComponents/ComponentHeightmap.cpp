@@ -13,6 +13,7 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
+#include "../SourceEditor/EditorState.h"
 
 #if MYFW_EDITOR
 #include "../SourceEditor/Interfaces/EditorInterface_HeightmapEditor.h"
@@ -176,7 +177,10 @@ void* ComponentHeightmap::OnValueChanged(ComponentVariable* pVar, bool changedBy
 void ComponentHeightmap::OnButtonEditHeightmap()
 {
     g_pEngineCore->SetEditorInterface( EditorInterfaceType::HeightmapEditor );
-    ((EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetHeightmap( this );
+    EditorInterface_HeightmapEditor* pInterface = (EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface();
+    pInterface->SetHeightmap( this );
+
+    g_pEngineCore->GetEditorState()->OpenDocument( pInterface );
 }
 #endif //MYFW_EDITOR
 

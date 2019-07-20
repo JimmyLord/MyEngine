@@ -144,8 +144,8 @@ public:
     virtual ~MyNodeGraph();
 
     // Returns true if in focus.
-    bool CreateWindowAndUpdate(bool* pDocumentStillOpen);
-    void Update();
+    virtual bool CreateWindowAndUpdate(bool* pDocumentStillOpen) override;
+    virtual void Update() override;
 
     // Getters.
     MyNodeLink* FindLinkConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex = 0);

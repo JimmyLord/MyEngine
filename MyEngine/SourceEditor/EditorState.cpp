@@ -180,6 +180,13 @@ bool EditorState::DoAnyOpenDocumentsHaveUnsavedChanges()
     return false;
 }
 
+void EditorState::OpenDocument(EditorDocument* pDocument)
+{
+    MyAssert( pDocument != nullptr );
+
+    m_pOpenDocuments.push_back( pDocument );
+}
+
 ComponentCamera* EditorState::GetEditorCamera()
 {
     MyAssert( m_pEditorCamera );

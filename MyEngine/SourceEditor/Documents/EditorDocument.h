@@ -46,6 +46,9 @@ public:
     virtual void Save();
     virtual void Load();
 
+    virtual bool CreateWindowAndUpdate(bool* pDocumentStillOpen);
+    virtual void Update();
+
     EngineCore* GetEngineCore() { return m_pEngineCore; }
 
     void SetRelativePath(const char* relativePath);

@@ -80,8 +80,6 @@ bool IsNearBezierCurve(Vector2 position, Vector2 p0, Vector2 cp0, Vector2 cp1, V
 MyNodeGraph::MyNodeGraph(EngineCore* pEngineCore, MyNodeTypeManager* pNodeTypeManager)
 : EditorDocument( pEngineCore )
 {
-    m_pCommandStack = MyNew CommandStack();
-
     m_NextNodeID = 0;
 
     m_pNodeTypeManager = pNodeTypeManager;
@@ -280,45 +278,12 @@ void MyNodeGraph::SetExpandedForAllSelectedNodes(bool expand)
 // Returns true if in focus.
 bool MyNodeGraph::CreateWindowAndUpdate(bool* pDocumentStillOpen)
 {
-    bool inFocus = false;
-
-    const char* filename = GetFilename();
-    if( filename[0] == '\0' )
-        filename = "Untitled";
-
-    char tempTitle[MAX_PATH*2+5];
-    if( HasUnsavedChanges() )
-    {
-        sprintf_s( tempTitle, 512, "%s*###%p", filename, this );
-    }
-    else
-    {
-        sprintf_s( tempTitle, 512, "%s###%p", filename, this );
-    }
-
-    if( ImGui::Begin( tempTitle, pDocumentStillOpen ) )
-    {
-        if( ImGui::BeginPopupContextItem() )
-        {
-            if( ImGui::MenuItem( "Close" ) )
-            {
-                *pDocumentStillOpen = false;
-            }
-            ImGui::EndPopup();
-        }
-
-        Update();
-
-        inFocus = ImGui::IsRootWindowOrAnyChildFocused();
-    }
-    ImGui::End();
-
-    return inFocus;
+    return EditorDocument::CreateWindowAndUpdate( pDocumentStillOpen );
 }
 
 void MyNodeGraph::Update()
 {
-    m_pCommandStack->IncrementFrameCount();
+    EditorDocument::Update();
 
     bool openContextMenu = false;
     int nodeIndexHoveredInList = -1;

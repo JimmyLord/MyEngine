@@ -675,7 +675,7 @@ void EditorMainFrame_ImGui::AddEverything()
 
         ImGui::SetNextWindowSize( ImVec2(700, 600), ImGuiSetCond_FirstUseEver );
         bool documentStillOpen = true;
-        if( static_cast<MyNodeGraph*>( pDocument )->CreateWindowAndUpdate( &documentStillOpen ) )
+        if( pDocument->CreateWindowAndUpdate( &documentStillOpen ) )
         {
             m_pActiveDocument = pDocument;
             m_pLastActiveDocument = pDocument;
@@ -1172,7 +1172,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         EditorDocument* pNewDocument = EditorDocument::AddDocumentMenu( m_pEngineCore, m_pLastActiveDocument );
         if( pNewDocument != nullptr )
         {
-            m_pEngineCore->GetEditorState()->m_pOpenDocuments.push_back( pNewDocument );
+            m_pEngineCore->GetEditorState()->OpenDocument( pNewDocument );
         }
 
         if( ImGui::BeginMenu( "Edit" ) )
