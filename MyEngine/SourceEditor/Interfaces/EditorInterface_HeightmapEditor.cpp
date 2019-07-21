@@ -54,6 +54,13 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
 : EditorInterface( pEngineCore )
 , EditorDocument( pEngineCore )
 {
+    m_pFBO = nullptr;
+    m_WindowPos.Set( -1, -1 );
+    m_WindowSize.Set( 0, 0 );
+    m_WindowHovered = false;
+    m_WindowFocused = false;
+    m_WindowVisible = false;
+
     m_pHeightmap = nullptr;
 
     m_CurrentTool = Tool::Raise;
@@ -100,6 +107,8 @@ EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
     {
         SAFE_RELEASE( m_pMaterials[i] );
     }
+
+    SAFE_RELEASE( m_pFBO );
 }
 
 void EditorInterface_HeightmapEditor::Initialize()
@@ -188,50 +197,89 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
     ComponentRenderable* pRenderable;
 
-    // Draw the heightmap with the brush circle projected on it.
+    if( m_WindowVisible && m_WindowSize.LengthSquared() != 0 )
     {
-        MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
-        Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
+        if( m_pFBO == nullptr )
+        {
+            m_pFBO = pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+            m_pFBO->MemoryPanel_Hide();
+        }
 
-        bool wasVisible = m_pHeightmap->IsVisible();
-        m_pHeightmap->SetVisible( true );
+        if( m_pFBO->GetColorTexture( 0 ) )
+        {
+            uint32 previousFBO = g_GLStats.m_CurrentFramebuffer;
 
-        ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
-        MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
-        MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
+            m_pFBO->Bind( false );
+            MyViewport viewport( 0, 0, (uint32)m_WindowSize.x, (uint32)m_WindowSize.y );
+            pEngineCore->GetRenderer()->EnableViewport( &viewport, true );
+        
+            pEngineCore->GetRenderer()->ClearBuffers( true, true, true );
 
-        MaterialDefinition* pMaterial = m_pMaterials[Mat_BrushOverlay];
-        Vector2 size = m_pHeightmap->m_Size;
-        Vector2 scale = Vector2( m_BrushRadius, m_BrushRadius ) * 2;
-        pMaterial->SetUVScale( 1.0f/scale );
-        pMaterial->SetUVOffset( Vector2( -localSpacePoint.x + scale.x/2.0f, -localSpacePoint.z + scale.y/2.0f ) );
-        pEngineCore->GetRenderer()->SetTextureWrapModes( pMaterial->GetTextureColor(), MyRE::WrapMode_Clamp, MyRE::WrapMode_Clamp );
-        g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, &pMaterial, 1 );
+            // Draw the heightmap.
+            {
+                MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+                Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
 
-        m_pHeightmap->SetVisible( wasVisible );
-    }
+                bool wasVisible = m_pHeightmap->IsVisible();
+                m_pHeightmap->SetVisible( true );
 
-    // Draw a circle at the mouse position for the height desired by the level tool.
-    pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-    if( m_CurrentTool == Tool::Level && m_LevelUseBrushHeight == false )
-    {
-        pRenderable->SetVisible( true );
+                ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
+                MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
+                MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
-        Vector3 worldPos = m_WorldSpaceMousePositionAtDesiredHeight;
+                g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, nullptr, 0 );
 
-        m_pPoint->GetTransform()->SetLocalPosition( worldPos );
+                m_pHeightmap->SetVisible( wasVisible );
+            }
 
-        ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
-        MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
-        MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
+            // Draw the brush circle projected on the heightmap.
+            {
+                MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+                Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
 
-        pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
-        g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
-        pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
-    }
-    else
-    {
-        pRenderable->SetVisible( false );
+                bool wasVisible = m_pHeightmap->IsVisible();
+                m_pHeightmap->SetVisible( true );
+
+                ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
+                MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
+                MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
+
+                MaterialDefinition* pMaterial = m_pMaterials[Mat_BrushOverlay];
+                Vector2 size = m_pHeightmap->m_Size;
+                Vector2 scale = Vector2( m_BrushRadius, m_BrushRadius ) * 2;
+                pMaterial->SetUVScale( 1.0f/scale );
+                pMaterial->SetUVOffset( Vector2( -localSpacePoint.x + scale.x/2.0f, -localSpacePoint.z + scale.y/2.0f ) );
+                pEngineCore->GetRenderer()->SetTextureWrapModes( pMaterial->GetTextureColor(), MyRE::WrapMode_Clamp, MyRE::WrapMode_Clamp );
+                g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, &pMaterial, 1 );
+
+                m_pHeightmap->SetVisible( wasVisible );
+            }
+
+            // Draw a circle at the mouse position for the height desired by the level tool.
+            pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+            if( m_CurrentTool == Tool::Level && m_LevelUseBrushHeight == false )
+            {
+                pRenderable->SetVisible( true );
+
+                Vector3 worldPos = m_WorldSpaceMousePositionAtDesiredHeight;
+
+                m_pPoint->GetTransform()->SetLocalPosition( worldPos );
+
+                ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
+                MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
+                MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
+
+                pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
+                g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
+                pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
+            }
+            else
+            {
+                pRenderable->SetVisible( false );
+            }
+
+            g_pRenderer->BindFramebuffer( previousFBO );
+        }
     }
 
     // Show some heightmap editor controls.
@@ -358,6 +406,8 @@ void EditorInterface_HeightmapEditor::CancelCurrentOperation()
 
 bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
+    EditorDocument::HandleInput( keyAction, keyCode, mouseAction, id, x, y, pressure );
+
     bool inputHandled = false;
 
     EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
@@ -511,7 +561,32 @@ bool EditorInterface_HeightmapEditor::ExecuteHotkeyAction(HotKeyAction action)
 
 void EditorInterface_HeightmapEditor::Update()
 {
-    ImGui::Text( "Testing Heightmap EditorDocument." );
+    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+
+    m_WindowVisible = true;
+
+    ImVec2 min = ImGui::GetWindowContentRegionMin();
+    ImVec2 max = ImGui::GetWindowContentRegionMax();
+    float w = max.x - min.x;
+    float h = max.y - min.y;
+
+    ImVec2 pos = ImGui::GetWindowPos();
+    m_WindowPos.Set( pos.x + min.x, pos.y + min.y );
+    m_WindowSize.Set( w, h );
+
+    //ImGui::Text( "Testing Heightmap EditorDocument." );
+
+    if( m_pFBO )
+    {
+        // This will resize our FBO if the window is larger than it ever was.
+        pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+
+        if( m_pFBO->GetColorTexture( 0 ) )
+        {
+            TextureDefinition* tex = m_pFBO->GetColorTexture( 0 );
+            ImGui::ImageButton( (void*)tex, ImVec2( w, h ), ImVec2(0,h/m_pFBO->GetTextureHeight()), ImVec2(w/m_pFBO->GetTextureWidth(),0), 0 );
+        }
+    }
 }
 
 void EditorInterface_HeightmapEditor::SetHeightmap(ComponentHeightmap* pHeightmap)

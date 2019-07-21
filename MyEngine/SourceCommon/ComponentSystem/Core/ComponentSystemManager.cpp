@@ -3135,7 +3135,7 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMat
 void ComponentSystemManager::DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* pMatView, ComponentRenderable* pComponent, MaterialDefinition** ppMaterialOverrides, uint32 numMaterialOverrides)
 {
     MyAssert( pComponent != nullptr );
-    MyAssert( numMaterialOverrides >= 1 && numMaterialOverrides <= 4 );
+    MyAssert( numMaterialOverrides <= 4 );
 
     if( pComponent )
     {
@@ -3149,25 +3149,31 @@ void ComponentSystemManager::DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* p
         {
             // Backup materials and set new ones.
             MaterialDefinition* pOldMaterials[4];
-            for( uint32 i=0; i<4; i++ )
+            if( numMaterialOverrides > 0 )
             {
-                pOldMaterials[i] = pComponent->GetMaterial( i );
-                if( i >= numMaterialOverrides )
+                for( uint32 i=0; i<4; i++ )
                 {
-                    pComponent->SetMaterial( ppMaterialOverrides[0], i );
-                }
-                else
-                {
-                    pComponent->SetMaterial( ppMaterialOverrides[i], i );
+                    pOldMaterials[i] = pComponent->GetMaterial( i );
+                    if( i >= numMaterialOverrides )
+                    {
+                        pComponent->SetMaterial( ppMaterialOverrides[0], i );
+                    }
+                    else
+                    {
+                        pComponent->SetMaterial( ppMaterialOverrides[i], i );
+                    }
                 }
             }
 
             (pComponent->*pCallbackStruct->pFunc)( nullptr, pMatProj, pMatView, nullptr );
 
             // Restore Materials.
-            for( uint32 i=0; i<4; i++ )
+            if( numMaterialOverrides > 0 )
             {
-                pComponent->SetMaterial( pOldMaterials[i], i );
+                for( uint32 i=0; i<4; i++ )
+                {
+                    pComponent->SetMaterial( pOldMaterials[i], i );
+                }
             }
         }
     }

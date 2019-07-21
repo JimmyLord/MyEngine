@@ -42,6 +42,13 @@ public:
     };
 
 protected:
+    FBODefinition* m_pFBO;
+    Vector2 m_WindowPos;
+    Vector2 m_WindowSize;
+    bool m_WindowHovered;
+    bool m_WindowFocused;
+    bool m_WindowVisible;
+
     ComponentHeightmap* m_pHeightmap;
 
     Tool m_CurrentTool;
