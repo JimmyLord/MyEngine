@@ -10,6 +10,8 @@
 #ifndef __EditorDocument_H__
 #define __EditorDocument_H__
 
+class Camera3D;
+
 class EditorDocument
 {
 protected:
@@ -22,6 +24,16 @@ protected:
         EditorDocumentMenuCommand_SaveAs,
         //EditorDocumentMenuCommand_SaveAll,
     };
+
+public:
+    Camera3D* m_pCamera;
+    Vector3 m_CameraPosition;
+    FBODefinition* m_pFBO;
+    Vector2 m_WindowPos;
+    Vector2 m_WindowSize;
+    bool m_WindowHovered;
+    bool m_WindowFocused;
+    bool m_WindowVisible;
 
 protected:
     EngineCore* m_pEngineCore;
@@ -48,6 +60,7 @@ public:
 
     virtual bool CreateWindowAndUpdate(bool* pDocumentStillOpen);
     virtual void Update();
+    virtual void OnDrawFrame();
 
     EngineCore* GetEngineCore() { return m_pEngineCore; }
 

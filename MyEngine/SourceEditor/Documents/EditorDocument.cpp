@@ -289,7 +289,7 @@ bool EditorDocument::CreateWindowAndUpdate(bool* pDocumentStillOpen)
 
         Update();
 
-        inFocus = ImGui::IsRootWindowOrAnyChildFocused();
+        inFocus = ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows );
     }
     ImGui::End();
 
@@ -299,6 +299,10 @@ bool EditorDocument::CreateWindowAndUpdate(bool* pDocumentStillOpen)
 void EditorDocument::Update()
 {
     m_pCommandStack->IncrementFrameCount();
+}
+
+void EditorDocument::OnDrawFrame()
+{
 }
 
 void EditorDocument::SetRelativePath(const char* relativePath)

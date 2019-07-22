@@ -269,13 +269,21 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
     float mouseabsy = io.MousePos.y;
 
     // Deal with sending input events to the active document.
+    if( m_pActiveDocument != nullptr )
     {
-        if( m_pActiveDocument != nullptr )
+        // If this is an absolute mouse input over the game window.
+        if( ( mouseAction != -1 && mouseAction != GCBA_RelativeMovement &&
+            mouseabsx >= m_pActiveDocument->m_WindowPos.x && mouseabsx < m_pActiveDocument->m_WindowPos.x + m_pActiveDocument->m_WindowSize.x &&
+            mouseabsy >= m_pActiveDocument->m_WindowPos.y && mouseabsy < m_pActiveDocument->m_WindowPos.y + m_pActiveDocument->m_WindowSize.y ) )
         {
-            if( m_pActiveDocument->HandleInput( keyAction, keyCode, mouseAction, id, localx, localy, pressure ) )
-            {
-                return true;
-            }
+            // Calculate mouse x/y relative to this window.
+            localx = x - m_pActiveDocument->m_WindowPos.x;
+            localy = m_pActiveDocument->m_WindowSize.y - (y - m_pActiveDocument->m_WindowPos.y);;
+        }
+
+        if( m_pActiveDocument->HandleInput( keyAction, keyCode, mouseAction, id, localx, localy, pressure ) )
+        {
+            return true;
         }
     }
 
@@ -673,7 +681,7 @@ void EditorMainFrame_ImGui::AddEverything()
     {
         EditorDocument* pDocument = (*pOpenDocuments)[i];
 
-        ImGui::SetNextWindowSize( ImVec2(700, 600), ImGuiSetCond_FirstUseEver );
+        ImGui::SetNextWindowSize( ImVec2(400, 400), ImGuiSetCond_FirstUseEver );
         bool documentStillOpen = true;
         if( pDocument->CreateWindowAndUpdate( &documentStillOpen ) )
         {
@@ -705,6 +713,12 @@ void EditorMainFrame_ImGui::AddEverything()
 
 void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 {
+    // Draw documents.
+    if( m_pActiveDocument != nullptr )
+    {
+        m_pActiveDocument->OnDrawFrame();
+    }
+
     if( m_GameWindowVisible && m_GameWindowSize.LengthSquared() != 0 )
     {
         if( m_pGameFBO->GetColorTexture( 0 ) )
@@ -1567,8 +1581,9 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Editor] )
     {
         ImGui::SetNextWindowPos( ImVec2(269, 24), ImGuiCond_FirstUseEver );
+        ImGui::SetNextWindowSize( ImVec2(579, 397), ImGuiCond_FirstUseEver );
 
-        if( ImGui::Begin( "Editor", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Editor], ImVec2(579, 397) ) )
+        if( ImGui::Begin( "Editor", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Editor] ) )
         {
             m_EditorWindowFocused = ImGui::IsWindowFocused();
             m_EditorWindowHovered = ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByActiveItem );

@@ -176,11 +176,17 @@ void* ComponentHeightmap::OnValueChanged(ComponentVariable* pVar, bool changedBy
 
 void ComponentHeightmap::OnButtonEditHeightmap()
 {
-    g_pEngineCore->SetEditorInterface( EditorInterfaceType::HeightmapEditor );
-    EditorInterface_HeightmapEditor* pInterface = (EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface();
-    pInterface->SetHeightmap( this );
+    EngineCore* pEngineCore = m_pComponentSystemManager->GetEngineCore();
 
-    g_pEngineCore->GetEditorState()->OpenDocument( pInterface );
+    //pEngineCore->SetEditorInterface( EditorInterfaceType::HeightmapEditor );
+    //EditorInterface_HeightmapEditor* pInterface = (EditorInterface_HeightmapEditor*)pEngineCore->GetCurrentEditorInterface();
+    //pInterface->SetHeightmap( this );
+
+    EditorInterface_HeightmapEditor* pDocument = MyNew EditorInterface_HeightmapEditor( pEngineCore );
+    pEngineCore->GetEditorState()->OpenDocument( pDocument );
+    pDocument->SetHeightmap( this );
+    pDocument->Initialize();
+    pDocument->OnActivated();
 }
 #endif //MYFW_EDITOR
 
@@ -208,25 +214,25 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel()
         return;
     }
 
-    if( g_pEngineCore->GetCurrentEditorInterfaceType() == EditorInterfaceType::HeightmapEditor )
-    {
-        EditorInterface_HeightmapEditor* pHeightmapEditor = (EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface();
+    //if( g_pEngineCore->GetCurrentEditorInterfaceType() == EditorInterfaceType::HeightmapEditor )
+    //{
+    //    EditorInterface_HeightmapEditor* pHeightmapEditor = (EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface();
 
-        if( pHeightmapEditor->GetHeightmapBeingEdited() == this )
-        {
-            if( pHeightmapEditor->IsBusy() )
-            {
-                ImGui::Text( "Heightmap is being edited." );
-                ImGui::Text( "   Recalculating normals..." );
-            }
-            else
-            {
-                ImGui::Text( "Heightmap is being edited." );
-            }
+    //    if( pHeightmapEditor->GetHeightmapBeingEdited() == this )
+    //    {
+    //        if( pHeightmapEditor->IsBusy() )
+    //        {
+    //            ImGui::Text( "Heightmap is being edited." );
+    //            ImGui::Text( "   Recalculating normals..." );
+    //        }
+    //        else
+    //        {
+    //            ImGui::Text( "Heightmap is being edited." );
+    //        }
 
-            return;
-        }
-    }
+    //        return;
+    //    }
+    //}
 
     ComponentBase::AddAllVariablesToWatchPanel();
 

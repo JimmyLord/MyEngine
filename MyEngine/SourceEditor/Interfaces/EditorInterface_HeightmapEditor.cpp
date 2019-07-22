@@ -10,6 +10,7 @@
 #include "MyEnginePCH.h"
 
 #include "EditorInterface_HeightmapEditor.h"
+#include "Camera/Camera3D.h"
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/GameObject.h"
@@ -51,9 +52,10 @@ public:
 };
 
 EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEngineCore)
-: EditorInterface( pEngineCore )
-, EditorDocument( pEngineCore )
+//: EditorInterface( pEngineCore )
+: EditorDocument( pEngineCore )
 {
+    m_pCamera = MyNew Camera3D;
     m_pFBO = nullptr;
     m_WindowPos.Set( -1, -1 );
     m_WindowSize.Set( 0, 0 );
@@ -113,7 +115,7 @@ EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
 
 void EditorInterface_HeightmapEditor::Initialize()
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
     MaterialManager* pMaterialManager = pEngineCore->GetManagers()->GetMaterialManager();
 
     if( m_pMaterials[Mat_Point] == nullptr )
@@ -135,7 +137,7 @@ bool EditorInterface_HeightmapEditor::IsBusy()
 
 void EditorInterface_HeightmapEditor::OnActivated()
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
     // Prevent any overlays on selected items.
     pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( false );
@@ -169,7 +171,7 @@ void EditorInterface_HeightmapEditor::OnActivated()
 
 void EditorInterface_HeightmapEditor::OnDeactivated()
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
     // Allow overlays on selected items.
     pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( true );
@@ -180,12 +182,12 @@ void EditorInterface_HeightmapEditor::OnDeactivated()
     pRenderable->SetVisible( false );
 }
 
-void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
+void EditorInterface_HeightmapEditor::OnDrawFrame() //unsigned int canvasID)
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
     // EditorInterface class will draw the main editor view.
-    EditorInterface::OnDrawFrame( canvasID );
+    //EditorInterface::OnDrawFrame( canvasID );
 
     MyAssert( m_pHeightmap != nullptr );
     if( m_pHeightmap == nullptr )
@@ -213,6 +215,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
             MyViewport viewport( 0, 0, (uint32)m_WindowSize.x, (uint32)m_WindowSize.y );
             pEngineCore->GetRenderer()->EnableViewport( &viewport, true );
         
+            pEngineCore->GetRenderer()->SetClearColor( ColorFloat( 0.0f,0.1f,0.1f,1.0f ) );
             pEngineCore->GetRenderer()->ClearBuffers( true, true, true );
 
             // Draw the heightmap.
@@ -223,9 +226,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
                 bool wasVisible = m_pHeightmap->IsVisible();
                 m_pHeightmap->SetVisible( true );
 
-                ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
-                MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
-                MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
+                MyMatrix* pEditorMatProj = &m_pCamera->m_matProj;
+                MyMatrix* pEditorMatView = &m_pCamera->m_matView;
 
                 g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, nullptr, 0 );
 
@@ -240,9 +242,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
                 bool wasVisible = m_pHeightmap->IsVisible();
                 m_pHeightmap->SetVisible( true );
 
-                ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
-                MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
-                MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
+                MyMatrix* pEditorMatProj = &m_pCamera->m_matProj;
+                MyMatrix* pEditorMatView = &m_pCamera->m_matView;
 
                 MaterialDefinition* pMaterial = m_pMaterials[Mat_BrushOverlay];
                 Vector2 size = m_pHeightmap->m_Size;
@@ -265,9 +266,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
                 m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
-                ComponentCamera* pCamera = pEngineCore->GetEditorState()->GetEditorCamera();
-                MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
-                MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
+                MyMatrix* pEditorMatProj = &m_pCamera->m_matProj;
+                MyMatrix* pEditorMatView = &m_pCamera->m_matView;
 
                 pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
                 g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
@@ -283,8 +283,9 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
     }
 
     // Show some heightmap editor controls.
-    ImGui::SetNextWindowSize( ImVec2(150,200), ImGuiSetCond_FirstUseEver );
-    ImGui::Begin( "Heightmap Editor" );
+    ImGui::SetNextWindowSize( ImVec2(150,200), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowBgAlpha( 1.0f );
+    ImGui::Begin( "Heightmap Editor", nullptr, ImGuiWindowFlags_NoFocusOnAppearing );
 
     // Icon bar to select tools.
     {
@@ -361,20 +362,20 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
             while( pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
                 pEngineCore->GetCommandStack()->Undo( 1 );
             ImGui::CloseCurrentPopup();
-            pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+            //pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
         }
 
         if( ImGui::Button( "Save" ) )
         {
             ImGui::CloseCurrentPopup();
             Save();
-            pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+            //pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
         }
 
         if( ImGui::Button( "Keep changes without saving" ) )
         {
             ImGui::CloseCurrentPopup();
-            pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+            //pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
         }
 
         ImGui::EndPopup();
@@ -383,7 +384,7 @@ void EditorInterface_HeightmapEditor::OnDrawFrame(unsigned int canvasID)
 
 void EditorInterface_HeightmapEditor::AddImGuiOverlayItems()
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
     ImGui::Text( "Editing Heightmap: %s", m_pHeightmap->GetGameObject()->GetName() );
 
@@ -404,13 +405,35 @@ void EditorInterface_HeightmapEditor::CancelCurrentOperation()
     g_pGameCore->GetCommandStack()->Undo( 1 );
 }
 
+void EditorInterface_HeightmapEditor::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
+{
+    // Convert mouse coord into clip space.
+    Vector2 mouseClip;
+    mouseClip.x = (mousepos.x / m_WindowSize.x) * 2.0f - 1.0f;
+    mouseClip.y = (mousepos.y / m_WindowSize.y) * 2.0f - 1.0f;
+
+    // Compute the inverse view projection matrix.
+    MyMatrix invVP = ( m_pCamera->m_matProj * m_pCamera->m_matView ).GetInverse();
+
+    // Store the camera position as the near world point.
+    Vector3 nearWorldPoint = m_CameraPosition;
+
+    // Calculate the world position of the far clip plane where the mouse is pointing.
+    Vector4 farClipPoint4 = Vector4( mouseClip, 1, 1 );
+    Vector4 farWorldPoint4 = invVP * farClipPoint4;
+    Vector3 farWorldPoint = farWorldPoint4.XYZ() / farWorldPoint4.w;
+
+    *start = nearWorldPoint;
+    *end = farWorldPoint;
+}
+
 bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
     EditorDocument::HandleInput( keyAction, keyCode, mouseAction, id, x, y, pressure );
 
     bool inputHandled = false;
 
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
     EditorState* pEditorState = pEngineCore->GetEditorState();
 
     // Deal with keys.
@@ -434,7 +457,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
                     }
                     else
                     {
-                        pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
+                        //pEngineCore->SetEditorInterface( EditorInterfaceType::SceneManagement );
                     }
                 }
             }
@@ -446,7 +469,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
     {
         // Find the mouse intersection point on the heightmap.
         Vector3 start, end;
-        pEngineCore->GetMouseRay( Vector2( x, y ), &start, &end );
+        GetMouseRay( Vector2( x, y ), &start, &end );
 
         Vector3 mouseIntersectionPoint;
         bool mouseRayIntersected = m_pHeightmap->RayCast( start, end, &mouseIntersectionPoint );
@@ -466,7 +489,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
             m_WorldSpaceMousePosition = *pWorldMat * mouseIntersectionPoint;
         }
 
-        EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
+        //EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
 
         if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
         {
@@ -535,7 +558,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
     // Handle camera movement, with both mouse and keyboard.
     if( inputHandled == false )
     {
-        EditorInterface::HandleInputForEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure );
+        //EditorInterface::HandleInputForEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure );
     }
 
     return false;
@@ -543,7 +566,7 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 
 bool EditorInterface_HeightmapEditor::ExecuteHotkeyAction(HotKeyAction action)
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
     EditorPrefs* pEditorPrefs = pEngineCore->GetEditorPrefs();
 
 #pragma warning( push )
@@ -561,7 +584,9 @@ bool EditorInterface_HeightmapEditor::ExecuteHotkeyAction(HotKeyAction action)
 
 void EditorInterface_HeightmapEditor::Update()
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EditorDocument::Update();
+
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
     m_WindowVisible = true;
 
@@ -574,12 +599,17 @@ void EditorInterface_HeightmapEditor::Update()
     m_WindowPos.Set( pos.x + min.x, pos.y + min.y );
     m_WindowSize.Set( w, h );
 
+    m_CameraPosition = Vector3( 5, 5, -5 );
+    m_pCamera->LookAt( m_CameraPosition, Vector3(0,1,0), Vector3( 5, 0, 5 ) );
+    m_pCamera->SetupProjection( w/h, w/h, 45, 0.01f, 100.0f );
+    m_pCamera->UpdateMatrices();
+
     //ImGui::Text( "Testing Heightmap EditorDocument." );
 
     if( m_pFBO )
     {
         // This will resize our FBO if the window is larger than it ever was.
-        pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
+        pEngineCore->GetManagers()->GetTextureManager()->ReSetupFBO( m_pFBO, (unsigned int)w, (unsigned int)h, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
 
         if( m_pFBO->GetColorTexture( 0 ) )
         {
@@ -614,7 +644,7 @@ MaterialDefinition* EditorInterface_HeightmapEditor::GetMaterial(MaterialTypes t
 
 void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersectionPoint, int mouseAction)
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
     if( m_CurrentToolState != ToolState::Active )
         return;
@@ -706,7 +736,7 @@ void EditorInterface_HeightmapEditor::ApplyCurrentTool(Vector3 mouseIntersection
 //====================================================================================================
 void EditorInterface_HeightmapEditor::Save()
 {
-    EngineCore* pEngineCore = EditorInterface::m_pEngineCore;
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
     if( m_pHeightmap->m_pHeightmapFile )
     {

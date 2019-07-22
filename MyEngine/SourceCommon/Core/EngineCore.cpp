@@ -118,7 +118,7 @@ EngineCore::EngineCore(Renderer_Base* pRenderer, bool createAndOwnGlobalManagers
 
     m_pEditorInterfaces[(int)EditorInterfaceType::SceneManagement] = MyNew EditorInterface_SceneManagement( this );
     m_pEditorInterfaces[(int)EditorInterfaceType::The2DPointEditor] = MyNew EditorInterface_2DPointEditor( this );
-    m_pEditorInterfaces[(int)EditorInterfaceType::HeightmapEditor] = MyNew EditorInterface_HeightmapEditor( this );
+    //m_pEditorInterfaces[(int)EditorInterfaceType::HeightmapEditor] = MyNew EditorInterface_HeightmapEditor( this );
     m_pEditorInterfaces[(int)EditorInterfaceType::VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor( this );
     m_CurrentEditorInterfaceType = EditorInterfaceType::NumInterfaces;
     m_pCurrentEditorInterface = nullptr;

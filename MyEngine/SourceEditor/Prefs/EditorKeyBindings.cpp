@@ -116,7 +116,7 @@ EditorKeyBindings::EditorKeyBindings()
 
         if( j >= (int)HotKeyAction::HeightmapEditor_FirstAction && j <= (int)HotKeyAction::HeightmapEditor_LastAction )
         {
-            m_EditorInterfaceThisKeyIsActiveFor[j] = EditorInterfaceType::HeightmapEditor; 
+            //m_EditorInterfaceThisKeyIsActiveFor[j] = EditorInterfaceType::HeightmapEditor; 
         }
     }
 

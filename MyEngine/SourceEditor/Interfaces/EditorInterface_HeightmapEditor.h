@@ -16,7 +16,7 @@
 class ComponentHeightmap;
 class Job_CalculateNormals;
 
-class EditorInterface_HeightmapEditor : public EditorInterface, public EditorDocument
+class EditorInterface_HeightmapEditor : /*public EditorInterface, */public EditorDocument
 {
     friend class Job_CalculateNormals;
 public:
@@ -42,13 +42,6 @@ public:
     };
 
 protected:
-    FBODefinition* m_pFBO;
-    Vector2 m_WindowPos;
-    Vector2 m_WindowSize;
-    bool m_WindowHovered;
-    bool m_WindowFocused;
-    bool m_WindowVisible;
-
     ComponentHeightmap* m_pHeightmap;
 
     Tool m_CurrentTool;
@@ -83,17 +76,18 @@ public:
     EditorInterface_HeightmapEditor(EngineCore* pEngineCore);
     virtual ~EditorInterface_HeightmapEditor();
 
-    virtual void Initialize() override;
+    virtual void Initialize();// override;
 
-    virtual bool IsBusy() override;
+    virtual bool IsBusy();// override;
 
-    virtual void OnActivated() override;
-    virtual void OnDeactivated() override;
-    virtual void OnDrawFrame(unsigned int canvasID) override;
-    virtual void AddImGuiOverlayItems() override;
+    virtual void OnActivated();// override;
+    virtual void OnDeactivated();// override;
+    virtual void OnDrawFrame() override; //unsigned int canvasID) override;
+    virtual void AddImGuiOverlayItems();// override;
 
+    void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) override;
-    virtual bool ExecuteHotkeyAction(HotKeyAction action) override;
+    virtual bool ExecuteHotkeyAction(HotKeyAction action);// override;
 
     virtual void Update() override; // From EditorDocument.
 
