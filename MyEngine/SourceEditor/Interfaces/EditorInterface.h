@@ -44,8 +44,7 @@ public:
     virtual GameObject* GetObjectAtPixel(unsigned int x, unsigned int y, bool createNewBitmap, bool includeTransformGizmo);
     virtual void SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey);
 
-    void SetModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
-    void ClearModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+    //void SetModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
     bool HandleInputForEditorCamera(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
 };
 

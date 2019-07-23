@@ -55,7 +55,15 @@ EditorInterface_HeightmapEditor::EditorInterface_HeightmapEditor(EngineCore* pEn
 //: EditorInterface( pEngineCore )
 : EditorDocument( pEngineCore )
 {
-    m_pCamera = MyNew Camera3D;
+    m_pCamera = MyNew ComponentCamera( nullptr );
+    m_pCamera->Reset();
+    m_pCameraTransform = MyNew ComponentTransform( nullptr );
+    m_pCameraTransform->Reset();
+    m_pCamera->m_pComponentTransform = m_pCameraTransform;
+
+    m_pCameraTransform->SetWorldPosition( Vector3( 5, 5, -5 ) );
+    m_pCamera->m_Camera3D.LookAt( m_pCameraTransform->GetWorldPosition(), Vector3(0,1,0), Vector3( 5, 0, 5 ) );
+
     m_pFBO = nullptr;
     m_WindowPos.Set( -1, -1 );
     m_WindowSize.Set( 0, 0 );
@@ -111,6 +119,11 @@ EditorInterface_HeightmapEditor::~EditorInterface_HeightmapEditor()
     }
 
     SAFE_RELEASE( m_pFBO );
+
+    m_pCameraTransform->SetEnabled( false );
+    m_pCamera->SetEnabled( false );
+    SAFE_DELETE( m_pCameraTransform );
+    SAFE_DELETE( m_pCamera );
 }
 
 void EditorInterface_HeightmapEditor::Initialize()
@@ -207,6 +220,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame() //unsigned int canvasID)
             m_pFBO->MemoryPanel_Hide();
         }
 
+        m_pCamera->Tick( 0.0f );
+
         if( m_pFBO->GetColorTexture( 0 ) )
         {
             uint32 previousFBO = g_GLStats.m_CurrentFramebuffer;
@@ -226,8 +241,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame() //unsigned int canvasID)
                 bool wasVisible = m_pHeightmap->IsVisible();
                 m_pHeightmap->SetVisible( true );
 
-                MyMatrix* pEditorMatProj = &m_pCamera->m_matProj;
-                MyMatrix* pEditorMatView = &m_pCamera->m_matView;
+                MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
+                MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
 
                 g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pHeightmap, nullptr, 0 );
 
@@ -242,8 +257,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame() //unsigned int canvasID)
                 bool wasVisible = m_pHeightmap->IsVisible();
                 m_pHeightmap->SetVisible( true );
 
-                MyMatrix* pEditorMatProj = &m_pCamera->m_matProj;
-                MyMatrix* pEditorMatView = &m_pCamera->m_matView;
+                MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
+                MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
 
                 MaterialDefinition* pMaterial = m_pMaterials[Mat_BrushOverlay];
                 Vector2 size = m_pHeightmap->m_Size;
@@ -266,8 +281,8 @@ void EditorInterface_HeightmapEditor::OnDrawFrame() //unsigned int canvasID)
 
                 m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
-                MyMatrix* pEditorMatProj = &m_pCamera->m_matProj;
-                MyMatrix* pEditorMatView = &m_pCamera->m_matView;
+                MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
+                MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
 
                 pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
                 g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
@@ -413,10 +428,10 @@ void EditorInterface_HeightmapEditor::GetMouseRay(Vector2 mousepos, Vector3* sta
     mouseClip.y = (mousepos.y / m_WindowSize.y) * 2.0f - 1.0f;
 
     // Compute the inverse view projection matrix.
-    MyMatrix invVP = ( m_pCamera->m_matProj * m_pCamera->m_matView ).GetInverse();
+    MyMatrix invVP = ( m_pCamera->m_Camera3D.m_matProj * m_pCamera->m_Camera3D.m_matView ).GetInverse();
 
     // Store the camera position as the near world point.
-    Vector3 nearWorldPoint = m_CameraPosition;
+    Vector3 nearWorldPoint = m_pCameraTransform->GetWorldPosition();
 
     // Calculate the world position of the far clip plane where the mouse is pointing.
     Vector4 farClipPoint4 = Vector4( mouseClip, 1, 1 );
@@ -431,10 +446,11 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
 {
     EditorDocument::HandleInput( keyAction, keyCode, mouseAction, id, x, y, pressure );
 
-    bool inputHandled = false;
-
     EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
     EditorState* pEditorState = pEngineCore->GetEditorState();
+
+    // If nothing in this method directly uses the input, then we'll pass it to the camera.
+    bool inputHandled = false;
 
     // Deal with keys.
     if( keyAction != -1 )
@@ -489,12 +505,10 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
             m_WorldSpaceMousePosition = *pWorldMat * mouseIntersectionPoint;
         }
 
-        //EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
-
         if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
         {
             // Right mouse button to cancel current operation.
-            if( mouseAction == GCBA_Down && id == 1 )
+            if( mouseAction == GCBA_Down && id == 1 && m_CurrentTool != Tool::None )
             {
                 CancelCurrentOperation();
                 inputHandled = true;
@@ -558,7 +572,10 @@ bool EditorInterface_HeightmapEditor::HandleInput(int keyAction, int keyCode, in
     // Handle camera movement, with both mouse and keyboard.
     if( inputHandled == false )
     {
-        //EditorInterface::HandleInputForEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure );
+        if( m_pCamera->HandleInputForEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure ) )
+        {
+            return true;
+        }
     }
 
     return false;
@@ -599,10 +616,8 @@ void EditorInterface_HeightmapEditor::Update()
     m_WindowPos.Set( pos.x + min.x, pos.y + min.y );
     m_WindowSize.Set( w, h );
 
-    m_CameraPosition = Vector3( 5, 5, -5 );
-    m_pCamera->LookAt( m_CameraPosition, Vector3(0,1,0), Vector3( 5, 0, 5 ) );
-    m_pCamera->SetupProjection( w/h, w/h, 45, 0.01f, 100.0f );
-    m_pCamera->UpdateMatrices();
+    m_pCamera->m_Camera3D.SetupProjection( w/h, w/h, 45, 0.01f, 100.0f );
+    m_pCamera->m_Camera3D.UpdateMatrices();
 
     //ImGui::Text( "Testing Heightmap EditorDocument." );
 

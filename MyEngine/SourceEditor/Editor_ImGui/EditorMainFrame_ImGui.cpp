@@ -281,9 +281,20 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
             localy = m_pActiveDocument->m_WindowSize.y - (y - m_pActiveDocument->m_WindowPos.y);;
         }
 
-        if( m_pActiveDocument->HandleInput( keyAction, keyCode, mouseAction, id, localx, localy, pressure ) )
+        // TODO: Figure out which window has focus or is hovered.
         {
-            return true;
+            // Set modifier key and mouse button states.
+            m_pEngineCore->GetEditorState()->SetModifierKeyStates( keyAction, keyCode, mouseAction, id, localx, localy, pressure );
+            LOGInfo( "Mouse Bug", "Document Set: %0.0f, %0.0f", localx, localy );
+
+            if( m_pActiveDocument->HandleInput( keyAction, keyCode, mouseAction, id, localx, localy, pressure ) )
+            {
+                return true;
+            }
+
+            // Clear modifier key and mouse button states.
+            m_pEngineCore->GetEditorState()->ClearModifierKeyStates( keyAction, keyCode, mouseAction, id, localx, localy, pressure );
+            LOGInfo( "Mouse Bug", "Document Clear: %0.0f, %0.0f", localx, localy );
         }
     }
 
@@ -348,6 +359,10 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
                 localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
             }
 
+            // Set modifier key and mouse button states.
+            m_pEngineCore->GetEditorState()->SetModifierKeyStates( keyAction, keyCode, mouseAction, id, localx, localy, pressure );
+            LOGInfo( "Mouse Bug", "Editor Set: %0.0f, %0.0f", localx, localy );
+
             m_CurrentMouseInEditorWindow_X = (unsigned int)localx;
             m_CurrentMouseInEditorWindow_Y = (unsigned int)localy;
 
@@ -367,7 +382,8 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
                 return true;
 
             // Clear modifier key and mouse button states.
-            m_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyAction, keyCode, mouseAction, id, localx, localy, pressure );
+            m_pEngineCore->GetEditorState()->ClearModifierKeyStates( keyAction, keyCode, mouseAction, id, localx, localy, pressure );
+            LOGInfo( "Mouse Bug", "Editor Clear: %0.0f, %0.0f", localx, localy );
         }
     }
 

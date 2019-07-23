@@ -180,8 +180,6 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-    EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
-
     // If this is a new right-click, cancel gizmo ops.
     if( mouseaction == GCBA_Down && id == 1 )
     {
@@ -566,16 +564,19 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             pEditorState->ClearConstraint();
         }
 
-        // check if the mouse moved.
-        Vector3 mousedragdir = pEditorState->m_CurrentMousePosition - pEditorState->m_LastMousePosition;
-
-        if( mousedragdir.LengthSquared() != 0 )
+        // If the mouse moved while a button is down.
+        if( mouseaction == GCBA_Held || mouseaction == GCBA_RelativeMovement )
         {
-            // If the mouse moved, translate/scale/rotate the selected objects along a plane or axis
-            // the checks for which editor tool is active is inside these functions.
-            pEditorState->m_pTransformGizmo->TranslateSelectedObjects( g_pEngineCore, pEditorState );
-            pEditorState->m_pTransformGizmo->ScaleSelectedObjects( g_pEngineCore, pEditorState );
-            pEditorState->m_pTransformGizmo->RotateSelectedObjects( g_pEngineCore, pEditorState );
+            Vector3 mousedragdir = pEditorState->m_CurrentMousePosition - pEditorState->m_LastMousePosition;
+
+            if( mousedragdir.LengthSquared() != 0 )
+            {
+                // If the mouse moved, translate/scale/rotate the selected objects along a plane or axis
+                // the checks for which editor tool is active is inside these functions.
+                pEditorState->m_pTransformGizmo->TranslateSelectedObjects( g_pEngineCore, pEditorState );
+                pEditorState->m_pTransformGizmo->ScaleSelectedObjects( g_pEngineCore, pEditorState );
+                pEditorState->m_pTransformGizmo->RotateSelectedObjects( g_pEngineCore, pEditorState );
+            }
         }
     }
 

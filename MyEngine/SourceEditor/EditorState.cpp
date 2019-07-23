@@ -239,6 +239,115 @@ void EditorState::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 heig
     }
 }
 
+void EditorState::SetModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
+{
+    if( keyAction == GCBA_Down )
+    {
+        if( keyCode == MYKEYCODE_LCTRL )    m_ModifierKeyStates |= MODIFIERKEY_Control;
+        if( keyCode == MYKEYCODE_LALT )     m_ModifierKeyStates |= MODIFIERKEY_Alt;
+        if( keyCode == MYKEYCODE_LSHIFT )   m_ModifierKeyStates |= MODIFIERKEY_Shift;
+        if( keyCode == ' ' )                m_ModifierKeyStates |= MODIFIERKEY_Space;
+    }
+
+    // Since keys can be pressed while a different window frame has focus, let's just manually query the modifiers.
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LCTRL ) )  m_ModifierKeyStates |= MODIFIERKEY_Control;
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LALT ) )   m_ModifierKeyStates |= MODIFIERKEY_Alt;
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LSHIFT ) ) m_ModifierKeyStates |= MODIFIERKEY_Shift;
+    if( PlatformSpecific_CheckKeyState( ' ' ) )              m_ModifierKeyStates |= MODIFIERKEY_Space;
+
+    if( mouseAction != -1 )
+    {
+        m_CurrentMousePosition.Set( x, y );
+
+        if( mouseAction == GCBA_Down )
+        {
+            if( id == 0 )
+            {
+                m_MouseDownLocation[id] = m_CurrentMousePosition;
+                m_ModifierKeyStates |= MODIFIERKEY_LeftMouse;
+            }
+            if( id == 1 )
+            {
+                m_MouseDownLocation[id] = m_CurrentMousePosition;
+                m_ModifierKeyStates |= MODIFIERKEY_RightMouse;
+            }
+            if( id == 2 )
+            {
+                m_MouseDownLocation[id] = m_CurrentMousePosition;
+                m_ModifierKeyStates |= MODIFIERKEY_MiddleMouse;
+            }
+        }
+
+        if( mouseAction == GCBA_Held || mouseAction == GCBA_RelativeMovement )
+        {
+            if( m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+            {
+                if( m_MouseDownLocation[0] != m_CurrentMousePosition )
+                    m_HasMouseMovedSinceButtonPressed[0] = true;
+            }
+            if( m_ModifierKeyStates & MODIFIERKEY_RightMouse )
+            {
+                if( m_MouseDownLocation[1] != m_CurrentMousePosition )
+                    m_HasMouseMovedSinceButtonPressed[1] = true;
+            }
+            if( m_ModifierKeyStates & MODIFIERKEY_MiddleMouse )
+            {
+                if( m_MouseDownLocation[2] != m_CurrentMousePosition )
+                    m_HasMouseMovedSinceButtonPressed[2] = true;
+            }
+        }
+    }
+}
+
+void EditorState::ClearModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
+{
+    if( keyAction == GCBA_Up )
+    {
+        if( keyCode == MYKEYCODE_LCTRL )    m_ModifierKeyStates &= ~MODIFIERKEY_Control;
+        if( keyCode == MYKEYCODE_LALT )     m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
+        if( keyCode == MYKEYCODE_LSHIFT )   m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
+        if( keyCode == ' ' )                m_ModifierKeyStates &= ~MODIFIERKEY_Space;
+    }
+
+    // Since keys can be pressed while a different window frame has focus, let's just manually query the modifiers.
+    // This shouldn't be necessary since mouse down will have given us focus if we care about keys.
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LCTRL ) == false )  m_ModifierKeyStates &= ~MODIFIERKEY_Control;
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LALT ) == false )   m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LSHIFT ) == false ) m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
+    if( PlatformSpecific_CheckKeyState( ' ' ) == false )              m_ModifierKeyStates &= ~MODIFIERKEY_Space;
+
+    if( mouseAction != -1 )
+    {
+        if( mouseAction == GCBA_Up )
+        {
+            m_MouseDownLocation[id] = Vector2( -1, -1 );
+
+            if( id == 0 )
+            {
+                m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
+            }
+            else if( id == 1 )
+            {
+                m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
+            }
+            else if( id == 2 )
+            {
+                m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
+            }
+
+            // Unlock the mouse, even if it wasn't locked.
+#if !MYFW_OSX
+            //LOGInfo( LOGTag, "Request mouse unlock\n" );
+            SetMouseLock( false );
+#endif //!MYFW_OSX
+
+            m_HasMouseMovedSinceButtonPressed[id] = false;
+        }
+    }
+
+    m_LastMousePosition = m_CurrentMousePosition;
+}
+
 void EditorState::ClearConstraint()
 {
     if( m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )

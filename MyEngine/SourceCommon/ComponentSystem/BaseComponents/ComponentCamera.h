@@ -148,6 +148,8 @@ public:
     // Component variable callbacks. //_VARIABLE_LIST
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
+
+    bool HandleInputForEditorCamera(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
 #endif //MYFW_EDITOR
 };
 

@@ -33,6 +33,7 @@ EditorDocument::EditorDocument(EngineCore* pEngineCore)
 
 EditorDocument::~EditorDocument()
 {
+    delete m_pCommandStack;
 }
 
 EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuCommands command)

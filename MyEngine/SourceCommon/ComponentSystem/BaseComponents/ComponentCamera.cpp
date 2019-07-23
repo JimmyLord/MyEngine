@@ -22,6 +22,8 @@
 #if MYFW_EDITOR
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
+#include "../SourceEditor/Prefs/EditorKeyBindings.h"
+#include "../SourceEditor/TransformGizmo.h"
 #endif
 
 #if MYFW_USING_WX
@@ -88,12 +90,21 @@ ComponentCamera::~ComponentCamera()
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
-    FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+    if( m_pComponentSystemManager )
+    {
+        FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
 
-    if( m_pDeferredShaderFile_AmbientDirectional )
-        pFileManager->FreeFile( m_pDeferredShaderFile_AmbientDirectional );
-    if( m_pDeferredShaderFile_PointLight )
-        pFileManager->FreeFile( m_pDeferredShaderFile_PointLight );
+        if( m_pDeferredShaderFile_AmbientDirectional )
+            pFileManager->FreeFile( m_pDeferredShaderFile_AmbientDirectional );
+        if( m_pDeferredShaderFile_PointLight )
+            pFileManager->FreeFile( m_pDeferredShaderFile_PointLight );
+    }
+    else
+    {
+        MyAssert( m_pDeferredShaderFile_AmbientDirectional == nullptr );
+        MyAssert( m_pDeferredShaderFile_PointLight == nullptr );
+    }
+
     SAFE_RELEASE( m_pDeferredShader_AmbientDirectional );
     SAFE_RELEASE( m_pDeferredShader_PointLight );
     SAFE_RELEASE( m_pDeferredMaterial_AmbientDirectional );
@@ -242,7 +253,11 @@ void ComponentCamera::Reset()
 {
     ComponentBase::Reset();
 
-    m_pComponentTransform = m_pGameObject->GetTransform();
+    m_pComponentTransform = nullptr;
+    if( m_pGameObject )
+    {
+        m_pComponentTransform = m_pGameObject->GetTransform();
+    }
 
     m_Orthographic = false;
 
@@ -917,5 +932,240 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj,
     g_pRenderer->SetCullingEnabled( true );
     if( g_pEngineCore->GetDebug_DrawWireframe() )
         g_pRenderer->SetPolygonMode( MyRE::PolygonDrawMode_Line );
+}
+
+bool ComponentCamera::HandleInputForEditorCamera(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
+{
+    EngineCore* pEngineCore = g_pEngineCore;
+    EditorState* pEditorState = pEngineCore->GetEditorState();
+    ComponentCamera* pCamera = this;
+
+    MyMatrix startCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
+
+    // If mouse message. down, up, dragging or wheel.
+    if( mouseAction != -1 )
+    {
+        unsigned int mods = pEditorState->m_ModifierKeyStates;
+
+        // Get the editor camera's local transform.
+        MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
+
+        // Move camera in/out if mousewheel spinning.
+        if( mouseAction == GCBA_Wheel )
+        {
+            // Pressure is also mouse wheel movement rate in editor configurations.
+#if MYFW_RIGHTHANDED
+            Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/fabs(pressure));
+#else
+            Vector3 dir = Vector3( 0, 0, 1 ) * (pressure/fabs(pressure));
+#endif
+            float speed = 100.0f;
+            if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
+                speed *= 5;
+
+            if( dir.LengthSquared() > 0 )
+                matCamera->TranslatePreRotScale( dir * speed * 1/60.0f); //* pEngineCore->GetTimePassedUnpausedLastFrame() );
+        }
+
+        // If left mouse down, reset the transform gizmo tool.
+        if( mouseAction == GCBA_Down && id == 0 )
+        {
+            pEditorState->m_pTransformGizmo->m_LastIntersectResultIsValid = false;
+        }
+
+        // Enter/Exit RotatingEditorCamera camera state on right-click.
+        {
+            // If the right mouse button was clicked, switch to rotating editor camera state.
+            if( mouseAction == GCBA_Down && id == 1 )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotatingEditorCamera;
+            }
+
+            // If we're in EDITORACTIONSTATE_RotatingEditorCamera and the right mouse goes up.
+            if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotatingEditorCamera &&
+                mouseAction == GCBA_Up && id == 1 )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+            }
+        }
+
+        // If space is held, left button will pan the camera around. or just middle button.
+        if( mouseAction == GCBA_Held || mouseAction == GCBA_RelativeMovement )
+        {
+            if( ( (mods & MODIFIERKEY_LeftMouse) && (mods & MODIFIERKEY_Space) ) || (mods & MODIFIERKEY_MiddleMouse) )
+            {
+    #if MYFW_OSX
+                // TODO: Fix OSX to support locked mouse cursor.
+                Vector3 dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;
+    #else //MYFW_OSX
+                // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
+                if( IsMouseLocked() == false )
+                {
+                    //LOGInfo( LOGTag, "Request mouse lock\n" );
+                    SetMouseLock( true );
+                }
+
+                Vector2 dir( 0, 0 );
+                if( mouseAction == GCBA_RelativeMovement )
+                {
+                    //LOGInfo( LOGTag, "relative movement.\n" );
+                    dir.Set( -x, -y );
+                }
+    #endif //MYFW_OSX
+
+                //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
+                if( dir.LengthSquared() > 0 )
+                    matCamera->TranslatePreRotScale( dir * 0.05f );
+            }
+            else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects &&
+                (mods & MODIFIERKEY_LeftMouse) )
+            {
+            }
+            // If right mouse is down, rotate the camera around selected object or around it's current position.
+            else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotatingEditorCamera &&
+                (mods & MODIFIERKEY_RightMouse) )
+            {
+    #if MYFW_OSX
+                // TODO: fix OSX to support locked mouse cursor.
+                Vector3 dir = (pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition) * -1;
+    #else //MYFW_OSX
+                // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
+                if( IsMouseLocked() == false )
+                {
+                    //LOGInfo( LOGTag, "Request mouse lock\n" );
+                    SetMouseLock( true );
+                }
+
+                Vector2 dir( 0, 0 );
+                if( mouseAction == GCBA_RelativeMovement )
+                {
+                    //LOGInfo( LOGTag, "Relative Movement\n" );
+                    dir.Set( x, y );
+                }
+    #endif //MYFW_OSX
+
+                if( dir.LengthSquared() > 0 )
+                {
+                    Vector3 pivot;
+                    float distancefrompivot;
+
+                    // Different pivot and distance from pivot depending if Alt is held.
+                    if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
+                    {
+                        // pivot around the transform gizmo
+                        pivot = pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0]->GetTransform()->GetWorldTransform()->GetTranslation();
+                        distancefrompivot = (matCamera->GetTranslation() - pivot).Length();
+                    }
+                    else
+                    {
+                        // Pivot on the camera, just change rotation.
+                        pivot = matCamera->GetTranslation();
+                        distancefrompivot = 0;
+                    }
+
+                    //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
+
+                    Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
+
+                    // TODO: Make this degrees per inch.
+                    float degreesperpixel = 0.125f;
+
+    #if MYFW_RIGHTHANDED
+                    angle.y += dir.x * degreesperpixel;
+                    angle.x -= dir.y * degreesperpixel;
+    #else
+                    angle.y -= dir.x * degreesperpixel;
+                    angle.x += dir.y * degreesperpixel;
+    #endif
+                    MyClamp( angle.x, -90.0f, 90.0f );
+
+                    // Create a new local transform.
+                    matCamera->SetIdentity();
+    #if MYFW_RIGHTHANDED
+                    matCamera->Translate( 0, 0, distancefrompivot );
+    #else
+                    matCamera->Translate( 0, 0, -distancefrompivot );
+    #endif
+                    matCamera->Rotate( angle.x, 1, 0, 0 );
+                    matCamera->Rotate( angle.y, 0, 1, 0 );
+                    matCamera->Translate( pivot );
+
+                    // Update the local scale/rotation/translation from the local transform.
+                    pCamera->m_pComponentTransform->UpdateLocalSRT();
+                }
+            }
+        }
+
+        // Pull the scale/pos/rot from the local matrix and update the values in the watch window.
+        pCamera->m_pComponentTransform->UpdateLocalSRT();
+        pCamera->m_pComponentTransform->UpdateTransform();
+    }
+
+    // Handle editor keys.
+    if( keyAction == GCBA_Held )
+    {
+        EditorKeyBindings* pKeys = pEngineCore->GetEditorPrefs()->GetKeyBindings();
+        uint8 modifiers = static_cast<uint8>( pEditorState->m_ModifierKeyStates );
+
+        // Get the editor camera's local transform.
+        MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
+
+        // Focus camera on selected objects.
+        if( pKeys->KeyMatches( HotKeyAction::Camera_Focus, modifiers, keyCode, pEngineCore->GetCurrentEditorInterfaceType() ) )
+        {
+            // Make sure there is an object actually selected.
+            if( pEditorState->m_pSelectedObjects.size() > 0 )
+            {
+                Vector3 targetPos = pEditorState->m_pTransformGizmo->m_GizmoWorldTransform.GetTranslation();
+                Vector3 lookAt = matCamera->GetAt();
+
+                // Magic const number, maybe should be somewhere special?
+                float cameraSnapDist = 5.0f;
+                Vector3 offset = -1.0f * lookAt * cameraSnapDist;
+                Vector3 finalPosition = targetPos + offset;
+
+                matCamera->SetTranslation( finalPosition );
+            }
+        }
+
+        // Handle editor camera movement.
+        {
+            Vector3 dir( 0, 0, 0 );
+
+            uint8 modifiersWithoutShift = modifiers & ~MODIFIERKEY_Shift;
+
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Forward, modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.z +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Left,    modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.x += -1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Back,    modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.z += -1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Right,   modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.x +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Up,      modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.y +=  1;
+            if( pKeys->KeyMatches( HotKeyAction::Camera_Down,    modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.y += -1;
+
+            float speed = 7.0f;
+            if( modifiers & MODIFIERKEY_Shift )
+                speed *= 5;
+
+            if( dir.LengthSquared() > 0 )
+                matCamera->TranslatePreRotScale( dir * speed * pEngineCore->GetTimePassedUnpausedLastFrame() );
+        }
+
+        pCamera->m_pComponentTransform->UpdateLocalSRT();
+        pCamera->m_pComponentTransform->UpdateTransform();
+    }
+
+    // If the camera is locked to an object,
+    //     apply any changes we made to the editor camera to the offset from the locked object.
+    if( pEditorState->m_CameraState == EditorCameraState_LockedToObject )
+    {
+        MyMatrix endCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
+        MyMatrix startCamInverseTransform = startCamTransform.GetInverse();
+
+        MyMatrix changeInCamTransform = startCamInverseTransform * endCamTransform;
+        MyMatrix newTransform = pEditorState->m_OffsetFromObject * changeInCamTransform;
+
+        pEditorState->m_OffsetFromObject = newTransform;
+    }
+
+    return false;
 }
 #endif //MYFW_EDITOR

@@ -200,8 +200,6 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
     {
     }
 
-    EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
-
     // if right button is captured and held, then don't call let camera function get called below.
     if( mouseaction == GCBA_Held )
     {

@@ -118,6 +118,9 @@ public:
     void OnFocusLost();
     void OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height);
 
+    void SetModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+    void ClearModifierKeyStates(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+
     void ClearConstraint();
 
     void SelectGameObject(GameObject* pObject);

@@ -10,7 +10,8 @@
 #ifndef __EditorDocument_H__
 #define __EditorDocument_H__
 
-class Camera3D;
+class ComponentCamera;
+class ComponentTransform;
 
 class EditorDocument
 {
@@ -26,8 +27,8 @@ protected:
     };
 
 public:
-    Camera3D* m_pCamera;
-    Vector3 m_CameraPosition;
+    ComponentCamera* m_pCamera;
+    ComponentTransform* m_pCameraTransform;
     FBODefinition* m_pFBO;
     Vector2 m_WindowPos;
     Vector2 m_WindowSize;

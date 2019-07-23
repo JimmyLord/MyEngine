@@ -199,8 +199,6 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyAction, int keyCode, int 
         }
     }
 
-    EditorInterface::SetModifierKeyStates( keyAction, keyCode, mouseAction, id, x, y, pressure );
-
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
         if( mouseAction == GCBA_Down )
