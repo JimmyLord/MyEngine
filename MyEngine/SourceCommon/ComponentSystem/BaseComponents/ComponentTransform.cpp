@@ -646,7 +646,7 @@ void ComponentTransform::SetLocalScale(Vector3 scale)
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void ComponentTransform::SetWorldTransform(MyMatrix* mat)
+void ComponentTransform::SetWorldTransform(const MyMatrix* mat)
 {
     //MyAssert( false );
     m_WorldTransform = *mat;

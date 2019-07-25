@@ -77,14 +77,12 @@ public:
     EditorDocument_Heightmap(EngineCore* pEngineCore);
     virtual ~EditorDocument_Heightmap();
 
-    virtual void Initialize();// override;
+    virtual void Initialize();
 
-    virtual bool IsBusy();// override;
+    virtual bool IsBusy();
 
-    virtual void OnActivated();// override;
-    virtual void OnDeactivated();// override;
-    virtual void OnDrawFrame() override; //unsigned int canvasID) override;
-    virtual void AddImGuiOverlayItems();// override;
+    virtual void OnDrawFrame() override;
+    virtual void AddImGuiOverlayItems();
 
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 

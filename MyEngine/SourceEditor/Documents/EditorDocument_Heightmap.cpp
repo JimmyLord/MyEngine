@@ -104,6 +104,8 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore)
     m_LevelHeight = 0.0f;
 
     m_AlwaysRecalculateNormals = false;
+
+    Initialize();
 }
 
 EditorDocument_Heightmap::~EditorDocument_Heightmap()
@@ -134,25 +136,6 @@ void EditorDocument_Heightmap::Initialize()
         m_pMaterials[Mat_Point] = MyNew MaterialDefinition( pMaterialManager, pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
     if( m_pMaterials[Mat_BrushOverlay] == nullptr )
         m_pMaterials[Mat_BrushOverlay] = pMaterialManager->LoadMaterial( "Data/DataEngine/Materials/HeightmapBrush.mymaterial" );
-}
-
-bool EditorDocument_Heightmap::IsBusy()
-{
-    if( m_pJob_CalculateNormals )
-    {
-        if( m_pJob_CalculateNormals->IsQueued() )
-            return true;
-    }
-
-    return false;
-}
-
-void EditorDocument_Heightmap::OnActivated()
-{
-    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
-
-    // Prevent any overlays on selected items.
-    pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( false );
 
     // Create a gameobject for the point that we'll draw.
     if( m_pPoint == nullptr )
@@ -181,17 +164,15 @@ void EditorDocument_Heightmap::OnActivated()
     }
 }
 
-void EditorDocument_Heightmap::OnDeactivated()
+bool EditorDocument_Heightmap::IsBusy()
 {
-    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
+    if( m_pJob_CalculateNormals )
+    {
+        if( m_pJob_CalculateNormals->IsQueued() )
+            return true;
+    }
 
-    // Allow overlays on selected items.
-    pEngineCore->GetEditorPrefs()->Set_Internal_ShowSpecialEffectsForSelectedItems( true );
-
-    ComponentRenderable* pRenderable;
-
-    pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-    pRenderable->SetVisible( false );
+    return false;
 }
 
 void EditorDocument_Heightmap::OnDrawFrame() //unsigned int canvasID)
@@ -229,10 +210,9 @@ void EditorDocument_Heightmap::OnDrawFrame() //unsigned int canvasID)
             pEngineCore->GetRenderer()->SetClearColor( ColorFloat( 0.0f,0.1f,0.1f,1.0f ) );
             pEngineCore->GetRenderer()->ClearBuffers( true, true, true );
 
-            MyMatrix identity;
-            identity.SetIdentity();
-            //MyMatrix* pWorldMat = &identity; //m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
-            Vector3 localSpacePoint = /*pWorldMat->GetInverse() **/ m_WorldSpaceMousePosition;
+            //MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+            //Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
+            Vector3 localSpacePoint = m_WorldSpaceMousePosition;
             MyMatrix originalWorldMat = *m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
             MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
             MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
@@ -240,7 +220,7 @@ void EditorDocument_Heightmap::OnDrawFrame() //unsigned int canvasID)
             bool wasVisible = m_pHeightmap->IsVisible();
             m_pHeightmap->SetVisible( true );
 
-            m_pHeightmap->GetGameObject()->GetTransform()->SetWorldTransform( &identity );
+            m_pHeightmap->GetGameObject()->GetTransform()->SetWorldTransform( &MyMatrix::Identity() );
 
             // Draw the heightmap.
             {
@@ -298,10 +278,10 @@ void EditorDocument_Heightmap::AddImGuiOverlayItems()
 
     ImGui::Text( "Editing Heightmap: %s", m_pHeightmap->GetGameObject()->GetName() );
 
-    if( m_pCommandStack->GetUndoStackSize() > 0 )
-    {
-        ImGui::Text( "Unsaved changes" );
-    }
+    //if( m_pCommandStack->GetUndoStackSize() > 0 )
+    //{
+    //    ImGui::Text( "Unsaved changes" );
+    //}
 
     if( m_pJob_CalculateNormals && m_pJob_CalculateNormals->IsQueued() )
     {
@@ -367,24 +347,24 @@ bool EditorDocument_Heightmap::HandleInput(int keyAction, int keyCode, int mouse
         Vector3 start, end;
         GetMouseRay( Vector2( x, y ), &start, &end );
 
-        Vector3 mouseIntersectionPoint;
-        bool mouseRayIntersected = m_pHeightmap->RayCast( false, start, end, &mouseIntersectionPoint );
+        Vector3 localSpaceMousePosition;
+        bool mouseRayIntersected = m_pHeightmap->RayCast( false, start, end, &localSpaceMousePosition );
 
-        // Show a 2d circle at that point.
-        //MyMatrix identity;
-        //identity.SetIdentity();
-        //MyMatrix* pWorldMat = &identity; //m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
-        m_WorldSpaceMousePosition = /**pWorldMat **/ mouseIntersectionPoint;
-        //LOGInfo( LOGTag, "RayCast result is (%0.2f, %0.2f, %0.2f)\n", mouseIntersectionPoint.x, mouseIntersectionPoint.y, mouseIntersectionPoint.z );
+        // Show the brush at that point.
+        //MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+        //m_WorldSpaceMousePosition = *pWorldMat * localSpaceMousePosition;
+        m_WorldSpaceMousePosition = localSpaceMousePosition;
 
         if( m_CurrentTool == Tool::Level && m_LevelUseBrushHeight == false )
         {
-            Vector3 mouseIntersectPointAtDesiredHeight;
+            Vector3 localSpacePointAtDesiredHeight;
 
-            m_pHeightmap->RayCastAtLocalHeight( false, start, end, m_LevelHeight, &mouseIntersectPointAtDesiredHeight, &mouseIntersectionPoint );
-            m_WorldSpaceMousePositionAtDesiredHeight = /**pWorldMat **/ mouseIntersectPointAtDesiredHeight;
+            m_pHeightmap->RayCastAtLocalHeight( false, start, end, m_LevelHeight, &localSpacePointAtDesiredHeight, &localSpaceMousePosition );
 
-            m_WorldSpaceMousePosition = /**pWorldMat **/ mouseIntersectionPoint;
+            //m_WorldSpaceMousePositionAtDesiredHeight = *pWorldMat * localSpacePointAtDesiredHeight;
+            //m_WorldSpaceMousePosition = *pWorldMat * localSpaceMousePosition;
+            m_WorldSpaceMousePositionAtDesiredHeight = localSpacePointAtDesiredHeight;
+            m_WorldSpaceMousePosition = localSpaceMousePosition;
         }
 
         if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
@@ -405,19 +385,16 @@ bool EditorDocument_Heightmap::HandleInput(int keyAction, int keyCode, int mouse
                 {
                     m_CurrentToolState = ToolState::Active;
                     m_WorldSpaceMousePositionWhenToolStarted = m_WorldSpaceMousePosition;
-                    ApplyCurrentTool( mouseIntersectionPoint, mouseAction );
-                    LOGInfo( "HeightmapEditor", "mouseIntersectionPoint DOWN(%0.0f, %0.0f): %0.2f, %0.2f, %0.2f", x, y, mouseIntersectionPoint.x, mouseIntersectionPoint.y, mouseIntersectionPoint.z );
+                    ApplyCurrentTool( localSpaceMousePosition, mouseAction );
                 }
             }
 
             if( mouseAction == GCBA_Up && id == 0 ) // Left mouse button up.
             {
-                //MyMatrix identity;
-                //identity.SetIdentity();
-                //MyMatrix* pWorldMat = &identity; //m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
-                Vector3 localSpacePoint = /*pWorldMat->GetInverse() **/ m_WorldSpaceMousePosition;
+                //MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+                //Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
+                Vector3 localSpacePoint = m_WorldSpaceMousePosition;
                 ApplyCurrentTool( localSpacePoint, mouseAction );
-                LOGInfo( "HeightmapEditor", "mouseIntersectionPoint UP(%0.0f, %0.0f): %0.2f, %0.2f, %0.2f", x, y, localSpacePoint.x, localSpacePoint.y, localSpacePoint.z );
 
                 // Wait for any outstanding jobs to complete.
                 pEngineCore->GetManagers()->GetJobManager()->WaitForJobToComplete( m_pJob_CalculateNormals );
@@ -443,11 +420,11 @@ bool EditorDocument_Heightmap::HandleInput(int keyAction, int keyCode, int mouse
                     plane.Set( Vector3( 0, 1, 0 ), Vector3( 0, heightWanted, 0 ) );
 
                     Vector3 flatIntersectPoint;
-                    if( plane.IntersectRay( start, end, &flatIntersectPoint ) )
+                    if( plane.IntersectRay( start, start-end, &flatIntersectPoint ) )
                     {
-                        Vector3 localSpacePoint = /*pWorldMat->GetInverse() **/ flatIntersectPoint;
+                        //Vector3 localSpacePoint = pWorldMat->GetInverse() * flatIntersectPoint;
+                        Vector3 localSpacePoint = flatIntersectPoint;
                         ApplyCurrentTool( localSpacePoint, mouseAction );
-                        LOGInfo( "HeightmapEditor", "mouseIntersectionPoint HELD(%0.0f, %0.0f): %0.2f, %0.2f, %0.2f", x, y, localSpacePoint.x, localSpacePoint.y, localSpacePoint.z );
 
                         m_WorldSpaceMousePosition = flatIntersectPoint;
                     }
@@ -615,6 +592,9 @@ void EditorDocument_Heightmap::Update()
 
         ImGui::EndPopup();
     }
+
+    ImGui::SetCursorPos( ImVec2( 8, 28 ) );
+    AddImGuiOverlayItems();
 }
 
 void EditorDocument_Heightmap::SetHeightmap(ComponentHeightmap* pHeightmap)
@@ -640,7 +620,7 @@ MaterialDefinition* EditorDocument_Heightmap::GetMaterial(MaterialTypes type)
     return m_pMaterials[type];
 }
 
-void EditorDocument_Heightmap::ApplyCurrentTool(Vector3 mouseIntersectionPoint, int mouseAction)
+void EditorDocument_Heightmap::ApplyCurrentTool(Vector3 localSpacePoint, int mouseAction)
 {
     EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
@@ -658,14 +638,14 @@ void EditorDocument_Heightmap::ApplyCurrentTool(Vector3 mouseIntersectionPoint, 
             if( mouseAction == GCBA_Up )
                 break;
 
-            float amount = m_RaiseAmount;
+            float amount = m_RaiseAmount * 1/60.0f; // TODO: Get delta time.
             if( m_CurrentTool == Tool::Lower )
                 amount *= -1;
 
             // Raise the terrain and add to command stack.
-            if( m_pHeightmap->Tool_Raise( mouseIntersectionPoint, amount, m_BrushRadius, m_BrushSoftness, true ) )
+            if( m_pHeightmap->Tool_Raise( localSpacePoint, amount, m_BrushRadius, m_BrushSoftness, true ) )
             {
-                EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, mouseIntersectionPoint, amount, m_BrushRadius, m_BrushSoftness );
+                EditorCommand_Heightmap_Raise* pCommand = MyNew EditorCommand_Heightmap_Raise( m_pHeightmap, localSpacePoint, amount, m_BrushRadius, m_BrushSoftness );
 
                 // Attach to previous 'raise' command if this is a held message,
                 //   otherwise it's a mouse down so create a new message.
@@ -691,8 +671,8 @@ void EditorDocument_Heightmap::ApplyCurrentTool(Vector3 mouseIntersectionPoint, 
                 break;
             }
 
-            float height = m_LevelUseBrushHeight ? mouseIntersectionPoint.y : m_LevelHeight;
-            Vector3 point = m_LevelUseBrushHeight ? mouseIntersectionPoint : m_WorldSpaceMousePositionAtDesiredHeight;
+            float height = m_LevelUseBrushHeight ? localSpacePoint.y : m_LevelHeight;
+            Vector3 point = m_LevelUseBrushHeight ? localSpacePoint : m_WorldSpaceMousePositionAtDesiredHeight;
 
             if( m_pHeightmap->Tool_Level( point, height, m_BrushRadius, m_BrushSoftness, true ) )
             {

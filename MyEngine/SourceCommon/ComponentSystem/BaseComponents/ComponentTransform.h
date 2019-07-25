@@ -85,7 +85,7 @@ public:
     void SetParentTransform(ComponentTransform* pNewParentTransform);
 
     void SetWorldTransformIsDirty() { m_WorldTransformIsDirty = true; }
-    void SetWorldTransform(MyMatrix* mat);
+    void SetWorldTransform(const MyMatrix* mat);
     MyMatrix* GetWorldTransform(bool markdirty = false);
     Vector3 GetWorldPosition();
     Vector3 GetWorldRotation();
