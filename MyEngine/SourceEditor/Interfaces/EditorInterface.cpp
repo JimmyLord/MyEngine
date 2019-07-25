@@ -286,7 +286,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyAction, int keyCode, int
     return pCamera->HandleInputForEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure );
 }
 
-bool EditorInterface::ExecuteHotkeyAction(HotKeyAction action)
+bool EditorInterface::ExecuteHotkeyAction(HotkeyAction action)
 {
     return false;
 }

@@ -16,7 +16,7 @@
 #include "../SourceEditor/EditorState.h"
 
 #if MYFW_EDITOR
-#include "../SourceEditor/Interfaces/EditorInterface_HeightmapEditor.h"
+#include "../SourceEditor/Documents/EditorDocument_Heightmap.h"
 #endif
 
 #pragma warning( push )
@@ -178,11 +178,7 @@ void ComponentHeightmap::OnButtonEditHeightmap()
 {
     EngineCore* pEngineCore = m_pComponentSystemManager->GetEngineCore();
 
-    //pEngineCore->SetEditorInterface( EditorInterfaceType::HeightmapEditor );
-    //EditorInterface_HeightmapEditor* pInterface = (EditorInterface_HeightmapEditor*)pEngineCore->GetCurrentEditorInterface();
-    //pInterface->SetHeightmap( this );
-
-    EditorInterface_HeightmapEditor* pDocument = MyNew EditorInterface_HeightmapEditor( pEngineCore );
+    EditorDocument_Heightmap* pDocument = MyNew EditorDocument_Heightmap( pEngineCore );
     pEngineCore->GetEditorState()->OpenDocument( pDocument );
     pDocument->SetHeightmap( this );
     pDocument->Initialize();
@@ -1099,14 +1095,17 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
     return false;
 }
 
-bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) const
+bool ComponentHeightmap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 end, Vector3* pResult) const
 {
     // Move ray into terrain space.
-    ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
-    MyAssert( pTransform );
-    MyMatrix* pWorldMat = pTransform->GetWorldTransform();
-    start = pWorldMat->GetInverse() * start;
-    end = pWorldMat->GetInverse() * end;
+    if( rayIsInWorldSpace )
+    {
+        ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
+        MyAssert( pTransform );
+        MyMatrix* pWorldMat = pTransform->GetWorldTransform();
+        start = pWorldMat->GetInverse() * start;
+        end = pWorldMat->GetInverse() * end;
+    }
 
     // Get the direction vector.
     Vector3 dir = (end - start).GetNormalized();
@@ -1248,14 +1247,17 @@ bool ComponentHeightmap::RayCast(Vector3 start, Vector3 end, Vector3* pResult) c
     return false;
 }
 
-bool ComponentHeightmap::RayCastAtLocalHeight(Vector3 start, Vector3 end, float height, Vector3* pResultAtDesiredHeight, Vector3* pResultOnGround) const
+bool ComponentHeightmap::RayCastAtLocalHeight(bool rayIsInWorldSpace, Vector3 start, Vector3 end, float height, Vector3* pResultAtDesiredHeight, Vector3* pResultOnGround) const
 {
     // Move ray into terrain space.
-    ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
-    MyAssert( pTransform );
-    MyMatrix* pWorldMat = pTransform->GetWorldTransform();
-    start = pWorldMat->GetInverse() * start;
-    end = pWorldMat->GetInverse() * end;
+    if( rayIsInWorldSpace )
+    {
+        ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
+        MyAssert( pTransform );
+        MyMatrix* pWorldMat = pTransform->GetWorldTransform();
+        start = pWorldMat->GetInverse() * start;
+        end = pWorldMat->GetInverse() * end;
+    }
 
     // Get the direction vector.
     Vector3 dir = (end - start).GetNormalized();

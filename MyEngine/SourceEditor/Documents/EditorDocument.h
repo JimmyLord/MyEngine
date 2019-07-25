@@ -10,6 +10,8 @@
 #ifndef __EditorDocument_H__
 #define __EditorDocument_H__
 
+#include "../SourceEditor/Prefs/EditorKeyBindings.h"
+
 class ComponentCamera;
 class ComponentTransform;
 
@@ -26,16 +28,6 @@ protected:
         //EditorDocumentMenuCommand_SaveAll,
     };
 
-public:
-    ComponentCamera* m_pCamera;
-    ComponentTransform* m_pCameraTransform;
-    FBODefinition* m_pFBO;
-    Vector2 m_WindowPos;
-    Vector2 m_WindowSize;
-    bool m_WindowHovered;
-    bool m_WindowFocused;
-    bool m_WindowVisible;
-
 protected:
     EngineCore* m_pEngineCore;
 
@@ -46,6 +38,16 @@ protected:
     char m_RelativePath[MAX_PATH];
     const char* m_Filename; // Pointer to the end part of m_RelativePath;
 
+    // Windowing system stuff.
+    ComponentCamera* m_pCamera;
+    ComponentTransform* m_pCameraTransform;
+    FBODefinition* m_pFBO;
+    Vector2 m_WindowPos;
+    Vector2 m_WindowSize;
+    bool m_WindowHovered;
+    bool m_WindowFocused;
+    bool m_WindowVisible;
+
 protected:
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command);
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value);
@@ -55,11 +57,17 @@ public:
     virtual ~EditorDocument();
 
     static EditorDocument* AddDocumentMenu(EngineCore* pEngineCore, EditorDocument* pDocument);
+
+    // Input/Hotkey handling
+    virtual HotkeyContext GetHotkeyContext() { return HotkeyContext::Global; }
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+    virtual bool ExecuteHotkeyAction(HotkeyAction action);
+
     virtual void Save();
     virtual void Load();
 
-    virtual bool CreateWindowAndUpdate(bool* pDocumentStillOpen);
+    void GetWindowTitle(char* pTitle, const uint32 titleAllocationSize);
+    virtual void CreateWindowAndUpdate(bool* pDocumentStillOpen);
     virtual void Update();
     virtual void OnDrawFrame();
 
@@ -70,6 +78,12 @@ public:
     const char* GetFilename();
 
     bool HasUnsavedChanges();
+
+    Vector2 GetWindowPosition() { return m_WindowPos; }
+    Vector2 GetWindowSize() { return m_WindowSize; }
+    bool IsWindowHovered() { return m_WindowHovered; }
+    bool IsWindowFocused() { return m_WindowFocused; }
+    bool IsWindowVisible() { return m_WindowVisible; }
 };
 
 #endif //__EditorDocument_H__

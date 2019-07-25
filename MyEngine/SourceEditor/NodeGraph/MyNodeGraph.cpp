@@ -108,8 +108,6 @@ MyNodeGraph::~MyNodeGraph()
 {
     Clear();
 
-    delete m_pCommandStack;
-    
     delete[] m_pLuaString;
 }
 
@@ -273,12 +271,6 @@ void MyNodeGraph::SetExpandedForAllSelectedNodes(bool expand)
         MyNode* pNode = m_Nodes[nodeIndex];
         pNode->m_Expanded = expand;
     }
-}
-
-// Returns true if in focus.
-bool MyNodeGraph::CreateWindowAndUpdate(bool* pDocumentStillOpen)
-{
-    return EditorDocument::CreateWindowAndUpdate( pDocumentStillOpen );
 }
 
 void MyNodeGraph::Update()

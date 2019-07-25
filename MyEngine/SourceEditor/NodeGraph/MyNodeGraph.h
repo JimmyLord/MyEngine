@@ -144,7 +144,6 @@ public:
     virtual ~MyNodeGraph();
 
     // Returns true if in focus.
-    virtual bool CreateWindowAndUpdate(bool* pDocumentStillOpen) override;
     virtual void Update() override;
 
     // Getters.

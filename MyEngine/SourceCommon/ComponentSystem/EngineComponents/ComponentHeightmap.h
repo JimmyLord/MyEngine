@@ -14,7 +14,7 @@
 
 class ComponentHeightmap : public ComponentMesh
 {
-    friend class EditorInterface_HeightmapEditor;
+    friend class EditorDocument_Heightmap;
     friend class EditorCommand_Heightmap_Raise;
     friend class EditorCommand_Heightmap_FullBackup;
     friend class Job_CalculateNormals;
@@ -107,8 +107,8 @@ protected:
 public:
     bool GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const;
     bool GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const;
-    bool RayCast(Vector3 start, Vector3 end, Vector3* pResult) const;
-    bool RayCastAtLocalHeight(Vector3 start, Vector3 end, float height, Vector3* pResultAtDesiredHeight, Vector3* pResultOnGround) const;
+    bool RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 end, Vector3* pResult) const;
+    bool RayCastAtLocalHeight(bool rayIsInWorldSpace, Vector3 start, Vector3 end, float height, Vector3* pResultAtDesiredHeight, Vector3* pResultOnGround) const;
 
     // Editor tools, will all return true if they affect the vertices.
     bool Tool_Raise(Vector3 position, float amount, float radius, float softness, bool rebuild);

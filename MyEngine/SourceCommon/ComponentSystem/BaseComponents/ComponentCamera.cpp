@@ -1111,7 +1111,7 @@ bool ComponentCamera::HandleInputForEditorCamera(int keyAction, int keyCode, int
         MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
         // Focus camera on selected objects.
-        if( pKeys->KeyMatches( HotKeyAction::Camera_Focus, modifiers, keyCode, pEngineCore->GetCurrentEditorInterfaceType() ) )
+        if( pKeys->KeyMatches( HotkeyAction::Camera_Focus, modifiers, keyCode, HotkeyContext::Global ) )
         {
             // Make sure there is an object actually selected.
             if( pEditorState->m_pSelectedObjects.size() > 0 )
@@ -1134,12 +1134,12 @@ bool ComponentCamera::HandleInputForEditorCamera(int keyAction, int keyCode, int
 
             uint8 modifiersWithoutShift = modifiers & ~MODIFIERKEY_Shift;
 
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Forward, modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.z +=  1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Left,    modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.x += -1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Back,    modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.z += -1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Right,   modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.x +=  1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Up,      modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.y +=  1;
-            if( pKeys->KeyMatches( HotKeyAction::Camera_Down,    modifiersWithoutShift, keyCode, EditorInterfaceType::NumInterfaces ) ) dir.y += -1;
+            if( pKeys->KeyMatches( HotkeyAction::Camera_Forward, modifiersWithoutShift, keyCode ) ) dir.z +=  1;
+            if( pKeys->KeyMatches( HotkeyAction::Camera_Left,    modifiersWithoutShift, keyCode ) ) dir.x += -1;
+            if( pKeys->KeyMatches( HotkeyAction::Camera_Back,    modifiersWithoutShift, keyCode ) ) dir.z += -1;
+            if( pKeys->KeyMatches( HotkeyAction::Camera_Right,   modifiersWithoutShift, keyCode ) ) dir.x +=  1;
+            if( pKeys->KeyMatches( HotkeyAction::Camera_Up,      modifiersWithoutShift, keyCode ) ) dir.y +=  1;
+            if( pKeys->KeyMatches( HotkeyAction::Camera_Down,    modifiersWithoutShift, keyCode ) ) dir.y += -1;
 
             float speed = 7.0f;
             if( modifiers & MODIFIERKEY_Shift )

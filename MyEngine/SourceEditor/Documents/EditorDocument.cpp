@@ -29,6 +29,16 @@ EditorDocument::EditorDocument(EngineCore* pEngineCore)
 
      m_RelativePath[0] = '\0';
      m_Filename = m_RelativePath;
+
+     // Windowing system stuff.
+     m_pCamera = nullptr;
+     m_pCameraTransform = nullptr;
+     m_pFBO = nullptr;
+     m_WindowPos.Set( -1, -1 );
+     m_WindowSize.Set( -1, -1 );
+     m_WindowHovered = false;
+     m_WindowFocused = false;
+     m_WindowVisible = false;
 }
 
 EditorDocument::~EditorDocument()
@@ -248,6 +258,11 @@ bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, in
     return false;
 }
 
+bool EditorDocument::ExecuteHotkeyAction(HotkeyAction action)
+{
+    return false;
+}
+
 void EditorDocument::Save()
 {
     m_UndoStackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
@@ -259,26 +274,35 @@ void EditorDocument::Load()
     m_UndoStackDepthAtLastSave = 0;
 }
 
-bool EditorDocument::CreateWindowAndUpdate(bool* pDocumentStillOpen)
+void EditorDocument::GetWindowTitle(char* pTitle, const uint32 titleAllocationSize)
 {
-    bool inFocus = false;
-
     const char* filename = GetFilename();
     if( filename[0] == '\0' )
         filename = "Untitled";
 
-    char tempTitle[MAX_PATH*2+5];
     if( HasUnsavedChanges() )
     {
-        sprintf_s( tempTitle, 512, "%s*###%p", filename, this );
+        sprintf_s( pTitle, titleAllocationSize, "%s*###%p", filename, this );
     }
     else
     {
-        sprintf_s( tempTitle, 512, "%s###%p", filename, this );
+        sprintf_s( pTitle, titleAllocationSize, "%s###%p", filename, this );
     }
+};
+
+void EditorDocument::CreateWindowAndUpdate(bool* pDocumentStillOpen)
+{
+    const uint32 tempTitleAllocationSize = MAX_PATH*2+5;
+    static char tempTitle[tempTitleAllocationSize];
+
+    GetWindowTitle( tempTitle, tempTitleAllocationSize );
+
+    m_WindowVisible = false;
 
     if( ImGui::Begin( tempTitle, pDocumentStillOpen ) )
     {
+        m_WindowVisible = true;
+
         if( ImGui::BeginPopupContextItem() )
         {
             if( ImGui::MenuItem( "Close" ) )
@@ -290,11 +314,10 @@ bool EditorDocument::CreateWindowAndUpdate(bool* pDocumentStillOpen)
 
         Update();
 
-        inFocus = ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows );
+        m_WindowFocused = ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows );
+        m_WindowHovered = ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByActiveItem );
     }
     ImGui::End();
-
-    return inFocus;
 }
 
 void EditorDocument::Update()

@@ -7,16 +7,17 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __EditorInterface_HeightmapEditor_H__
-#define __EditorInterface_HeightmapEditor_H__
+#ifndef __EditorDocument_Heightmap_H__
+#define __EditorDocument_Heightmap_H__
 
-#include "EditorInterface.h"
 #include "../SourceEditor/Documents/EditorDocument.h"
+#include "../SourceEditor/Prefs/EditorKeyBindings.h"
 
 class ComponentHeightmap;
+class GameObject;
 class Job_CalculateNormals;
 
-class EditorInterface_HeightmapEditor : /*public EditorInterface, */public EditorDocument
+class EditorDocument_Heightmap : public EditorDocument
 {
     friend class Job_CalculateNormals;
 public:
@@ -73,8 +74,8 @@ protected:
     bool m_AlwaysRecalculateNormals;
 
 public:
-    EditorInterface_HeightmapEditor(EngineCore* pEngineCore);
-    virtual ~EditorInterface_HeightmapEditor();
+    EditorDocument_Heightmap(EngineCore* pEngineCore);
+    virtual ~EditorDocument_Heightmap();
 
     virtual void Initialize();// override;
 
@@ -86,8 +87,11 @@ public:
     virtual void AddImGuiOverlayItems();// override;
 
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
+
+    // Input/Hotkey handling
+    virtual HotkeyContext GetHotkeyContext() override { return HotkeyContext::HeightmapEditor; }
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) override;
-    virtual bool ExecuteHotkeyAction(HotKeyAction action);// override;
+    virtual bool ExecuteHotkeyAction(HotkeyAction action) override;
 
     virtual void Update() override; // From EditorDocument.
 
@@ -104,4 +108,4 @@ protected:
     void Save();
 };
 
-#endif //__EditorInterface_HeightmapEditor_H__
+#endif //__EditorDocument_Heightmap_H__

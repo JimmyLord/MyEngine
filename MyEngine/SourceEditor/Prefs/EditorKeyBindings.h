@@ -10,9 +10,7 @@
 #ifndef __EditorKeyBindings_H__
 #define __EditorKeyBindings_H__
 
-#include "Core/EngineCore.h" // For EditorInterfaceType.
-
-enum class HotKeyAction
+enum class HotkeyAction
 {
     Global_Find,
     File_SaveScene,
@@ -54,6 +52,12 @@ enum class HotKeyAction
     HeightmapEditor_Tool_Level,
     HeightmapEditor_LastAction = HeightmapEditor_Tool_Level,
     Num,
+};
+
+enum class HotkeyContext
+{
+    Global,
+    HeightmapEditor,
 };
 
 class EditorKeyBindings
@@ -120,18 +124,18 @@ protected:
     int m_NumPresets;
     uint32 m_ModifiersHeld;
 
-    EditorInterfaceType m_EditorInterfaceThisKeyIsActiveFor[HotKeyAction::Num];
+    HotkeyContext m_ContextThisKeyIsActiveFor[HotkeyAction::Num];
 
-    KeyBinding m_DefaultKeys[5][HotKeyAction::Num];
-    KeyBinding m_Keys[5][HotKeyAction::Num];
+    KeyBinding m_DefaultKeys[5][HotkeyAction::Num];
+    KeyBinding m_Keys[5][HotkeyAction::Num];
 
     static const int m_MaxStringLength = 64; // Command-Ctrl-Alt-Shift-ScrollLock <- 33 + 1;
-    char m_KeyStrings[5][HotKeyAction::Num][MaxKeysPerAction][m_MaxStringLength];
+    char m_KeyStrings[5][HotkeyAction::Num][MaxKeysPerAction][m_MaxStringLength];
 
     // New key binding.
     bool m_RegisteringNewBinding;
     int m_NewBindingPreset;
-    HotKeyAction m_NewBindingHotKeyAction;
+    HotkeyAction m_NewBindingHotkeyAction;
     int m_NewBindingKeyIndex;
 
     // Filters.
@@ -149,10 +153,10 @@ public:
     void SavePrefs(cJSON* jPrefs);
 
     uint32 GetModifiersHeld();
-    KeyBinding GetKey(HotKeyAction action);
-    EditorInterfaceType GetEditorInterfaceType(HotKeyAction action);
-    bool KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode, EditorInterfaceType currentEditorInterfaceType);
-    const char* GetStringForKey(HotKeyAction action);
+    KeyBinding GetKey(HotkeyAction action);
+    HotkeyContext GetContext(HotkeyAction action);
+    bool KeyMatches(HotkeyAction action, uint32 modifiers, uint32 keyCode, HotkeyContext context = HotkeyContext::Global);
+    const char* GetStringForKey(HotkeyAction action);
 
     // ImGui interface methods.
     void AddCustomizationTab();
@@ -163,10 +167,10 @@ public:
     void CancelBindingAction();
 
 protected:
-    void SetDefaultKey(int preset, HotKeyAction action, int keyIndex, uint32 modifiers, uint32 keyCode);
-    void SetDefaultKeys(int preset, HotKeyAction action, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1 = 0, uint32 keyCode1 = 0);
+    void SetDefaultKey(int preset, HotkeyAction action, int keyIndex, uint32 modifiers, uint32 keyCode);
+    void SetDefaultKeys(int preset, HotkeyAction action, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1 = 0, uint32 keyCode1 = 0);
     void GenerateKeyStrings();
-    bool HasConflict(HotKeyAction actionToFind, int keyIndexToFind);
+    bool HasConflict(HotkeyAction actionToFind, int keyIndexToFind);
 };
 
 #endif //__EditorKeyBindings_H__

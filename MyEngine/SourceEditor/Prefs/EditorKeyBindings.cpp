@@ -12,7 +12,7 @@
 #include "EditorKeyBindings.h"
 #include "Core/EngineCore.h"
 
-const char* g_KeyBindingStrings[HotKeyAction::Num] =
+const char* g_KeyBindingStrings[HotkeyAction::Num] =
 {
     "Global_Find",
     "File_SaveScene",
@@ -62,68 +62,68 @@ EditorKeyBindings::EditorKeyBindings()
     uint32 CS = Modifier_ControlOrCommand | Modifier_Shift;
 
     // Global.
-    SetDefaultKeys( 0, HotKeyAction::Global_Find,                   C,  'F',   0,  114 ); // F3
+    SetDefaultKeys( 0, HotkeyAction::Global_Find,                   C,  'F',   0,  114 ); // F3
     // File menu.
-    SetDefaultKeys( 0, HotKeyAction::File_SaveScene,                C,  'S' );
-    SetDefaultKeys( 0, HotKeyAction::File_SaveAll,                  CS, 'S' );
-    SetDefaultKeys( 0, HotKeyAction::File_ExportBox2D,              CS, 'E' );
-    SetDefaultKeys( 0, HotKeyAction::File_Preferences,              CS, 'P' );
+    SetDefaultKeys( 0, HotkeyAction::File_SaveScene,                C,  'S' );
+    SetDefaultKeys( 0, HotkeyAction::File_SaveAll,                  CS, 'S' );
+    SetDefaultKeys( 0, HotkeyAction::File_ExportBox2D,              CS, 'E' );
+    SetDefaultKeys( 0, HotkeyAction::File_Preferences,              CS, 'P' );
     // Edit menu.
-    SetDefaultKeys( 0, HotKeyAction::Edit_Undo,                     C,  'Z' );
-    SetDefaultKeys( 0, HotKeyAction::Edit_Redo,                     C,  'Y',   CS, 'Z' );
+    SetDefaultKeys( 0, HotkeyAction::Edit_Undo,                     C,  'Z' );
+    SetDefaultKeys( 0, HotkeyAction::Edit_Redo,                     C,  'Y',   CS, 'Z' );
     // View menu.
-    SetDefaultKeys( 0, HotKeyAction::View_ShowEditorCamProperties,  CA, 118 ); // F7
-    SetDefaultKeys( 0, HotKeyAction::View_ShowEditorIcons,          S,  118 ); // F7
-    SetDefaultKeys( 0, HotKeyAction::View_ToggleEditorCamDeferred,  CS, 118 ); // F7
-    SetDefaultKeys( 0, HotKeyAction::View_Full,                     A,  '1' );
-    SetDefaultKeys( 0, HotKeyAction::View_Tall,                     A,  '2' );
-    SetDefaultKeys( 0, HotKeyAction::View_Square,                   A,  '3' );
-    SetDefaultKeys( 0, HotKeyAction::View_Wide,                     A,  '4' );
+    SetDefaultKeys( 0, HotkeyAction::View_ShowEditorCamProperties,  CA, 118 ); // F7
+    SetDefaultKeys( 0, HotkeyAction::View_ShowEditorIcons,          S,  118 ); // F7
+    SetDefaultKeys( 0, HotkeyAction::View_ToggleEditorCamDeferred,  CS, 118 ); // F7
+    SetDefaultKeys( 0, HotkeyAction::View_Full,                     A,  '1' );
+    SetDefaultKeys( 0, HotkeyAction::View_Tall,                     A,  '2' );
+    SetDefaultKeys( 0, HotkeyAction::View_Square,                   A,  '3' );
+    SetDefaultKeys( 0, HotkeyAction::View_Wide,                     A,  '4' );
     // Grid menu.
-    SetDefaultKeys( 0, HotKeyAction::Grid_Visible,                  CS, 'V' );
-    SetDefaultKeys( 0, HotKeyAction::Grid_SnapEnabled,              C,  'G' );
-    SetDefaultKeys( 0, HotKeyAction::Grid_Settings,                 CS, 'G' );
+    SetDefaultKeys( 0, HotkeyAction::Grid_Visible,                  CS, 'V' );
+    SetDefaultKeys( 0, HotkeyAction::Grid_SnapEnabled,              C,  'G' );
+    SetDefaultKeys( 0, HotkeyAction::Grid_Settings,                 CS, 'G' );
     // Mode menu.
-    SetDefaultKeys( 0, HotKeyAction::Mode_TogglePlayStop,           C,  ' ' );
-    SetDefaultKeys( 0, HotKeyAction::Mode_Pause,                    C,  '.' );
-    SetDefaultKeys( 0, HotKeyAction::Mode_AdvanceOneFrame,          C,  ']' );
-    SetDefaultKeys( 0, HotKeyAction::Mode_AdvanceOneSecond,         C,  '[' );
-    SetDefaultKeys( 0, HotKeyAction::Mode_LaunchGame,               C,  116 ); // F5
+    SetDefaultKeys( 0, HotkeyAction::Mode_TogglePlayStop,           C,  ' ' );
+    SetDefaultKeys( 0, HotkeyAction::Mode_Pause,                    C,  '.' );
+    SetDefaultKeys( 0, HotkeyAction::Mode_AdvanceOneFrame,          C,  ']' );
+    SetDefaultKeys( 0, HotkeyAction::Mode_AdvanceOneSecond,         C,  '[' );
+    SetDefaultKeys( 0, HotkeyAction::Mode_LaunchGame,               C,  116 ); // F5
     // Debug menu.
-    SetDefaultKeys( 0, HotKeyAction::Debug_DrawWireframe,           C,  120 ); // F9
-    SetDefaultKeys( 0, HotKeyAction::Debug_ShowPhysicsShapes,       S,  119 ); // F8
-    SetDefaultKeys( 0, HotKeyAction::Debug_ShowStats,               CS, 119 ); // F8
+    SetDefaultKeys( 0, HotkeyAction::Debug_DrawWireframe,           C,  120 ); // F9
+    SetDefaultKeys( 0, HotkeyAction::Debug_ShowPhysicsShapes,       S,  119 ); // F8
+    SetDefaultKeys( 0, HotkeyAction::Debug_ShowStats,               CS, 119 ); // F8
     // Lua menu.
-    SetDefaultKeys( 0, HotKeyAction::Lua_RunLuaScript,              CS, 'L' );
+    SetDefaultKeys( 0, HotkeyAction::Lua_RunLuaScript,              CS, 'L' );
     // Misc.
-    SetDefaultKeys( 0, HotKeyAction::Objects_MergeIntoFolder,       CS, 'K' );
+    SetDefaultKeys( 0, HotkeyAction::Objects_MergeIntoFolder,       CS, 'K' );
     // Editor camera.
-    SetDefaultKeys( 0, HotKeyAction::Camera_Forward,                0,  'W' );
-    SetDefaultKeys( 0, HotKeyAction::Camera_Back,                   0,  'S' );
-    SetDefaultKeys( 0, HotKeyAction::Camera_Left,                   0,  'A' );
-    SetDefaultKeys( 0, HotKeyAction::Camera_Right,                  0,  'D' );
-    SetDefaultKeys( 0, HotKeyAction::Camera_Up,                     0,  'Q' );
-    SetDefaultKeys( 0, HotKeyAction::Camera_Down,                   0,  'E',   0,  'Z' );
-    SetDefaultKeys( 0, HotKeyAction::Camera_Focus,                  0,  'F' );
+    SetDefaultKeys( 0, HotkeyAction::Camera_Forward,                0,  'W' );
+    SetDefaultKeys( 0, HotkeyAction::Camera_Back,                   0,  'S' );
+    SetDefaultKeys( 0, HotkeyAction::Camera_Left,                   0,  'A' );
+    SetDefaultKeys( 0, HotkeyAction::Camera_Right,                  0,  'D' );
+    SetDefaultKeys( 0, HotkeyAction::Camera_Up,                     0,  'Q' );
+    SetDefaultKeys( 0, HotkeyAction::Camera_Down,                   0,  'E',   0,  'Z' );
+    SetDefaultKeys( 0, HotkeyAction::Camera_Focus,                  0,  'F' );
     // Heightmap editor tools.
-    SetDefaultKeys( 0, HotKeyAction::HeightmapEditor_Tool_Raise,    0,  '1' );
-    SetDefaultKeys( 0, HotKeyAction::HeightmapEditor_Tool_Lower,    0,  '2' );
-    SetDefaultKeys( 0, HotKeyAction::HeightmapEditor_Tool_Level,    0,  '3' );
+    SetDefaultKeys( 0, HotkeyAction::HeightmapEditor_Tool_Raise,    0,  '1' );
+    SetDefaultKeys( 0, HotkeyAction::HeightmapEditor_Tool_Lower,    0,  '2' );
+    SetDefaultKeys( 0, HotkeyAction::HeightmapEditor_Tool_Level,    0,  '3' );
 
-    for( int j=0; j<(int)HotKeyAction::Num; j++ )
+    for( int j=0; j<(int)HotkeyAction::Num; j++ )
     {
-        m_EditorInterfaceThisKeyIsActiveFor[j] = EditorInterfaceType::NumInterfaces;
+        m_ContextThisKeyIsActiveFor[j] = HotkeyContext::Global;
 
-        if( j >= (int)HotKeyAction::HeightmapEditor_FirstAction && j <= (int)HotKeyAction::HeightmapEditor_LastAction )
+        if( j >= (int)HotkeyAction::HeightmapEditor_FirstAction && j <= (int)HotkeyAction::HeightmapEditor_LastAction )
         {
-            //m_EditorInterfaceThisKeyIsActiveFor[j] = EditorInterfaceType::HeightmapEditor; 
+            m_ContextThisKeyIsActiveFor[j] = HotkeyContext::HeightmapEditor; 
         }
     }
 
     // Copy preset 0 into other 4 presets.
     for( int i=1; i<5; i++ )
     {
-        for( int j=0; j<(int)HotKeyAction::Num; j++ )
+        for( int j=0; j<(int)HotkeyAction::Num; j++ )
         {
             m_DefaultKeys[i][j] = m_DefaultKeys[0][j];
         }
@@ -144,7 +144,7 @@ EditorKeyBindings::EditorKeyBindings()
     // Key binding.
     m_RegisteringNewBinding = false;
     m_NewBindingPreset = 0;
-    m_NewBindingHotKeyAction = HotKeyAction::Num;
+    m_NewBindingHotkeyAction = HotkeyAction::Num;
     m_NewBindingKeyIndex = 0;
     m_ModifiersHeld = 0;
 
@@ -162,7 +162,7 @@ EditorKeyBindings::~EditorKeyBindings()
 
 void EditorKeyBindings::ResetCurrentPreset()
 {
-    for( int i=0; i<(int)HotKeyAction::Num; i++ )
+    for( int i=0; i<(int)HotkeyAction::Num; i++ )
     {
         m_Keys[m_CurrentPreset][i] = m_DefaultKeys[m_CurrentPreset][i];
     }
@@ -181,7 +181,7 @@ void EditorKeyBindings::LoadPrefs(cJSON* jPrefs)
         cJSON* jPreset = cJSON_GetArrayItem( jPresetsArray, preset );
         if( jPreset )
         {
-            for( int i=0; i<(int)HotKeyAction::Num; i++ )
+            for( int i=0; i<(int)HotkeyAction::Num; i++ )
             {
                 int numUnsignedInts = MaxKeysPerAction * 2;
 
@@ -206,7 +206,7 @@ void EditorKeyBindings::SavePrefs(cJSON* jPrefs)
     {
         cJSON* jPreset = cJSON_CreateObject();
         cJSON_AddItemToArray( jPresetsArray, jPreset );
-        for( int i=0; i<(int)HotKeyAction::Num; i++ )
+        for( int i=0; i<(int)HotkeyAction::Num; i++ )
         {
             if( m_Keys[preset][i] != m_DefaultKeys[preset][i] )
             {
@@ -223,29 +223,29 @@ uint32 EditorKeyBindings::GetModifiersHeld()
     return m_ModifiersHeld;
 }
 
-EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(HotKeyAction action)
+EditorKeyBindings::KeyBinding EditorKeyBindings::GetKey(HotkeyAction action)
 {
     return m_Keys[m_CurrentPreset][(int)action];
 }
 
-EditorInterfaceType EditorKeyBindings::GetEditorInterfaceType(HotKeyAction action)
+HotkeyContext EditorKeyBindings::GetContext(HotkeyAction action)
 {
-    return m_EditorInterfaceThisKeyIsActiveFor[(int)action];
+    return m_ContextThisKeyIsActiveFor[(int)action];
 }
 
-bool EditorKeyBindings::KeyMatches(HotKeyAction action, uint32 modifiers, uint32 keyCode, EditorInterfaceType currentEditorInterfaceType)
+bool EditorKeyBindings::KeyMatches(HotkeyAction action, uint32 modifiers, uint32 keyCode, HotkeyContext context)
 {
     // Only keep the first 4 bits of the modifiers.
     modifiers &= (Modifier_ControlOrCommand | Modifier_Alt | Modifier_Shift | Modifier_ControlOSX);
 
-    KeyBinding* pHotKey = &m_Keys[m_CurrentPreset][(int)action];
-    if( m_EditorInterfaceThisKeyIsActiveFor[(int)action] == EditorInterfaceType::NumInterfaces ||
-        m_EditorInterfaceThisKeyIsActiveFor[(int)action] == currentEditorInterfaceType )
+    KeyBinding* pHotkey = &m_Keys[m_CurrentPreset][(int)action];
+    if( m_ContextThisKeyIsActiveFor[(int)action] == HotkeyContext::Global ||
+        m_ContextThisKeyIsActiveFor[(int)action] == context )
     {
         for( int k=0; k<MaxKeysPerAction; k++ )
         {
-            if( pHotKey->m_Keys[k].m_Modifiers == modifiers &&
-                pHotKey->m_Keys[k].m_Key == keyCode )
+            if( pHotkey->m_Keys[k].m_Modifiers == modifiers &&
+                pHotkey->m_Keys[k].m_Key == keyCode )
                 return true;
         }
     }
@@ -253,7 +253,7 @@ bool EditorKeyBindings::KeyMatches(HotKeyAction action, uint32 modifiers, uint32
     return false;
 }
 
-const char* EditorKeyBindings::GetStringForKey(HotKeyAction action)
+const char* EditorKeyBindings::GetStringForKey(HotkeyAction action)
 {
     // Only return the string for the first key.
     return m_KeyStrings[m_CurrentPreset][(int)action][0];
@@ -309,7 +309,7 @@ void EditorKeyBindings::AddCustomizationTab()
         char currentHeader[32] = "noCategory";
         bool currentHeaderIsCollapsed = false;
 
-        for( uint32 action=0; action<(int)HotKeyAction::Num; action++ )
+        for( uint32 action=0; action<(int)HotkeyAction::Num; action++ )
         {
             // Compare string before _ to create new header blocks.
             if( showHeaders )
@@ -361,7 +361,7 @@ void EditorKeyBindings::AddCustomizationTab()
 
                     if( m_RegisteringNewBinding &&
                         m_CurrentPreset == m_NewBindingPreset &&
-                        m_NewBindingHotKeyAction == static_cast<HotKeyAction>( action ) &&
+                        m_NewBindingHotkeyAction == static_cast<HotkeyAction>( action ) &&
                         m_NewBindingKeyIndex == keyIndex )
                     {
                         ImGui::Text( "Waiting for key press..." );
@@ -370,7 +370,7 @@ void EditorKeyBindings::AddCustomizationTab()
                     {
                         m_RegisteringNewBinding = true;
                         m_NewBindingPreset = m_CurrentPreset;
-                        m_NewBindingHotKeyAction = static_cast<HotKeyAction>( action );
+                        m_NewBindingHotkeyAction = static_cast<HotkeyAction>( action );
                         m_NewBindingKeyIndex = keyIndex;
                     }
 
@@ -383,7 +383,7 @@ void EditorKeyBindings::AddCustomizationTab()
                         ImGui::Text( "*" );
                     }
 
-                    if( HasConflict( static_cast<HotKeyAction>( action ), keyIndex ) )
+                    if( HasConflict( static_cast<HotkeyAction>( action ), keyIndex ) )
                     {
                         ImGui::SameLine();
                         ImGui::Text( "CONFLICT" );
@@ -433,8 +433,8 @@ bool EditorKeyBindings::HandleInput(int keyAction, int keyCode)
             //LOGInfo( LOGTag, "New key bound: %d - %d", m_ModifiersHeld, keyCode );
             m_RegisteringNewBinding = false;
 
-            m_Keys[m_NewBindingPreset][(int)m_NewBindingHotKeyAction].m_Keys[m_NewBindingKeyIndex].m_Key = keyCode;
-            m_Keys[m_NewBindingPreset][(int)m_NewBindingHotKeyAction].m_Keys[m_NewBindingKeyIndex].m_Modifiers = m_ModifiersHeld;
+            m_Keys[m_NewBindingPreset][(int)m_NewBindingHotkeyAction].m_Keys[m_NewBindingKeyIndex].m_Key = keyCode;
+            m_Keys[m_NewBindingPreset][(int)m_NewBindingHotkeyAction].m_Keys[m_NewBindingKeyIndex].m_Modifiers = m_ModifiersHeld;
 
             GenerateKeyStrings();
 
@@ -466,13 +466,13 @@ void EditorKeyBindings::CancelBindingAction()
 // Protected methods.
 //====================================================================================================
 
-void EditorKeyBindings::SetDefaultKey(int preset, HotKeyAction action, int keyIndex, uint32 modifiers, uint32 keyCode)
+void EditorKeyBindings::SetDefaultKey(int preset, HotkeyAction action, int keyIndex, uint32 modifiers, uint32 keyCode)
 {
     m_DefaultKeys[preset][(int)action].m_Keys[keyIndex].m_Modifiers = modifiers;
     m_DefaultKeys[preset][(int)action].m_Keys[keyIndex].m_Key = keyCode;
 }
 
-void EditorKeyBindings::SetDefaultKeys(int preset, HotKeyAction action, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1, uint32 keyCode1)
+void EditorKeyBindings::SetDefaultKeys(int preset, HotkeyAction action, uint32 modifiers0, uint32 keyCode0, uint32 modifiers1, uint32 keyCode1)
 {
     m_DefaultKeys[preset][(int)action].m_Keys[0].m_Modifiers = modifiers0;
     m_DefaultKeys[preset][(int)action].m_Keys[0].m_Key = keyCode0;
@@ -487,7 +487,7 @@ void EditorKeyBindings::GenerateKeyStrings()
 
     for( int preset=0; preset<5; preset++ )
     {
-        for( int action=0; action<(int)HotKeyAction::Num; action++ )
+        for( int action=0; action<(int)HotkeyAction::Num; action++ )
         {
             for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
             {
@@ -553,12 +553,12 @@ void EditorKeyBindings::GenerateKeyStrings()
     }
 }
 
-bool EditorKeyBindings::HasConflict(HotKeyAction actionToFind, int keyIndexToFind)
+bool EditorKeyBindings::HasConflict(HotkeyAction actionToFind, int keyIndexToFind)
 {
     if( m_Keys[m_CurrentPreset][(int)actionToFind].m_Keys[keyIndexToFind].m_Key == 0 )
         return false;
 
-    for( int action=0; action<(int)HotKeyAction::Num; action++ )
+    for( int action=0; action<(int)HotkeyAction::Num; action++ )
     {
         for( int keyIndex=0; keyIndex<MaxKeysPerAction; keyIndex++ )
         {

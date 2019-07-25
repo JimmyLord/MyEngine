@@ -37,7 +37,7 @@ public:
     virtual void AddImGuiOverlayItems() {};
 
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) = 0;
-    virtual bool ExecuteHotkeyAction(HotKeyAction action);
+    virtual bool ExecuteHotkeyAction(HotkeyAction action);
 
     virtual void RenderObjectIDsToFBO();
     virtual unsigned int GetIDAtPixel(unsigned int x, unsigned int y, bool createNewBitmap, bool includeTransformGizmo);

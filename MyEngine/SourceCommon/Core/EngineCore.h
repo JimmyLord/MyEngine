@@ -51,7 +51,6 @@ enum class EditorInterfaceType
 {
     SceneManagement,
     The2DPointEditor,
-    //HeightmapEditor,
     VoxelMeshEditor,
     NumInterfaces,
 };
