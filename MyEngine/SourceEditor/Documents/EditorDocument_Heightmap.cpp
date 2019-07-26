@@ -51,7 +51,7 @@ public:
     }
 };
 
-EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore)
+EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, ComponentHeightmap* pHeightmap)
 : EditorDocument( pEngineCore )
 {
     m_pCamera = MyNew ComponentCamera( nullptr );
@@ -70,7 +70,17 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore)
     m_WindowFocused = false;
     m_WindowVisible = false;
 
-    m_pHeightmap = nullptr;
+    if( pHeightmap )
+    {
+        m_pHeightmap = pHeightmap;
+        m_HeightmapOwnedByUs = false;
+    }
+    else
+    {
+        m_pHeightmap = MyNew ComponentHeightmap( nullptr );
+        m_pHeightmap->Reset();
+        m_HeightmapOwnedByUs = true;
+    }
 
     m_CurrentTool = Tool::Raise;
     m_CurrentToolState = ToolState::Idle;
@@ -91,7 +101,8 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore)
     }
 
     m_HeightmapNormalsNeedRebuilding = false;
-    m_pJob_CalculateNormals = nullptr;
+    m_pJob_CalculateNormals = MyNew Job_CalculateNormals();
+    m_pJob_CalculateNormals->SetEditor( this );
 
     // Warnings.
     m_ShowWarning_CloseEditor = false;
@@ -110,6 +121,12 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore)
 
 EditorDocument_Heightmap::~EditorDocument_Heightmap()
 {
+    if( m_HeightmapOwnedByUs )
+    {
+        m_pHeightmap->SetEnabled( false );
+        delete m_pHeightmap;
+    }
+
     SAFE_DELETE( m_pJob_CalculateNormals );
 
     SAFE_DELETE( m_pPoint );
@@ -213,14 +230,19 @@ void EditorDocument_Heightmap::OnDrawFrame() //unsigned int canvasID)
             //MyMatrix* pWorldMat = m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
             //Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
             Vector3 localSpacePoint = m_WorldSpaceMousePosition;
-            MyMatrix originalWorldMat = *m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+            MyMatrix originalWorldMat;
+            if( m_pHeightmap->GetGameObject() )
+                originalWorldMat = *m_pHeightmap->GetGameObject()->GetTransform()->GetWorldTransform();
+            else
+                originalWorldMat.SetIdentity();
             MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
             MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
 
             bool wasVisible = m_pHeightmap->IsVisible();
             m_pHeightmap->SetVisible( true );
 
-            m_pHeightmap->GetGameObject()->GetTransform()->SetWorldTransform( &MyMatrix::Identity() );
+            if( m_pHeightmap->GetGameObject() )
+                m_pHeightmap->GetGameObject()->GetTransform()->SetWorldTransform( &MyMatrix::Identity() );
 
             // Draw the heightmap.
             {
@@ -241,7 +263,8 @@ void EditorDocument_Heightmap::OnDrawFrame() //unsigned int canvasID)
                 }
             }
 
-            m_pHeightmap->GetGameObject()->GetTransform()->SetWorldTransform( &originalWorldMat );
+            if( m_pHeightmap->GetGameObject() )
+                m_pHeightmap->GetGameObject()->GetTransform()->SetWorldTransform( &originalWorldMat );
 
             m_pHeightmap->SetVisible( wasVisible );
 
@@ -276,7 +299,10 @@ void EditorDocument_Heightmap::AddImGuiOverlayItems()
 {
     EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
-    ImGui::Text( "Editing Heightmap: %s", m_pHeightmap->GetGameObject()->GetName() );
+    if( m_pHeightmap && m_pHeightmap->GetGameObject() )
+    {
+        ImGui::Text( "Editing Heightmap: %s", m_pHeightmap->GetGameObject()->GetName() );
+    }
 
     //if( m_pCommandStack->GetUndoStackSize() > 0 )
     //{
@@ -600,12 +626,6 @@ void EditorDocument_Heightmap::Update()
 void EditorDocument_Heightmap::SetHeightmap(ComponentHeightmap* pHeightmap)
 {
     m_pHeightmap = pHeightmap;
-
-    if( m_pJob_CalculateNormals == nullptr )
-    {
-        m_pJob_CalculateNormals = MyNew Job_CalculateNormals();
-        m_pJob_CalculateNormals->SetEditor( this );
-    }
 
     if( m_pHeightmap )
     {

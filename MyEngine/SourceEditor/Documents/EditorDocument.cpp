@@ -12,6 +12,7 @@
 #include "EditorDocument.h"
 
 #include "Core/EngineCore.h"
+#include "../SourceEditor/Documents/EditorDocument_Heightmap.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodeTypeManager.h"
 #include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
@@ -160,6 +161,10 @@ EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorD
             if( ImGui::MenuItem( "Visual Script" ) )
             {
                 pNewDocument = MyNew MyNodeGraph( pEngineCore, &g_VisualScriptNodeTypeManager );
+            }
+            if( ImGui::MenuItem( "Heightmap" ) )
+            {
+                pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
             }
             ImGui::EndMenu(); // "New Document..."
         }

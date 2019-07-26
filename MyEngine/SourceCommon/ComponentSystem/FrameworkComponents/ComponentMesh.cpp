@@ -62,18 +62,27 @@ ComponentMesh::ComponentMesh(ComponentSystemManager* pComponentSystemManager)
 
     m_pComponentLuaScript = nullptr;
 
-    EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
-    pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
+    if( m_pComponentSystemManager )
+    {
+        EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+        pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
+    }
 }
 
 ComponentMesh::~ComponentMesh()
 {
-    EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
-    pEventManager->UnregisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
+    if( m_pComponentSystemManager )
+    {
+        EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+        pEventManager->UnregisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
+    }
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
-    m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
+    if( m_pGameObject )
+    {
+        m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
+    }
 
     SAFE_RELEASE( m_pMesh );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
@@ -123,7 +132,10 @@ void ComponentMesh::Reset()
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
         SAFE_RELEASE( m_pMaterials[i] );
 
-    m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
+    if( m_pGameObject )
+    {
+        m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
+    }
 
     m_pComponentLuaScript = nullptr;
 }
@@ -644,7 +656,7 @@ void ComponentMesh::OnLuaScriptDeleted(ComponentBase* pComponent) // StaticOnLua
 void ComponentMesh::TickCallback(float deltaTime)
 {
     // TODO: Temp hack, if the gameobject doesn't have a transform (shouldn't happen), then don't try to add to scene graph.
-    if( m_pGameObject->GetTransform() == nullptr )
+    if( m_pGameObject && m_pGameObject->GetTransform() == nullptr )
         return;
 
     MyAssert( m_pGameObject->GetTransform() );

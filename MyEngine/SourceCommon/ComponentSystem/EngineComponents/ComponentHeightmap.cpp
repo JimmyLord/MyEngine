@@ -178,9 +178,8 @@ void ComponentHeightmap::OnButtonEditHeightmap()
 {
     EngineCore* pEngineCore = m_pComponentSystemManager->GetEngineCore();
 
-    EditorDocument_Heightmap* pDocument = MyNew EditorDocument_Heightmap( pEngineCore );
+    EditorDocument_Heightmap* pDocument = MyNew EditorDocument_Heightmap( pEngineCore, this );
     pEngineCore->GetEditorState()->OpenDocument( pDocument );
-    pDocument->SetHeightmap( this );
 }
 #endif //MYFW_EDITOR
 
@@ -1095,6 +1094,9 @@ bool ComponentHeightmap::FindCollisionPoint(const Vector3& currentPosition, cons
 
 bool ComponentHeightmap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 end, Vector3* pResult) const
 {
+    if( m_Heights == nullptr )
+        return false;
+
     // Move ray into terrain space.
     if( rayIsInWorldSpace )
     {

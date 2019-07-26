@@ -54,9 +54,10 @@ void ComponentRenderable::Reset()
 {
     ComponentBase::Reset();
 
-    MyAssert( m_pGameObject );
-
-    m_pComponentTransform = m_pGameObject->GetTransform();
+    if( m_pGameObject )
+        m_pComponentTransform = m_pGameObject->GetTransform();
+    else
+        m_pComponentTransform = nullptr;
 
     m_Visible = true;
     m_LayersThisExistsOn = Layer_MainScene;
@@ -133,7 +134,7 @@ bool ComponentRenderable::IsVisible()
     if( IsEnabled() == false )
         return false;
 
-    MyAssert( m_pGameObject->IsEnabled() );
+    MyAssert( m_pGameObject == nullptr || m_pGameObject->IsEnabled() );
 
     return m_Visible;
 }

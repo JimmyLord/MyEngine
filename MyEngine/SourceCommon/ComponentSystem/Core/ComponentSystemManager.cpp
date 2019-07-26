@@ -3144,9 +3144,10 @@ void ComponentSystemManager::DrawSingleComponent(MyMatrix* pMatProj, MyMatrix* p
         ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
 
         ComponentBase* pCallbackComponent = (ComponentBase*)pCallbackStruct->pObj;
-        MyAssert( pCallbackComponent == pComponent );
         if( pCallbackStruct->pFunc != nullptr )
         {
+            MyAssert( pCallbackComponent == pComponent );
+
             // Backup materials and set new ones.
             MaterialDefinition* pOldMaterials[4];
             if( numMaterialOverrides > 0 )

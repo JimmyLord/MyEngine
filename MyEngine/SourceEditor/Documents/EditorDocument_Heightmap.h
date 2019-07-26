@@ -44,6 +44,7 @@ public:
 
 protected:
     ComponentHeightmap* m_pHeightmap;
+    bool m_HeightmapOwnedByUs;
 
     Tool m_CurrentTool;
     ToolState m_CurrentToolState;
@@ -74,7 +75,7 @@ protected:
     bool m_AlwaysRecalculateNormals;
 
 public:
-    EditorDocument_Heightmap(EngineCore* pEngineCore);
+    EditorDocument_Heightmap(EngineCore* pEngineCore, ComponentHeightmap* pHeightmap);
     virtual ~EditorDocument_Heightmap();
 
     virtual void Initialize();
