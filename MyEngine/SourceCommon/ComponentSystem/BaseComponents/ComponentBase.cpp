@@ -27,8 +27,9 @@
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 #endif
 
-ComponentBase::ComponentBase(ComponentSystemManager* pComponentSystemManager)
-: m_pComponentSystemManager( pComponentSystemManager )
+ComponentBase::ComponentBase(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: m_pEngineCore( pEngineCore )
+, m_pComponentSystemManager( pComponentSystemManager )
 , m_SceneIDLoadedFrom( SCENEID_NotSet )
 , m_BaseType( BaseComponentType_None )
 , m_pGameObject( 0 )
@@ -85,11 +86,6 @@ void ComponentBase::Reset()
     m_ControlID_ComponentTitleLabel = -1;
     m_pPanelWatchBlockVisible = 0;
 #endif
-}
-
-void ComponentBase::SetComponentSystemManager(ComponentSystemManager* pComponentSystemManager)
-{
-    m_pComponentSystemManager = pComponentSystemManager;
 }
 
 #if MYFW_USING_LUA
@@ -580,7 +576,7 @@ void ComponentBase::AddAllVariablesToWatchPanel()
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
 
-        AddVariableToWatchPanel( m_pComponentSystemManager->GetEngineCore(), this, pVar, this );
+        AddVariableToWatchPanel( m_pEngineCore, this, pVar, this );
     }
 }
 
@@ -591,7 +587,7 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
     // If the id passed in is different than the last known value, then assume a new control was selected.
     if( pObjectAsComponent )
     {
-        pEngineCore = pObjectAsComponent->m_pComponentSystemManager->GetEngineCore();
+        pEngineCore = pObjectAsComponent->m_pEngineCore;
 
         if( id != pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable )
         {
@@ -1148,7 +1144,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                     {
                         if( pObjectAsComponent )
                         {
-                            TextureManager* pTextureManager = pObjectAsComponent->m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
+                            TextureManager* pTextureManager = pObjectAsComponent->m_pEngineCore->GetManagers()->GetTextureManager();
 
                             MyFileObject* pFile = (MyFileObject*)*(void**)payload->Data;
                             MyAssert( pFile );
@@ -3604,7 +3600,7 @@ void ComponentBase::OnRightClickAction(int action)
 {
     if( action == RightClick_DeleteComponent )
     {
-        EditorState* pEditorState = m_pComponentSystemManager->GetEngineCore()->GetEditorState();
+        EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
         // if anything is still selected, delete it/them.
         if( pEditorState->m_pSelectedComponents.size() > 0 )

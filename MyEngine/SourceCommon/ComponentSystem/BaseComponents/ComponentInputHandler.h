@@ -20,7 +20,7 @@ public:
     ComponentTransform* m_pComponentTransform;
 
 public:
-    ComponentInputHandler(ComponentSystemManager* pComponentSystemManager);
+    ComponentInputHandler(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentInputHandler();
     SetClassnameBase( "InputHandlerComponent" ); // only first 8 character count.
 

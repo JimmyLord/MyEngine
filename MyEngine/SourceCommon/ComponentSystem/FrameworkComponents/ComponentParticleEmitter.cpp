@@ -19,8 +19,8 @@
 bool ComponentParticleEmitter::m_PanelWatchBlockVisible = true;
 #endif
 
-ComponentParticleEmitter::ComponentParticleEmitter(ComponentSystemManager* pComponentSystemManager)
-: ComponentRenderable( pComponentSystemManager )
+ComponentParticleEmitter::ComponentParticleEmitter(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pEngineCore, pComponentSystemManager )
 {
     ClassnameSanityCheck();
 
@@ -167,7 +167,7 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, SceneID scen
     cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
     if( materialstringobj )
     {
-        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
+        MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
         MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
             SetMaterial( pMaterial, 0 );

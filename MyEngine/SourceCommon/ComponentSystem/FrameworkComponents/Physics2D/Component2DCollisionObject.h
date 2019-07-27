@@ -61,7 +61,7 @@ public:
 #endif
 
 public:
-    Component2DCollisionObject(ComponentSystemManager* pComponentSystemManager);
+    Component2DCollisionObject(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~Component2DCollisionObject();
     SetClassnameBase( "2DCollisionObjectComponent" ); // only first 8 character count.
 

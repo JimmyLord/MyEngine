@@ -124,7 +124,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui(EngineCore* pEngineCore)
     m_FullPathToLast2DAnimInfoBeingEdited[0] = '\0';
     m_p2DAnimInfoBeingEdited = nullptr;
     m_Current2DAnimationIndex = 0;
-    m_pAnimPlayerComponent = MyNew ComponentAnimationPlayer2D( pEngineCore->GetComponentSystemManager() );
+    m_pAnimPlayerComponent = MyNew ComponentAnimationPlayer2D( pEngineCore, pEngineCore->GetComponentSystemManager() );
     m_pAnimPlayerComponent->SetType( ComponentType_AnimationPlayer2D );
     m_pAnimPlayerComponent->SetSceneID( SCENEID_AllScenes );
 

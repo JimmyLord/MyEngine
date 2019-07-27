@@ -49,7 +49,7 @@ protected:
     Vector3 m_LocalScale;
 
 public:
-    ComponentTransform(ComponentSystemManager* pComponentSystemManager);
+    ComponentTransform(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentTransform();
     SetClassnameBase( "TransformComponent" ); // only first 8 character count.
 

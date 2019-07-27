@@ -12,8 +12,8 @@
 #include "ComponentInputHandler.h"
 #include "ComponentSystem/Core/GameObject.h"
 
-ComponentInputHandler::ComponentInputHandler(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+ComponentInputHandler::ComponentInputHandler(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     ClassnameSanityCheck();
 

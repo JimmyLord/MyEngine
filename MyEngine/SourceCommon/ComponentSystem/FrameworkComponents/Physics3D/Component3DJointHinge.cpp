@@ -20,8 +20,8 @@ bool Component3DJointHinge::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DJointHinge ); //_VARIABLE_LIST
 
-Component3DJointHinge::Component3DJointHinge(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+Component3DJointHinge::Component3DJointHinge(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

@@ -23,8 +23,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLight );
 
-ComponentLight::ComponentLight(ComponentSystemManager* pComponentSystemManager)
-: ComponentData( pComponentSystemManager )
+ComponentLight::ComponentLight(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentData( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
 
@@ -49,7 +49,7 @@ ComponentLight::~ComponentLight()
 
     if( m_pLight )
     {
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         pLightManager->DestroyLight( m_pLight );
     }
 }
@@ -76,7 +76,7 @@ void ComponentLight::Reset()
 
     if( m_pLight == nullptr )
     {
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         m_pLight = pLightManager->CreateLight();
         m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
     }
@@ -235,7 +235,7 @@ void ComponentLight::OnGameObjectEnabled()
 
     //if( m_pLight && m_EnabledState == EnabledState_Enabled )
     //{
-    //    LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+    //    LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
     //    pLightManager->SetLightEnabled( m_pLight, true );
     //}
 }
@@ -246,7 +246,7 @@ void ComponentLight::OnGameObjectDisabled()
 
     //if( m_pLight && m_EnabledState != EnabledState_Enabled )
     //{
-    //    LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+    //    LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
     //    pLightManager->SetLightEnabled( m_pLight, false );
     //}
 }
@@ -258,12 +258,12 @@ bool ComponentLight::SetEnabled(bool enableComponent)
 
     if( m_EnabledState == EnabledState_Enabled )
     {
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         pLightManager->SetLightEnabled( m_pLight, true );
     }
     else
     {
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         pLightManager->SetLightEnabled( m_pLight, false );
     }
 

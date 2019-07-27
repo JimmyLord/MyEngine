@@ -91,42 +91,43 @@ EngineComponentTypeManager::~EngineComponentTypeManager()
 ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 {
     ComponentBase* pComponent = nullptr;
+    EngineCore* pEngineCore = m_pComponentSystemManager->GetEngineCore();
 
     MyAssert( type != -1 );
 
     switch( type ) // ADDING_NEW_ComponentType
     {
-    case ComponentType_Transform:           pComponent = MyNew ComponentTransform( m_pComponentSystemManager );          break;
-    case ComponentType_Camera:              pComponent = MyNew ComponentCamera( m_pComponentSystemManager );             break;
-    case ComponentType_Sprite:              pComponent = MyNew ComponentSprite( m_pComponentSystemManager );             break;
-    case ComponentType_Mesh:                pComponent = MyNew ComponentMesh( m_pComponentSystemManager );               break;
-    case ComponentType_MeshOBJ:             pComponent = MyNew ComponentMeshOBJ( m_pComponentSystemManager );            break;
-    case ComponentType_MeshPrimitive:       pComponent = MyNew ComponentMeshPrimitive( m_pComponentSystemManager );      break;
-    case ComponentType_Heightmap:           pComponent = MyNew ComponentHeightmap( m_pComponentSystemManager );          break;
-    case ComponentType_VoxelMesh:           pComponent = MyNew ComponentVoxelMesh( m_pComponentSystemManager );          break;
-    case ComponentType_VoxelWorld:          pComponent = MyNew ComponentVoxelWorld( m_pComponentSystemManager );         break;
-    case ComponentType_Light:               pComponent = MyNew ComponentLight( m_pComponentSystemManager );              break;
-    case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow( m_pComponentSystemManager );       break;
-    case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect( m_pComponentSystemManager );         break;
-    case ComponentType_3DCollisionObject:   pComponent = MyNew Component3DCollisionObject( m_pComponentSystemManager );  break;
-    case ComponentType_3DJointPoint2Point:  pComponent = MyNew Component3DJointPoint2Point( m_pComponentSystemManager ); break;
-    case ComponentType_3DJointHinge:        pComponent = MyNew Component3DJointHinge( m_pComponentSystemManager );       break;
-    case ComponentType_3DJointSlider:       pComponent = MyNew Component3DJointSlider( m_pComponentSystemManager );      break;
-    case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject( m_pComponentSystemManager );  break;
-    case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute( m_pComponentSystemManager );    break;
-    case ComponentType_2DJointPrismatic:    pComponent = MyNew Component2DJointPrismatic( m_pComponentSystemManager );   break;
-    case ComponentType_2DJointWeld:         pComponent = MyNew Component2DJointWeld( m_pComponentSystemManager );        break;
+    case ComponentType_Transform:           pComponent = MyNew ComponentTransform(          pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_Camera:              pComponent = MyNew ComponentCamera(             pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_Sprite:              pComponent = MyNew ComponentSprite(             pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_Mesh:                pComponent = MyNew ComponentMesh(               pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_MeshOBJ:             pComponent = MyNew ComponentMeshOBJ(            pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_MeshPrimitive:       pComponent = MyNew ComponentMeshPrimitive(      pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_Heightmap:           pComponent = MyNew ComponentHeightmap(          pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_VoxelMesh:           pComponent = MyNew ComponentVoxelMesh(          pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_VoxelWorld:          pComponent = MyNew ComponentVoxelWorld(         pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_Light:               pComponent = MyNew ComponentLight(              pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow(       pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect(         pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_3DCollisionObject:   pComponent = MyNew Component3DCollisionObject(  pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_3DJointPoint2Point:  pComponent = MyNew Component3DJointPoint2Point( pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_3DJointHinge:        pComponent = MyNew Component3DJointHinge(       pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_3DJointSlider:       pComponent = MyNew Component3DJointSlider(      pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject(  pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute(    pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_2DJointPrismatic:    pComponent = MyNew Component2DJointPrismatic(   pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_2DJointWeld:         pComponent = MyNew Component2DJointWeld(        pEngineCore, m_pComponentSystemManager ); break;
 #if MYFW_USING_LUA
-    case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript( m_pComponentSystemManager );          break;
+    case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript(          pEngineCore, m_pComponentSystemManager ); break;
 #else
-    case ComponentType_LuaScript:           pComponent = MyNew ComponentData( m_pComponentSystemManager );               break;
+    case ComponentType_LuaScript:           pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
 #endif //MYFW_USING_LUA
-    case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter( m_pComponentSystemManager );    break;
-    case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer( m_pComponentSystemManager );    break;
-    case ComponentType_AnimationPlayer2D:   pComponent = MyNew ComponentAnimationPlayer2D( m_pComponentSystemManager );  break;
-    case ComponentType_AudioPlayer:         pComponent = MyNew ComponentAudioPlayer( m_pComponentSystemManager );        break;
-    case ComponentType_ObjectPool:          pComponent = MyNew ComponentObjectPool( m_pComponentSystemManager );         break;
-    case ComponentType_MenuPage:            pComponent = MyNew ComponentMenuPage( m_pComponentSystemManager );           break;
+    case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter(    pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer(    pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_AnimationPlayer2D:   pComponent = MyNew ComponentAnimationPlayer2D(  pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_AudioPlayer:         pComponent = MyNew ComponentAudioPlayer(        pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_ObjectPool:          pComponent = MyNew ComponentObjectPool(         pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_MenuPage:            pComponent = MyNew ComponentMenuPage(           pEngineCore, m_pComponentSystemManager ); break;
     }
 
     MyAssert( pComponent != nullptr );

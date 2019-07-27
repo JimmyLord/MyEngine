@@ -41,7 +41,7 @@ protected:
     ComponentLuaScript* m_pComponentLuaScript;
 
 public:
-    ComponentMesh(ComponentSystemManager* pComponentSystemManager);
+    ComponentMesh(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentMesh();
     SetClassnameWithParent( "MeshComponent", ComponentRenderable ); // Only first 8 characters count.
 

@@ -27,8 +27,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentVoxelWorld ); //_VARIABLE_LIST
 
-ComponentVoxelWorld::ComponentVoxelWorld(ComponentSystemManager* pComponentSystemManager)
-: ComponentRenderable( pComponentSystemManager )
+ComponentVoxelWorld::ComponentVoxelWorld(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -182,7 +182,7 @@ void ComponentVoxelWorld::SetPointerDesc(ComponentVariable* pVar, const char* ne
         MyAssert( newdesc );
         if( newdesc )
         {
-            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
+            MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
             MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( newdesc );
             SetVoxelMeshMaterial( pMaterial );
             pMaterial->Release();
@@ -397,7 +397,7 @@ void ComponentVoxelWorld::ImportFromJSONObject(cJSON* jComponent, SceneID scenei
     cJSON* jSaveFile = cJSON_GetObjectItem( jComponent, "Save File" );
     if( jSaveFile )
     {
-        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager() );
+        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
         MyFileObject* pFile = pEngineFileManager->RequestFile( jSaveFile->valuestring, GetSceneID() );
         MyAssert( pFile );
         if( pFile )

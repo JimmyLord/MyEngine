@@ -21,8 +21,8 @@ bool ComponentRenderable::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentRenderable ); //_VARIABLE_LIST
 
-ComponentRenderable::ComponentRenderable(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+ComponentRenderable::ComponentRenderable(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

@@ -39,8 +39,8 @@ const char* OpenGLPrimitiveTypeStrings[7] =
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMesh ); //_VARIABLE_LIST
 
-ComponentMesh::ComponentMesh(ComponentSystemManager* pComponentSystemManager)
-: ComponentRenderable( pComponentSystemManager )
+ComponentMesh::ComponentMesh(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -64,7 +64,7 @@ ComponentMesh::ComponentMesh(ComponentSystemManager* pComponentSystemManager)
 
     if( m_pComponentSystemManager )
     {
-        EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+        EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
         pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
     }
 }
@@ -73,7 +73,7 @@ ComponentMesh::~ComponentMesh()
 {
     if( m_pComponentSystemManager )
     {
-        EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+        EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
         pEventManager->UnregisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
     }
 
@@ -324,7 +324,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
     cJSON* jMaterial = cJSON_GetObjectItem( jComponent, "Material" );
     if( jMaterial )
     {
-        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
+        MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
         MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( jMaterial->valuestring );
         if( pMaterial )
         {
@@ -343,7 +343,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
         for( int i=0; i<numMaterials; i++ )
         {
             cJSON* jMaterial = cJSON_GetArrayItem( jMaterialArray, i );
-            MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
+            MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
             MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( jMaterial->valuestring );
             if( pMaterial )
             {
@@ -554,11 +554,15 @@ void ComponentMesh::AddToRenderGraph()
 {
     MyAssert( m_pMesh );
 
+    // If component doesn't exist inside of the system, don't add it to the render graph.
+    if( m_pComponentSystemManager == nullptr )
+        return;
+
     // If the object has been disabled, don't add it to the scene graph.
     if( IsEnabled() == false )
         return;
 
-    MyAssert( m_pGameObject->IsEnabled() );
+    MyAssert( m_pGameObject == nullptr || m_pGameObject->IsEnabled() );
 
     if( m_pMesh->IsReady() )
     {
@@ -568,7 +572,7 @@ void ComponentMesh::AddToRenderGraph()
         // Add the Mesh to the main scene graph.
         if( m_pMesh->GetSubmeshListCount() > 0 )
         {
-            g_pComponentSystemManager->AddMeshToRenderGraph( this, m_pMesh, m_pMaterials, m_GLPrimitiveType, m_PointSize, m_LayersThisExistsOn, m_pRenderGraphObjects );
+            m_pComponentSystemManager->AddMeshToRenderGraph( this, m_pMesh, m_pMaterials, m_GLPrimitiveType, m_PointSize, m_LayersThisExistsOn, m_pRenderGraphObjects );
         }
 
         m_WaitingToAddToRenderGraph = false;
@@ -686,7 +690,12 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
 
     if( m_pMesh )
     {
-        MyMatrix worldtransform = *m_pComponentTransform->GetWorldTransform();
+        MyMatrix worldTransform;
+        
+        if( m_pComponentTransform )
+            worldTransform = *m_pComponentTransform->GetWorldTransform();
+        else
+            worldTransform.SetIdentity();
 
         // Simple frustum check.
         {
@@ -694,7 +703,7 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
             Vector3 center = bounds->GetCenter();
             Vector3 half = bounds->GetHalfSize();
 
-            MyMatrix wvp = matViewProj * worldtransform;
+            MyMatrix wvp = matViewProj * worldTransform;
 
             Vector4 clippos[8];
 
@@ -754,9 +763,9 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
         //m_pMesh->SetTransform( worldtransform );
 
         // Find nearest lights.
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         MyLight* lights[4];
-        int numlights = pLightManager->FindNearestLights( LightType_Point, 4, m_pComponentTransform->GetWorldTransform()->GetTranslation(), lights );
+        int numlights = pLightManager->FindNearestLights( LightType_Point, 4, worldTransform.GetTranslation(), lights );
 
         // Find nearest shadow casting light.
         MyMatrix* pShadowVP = nullptr;
@@ -806,6 +815,6 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, M
             }
         }
 
-        m_pMesh->Draw( pMatProj, pMatView, &worldtransform, &campos, &camrot, lights, numlights, pShadowVP, pShadowTex, nullptr, pShaderOverride );
+        m_pMesh->Draw( pMatProj, pMatView, &worldTransform, &campos, &camrot, lights, numlights, pShadowVP, pShadowTex, nullptr, pShaderOverride );
     }
 }

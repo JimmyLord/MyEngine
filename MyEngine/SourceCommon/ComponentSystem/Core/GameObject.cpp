@@ -25,7 +25,7 @@
 #endif
 
 GameObject::GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
-: m_Properties( pEngineCore->GetComponentSystemManager() )
+: m_Properties( pEngineCore, pEngineCore->GetComponentSystemManager() )
 {
     ClassnameSanityCheck();
 
@@ -65,7 +65,7 @@ GameObject::GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneid, b
     }
     else
     {
-        m_pComponentTransform = MyNew ComponentTransform( pEngineCore->GetComponentSystemManager() );
+        m_pComponentTransform = MyNew ComponentTransform( pEngineCore, pEngineCore->GetComponentSystemManager() );
         m_pComponentTransform->SetType( ComponentType_Transform );
         m_pComponentTransform->SetSceneID( sceneid );
         m_pComponentTransform->SetGameObject( this );

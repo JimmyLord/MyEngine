@@ -13,8 +13,8 @@
 #include "ComponentMeshOBJ.h"
 #include "ComponentSystem/Core/GameObject.h"
 
-ComponentAnimationPlayer::ComponentAnimationPlayer(ComponentSystemManager* pComponentSystemManager)
-: ComponentUpdateable( pComponentSystemManager )
+ComponentAnimationPlayer::ComponentAnimationPlayer(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentUpdateable( pEngineCore, pComponentSystemManager )
 {
     ClassnameSanityCheck();
 

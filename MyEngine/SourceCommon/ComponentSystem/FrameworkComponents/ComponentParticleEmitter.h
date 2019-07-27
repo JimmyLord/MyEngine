@@ -71,7 +71,7 @@ public:
     float m_AlphaModifier;
 
 public:
-    ComponentParticleEmitter(ComponentSystemManager* pComponentSystemManager);
+    ComponentParticleEmitter(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentParticleEmitter();
     SetClassnameWithParent( "ParticleEmitterComponent", ComponentRenderable ); // only first 8 character count.
 

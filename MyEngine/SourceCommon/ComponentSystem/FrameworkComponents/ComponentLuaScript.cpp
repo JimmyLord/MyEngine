@@ -26,8 +26,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLuaScript ); //_VARIABLE_LIST
 
-ComponentLuaScript::ComponentLuaScript(ComponentSystemManager* pComponentSystemManager)
-: ComponentUpdateable( pComponentSystemManager )
+ComponentLuaScript::ComponentLuaScript(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentUpdateable( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -394,7 +394,7 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
                     {
                         // Set the new value.
                         GameObject* pDroppedGameObject = (GameObject*)*(void**)payload->Data;
-                        m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged( pDroppedGameObject, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
+                        m_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged( pDroppedGameObject, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                     }
 
                     ImGui::EndDragDropTarget();
@@ -410,14 +410,14 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                 {
                     //// Set color to default, since it might be set to divorced color.
-                    //Vector4 color = m_pComponentSystemManager->GetEngineCore()->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                    //Vector4 color = m_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     //ImGui::PushStyleColor( ImGuiCol_Text, color );
 
                     if( ImGui::MenuItem( "Clear GameObject" ) )
                     {
                         // Set the new value.
                         GameObject* pNewGameObject = nullptr;
-                        m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
+                        m_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
                             pNewGameObject, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                     }
 
@@ -538,7 +538,7 @@ void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar)
             // TODO: This undo/redo method is currently losing exposed variable values, here and in regular drag/drop cases.
             //       Fix along with fixing undo/redo for exposed variables in general.
             // Simulate drag/drop of a nullptr for undo/redo.
-            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add(
+            m_pEngineCore->GetCommandStack()->Add(
                 MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1, DragAndDropType_FileObjectPointer, nullptr, m_pScriptFile ),
                 undoCommandsAdded ? true : false );
 
@@ -897,7 +897,7 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             OnExposedVarValueChanged( pVar, 0, true, oldvalue, nullptr );
 
 #if MYFW_USING_WX
-                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue - oldvalue, PanelWatchType_Double, ((char*)&pVar->valuedouble), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
 #endif
@@ -914,7 +914,7 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             OnExposedVarValueChanged( pVar, 0, true, oldvalue, nullptr );
 
 #if MYFW_USING_WX
-                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue - oldvalue, PanelWatchType_Bool, ((char*)&pVar->valuebool), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
 #endif
@@ -933,13 +933,13 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             OnExposedVarValueChanged( pVar, 2, true, oldvalue.z, nullptr );
 
 #if MYFW_USING_WX
-                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)&pVar->valuevector3[0]), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
-                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)&pVar->valuevector3[1]), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
-                            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                                 newvalue.z - oldvalue.z, PanelWatchType_Float, ((char*)&pVar->valuevector3[2]), pVar->controlID, false,
                                 g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
 #endif
@@ -974,7 +974,7 @@ bool ComponentLuaScript::ClearExposedVariableList(bool addUndoCommands)
         // Add clear to undo stack.
         if( m_ExposedVars.size() > 0 )
         {
-            m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do(
+            m_pEngineCore->GetCommandStack()->Do(
                 MyNew EditorCommand_LuaClearExposedVariables( this, m_ExposedVars ) );
 
             return true;
@@ -1071,7 +1071,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
     cJSON* scriptstringobj = cJSON_GetObjectItem( jsonobj, "Script" );
     if( scriptstringobj )
     {
-        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager() );
+        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
         MyFileObject* pFile = pEngineFileManager->RequestFile( scriptstringobj->valuestring, GetSceneID() );
         MyAssert( pFile );
         if( pFile )
@@ -1244,7 +1244,7 @@ void ComponentLuaScript::LoadScript()
         return;
 
     // Unregister all event callbacks, they will be Registered again based on what the script needs.
-    EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+    EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
     pEventManager->UnregisterForEvents( "Keyboard", this, &ComponentLuaScript::StaticOnEvent );
 
     // Script is ready, so run it.
@@ -1299,7 +1299,7 @@ void ComponentLuaScript::LoadScript()
                         // If OnKeys() exists as a lua function, then register for keyboard events.
                         if( DoesFunctionExist( "OnKeys" ) )
                         {
-                            EventManager* pEventManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetEventManager();
+                            EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
                             pEventManager->RegisterForEvents( "Keyboard", this, &ComponentLuaScript::StaticOnEvent );
                         }
                     }
@@ -1674,7 +1674,7 @@ void ComponentLuaScript::OnStop()
 void ComponentLuaScript::OnGameObjectEnabled()
 {
     ComponentBase::OnGameObjectEnabled();
-    if( m_pComponentSystemManager->GetEngineCore()->IsInEditorMode() == false )
+    if( m_pEngineCore->IsInEditorMode() == false )
         OnPlay();
 }
 
@@ -1839,9 +1839,9 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
             if( pVar->pointer == pGameObject )
             {
 #if MYFW_EDITOR
-                if( m_pComponentSystemManager->GetEngineCore()->GetCommandStack() )
+                if( m_pEngineCore->GetCommandStack() )
                 {
-                    m_pComponentSystemManager->GetEngineCore()->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
+                    m_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_LuaExposedVariablePointerChanged(
                         nullptr, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                 }
 #endif

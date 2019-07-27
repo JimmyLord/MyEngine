@@ -54,9 +54,9 @@ public:
 EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, ComponentHeightmap* pHeightmap)
 : EditorDocument( pEngineCore )
 {
-    m_pCamera = MyNew ComponentCamera( nullptr );
+    m_pCamera = MyNew ComponentCamera( pEngineCore, nullptr );
     m_pCamera->Reset();
-    m_pCameraTransform = MyNew ComponentTransform( nullptr );
+    m_pCameraTransform = MyNew ComponentTransform( pEngineCore, nullptr );
     m_pCameraTransform->Reset();
     m_pCamera->m_pComponentTransform = m_pCameraTransform;
 
@@ -72,14 +72,22 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, Comp
 
     if( pHeightmap )
     {
-        m_pHeightmap = pHeightmap;
         m_HeightmapOwnedByUs = false;
+
+        m_pHeightmap = pHeightmap;
     }
     else
     {
-        m_pHeightmap = MyNew ComponentHeightmap( nullptr );
-        m_pHeightmap->Reset();
         m_HeightmapOwnedByUs = true;
+
+        m_pHeightmap = MyNew ComponentHeightmap( pEngineCore, nullptr );
+        m_pHeightmap->Reset();
+        m_pHeightmap->m_Size.Set( 5, 5 );
+        m_pHeightmap->m_VertCount.Set( 128, 128 );
+        MaterialDefinition* pMaterial = pEngineCore->GetManagers()->GetMaterialManager()->GetFirstMaterial();
+        m_pHeightmap->SetMaterial( pMaterial, 0 );
+        m_pHeightmap->CreateHeightmap();
+        m_pHeightmap->RegisterCallbacks();
     }
 
     m_CurrentTool = Tool::Raise;
@@ -110,7 +118,7 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, Comp
     // Editor settings.
     m_BrushSoftness = 0.1f;
     m_BrushRadius = 1.0f;
-    m_RaiseAmount = 0.1f;
+    m_RaiseAmount = 0.5f;
     m_LevelUseBrushHeight = true;
     m_LevelHeight = 0.0f;
 

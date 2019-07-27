@@ -16,8 +16,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentObjectPool ); //_VARIABLE_LIST
 
-ComponentObjectPool::ComponentObjectPool(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+ComponentObjectPool::ComponentObjectPool(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

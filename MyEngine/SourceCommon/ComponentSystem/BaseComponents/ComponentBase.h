@@ -50,6 +50,7 @@ public:
     };
 
 protected:
+    EngineCore* m_pEngineCore;
     ComponentSystemManager* m_pComponentSystemManager;
     EnabledState m_EnabledState;
     SceneID m_SceneIDLoadedFrom;
@@ -73,11 +74,9 @@ protected:
     virtual void UnregisterCallbacks() {}
 
 public:
-    ComponentBase(ComponentSystemManager* pComponentSystemManager);
+    ComponentBase(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentBase();
     SetClassnameBase( "BaseComponent" ); // Only first 8 character count.
-
-    void SetComponentSystemManager(ComponentSystemManager* pComponentSystemManager);
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);

@@ -22,8 +22,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentSprite ); //_VARIABLE_LIST
 
-ComponentSprite::ComponentSprite(ComponentSystemManager* pComponentSystemManager)
-: ComponentRenderable( pComponentSystemManager )
+ComponentSprite::ComponentSprite(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentRenderable( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -254,7 +254,7 @@ void ComponentSprite::OnLoad()
 {
     ComponentRenderable::OnLoad();
 
-    BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+    BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
     m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
 
     if( m_pRenderGraphObject == 0 )
@@ -283,7 +283,7 @@ void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshInde
         // Create a RenderGraph object if this is the first time we set the material.
         if( m_pRenderGraphObject == 0 && pMaterial != 0 )
         {
-            BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+            BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
             m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
 
             AddToRenderGraph();
@@ -509,7 +509,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedByInt
 
     //if( strcmp( pVar->m_Label, "Size" ) == 0 )
     {
-        BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+        BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
         m_pSprite->Create( pBufferManager, "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
     }
 

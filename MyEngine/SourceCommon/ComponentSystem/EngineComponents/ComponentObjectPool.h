@@ -26,7 +26,7 @@ public:
     bool m_LogWarningsWhenEmpty;
 
 public:
-    ComponentObjectPool(ComponentSystemManager* pComponentSystemManager);
+    ComponentObjectPool(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentObjectPool();
     SetClassnameBase( "ObjectPoolComponent" ); // only first 8 character count.
 

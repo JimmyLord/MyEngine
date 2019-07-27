@@ -404,7 +404,7 @@ void EngineCore::OneTimeInit()
 #if MYFW_EDITOR
     if( m_pDebugTextMesh == nullptr )
     {
-        m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont, m_pComponentSystemManager->GetEngineCore() );
+        m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont, this );
     }
 #endif
 

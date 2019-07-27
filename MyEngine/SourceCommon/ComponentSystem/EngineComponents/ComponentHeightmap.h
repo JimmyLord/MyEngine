@@ -37,7 +37,7 @@ protected:
     bool m_WaitingForTextureFileToFinishLoading;
 
 public:
-    ComponentHeightmap(ComponentSystemManager* pComponentSystemManager);
+    ComponentHeightmap(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentHeightmap();
     SetClassnameWith2Parents( "HeightmapComponent", ComponentMesh, ComponentRenderable );
 

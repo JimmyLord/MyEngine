@@ -16,8 +16,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DJointPoint2Point ); //_VARIABLE_LIST
 
-Component3DJointPoint2Point::Component3DJointPoint2Point(ComponentSystemManager* pComponentSystemManager)
-: Component3DJointBase( pComponentSystemManager )
+Component3DJointPoint2Point::Component3DJointPoint2Point(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: Component3DJointBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

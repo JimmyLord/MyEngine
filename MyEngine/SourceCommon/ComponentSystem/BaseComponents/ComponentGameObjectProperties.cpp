@@ -17,8 +17,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentGameObjectProperties ); //_VARIABLE_LIST
 
-ComponentGameObjectProperties::ComponentGameObjectProperties(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+ComponentGameObjectProperties::ComponentGameObjectProperties(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

@@ -30,8 +30,8 @@ const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
     "Copy",        // ComponentMeshPrimitive_ReferenceToAnotherMeshPrimitive
 };
 
-ComponentMeshPrimitive::ComponentMeshPrimitive(ComponentSystemManager* pComponentSystemManager)
-: ComponentMesh( pComponentSystemManager )
+ComponentMeshPrimitive::ComponentMeshPrimitive(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentMesh( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -354,7 +354,7 @@ void ComponentMeshPrimitive::CreatePrimitive()
 
     if( m_pMesh == nullptr )
     {
-        m_pMesh = MyNew MyMesh( m_pComponentSystemManager->GetEngineCore() );
+        m_pMesh = MyNew MyMesh( m_pEngineCore );
     }
     else
         RemoveFromRenderGraph();

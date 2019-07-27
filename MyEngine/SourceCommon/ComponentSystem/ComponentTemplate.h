@@ -24,7 +24,7 @@ public:
     Vector3 m_SampleVector3;
 
 public:
-    ComponentTemplate(ComponentSystemManager* pComponentSystemManager);
+    ComponentTemplate(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentTemplate();
     SetClassnameBase( "TemplateComponent" ); // Only first 8 characters count.
 

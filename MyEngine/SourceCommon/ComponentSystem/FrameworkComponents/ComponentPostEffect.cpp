@@ -17,8 +17,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentPostEffect ); //_VARIABLE_LIST
 
-ComponentPostEffect::ComponentPostEffect(ComponentSystemManager* pComponentSystemManager)
-: ComponentData( pComponentSystemManager )
+ComponentPostEffect::ComponentPostEffect(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentData( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -65,7 +65,7 @@ void ComponentPostEffect::ImportFromJSONObject(cJSON* jObject, SceneID sceneID)
     cJSON* materialstringobj = cJSON_GetObjectItem( jObject, "Material" );
     if( materialstringobj )
     {
-        MaterialManager* pMaterialManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager();
+        MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
         MaterialDefinition* pMaterial = pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
         {
@@ -79,7 +79,7 @@ void ComponentPostEffect::Reset()
 {
     ComponentData::Reset();
 
-    BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+    BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
 
     // Free old quad and material if needed.
     SAFE_RELEASE( m_pFullScreenQuad );
@@ -123,7 +123,7 @@ void ComponentPostEffect::Render(FBODefinition* pFBO)
     MyAssert( m_pFullScreenQuad );
     MyAssert( m_pMaterial );
 
-    BufferManager* pBufferManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetBufferManager();
+    BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
 
     if( m_pFullScreenQuad == nullptr || m_pMaterial == nullptr )
         return;

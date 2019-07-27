@@ -25,7 +25,7 @@ protected:
     MyLight* m_pLight;
 
 public:
-    ComponentLight(ComponentSystemManager* pComponentSystemManager);
+    ComponentLight(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentLight();
     SetClassnameBase( "LightComponent" ); // only first 8 character count.
 

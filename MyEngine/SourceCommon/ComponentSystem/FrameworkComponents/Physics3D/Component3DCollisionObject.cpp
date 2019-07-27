@@ -28,8 +28,8 @@ const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NE
     "Convex Hull",
 };
 
-Component3DCollisionObject::Component3DCollisionObject(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+Component3DCollisionObject::Component3DCollisionObject(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
 
@@ -118,7 +118,7 @@ void Component3DCollisionObject::SetPointerValue(ComponentVariable* pVar, const 
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
-        MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
+        MeshManager* pMeshManager = m_pEngineCore->GetManagers()->GetMeshManager();
         MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
         SetMesh( pMesh );
     }
@@ -149,16 +149,16 @@ void Component3DCollisionObject::SetPointerDesc(ComponentVariable* pVar, const c
         MyAssert( newdesc );
         if( newdesc )
         {
-            FileManager* pFileManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager();
+            FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
             MyFileObject* pFile = pFileManager->RequestFile( newdesc ); // adds a ref
             if( pFile )
             {
-                MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
+                MeshManager* pMeshManager = m_pEngineCore->GetManagers()->GetMeshManager();
 
                 MyMesh* pMesh = pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
                 if( pMesh == 0 )
                 {
-                    pMesh = MyNew MyMesh( m_pComponentSystemManager->GetEngineCore() );
+                    pMesh = MyNew MyMesh( m_pEngineCore );
                     pMesh->SetSourceFile( pFile );
                     SetMesh( pMesh );
                     pMesh->Release();
@@ -235,7 +235,7 @@ void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, bool change
             if( m_pMesh )
                 oldPointer = m_pMesh->GetFile();
 
-            MeshManager* pMeshManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMeshManager();
+            MeshManager* pMeshManager = m_pEngineCore->GetManagers()->GetMeshManager();
 
             MyMesh* pNewMesh = pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pNewMesh );

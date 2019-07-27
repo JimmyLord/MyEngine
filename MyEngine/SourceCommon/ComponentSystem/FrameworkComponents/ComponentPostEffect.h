@@ -29,7 +29,7 @@ public:
     MaterialDefinition* m_pMaterial;
 
 public:
-    ComponentPostEffect(ComponentSystemManager* pComponentSystemManager);
+    ComponentPostEffect(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentPostEffect();
     SetClassnameBase( "PostEffectComponent" ); // Only first 8 character count.
 

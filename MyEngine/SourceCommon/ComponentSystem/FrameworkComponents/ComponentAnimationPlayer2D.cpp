@@ -19,8 +19,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentAnimationPlayer2D ); //_VARIABLE_LIST
 
-ComponentAnimationPlayer2D::ComponentAnimationPlayer2D(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+ComponentAnimationPlayer2D::ComponentAnimationPlayer2D(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -234,7 +234,7 @@ void ComponentAnimationPlayer2D::ImportFromJSONObject(cJSON* jComponent, SceneID
     cJSON* animfilestringobj = cJSON_GetObjectItem( jComponent, "AnimFile" );
     if( animfilestringobj )
     {
-        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetFileManager() );
+        EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
         MyFileObject* pFile = pEngineFileManager->RequestFile( animfilestringobj->valuestring, GetSceneID() );
         MyAssert( pFile );
         if( pFile )
@@ -352,7 +352,7 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
 
     if( m_AnimationFileLoaded == false )
     {
-        if( m_pAnimInfo->LoadAnimationControlFile( m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetMaterialManager() ) )
+        if( m_pAnimInfo->LoadAnimationControlFile( m_pEngineCore->GetManagers()->GetMaterialManager() ) )
         {
             m_AnimationFileLoaded = true;
         }

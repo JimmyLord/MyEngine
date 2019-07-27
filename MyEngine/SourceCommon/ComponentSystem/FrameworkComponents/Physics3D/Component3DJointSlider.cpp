@@ -16,8 +16,8 @@
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DJointSlider ); //_VARIABLE_LIST
 
-Component3DJointSlider::Component3DJointSlider(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+Component3DJointSlider::Component3DJointSlider(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

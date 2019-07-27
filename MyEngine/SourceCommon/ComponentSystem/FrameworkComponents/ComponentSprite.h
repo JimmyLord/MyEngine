@@ -29,7 +29,7 @@ public:
     Vector2 m_Size;
 
 public:
-    ComponentSprite(ComponentSystemManager* pComponentSystemManager);
+    ComponentSprite(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentSprite();
     SetClassnameWithParent( "SpriteComponent", ComponentRenderable ); // only first 8 character count.
 

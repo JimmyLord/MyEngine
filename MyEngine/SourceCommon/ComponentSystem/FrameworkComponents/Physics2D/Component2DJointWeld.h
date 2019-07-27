@@ -32,7 +32,7 @@ public:
     b2Body* m_pSecondBody;
 
 public:
-    Component2DJointWeld(ComponentSystemManager* pComponentSystemManager);
+    Component2DJointWeld(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~Component2DJointWeld();
     SetClassnameBase( "2DJoint-WeldComponent" ); // only first 8 character count. // "2DJoint-"
     //SetClassnameWithParent( "2DWeldComponent", "2DJoint" ); // only first 8 character count.

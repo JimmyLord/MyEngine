@@ -11,8 +11,8 @@
 
 #include "ComponentData.h"
 
-ComponentData::ComponentData(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+ComponentData::ComponentData(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     ClassnameSanityCheck();
 

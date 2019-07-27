@@ -38,7 +38,7 @@ public:
     btRigidBody* m_pSecondBody;
 
 public:
-    Component3DJointSlider(ComponentSystemManager* pComponentSystemManager);
+    Component3DJointSlider(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~Component3DJointSlider();
     SetClassnameBase( "3DJoint-SliderComponent" ); // only first 8 character count. // "3DJoint-"
     //SetClassnameWithParent( "3DSliderComponent", "3DJoint" ); // only first 8 character count.

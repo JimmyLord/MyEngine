@@ -16,8 +16,8 @@
 bool ComponentUpdateable::m_PanelWatchBlockVisible = true;
 #endif
 
-ComponentUpdateable::ComponentUpdateable(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+ComponentUpdateable::ComponentUpdateable(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     ClassnameSanityCheck();
 

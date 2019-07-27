@@ -30,7 +30,7 @@ public:
     float m_TransitionTimeTotal;
 
 public:
-    ComponentAnimationPlayer(ComponentSystemManager* pComponentSystemManager);
+    ComponentAnimationPlayer(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentAnimationPlayer();
     SetClassnameBase( "AnimPlayerComponent" ); // only first 8 character count.
 

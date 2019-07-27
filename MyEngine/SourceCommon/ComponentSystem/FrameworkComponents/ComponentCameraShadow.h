@@ -28,7 +28,7 @@ public:
     MyMatrix* GetViewProjMatrix();
 
 public:
-    ComponentCameraShadow(ComponentSystemManager* pComponentSystemManager);
+    ComponentCameraShadow(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentCameraShadow();
     SetClassnameBase( "CameraShadowComponent" ); // only first 8 character count.
 

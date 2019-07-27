@@ -27,8 +27,8 @@
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentHeightmap ); //_VARIABLE_LIST
 
-ComponentHeightmap::ComponentHeightmap(ComponentSystemManager* pComponentSystemManager)
-: ComponentMesh( pComponentSystemManager )
+ComponentHeightmap::ComponentHeightmap(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentMesh( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -114,7 +114,7 @@ void* ComponentHeightmap::OnDrop(ComponentVariable* pVar, bool changedByInterfac
         MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
 
         // Check if file is either a texture or a .myheightmap file and assign it if it is.
-        TextureManager* pTextureManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
+        TextureManager* pTextureManager = m_pEngineCore->GetManagers()->GetTextureManager();
         TextureDefinition* pTexture = pTextureManager->FindTexture( pFile );
 
         if( pTexture != nullptr )
@@ -176,7 +176,7 @@ void* ComponentHeightmap::OnValueChanged(ComponentVariable* pVar, bool changedBy
 
 void ComponentHeightmap::OnButtonEditHeightmap()
 {
-    EngineCore* pEngineCore = m_pComponentSystemManager->GetEngineCore();
+    EngineCore* pEngineCore = m_pEngineCore;
 
     EditorDocument_Heightmap* pDocument = MyNew EditorDocument_Heightmap( pEngineCore, this );
     pEngineCore->GetEditorState()->OpenDocument( pDocument );
@@ -392,7 +392,7 @@ void ComponentHeightmap::CreateHeightmap()
 {
     if( m_pMesh == nullptr )
     {
-        m_pMesh = MyNew MyMesh( m_pComponentSystemManager->GetEngineCore() );
+        m_pMesh = MyNew MyMesh( m_pEngineCore );
     }
     else
     {

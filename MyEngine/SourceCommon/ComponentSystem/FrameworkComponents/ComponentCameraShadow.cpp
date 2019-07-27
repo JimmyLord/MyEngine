@@ -15,8 +15,8 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
 
-ComponentCameraShadow::ComponentCameraShadow(ComponentSystemManager* pComponentSystemManager)
-: ComponentCamera( pComponentSystemManager )
+ComponentCameraShadow::ComponentCameraShadow(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentCamera( pEngineCore, pComponentSystemManager )
 {
     ClassnameSanityCheck();
 
@@ -36,7 +36,7 @@ ComponentCameraShadow::~ComponentCameraShadow()
 
     if( m_pLight )
     {
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         pLightManager->DestroyLight( m_pLight );
     }
 }
@@ -126,7 +126,7 @@ void ComponentCameraShadow::Reset()
 
     SAFE_RELEASE( m_pDepthFBO );
 
-    TextureManager* pTextureManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetTextureManager();
+    TextureManager* pTextureManager = m_pEngineCore->GetManagers()->GetTextureManager();
 
     int texres = 2048;
 #if MYFW_OPENGLES2
@@ -141,7 +141,7 @@ void ComponentCameraShadow::Reset()
 
     if( m_pLight == 0 )
     {
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         m_pLight = pLightManager->CreateLight();
         m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
     }
@@ -216,7 +216,7 @@ void ComponentCameraShadow::OnGameObjectEnabled()
 
     if( m_pLight )
     {
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         pLightManager->SetLightEnabled( m_pLight, true );
     }
 }
@@ -227,7 +227,7 @@ void ComponentCameraShadow::OnGameObjectDisabled()
 
     if( m_pLight )
     {
-        LightManager* pLightManager = m_pComponentSystemManager->GetEngineCore()->GetManagers()->GetLightManager();
+        LightManager* pLightManager = m_pEngineCore->GetManagers()->GetLightManager();
         pLightManager->SetLightEnabled( m_pLight, false );
     }
 }

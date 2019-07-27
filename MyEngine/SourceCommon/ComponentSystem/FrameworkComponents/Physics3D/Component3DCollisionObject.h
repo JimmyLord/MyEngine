@@ -44,7 +44,7 @@ protected:
     void CreateBody();
 
 public:
-    Component3DCollisionObject(ComponentSystemManager* pComponentSystemManager);
+    Component3DCollisionObject(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~Component3DCollisionObject();
     SetClassnameBase( "3DCollisionObjectComponent" ); // only first 8 character count.
 

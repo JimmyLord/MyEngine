@@ -21,8 +21,8 @@ bool Component2DJointWeld::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component2DJointWeld ); //_VARIABLE_LIST
 
-Component2DJointWeld::Component2DJointWeld(ComponentSystemManager* pComponentSystemManager)
-: ComponentBase( pComponentSystemManager )
+Component2DJointWeld::Component2DJointWeld(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentBase( pEngineCore, pComponentSystemManager )
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 

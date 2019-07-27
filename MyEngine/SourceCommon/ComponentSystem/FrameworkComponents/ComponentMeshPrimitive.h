@@ -50,7 +50,7 @@ public:
     ComponentMeshPrimitive* m_pOtherMeshPrimitive;
 
 public:
-    ComponentMeshPrimitive(ComponentSystemManager* pComponentSystemManager);
+    ComponentMeshPrimitive(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentMeshPrimitive();
     SetClassnameWith2Parents( "MeshPrimitiveComponent", ComponentMesh, ComponentRenderable ); // Only first 8 characters count.
 
