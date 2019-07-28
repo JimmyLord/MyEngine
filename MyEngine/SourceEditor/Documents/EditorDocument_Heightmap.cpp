@@ -742,42 +742,32 @@ void EditorDocument_Heightmap::ApplyCurrentTool(Vector3 localSpacePoint, int mou
 //====================================================================================================
 void EditorDocument_Heightmap::Save()
 {
-    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
+    EditorDocument::Save();
 
-    if( m_pHeightmap->m_pHeightmapFile )
+    // Save NodeGraph as JSON string.
     {
-        m_pHeightmap->SaveAsHeightmap( m_pHeightmap->m_pHeightmapFile->GetFullPath() );
-    }
-    else
-    {
-        const char* path = FileSaveDialog( "Data\\Meshes\\", "Heightmap Files\0*.myheightmap\0All\0*.*\0" );
-        if( path[0] != 0 )
+        const char* filename = GetRelativePath();
+        if( filename[0] == '\0' )
         {
-            int len = (int)strlen( path );
-
-            // Append '.myheightmap' to end of filename if it wasn't already there.
-            char fullPath[MAX_PATH];
-            if( strcmp( &path[len-12], ".myheightmap" ) == 0 )
-            {
-                strcpy_s( fullPath, MAX_PATH, path );
-            }
-            else
-            {
-                sprintf_s( fullPath, MAX_PATH, "%s.myheightmap", path );
-            }
-
-            // Only set the filename and save if the path is relative.
-            const char* relativePath = ::GetRelativePath( path );
-            if( relativePath )
-            {
-                m_pHeightmap->SaveAsHeightmap( relativePath );
-                MyFileInfo* pFileInfo = pEngineCore->GetComponentSystemManager()->LoadDataFile( relativePath, m_pHeightmap->GetSceneID(), nullptr, false );
-                m_pHeightmap->SetHeightmapFile( pFileInfo->GetFile() );
-            }
-            else
-            {
-                LOGError( LOGTag, "Document not saved, path must be relative to the editor." );
-            }
+            return;
         }
+
+        m_pHeightmap->SaveAsHeightmap( filename );
+        //MyFileInfo* pFileInfo = m_pEngineCore->GetComponentSystemManager()->LoadDataFile( filename, SceneID::SCENEID_MainScene, nullptr, false );
+        //m_pHeightmap->SetHeightmapFile( pFileInfo->GetFile() );
     }
+}
+
+void EditorDocument_Heightmap::Load()
+{
+    EditorDocument::Load();
+
+    const char* filename = GetRelativePath();
+    if( filename[0] == '\0' )
+    {
+        return;
+    }
+
+    m_pHeightmap->LoadFromHeightmap( filename );
+    m_pHeightmap->GenerateHeightmapMesh( false, true, true );
 }

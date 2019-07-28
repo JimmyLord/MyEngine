@@ -139,6 +139,11 @@ protected:
     void AddExistingNode(MyNode* pNode);
     void RemoveExistingNode(MyNode* pNode);
 
+    // File IO.
+    virtual const char* GetFileExtension() { return ".visualscript"; };
+    virtual const char* GetDefaultDataFolder() { return "DataSource\\VisualScripts\\"; };
+    virtual const char* GetDefaultFileSaveFilter() { return "VisualScript Files=*.myvisualscript"; };
+
 public:
     MyNodeGraph(EngineCore* pEngineCore, MyNodeTypeManager* pNodeTypeManager);
     virtual ~MyNodeGraph();

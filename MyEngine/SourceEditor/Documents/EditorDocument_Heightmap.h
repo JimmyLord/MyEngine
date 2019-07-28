@@ -74,6 +74,12 @@ protected:
 
     bool m_AlwaysRecalculateNormals;
 
+protected:
+    // File IO.
+    virtual const char* GetFileExtension() { return ".myheightmap"; };
+    virtual const char* GetDefaultDataFolder() { return "Data\\Meshes\\"; };
+    virtual const char* GetDefaultFileSaveFilter() { return "MyHeightmap Files=*.myheightmap"; };
+
 public:
     EditorDocument_Heightmap(EngineCore* pEngineCore, ComponentHeightmap* pHeightmap);
     virtual ~EditorDocument_Heightmap();
@@ -105,6 +111,7 @@ public:
 
 protected:
     void Save();
+    void Load();
 };
 
 #endif //__EditorDocument_Heightmap_H__

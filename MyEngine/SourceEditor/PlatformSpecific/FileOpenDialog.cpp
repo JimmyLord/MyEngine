@@ -78,7 +78,7 @@ char* FileSaveDialog(const char* initialDir, const char* filter)
 	ofn.nMaxFileTitle = 0;
 	ofn.lpstrInitialDir = initialDir;
     ofn.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
-                
+
     GetOpenFileNameA( &ofn );
 #else
     LOGError( LOGTag, "TODO: Implement me!\n" );

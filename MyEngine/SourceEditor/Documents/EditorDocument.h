@@ -22,10 +22,8 @@ protected:
     {
         EditorDocumentMenuCommand_Undo,
         EditorDocumentMenuCommand_Redo,
-        EditorDocumentMenuCommand_Load,
         EditorDocumentMenuCommand_Save,
         EditorDocumentMenuCommand_SaveAs,
-        //EditorDocumentMenuCommand_SaveAll,
     };
 
 protected:
@@ -52,11 +50,17 @@ protected:
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command);
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value);
 
+    // File IO.
+    virtual const char* GetFileExtension() = 0;
+    virtual const char* GetDefaultDataFolder() = 0;
+    virtual const char* GetDefaultFileSaveFilter() = 0;
+
 public:
     EditorDocument(EngineCore* pEngineCore);
     virtual ~EditorDocument();
 
     static EditorDocument* AddDocumentMenu(EngineCore* pEngineCore, EditorDocument* pDocument);
+    static EditorDocument* LoadDocument(EngineCore* pEngineCore);
 
     // Input/Hotkey handling
     virtual HotkeyContext GetHotkeyContext() { return HotkeyContext::Global; }

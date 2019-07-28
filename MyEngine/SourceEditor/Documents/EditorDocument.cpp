@@ -65,26 +65,6 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
         }
         break;
 
-    case EditorDocumentMenuCommand_Load:
-        {
-            const char* filename = FileOpenDialog( "DataSource\\VisualScripts\\", "VisualScript Files\0*.myvisualscript\0All\0*.*\0" );
-            if( filename[0] != '\0' )
-            {
-                char path[MAX_PATH];
-                strcpy_s( path, MAX_PATH, filename );
-                const char* relativePath = ::GetRelativePath( path );
-
-                EditorDocument* pNewDocument = MyNew MyNodeGraph( m_pEngineCore, &g_VisualScriptNodeTypeManager );
-                pNewDocument->SetRelativePath( relativePath );
-                pNewDocument->Load();
-
-                m_pEngineCore->GetEditorPrefs()->AddRecentDocument( relativePath );
-
-                return pNewDocument;
-            }
-        }
-        break;
-
     case EditorDocumentMenuCommand_Save:
         {
             // If a filename is set, save.  Otherwise, drop down into EditorDocumentMenuCommand_SaveAs and ask for a name.
@@ -99,20 +79,32 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
     case EditorDocumentMenuCommand_SaveAs:
         {
             // Request a file path from the OS.
-            const char* path = FileSaveDialog( "DataSource\\VisualScripts\\", "VisualScript Files\0*.myvisualscript\0All\0*.*\0" );
+            char tempFilter[256];
+            sprintf_s( tempFilter, 256, "%s=All=*.*=", GetDefaultFileSaveFilter() );
+            uint32 tempFilterLen = strlen( tempFilter );
+            for( uint32 i=0; i<tempFilterLen; i++ )
+            {
+                if( tempFilter[i] == '=' )
+                {
+                    tempFilter[i] = '\0';
+                }
+            }
+
+            const char* path = FileSaveDialog( GetDefaultDataFolder(), tempFilter );
             if( path[0] != 0 )
             {
                 int len = (int)strlen( path );
+                int defaultFileExtensionLength = strlen( GetFileExtension() );
 
-                // Append '.myvisualscript' to end of filename if it wasn't already there.
+                // Append extension to end of filename if it wasn't already there.
                 char fullPath[MAX_PATH];
-                if( strcmp( &path[len-15], ".myvisualscript" ) == 0 )
+                if( strcmp( &path[len-defaultFileExtensionLength], GetFileExtension() ) == 0 )
                 {
                     strcpy_s( fullPath, MAX_PATH, path );
                 }
                 else
                 {
-                    sprintf_s( fullPath, MAX_PATH, "%s.myvisualscript", path );
+                    sprintf_s( fullPath, MAX_PATH, "%s%s", path, GetFileExtension() );
                 }
 
                 // Only set the filename and save if the path is relative.
@@ -134,11 +126,6 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
             }
         }
         break;
-
-    //case EditorDocumentMenuCommand_SaveAll:
-    //    {
-    //    }
-    //    break;
     }
 
     return nullptr;
@@ -149,14 +136,14 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
     return nullptr;
 }
 
-// Static
+// Static.
 EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorDocument* pDocument)
 {
     EditorDocument* pNewDocument = nullptr;
 
     if( ImGui::BeginMenu( "Document" ) )
     {
-        if( ImGui::BeginMenu( "New Document..." ) )
+        if( ImGui::BeginMenu( "New Document" ) )
         {
             if( ImGui::MenuItem( "Visual Script" ) )
             {
@@ -166,20 +153,21 @@ EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorD
             {
                 pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
             }
-            ImGui::EndMenu(); // "New Document..."
+            ImGui::EndMenu(); // "New Document"
         }
 
         if( ImGui::MenuItem( "Load Document..." ) )
         {
-            pNewDocument = pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Load );
+            pNewDocument = EditorDocument::LoadDocument( pEngineCore );
+            //pNewDocument = pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Load );
         }
 
-        if( ImGui::BeginMenu( "Load Recent Document..." ) )
+        if( ImGui::BeginMenu( "Load Recent Document" ) )
         {
             uint32 numRecentDocuments = pEngineCore->GetEditorPrefs()->Get_Document_NumRecentDocuments();
             if( numRecentDocuments == 0 )
             {
-                ImGui::Text( "no recent documents..." );
+                ImGui::Text( "no recent documents." );
             }
 
             for( uint32 i=0; i<numRecentDocuments; i++ )
@@ -239,6 +227,61 @@ EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorD
     }
 
     return pNewDocument;
+}
+
+// Static.
+EditorDocument* EditorDocument::LoadDocument(EngineCore* pEngineCore)
+{
+    char tempFilter[256];
+    //sprintf_s( tempFilter, 256, "%s\0All\0*.*\0", GetDefaultFileSaveFilter() );
+    sprintf_s( tempFilter, 256, "%s=%s=%s=",
+        "All=*.*",
+        "VisualScript Files=*.myvisualscript",
+        "MyHeightmap Files=*.myheightmap"
+    );
+    uint32 tempFilterLen = strlen( tempFilter );
+    for( uint32 i=0; i<tempFilterLen; i++ )
+    {
+        if( tempFilter[i] == '=' )
+        {
+            tempFilter[i] = '\0';
+        }
+    }
+
+    const char* filename = FileOpenDialog( "Data\\", tempFilter );
+    if( filename[0] != '\0' )
+    {
+        char path[MAX_PATH];
+        strcpy_s( path, MAX_PATH, filename );
+        const char* relativePath = ::GetRelativePath( path );
+
+        int len = (int)strlen( relativePath );
+        EditorDocument* pNewDocument = nullptr;
+        
+        if( strcmp( &relativePath[len-strlen(".visualscript")], ".visualscript" ) == 0 )
+        {
+            pNewDocument = MyNew MyNodeGraph( pEngineCore, &g_VisualScriptNodeTypeManager );
+        }        
+        else if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
+        {
+            pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+        }
+
+        if( pNewDocument == nullptr )
+        {
+            LOGError( LOGTag, "This filetype is not supported.\n" );
+            return nullptr;
+        }
+
+        pNewDocument->SetRelativePath( relativePath );
+        pNewDocument->Load();
+
+        pEngineCore->GetEditorPrefs()->AddRecentDocument( relativePath );
+
+        return pNewDocument;
+    }
+
+    return nullptr;
 }
 
 bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
