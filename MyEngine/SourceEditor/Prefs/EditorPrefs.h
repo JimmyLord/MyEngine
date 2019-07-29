@@ -161,6 +161,8 @@ public:
     void AddRecentScene(const char* relativePath);
     void AddRecentDocument(const char* relativePath);
 
+    void RemoveRecentDocument(const char* relativePath);
+
     void FillGridSettingsWindow();
 
     // ImGui Preferences Window.

@@ -428,6 +428,16 @@ void EditorPrefs::AddRecentDocument(const char* relativePath)
         m_Document_RecentDocuments.pop_back();
 }
 
+void EditorPrefs::RemoveRecentDocument(const char* relativePath)
+{
+    // Remove a single matching item.
+    auto it = std::find( m_Document_RecentDocuments.begin(), m_Document_RecentDocuments.end(), relativePath );
+    if( it != m_Document_RecentDocuments.end() )
+    {
+        m_Document_RecentDocuments.erase( it );
+    }
+}
+
 void EditorPrefs::FillGridSettingsWindow()
 {
 #if MYFW_USING_IMGUI

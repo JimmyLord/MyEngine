@@ -172,15 +172,37 @@ EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorD
 
             for( uint32 i=0; i<numRecentDocuments; i++ )
             {
-                std::string relativePath = pEngineCore->GetEditorPrefs()->Get_Document_RecentDocument( i );
+                std::string relativePathStr = pEngineCore->GetEditorPrefs()->Get_Document_RecentDocument( i );
+                const char* relativePath = relativePathStr.c_str();
 
-                if( ImGui::MenuItem( relativePath.c_str() ) )
+                if( ImGui::MenuItem( relativePath ) )
                 {
-                    pNewDocument = MyNew MyNodeGraph( pEngineCore, &g_VisualScriptNodeTypeManager );
-                    pNewDocument->SetRelativePath( relativePath.c_str() );
-                    pNewDocument->Load();
+                    uint32 len = strlen( relativePath );
 
-                    pEngineCore->GetEditorPrefs()->AddRecentDocument( relativePath.c_str() );
+                    if( strcmp( &relativePath[len-strlen(".myvisualscript")], ".myvisualscript" ) == 0 )
+                    {
+                        pNewDocument = MyNew MyNodeGraph( pEngineCore, &g_VisualScriptNodeTypeManager );
+                    }
+
+                    if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
+                    {
+                        pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+                    }
+
+                    if( pNewDocument )
+                    {
+                        pNewDocument->SetRelativePath( relativePath );
+                        pNewDocument->Load();
+
+                        pEngineCore->GetEditorPrefs()->AddRecentDocument( relativePath );
+                    }
+                    else
+                    {
+                        LOGError( LOGTag, "Document not found: %s - removing from recent list.", relativePath );
+                        pEngineCore->GetEditorPrefs()->RemoveRecentDocument( relativePath );
+                        i--;
+                        numRecentDocuments--;
+                    }
                 }
             }
             ImGui::EndMenu();
@@ -258,7 +280,7 @@ EditorDocument* EditorDocument::LoadDocument(EngineCore* pEngineCore)
         int len = (int)strlen( relativePath );
         EditorDocument* pNewDocument = nullptr;
         
-        if( strcmp( &relativePath[len-strlen(".visualscript")], ".visualscript" ) == 0 )
+        if( strcmp( &relativePath[len-strlen(".myvisualscript")], ".myvisualscript" ) == 0 )
         {
             pNewDocument = MyNew MyNodeGraph( pEngineCore, &g_VisualScriptNodeTypeManager );
         }        

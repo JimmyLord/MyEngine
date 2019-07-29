@@ -140,7 +140,7 @@ protected:
     void RemoveExistingNode(MyNode* pNode);
 
     // File IO.
-    virtual const char* GetFileExtension() { return ".visualscript"; };
+    virtual const char* GetFileExtension() { return ".myvisualscript"; };
     virtual const char* GetDefaultDataFolder() { return "DataSource\\VisualScripts\\"; };
     virtual const char* GetDefaultFileSaveFilter() { return "VisualScript Files=*.myvisualscript"; };
 
