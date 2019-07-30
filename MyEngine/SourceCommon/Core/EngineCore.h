@@ -19,6 +19,7 @@ class EditorInterface;
 class EditorMainFrame;
 class EditorPrefs;
 class EditorState;
+class MonoGameState;
 class MyMeshText;
 
 #if _DEBUG || MYFW_EDITOR
@@ -91,6 +92,10 @@ protected:
 #if MYFW_USING_LUA
     LuaGameState* m_pLuaGameState;
 #endif //MYFW_USING_LUA
+
+#if MYFW_USING_MONO
+    MonoGameState* m_pMonoGameState;
+#endif //MYFW_USING_MONO
 
     bool m_EditorMode;
     bool m_AllowGameToRunInEditorMode;
@@ -210,6 +215,12 @@ public:
     virtual LuaGameState* CreateLuaGameState() { return MyNew LuaGameState( this ); }
     LuaGameState* GetLuaGameState() { return m_pLuaGameState; }
 #endif //MYFW_USING_LUA
+
+#if MYFW_USING_MONO
+    static void MonoRegister(MonoGameState* monoState);
+    virtual MonoGameState* CreateMonoGameState();
+    MonoGameState* GetMonoGameState();
+#endif //MYFW_USING_MONO
 
     virtual void InitializeManagers();
     void InitializeGameObjectFlagStrings(cJSON* jStringsArray);

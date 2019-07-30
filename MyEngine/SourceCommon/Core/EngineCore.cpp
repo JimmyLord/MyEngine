@@ -17,6 +17,8 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
 #include "Core/EngineComponentTypeManager.h"
+#include "Core/LuaGameState.h"
+#include "Core/MonoGameState.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
 #include "../../../SharedGameCode/Core/MyMeshText.h"
 #include "../../../SharedGameCode/Core/RenderTextQuick.h"
@@ -50,6 +52,10 @@ EngineCore::EngineCore(Renderer_Base* pRenderer, bool createAndOwnGlobalManagers
 #if MYFW_USING_LUA
     m_pLuaGameState = nullptr;
 #endif //MYFW_USING_LUA
+
+#if MYFW_USING_MONO
+    m_pMonoGameState = nullptr;
+#endif //MYFW_USING_MONO
 
 #if MYFW_EDITOR
     m_EditorMode = true;
@@ -155,6 +161,10 @@ void EngineCore::Cleanup()
 #if MYFW_USING_LUA
     SAFE_DELETE( m_pLuaGameState );
 #endif //MYFW_USING_LUA
+
+#if MYFW_USING_MONO
+    SAFE_DELETE( m_pMonoGameState );
+#endif //MYFW_USING_MONO
 
 #if MYFW_EDITOR
     for( int i=0; i<(int)EditorInterfaceType::NumInterfaces; i++ )
@@ -276,6 +286,23 @@ void EngineCore::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate ).addFunction( "SetMouseLock", EngineCoreSetMouseLock ); // void EngineCoreSetMouseLock(bool lock)
 }
 #endif //MYFW_USING_LUA
+
+#if MYFW_USING_MONO
+// Static.
+void EngineCore::MonoRegister(MonoGameState* monoState)
+{
+}
+
+MonoGameState* EngineCore::CreateMonoGameState()
+{
+    return MyNew MonoGameState( this );
+}
+
+MonoGameState* EngineCore::GetMonoGameState()
+{
+    return m_pMonoGameState;
+}
+#endif //MYFW_USING_MONO
 
 void EngineCore::InitializeManagers()
 {
@@ -414,6 +441,18 @@ void EngineCore::OneTimeInit()
     m_pLuaGameState->Rebuild(); // Reset the lua state.
 #endif //MYFW_USING_LUA
 
+    // Initialize lua state and register any variables needed.
+#if MYFW_USING_MONO
+    m_pMonoGameState = CreateMonoGameState();
+    //int count = 0;
+    //while(1)
+    //{
+    //    m_pMonoGameState->Rebuild(); // Reset the mono state.
+    //    count++;
+    //    LOGInfo( LOGTag, "Count: %d", count );
+    //}
+#endif //MYFW_USING_MONO
+
 #if MYFW_EDITOR
 //    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
     CreateDefaultEditorSceneObjects();
@@ -531,7 +570,9 @@ float EngineCore::Tick(float deltaTime)
     double Timing_Start = MyTime_GetSystemTime();
 #endif
 
+#if MYFW_USING_LUA
     m_pLuaGameState->Tick();
+#endif
 
     if( m_pImGuiManager )
     {
@@ -829,6 +870,13 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         // Render out the ImGui command list to the full window.
         m_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.1f, 0.2f, 1.0f ) );
         m_pRenderer->ClearBuffers( true, true, false );
+
+        ImGui::Begin( "Mono test" );
+        if( ImGui::Button( "Rebuild" ) )
+        {
+            m_pMonoGameState->Rebuild(); // Reset the mono state.
+        }
+        ImGui::End();
 
         if( m_pImGuiManager )
         {
@@ -1755,7 +1803,12 @@ void EngineCore::UnloadScene(SceneID sceneid, bool clearEditorObjects)
     //           maybe individual GameObjects and Script components will need to unregister themselves from the Lua state when unloaded.
     {
         MyAssert( sceneid == SCENEID_AllScenes || m_EditorMode == false );
+#if MYFW_USING_LUA
         m_pLuaGameState->Rebuild(); // Reset the lua state.
+#endif
+#if MYFW_USING_MONO
+        m_pMonoGameState->Rebuild(); // Reset the mono state.
+#endif
     }
 
     m_pComponentSystemManager->UnloadScene( sceneid, false );

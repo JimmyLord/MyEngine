@@ -14,3 +14,6 @@ For iOS deployment:
 For VSCode extension:
 - node-v10.3.0-x64.msi (nodejs.org/en/)
 	- npm install -g vsce
+
+Mono (early testing on Windows):
+mono-6.0.0.313-gtksharp-2.12.45-win32-0
