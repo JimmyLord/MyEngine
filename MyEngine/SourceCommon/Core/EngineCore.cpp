@@ -441,16 +441,10 @@ void EngineCore::OneTimeInit()
     m_pLuaGameState->Rebuild(); // Reset the lua state.
 #endif //MYFW_USING_LUA
 
-    // Initialize lua state and register any variables needed.
+    // Initialize mono state and register any variables needed.
 #if MYFW_USING_MONO
     m_pMonoGameState = CreateMonoGameState();
-    //int count = 0;
-    //while(1)
-    //{
-    //    m_pMonoGameState->Rebuild(); // Reset the mono state.
-    //    count++;
-    //    LOGInfo( LOGTag, "Count: %d", count );
-    //}
+    m_pMonoGameState->Rebuild();
 #endif //MYFW_USING_MONO
 
 #if MYFW_EDITOR
@@ -871,12 +865,12 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         m_pRenderer->SetClearColor( ColorFloat( 0.0f, 0.1f, 0.2f, 1.0f ) );
         m_pRenderer->ClearBuffers( true, true, false );
 
-        ImGui::Begin( "Mono test" );
-        if( ImGui::Button( "Rebuild" ) )
-        {
-            m_pMonoGameState->Rebuild(); // Reset the mono state.
-        }
-        ImGui::End();
+        //ImGui::Begin( "Mono test" );
+        //if( ImGui::Button( "Rebuild" ) )
+        //{
+        //    m_pMonoGameState->Rebuild(); // Reset the mono state.
+        //}
+        //ImGui::End();
 
         if( m_pImGuiManager )
         {

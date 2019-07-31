@@ -15,6 +15,9 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
+#if MYFW_USING_MONO
+#include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
+#endif //MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
@@ -69,6 +72,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Physics",        "2D Joint - Prismatic",    },  //ComponentType_2DJointPrismatic,
     { "Physics",        "2D Joint - Weld",         },  //ComponentType_2DJointWeld,
     { "Scripts",        "Lua Script",              },  //ComponentType_LuaScript,
+    { "Scripts",        "Mono Script",             },  //ComponentType_MonoScript,
     { "Particles",      "Particle Emitter",        },  //ComponentType_ParticleEmitter,
     { "Animation",      "Animation Player",        },  //ComponentType_AnimationPlayer,
     { "Animation",      "2D Animation Player",     },  //ComponentType_AnimationPlayer2D,
@@ -121,6 +125,11 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript(          pEngineCore, m_pComponentSystemManager ); break;
 #else
     case ComponentType_LuaScript:           pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+#endif //MYFW_USING_LUA
+#if MYFW_USING_MONO
+    case ComponentType_MonoScript:          pComponent = MyNew ComponentMonoScript(         pEngineCore, m_pComponentSystemManager ); break;
+#else
+    case ComponentType_MonoScript:          pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
 #endif //MYFW_USING_LUA
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter(    pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer(    pEngineCore, m_pComponentSystemManager ); break;

@@ -10,6 +10,7 @@
 #ifndef __MonoGameState_H__
 #define __MonoGameState_H__
 
+#include "mono/metadata/object-forward.h"
 #include "mono/utils/mono-forward.h"
 
 class MonoGameState
@@ -24,6 +25,8 @@ protected:
 public:
     MonoGameState(EngineCore* pEngineCore);
     ~MonoGameState();
+
+    MonoImage* GetImage() { return m_pMonoImage; }
 
     void Rebuild();
 };

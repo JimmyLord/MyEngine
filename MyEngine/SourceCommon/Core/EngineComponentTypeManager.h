@@ -37,6 +37,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_2DJointPrismatic,
     ComponentType_2DJointWeld,
     ComponentType_LuaScript,
+    ComponentType_MonoScript,
     ComponentType_ParticleEmitter,
     ComponentType_AnimationPlayer,
     ComponentType_AnimationPlayer2D,

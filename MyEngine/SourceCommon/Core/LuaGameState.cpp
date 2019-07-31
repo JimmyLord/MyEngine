@@ -17,6 +17,9 @@
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
+#if MYFW_USING_MONO
+#include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
+#endif //MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
@@ -986,6 +989,9 @@ GL_REPEAT                     = 0x2901;\
     //ComponentType_2DJointPrismatic,
     //ComponentType_2DJointWeld,
     ComponentLuaScript::LuaRegister( m_pLuaState );
+#if MYFW_USING_MONO
+    ComponentMonoScript::LuaRegister( m_pLuaState );
+#endif
     ComponentParticleEmitter::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );

@@ -32,6 +32,7 @@ project "MyEngine"
         "Libraries/Lua/src/*.c",
         "Libraries/Lua/src/*.h",
         "Libraries/LuaBridge/**.h",
+        "DataEngineSource/**.cs",
         "README.md",
         "premake5inc.lua",
     }
@@ -49,6 +50,10 @@ project "MyEngine"
         -- Place the Libraries folder in the root of the project.
         ["Libraries*"] = {
             "Libraries",
+        },
+        -- Place the DataEngineSource folder in the root of the project.
+        ["DataEngineSource*"] = {
+            "DataEngineSource",
         },
     }
 

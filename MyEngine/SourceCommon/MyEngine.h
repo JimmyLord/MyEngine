@@ -42,6 +42,9 @@
 
 // MyEngine components.
 #include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
+#if MYFW_USING_MONO
+#include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
+#endif //MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
 #include "Voxels/ComponentVoxelMesh.h"
 #include "Voxels/ComponentVoxelWorld.h"

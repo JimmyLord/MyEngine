@@ -46,5 +46,13 @@ void MonoGameState::Rebuild()
 
     // Load the assembly and grab a pointer to the image from the assembly.
     MonoAssembly* pMonoAssembly = mono_domain_assembly_open( m_pActiveDomain, "Data/Mono/Game.dll" );
+    if( pMonoAssembly == nullptr )
+    {
+        mono_domain_set( m_pCoreDomain, true );
+        mono_domain_unload( m_pActiveDomain );
+        LOGError( LOGTag, "%s not found", "Data/Mono/Game.dll" );
+        return;
+    }
+
     m_pMonoImage = mono_assembly_get_image( pMonoAssembly );
 }
