@@ -12,6 +12,9 @@
 
 class MonoGameState;
 
+#include "mono/metadata/object-forward.h"
+#include "mono/utils/mono-forward.h"
+
 #include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 
@@ -83,6 +86,7 @@ protected:
 
     MyFileObject* m_pScriptFile;
     char m_MonoClassName[255];
+    MonoObject* m_pMonoObjectInstance;
     MyList<MonoExposedVariableDesc*> m_ExposedVars;
 
 public:

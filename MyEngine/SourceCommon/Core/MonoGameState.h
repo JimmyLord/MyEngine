@@ -26,6 +26,7 @@ public:
     MonoGameState(EngineCore* pEngineCore);
     ~MonoGameState();
 
+    MonoDomain* GetActiveDomain() { return m_pActiveDomain; }
     MonoImage* GetImage() { return m_pMonoImage; }
 
     void Rebuild();

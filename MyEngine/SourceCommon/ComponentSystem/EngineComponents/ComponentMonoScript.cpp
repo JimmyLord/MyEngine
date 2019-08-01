@@ -45,6 +45,7 @@ ComponentMonoScript::ComponentMonoScript(EngineCore* pEngineCore, ComponentSyste
 
     m_pScriptFile = nullptr;
     m_MonoClassName[0] = '\0';
+    m_pMonoObjectInstance = nullptr;
 
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // Hard coded nonsense for now, max of 4 exposed vars in a script.
 
@@ -328,9 +329,9 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
         ImGui::Text( "Class: %s", m_MonoClassName );
 
         ImGui::Text( "List of classes" );
-        MonoImage* pImage = m_pMonoGameState->GetImage();
+        MonoImage* pMonoImage = m_pMonoGameState->GetImage();
 
-        const MonoTableInfo* pTableInfo = mono_image_get_table_info( pImage, MONO_TABLE_TYPEDEF );
+        const MonoTableInfo* pTableInfo = mono_image_get_table_info( pMonoImage, MONO_TABLE_TYPEDEF );
 
         int numRows = mono_table_info_get_rows( pTableInfo );
         for( int i=0; i<numRows; i++ )
@@ -338,14 +339,14 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
             uint32_t cols[MONO_TYPEDEF_SIZE];
             mono_metadata_decode_row( pTableInfo, i, cols, MONO_TYPEDEF_SIZE );
 
-            //const char* flags = mono_metadata_string_heap( pImage, cols[MONO_TYPEDEF_FLAGS] );
-            const char* nameSpace = mono_metadata_string_heap( pImage, cols[MONO_TYPEDEF_NAMESPACE] );
-            const char* className = mono_metadata_string_heap( pImage, cols[MONO_TYPEDEF_NAME] );
-            //const char* extends = mono_metadata_string_heap( pImage, cols[MONO_TYPEDEF_EXTENDS] );
-            //const char* fieldList = mono_metadata_string_heap( pImage, cols[MONO_TYPEDEF_FIELD_LIST] );
-            //const char* methodList = mono_metadata_string_heap( pImage, cols[MONO_TYPEDEF_METHOD_LIST] );
+            //const char* flags = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_FLAGS] );
+            const char* nameSpace = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_NAMESPACE] );
+            const char* className = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_NAME] );
+            //const char* extends = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_EXTENDS] );
+            //const char* fieldList = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_FIELD_LIST] );
+            //const char* methodList = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_METHOD_LIST] );
             
-            MonoClass* pClass = mono_class_from_name( pImage, nameSpace, className );
+            MonoClass* pClass = mono_class_from_name( pMonoImage, nameSpace, className );
             //MonoType* pType = mono_class_enum_basetype( pClass );
             //MonoType* pType = mono_class_get_byref_type( pClass );
             //MonoClass* pElementClass = mono_class_get_element_class( pClass );
@@ -362,10 +363,18 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
             if( flags & TYPE_ATTRIBUTE_PUBLIC &&
                 strcmp( parentClassName, "MyScriptInterface" ) == 0 )
             {
-                ImGui::Text( "%s) %s : %s", nameSpace, className, parentClassName );
+                ImGui::Text( "%s::%s : %s", nameSpace, className, parentClassName );
                 strcpy_s( m_MonoClassName, 255, className );
             }
         }
+
+        // Get list of methods from a class.
+        //void* iter = NULL;
+        //MonoMethod* method;
+        //while(method = mono_class_get_methods(mono_class, &iter))
+        //{
+        //    cout << mono_method_full_name(method, 1);
+        //}
     }
 
     // Add all component variables.
@@ -1172,8 +1181,32 @@ void ComponentMonoScript::LoadScript()
     pEventManager->UnregisterForEvents( "Keyboard", this, &ComponentMonoScript::StaticOnEvent );
 
     // Script is ready, so run it.
-    if( m_pScriptFile != nullptr )
+    //if( m_pScriptFile != nullptr )
+    if( m_MonoClassName[0] != '\0' )
     {
+        m_ScriptLoaded = true;
+
+        // Create an instance of this class type.
+        MonoImage* pMonoImage = m_pMonoGameState->GetImage();
+        MonoDomain* pMonoDomain = m_pMonoGameState->GetActiveDomain();
+        MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
+
+        m_pMonoObjectInstance = mono_object_new( pMonoDomain, pClass );
+
+        MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
+        mono_runtime_invoke( pConstructor, m_pMonoObjectInstance, nullptr, nullptr );
+
+        MonoClassField* fieldTestValue = mono_class_get_field_from_name( pClass, "m_TestValue" );
+        int value;
+        mono_field_get_value( m_pMonoObjectInstance, fieldTestValue, &value );
+
+        MonoMethod* pOnLoad = mono_class_get_method_from_name( pClass, "OnLoad", 0 );
+        mono_runtime_invoke( pOnLoad, m_pMonoObjectInstance, nullptr, nullptr );
+
+        mono_field_get_value( m_pMonoObjectInstance, fieldTestValue, &value );
+
+        int bp = 1;
+
 //        if( m_pScriptFile->GetFileLoadStatus() == FileLoadStatus_Success )
 //        {
 //            //LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
@@ -1611,6 +1644,8 @@ void ComponentMonoScript::TickCallback(float deltaTime)
         // Find the OnPlay function and call it, look for a table that matched our filename.
         if( m_pScriptFile )
         {
+
+
             //luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         
             //if( LuaObject.isNil() == false )
