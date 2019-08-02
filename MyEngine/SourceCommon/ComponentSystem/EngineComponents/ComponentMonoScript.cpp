@@ -1186,120 +1186,62 @@ void ComponentMonoScript::LoadScript()
     {
         m_ScriptLoaded = true;
 
-        // Create an instance of this class type.
+        // Get the class object from mono.
         MonoImage* pMonoImage = m_pMonoGameState->GetImage();
         MonoDomain* pMonoDomain = m_pMonoGameState->GetActiveDomain();
         MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
 
-        m_pMonoObjectInstance = mono_object_new( pMonoDomain, pClass );
+        // Get pointers to all the interface methods of the object.
+        {
+            MonoMethod* pMonoMethod;
 
+            pMonoMethod = mono_class_get_method_from_name( pClass, "OnLoad", 0 );
+            if( pMonoMethod )
+                m_pMonoFuncPtr_OnLoad = (OnLoadFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+
+            pMonoMethod = mono_class_get_method_from_name( pClass, "OnPlay", 0 );
+            if( pMonoMethod )
+                m_pMonoFuncPtr_OnPlay = (OnPlayFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+
+            pMonoMethod = mono_class_get_method_from_name( pClass, "OnStop", 0 );
+            if( pMonoMethod )
+                m_pMonoFuncPtr_OnStop = (OnStopFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+
+            pMonoMethod = mono_class_get_method_from_name( pClass, "OnTouch", 6 );
+            if( pMonoMethod )
+                m_pMonoFuncPtr_OnTouch = (OnTouchFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+
+            pMonoMethod = mono_class_get_method_from_name( pClass, "OnButtons", 2 );
+            if( pMonoMethod )
+                m_pMonoFuncPtr_OnButtons = (OnButtonsFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+
+            pMonoMethod = mono_class_get_method_from_name( pClass, "Update", 1 );
+            if( pMonoMethod )
+                m_pMonoFuncPtr_Update = (UpdateFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+        }
+
+        // Create an instance of this class type and call the constructor.
         MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
+        m_pMonoObjectInstance = mono_object_new( pMonoDomain, pClass );
         mono_runtime_invoke( pConstructor, m_pMonoObjectInstance, nullptr, nullptr );
 
-        MonoClassField* fieldTestValue = mono_class_get_field_from_name( pClass, "m_TestValue" );
-        int value;
-        mono_field_get_value( m_pMonoObjectInstance, fieldTestValue, &value );
+        // Call the OnLoad method.
+        MonoException* pException = nullptr;
+        m_pMonoFuncPtr_OnLoad( m_pMonoObjectInstance, &pException );
+        MyAssert( pException == nullptr );
 
-        MonoMethod* pOnLoad = mono_class_get_method_from_name( pClass, "OnLoad", 0 );
-        mono_runtime_invoke( pOnLoad, m_pMonoObjectInstance, nullptr, nullptr );
+        // TODO: Remove these test calls.
+        //m_pMonoFuncPtr_Update( m_pMonoObjectInstance, 10, &pException );
+        //m_pMonoFuncPtr_OnStop( m_pMonoObjectInstance, &pException );
 
-        mono_field_get_value( m_pMonoObjectInstance, fieldTestValue, &value );
+//      ParseExterns( LuaObject );
 
-        int bp = 1;
-
-//        if( m_pScriptFile->GetFileLoadStatus() == FileLoadStatus_Success )
-//        {
-//            //LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
-//
-//            // Mark script as loaded. "OnLoad" can be called if no errors occur otherwise m_ErrorInScript will be set as well.
-//            m_ScriptLoaded = true;
-//
-//            const char* filename = m_pScriptFile->GetFullPath();
-//            char label[MAX_PATH+1];
-//            sprintf_s( label, MAX_PATH+1, "@%s", filename );
-//
-//#if MYFW_ENABLE_LUA_DEBUGGER
-//            // Prevent the debugger from stopping while parsing script files.
-//            m_pLuaGameState->SetIsDebuggerAllowedToStop( false );
-//#endif
-//
-//            // Load the string from the file.
-//            int fileLength = m_pScriptFile->GetFileLength() - 1;
-//            int loadReturnCode = luaL_loadbuffer( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer(), fileLength, label );
-//
-//            if( loadReturnCode == LUA_OK )
-//            {
-//                // Run the code to do initial parsing.
-//                int exeretcode = lua_pcall( m_pLuaGameState->m_pLuaState, 0, LUA_MULTRET, 0 );
-//                if( exeretcode == LUA_OK )
-//                {
-//                    luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
-//
-//                    if( LuaObject.isTable() )
-//                    {
-//                        // Create a table to store local variables unique to this component.
-//                        sprintf_s( m_LuaGameObjectName, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
-//                        luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
-//
-//                        if( gameObjectData.isTable() == false )
-//                        {
-//                            gameObjectData = luabridge::newTable( m_pLuaGameState->m_pLuaState );
-//                            luabridge::setGlobal( m_pLuaGameState->m_pLuaState, gameObjectData, m_LuaGameObjectName );
-//                            gameObjectData["gameobject"] = m_pGameObject;
-//                        }
-//
-//                        ParseExterns( LuaObject );
-//
-//                        // Call the OnLoad function in the Lua script.
-//                        CallFunctionEvenIfGameplayInactive( "OnLoad" );
-//
-//                        // If OnKeys() exists as a lua function, then register for keyboard events.
-//                        if( DoesFunctionExist( "OnKeys" ) )
-//                        {
-//                            EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
-//                            pEventManager->RegisterForEvents( "Keyboard", this, &ComponentMonoScript::StaticOnEvent );
-//                        }
-//                    }
-//                    else
-//                    {
-//                        LOGInfo( LOGTag, "Object with matching name not found in Lua Script: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
-//                    }
-//                }
-//                else
-//                {
-//                    if( exeretcode == LUA_ERRRUN )
-//                    {
-//                        const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
-//                        HandleLuaError( "LUA_ERRRUN", errorstr );
-//                    }
-//                    else
-//                    {
-//                        MyAssert( false ); // Assert until I hit this and deal with it better.
-//                        const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
-//                        HandleLuaError( "!LUA_ERRRUN", errorstr );
-//                    }
-//                }
-//            }
-//            else
-//            {
-//                if( loadReturnCode == LUA_ERRSYNTAX )
-//                {
-//                    const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
-//                    HandleLuaError( "LUA_ERRSYNTAX", errorstr );
-//                }
-//                else
-//                {
-//                    MyAssert( false );
-//                    const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
-//                    HandleLuaError( "!LUA_ERRSYNTAX", errorstr );
-//                }
-//            }
-//
-//#if MYFW_ENABLE_LUA_DEBUGGER
-//            // Reenable the debugger.
-//            m_pLuaGameState->SetIsDebuggerAllowedToStop( true );
-//#endif
-//        }
+//      // If OnKeys() exists as a lua function, then register for keyboard events.
+//      if( DoesFunctionExist( "OnKeys" ) )
+//      {
+//          EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
+//          pEventManager->RegisterForEvents( "Keyboard", this, &ComponentMonoScript::StaticOnEvent );
+//      }
     }
 }
 
@@ -1546,8 +1488,9 @@ void ComponentMonoScript::OnStop()
 
     if( m_Playing && m_ErrorInScript == false )
     {
-        // TODO: Removed when converting to mono.
-        //CallFunction( "OnStop" );
+        MonoException* pException = nullptr;
+        m_pMonoFuncPtr_OnStop( m_pMonoObjectInstance, &pException );
+        MyAssert( pException == nullptr );
     }
 
     m_ScriptLoaded = false;
@@ -1642,39 +1585,29 @@ void ComponentMonoScript::TickCallback(float deltaTime)
         m_CallMonoOnPlayNextTickOrAfterScriptIsFinishedLoading = false;
 
         // Find the OnPlay function and call it, look for a table that matched our filename.
-        if( m_pScriptFile )
+        if( m_pMonoObjectInstance )
         {
+            if( m_pMonoFuncPtr_OnPlay )
+            {
+                // Program the exposed variable values.
+                ProgramVariables( m_pMonoGameState, true );
 
+                // Call OnPlay().
+                MonoException* pException = nullptr;
+                m_pMonoFuncPtr_OnPlay( m_pMonoObjectInstance, &pException );
+                MyAssert( pException == nullptr );
+            }
 
-            //luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
-        
-            //if( LuaObject.isNil() == false )
-            //{
-            //    if( LuaObject["OnPlay"].isFunction() )
-            //    {
-            //        // Program the exposed variable values in the table, don't just set the table to be active.
-            //        ProgramVariables( LuaObject, true );
-            //        try
-            //        {
-            //            luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
-            //            LuaObject["OnPlay"]( gameObjectData );
-            //        }
-            //        catch(luabridge::LuaException const& e)
-            //        {
-            //            HandleLuaError( "OnPlay", e.what() );
-            //        }
-            //    }
-
-            //    m_Playing = true;
-            //}
+            m_Playing = true;
         }
     }
 
-    // Find the Tick function and call it.
+    // Call Update().
     if( m_Playing )
     {
-        // TODO: Removed when converting to mono.
-        //CallFunction( "Tick", deltaTime );
+        MonoException* pException = nullptr;
+        m_pMonoFuncPtr_Update( m_pMonoObjectInstance, deltaTime, &pException );
+        MyAssert( pException == nullptr );
     }
 }
 
@@ -1688,9 +1621,10 @@ bool ComponentMonoScript::OnTouchCallback(int action, int id, float x, float y, 
     // Find the OnTouch function and call it.
     if( m_Playing )
     {
-        // TODO: Removed when converting to mono.
-        //if( CallFunction( "OnTouch", action, id, x, y, pressure, size ) )
-        //    return true;
+        MonoException* pException = nullptr;
+        if( m_pMonoFuncPtr_OnTouch( m_pMonoObjectInstance, action, id, x, y, pressure, size, &pException ) )
+            return true;
+        MyAssert( pException == nullptr );
     }
 
     return false;
@@ -1708,9 +1642,10 @@ bool ComponentMonoScript::OnButtonsCallback(GameCoreButtonActions action, GameCo
     {
         int a = action;
         int i = id;
-        // TODO: Removed when converting to mono.
-        //if( CallFunction( "OnButtons", a, i ) )
-        //    return true;
+        MonoException* pException = nullptr;
+        if( m_pMonoFuncPtr_OnButtons( m_pMonoObjectInstance, a, i, &pException ) )
+            return true;
+        MyAssert( pException == nullptr );
     }
 
     return false;
@@ -1750,8 +1685,10 @@ bool ComponentMonoScript::OnEvent(MyEvent* pEvent) // StaticOnEvent
     int keyCode = pEvent->GetInt( "KeyCode" );
 
     // TODO: Removed when converting to mono.
-    //if( CallFunction( "OnKeys", action, keyCode ) )
+    //MonoException* pException = nullptr;
+    //if( m_pMonoFuncPtr_OnKeys( m_pMonoObjectInstance, action, keyCode, &pException ) )
     //    return true;
+    //MyAssert( pException == nullptr );
 
     return false;
 }

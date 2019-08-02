@@ -813,7 +813,7 @@ GL_REPEAT                     = 0x2901;\
     int load_stat = luaL_loadbuffer( m_pLuaState, definesScript, strlen(definesScript), "LuaGameState::RegisterClasses -> Defines" );
     lua_pcall( m_pLuaState, 0, LUA_MULTRET, 0 );
 
-    // Register a loginfo function.
+    // Register some global functions.
     luabridge::getGlobalNamespace( m_pLuaState )
         .addFunction( "LogInfo", LUA_LogInfo ) // void LUA_LogInfo(const char* str)
         .addFunction( "GetSystemTime", MyTime_GetSystemTime ) // double MyTime_GetSystemTime(bool realtime)
@@ -827,7 +827,7 @@ GL_REPEAT                     = 0x2901;\
         .beginClass<SceneID>( "SceneID" )
         .endClass();
 
-    // register Framework classes.
+    // Register Framework classes.
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<MyMatrix>( "MyMatrix" )
             .addConstructor<void(*) ()>() // MyMatrix()

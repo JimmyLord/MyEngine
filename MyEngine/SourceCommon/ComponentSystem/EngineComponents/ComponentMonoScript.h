@@ -67,6 +67,13 @@ typedef void MonoExposedVarValueChangedCallback(void* pObjectPtr, MonoExposedVar
 class ComponentMonoScript : public ComponentUpdateable
 {
 private:
+    typedef void __stdcall OnLoadFunc(MonoObject* pObj, MonoException** pException);
+    typedef void __stdcall OnPlayFunc(MonoObject* pObj, MonoException** pException);
+    typedef void __stdcall OnStopFunc(MonoObject* pObj, MonoException** pException);
+    typedef bool __stdcall OnTouchFunc(MonoObject* pObj, int action, int id, float x, float y, float pressure, float size, MonoException** pException);
+    typedef bool __stdcall OnButtonsFunc(MonoObject* pObj, int action, int id, MonoException** pException);
+    typedef void __stdcall UpdateFunc(MonoObject* pObj, float deltaTime, MonoException** pException);
+
     // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentMonoScript );
 
@@ -88,6 +95,14 @@ protected:
     char m_MonoClassName[255];
     MonoObject* m_pMonoObjectInstance;
     MyList<MonoExposedVariableDesc*> m_ExposedVars;
+
+    // Mono function ptrs.
+    OnLoadFunc* m_pMonoFuncPtr_OnLoad;
+    OnPlayFunc* m_pMonoFuncPtr_OnPlay;
+    OnStopFunc* m_pMonoFuncPtr_OnStop;
+    OnTouchFunc* m_pMonoFuncPtr_OnTouch;
+    OnButtonsFunc* m_pMonoFuncPtr_OnButtons;
+    UpdateFunc* m_pMonoFuncPtr_Update;
 
 public:
     ComponentMonoScript(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);

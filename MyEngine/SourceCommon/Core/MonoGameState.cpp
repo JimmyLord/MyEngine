@@ -13,6 +13,19 @@
 #include "mono/metadata/assembly.h"
 
 #include "MonoGameState.h"
+#include "Core/EngineCore.h"
+
+void Mono_LOGInfo(MonoString* monoStr)
+{
+    char* str = mono_string_to_utf8( monoStr );
+    LOGInfo( "MonoLog", "Received string: %s", str );
+}
+
+void Mono_LOGError(MonoString* monoStr)
+{
+    char* str = mono_string_to_utf8( monoStr );
+    LOGError( "MonoLog", "Received string: %s", str );
+}
 
 MonoGameState::MonoGameState(EngineCore* pEngineCore)
 {
@@ -23,6 +36,7 @@ MonoGameState::MonoGameState(EngineCore* pEngineCore)
     m_pCoreDomain = mono_jit_init( "MyEngine" );
 
     m_pActiveDomain = nullptr;
+    m_pMonoImage = nullptr;
 }
 
 MonoGameState::~MonoGameState()
@@ -55,4 +69,8 @@ void MonoGameState::Rebuild()
     }
 
     m_pMonoImage = mono_assembly_get_image( pMonoAssembly );
+
+    // Register some global functions.
+    mono_add_internal_call( "MyEngine.Log::Info", Mono_LOGInfo );
+    mono_add_internal_call( "MyEngine.Log::Error", Mono_LOGError );
 }
