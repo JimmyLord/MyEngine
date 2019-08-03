@@ -7,13 +7,31 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+using System;
 using System.Runtime.CompilerServices;
 
 namespace MyEngine
 { 
-    public class Log
+    public class vec3
     {
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Info(string str);
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Error(string str);
+        public float x, y, z;
+
+        public vec3( float nx, float ny, float nz )
+        {
+            x = nx;
+            y = ny;
+            z = nz;
+        }
+
+        //private IntPtr m_pNativeObject = (IntPtr)null;
+
+        //public float x { get { return GetX( this.m_pNativeObject ); } }
+        //public float y { get { return GetY( this.m_pNativeObject ); } }
+        //public float z { get { return GetZ( this.m_pNativeObject ); } }
+        //[MethodImpl(MethodImplOptions.InternalCall)] private extern static float GetX(IntPtr pNativeObject);
+        //[MethodImpl(MethodImplOptions.InternalCall)] private extern static float GetY(IntPtr pNativeObject);
+        //[MethodImpl(MethodImplOptions.InternalCall)] private extern static float GetZ(IntPtr pNativeObject);
+
+        //[MethodImpl(MethodImplOptions.InternalCall)] public extern static vec3 GetVector();
     }
 }

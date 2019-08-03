@@ -7,13 +7,19 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
+using System;
 using System.Runtime.CompilerServices;
 
 namespace MyEngine
 { 
-    public class Log
+    public class GameObject
     {
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Info(string str);
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Error(string str);
+        public IntPtr m_pNativeObject = (IntPtr)null;
+
+        public vec3 GetPosition() { return GameObject.GetPosition( m_pNativeObject ); }
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static vec3 GetPosition(IntPtr pNativeObject);
+
+        public void SetPosition(vec3 pos) { GameObject.SetPosition( m_pNativeObject, pos.x, pos.y, pos.z ); }
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetPosition(IntPtr pNativeObject, float x, float y, float z);
     }
 }

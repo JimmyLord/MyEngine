@@ -1187,8 +1187,8 @@ void ComponentMonoScript::LoadScript()
         m_ScriptLoaded = true;
 
         // Get the class object from mono.
-        MonoImage* pMonoImage = m_pMonoGameState->GetImage();
         MonoDomain* pMonoDomain = m_pMonoGameState->GetActiveDomain();
+        MonoImage* pMonoImage = m_pMonoGameState->GetImage();
         MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
 
         // Get pointers to all the interface methods of the object.
@@ -1221,18 +1221,27 @@ void ComponentMonoScript::LoadScript()
         }
 
         // Create an instance of this class type and call the constructor.
-        MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
         m_pMonoObjectInstance = mono_object_new( pMonoDomain, pClass );
+        MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
         mono_runtime_invoke( pConstructor, m_pMonoObjectInstance, nullptr, nullptr );
+
+        // Create and setup the GameObject variable in this m_pMonoObjectInstance.
+        {
+            MonoClass* pGameObjectClass = mono_class_from_name( pMonoImage, "MyEngine", "GameObject" );
+            MonoObject* pMonoGameObjectInstance = mono_object_new( pMonoDomain, pGameObjectClass );
+            mono_runtime_object_init( pMonoGameObjectInstance );
+            
+            MonoClassField* pNativeGameObjectField = mono_class_get_field_from_name( pGameObjectClass, "m_pNativeObject" );
+            mono_field_set_value( pMonoGameObjectInstance, pNativeGameObjectField, &m_pGameObject );
+
+            MonoClassField* pGameObjectField = mono_class_get_field_from_name( pClass, "m_GameObject" );
+            mono_field_set_value( m_pMonoObjectInstance, pGameObjectField, pMonoGameObjectInstance );
+        }
 
         // Call the OnLoad method.
         MonoException* pException = nullptr;
         m_pMonoFuncPtr_OnLoad( m_pMonoObjectInstance, &pException );
         MyAssert( pException == nullptr );
-
-        // TODO: Remove these test calls.
-        //m_pMonoFuncPtr_Update( m_pMonoObjectInstance, 10, &pException );
-        //m_pMonoFuncPtr_OnStop( m_pMonoObjectInstance, &pException );
 
 //      ParseExterns( LuaObject );
 
@@ -1644,7 +1653,10 @@ bool ComponentMonoScript::OnButtonsCallback(GameCoreButtonActions action, GameCo
         int i = id;
         MonoException* pException = nullptr;
         if( m_pMonoFuncPtr_OnButtons( m_pMonoObjectInstance, a, i, &pException ) )
+        {
+            MyAssert( pException == nullptr );
             return true;
+        }
         MyAssert( pException == nullptr );
     }
 
