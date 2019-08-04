@@ -143,6 +143,7 @@ void MonoGameState::Rebuild()
     {
         mono_domain_set( m_pCoreDomain, true );
         mono_domain_unload( m_pActiveDomain );
+        m_pActiveDomain = nullptr;
         LOGError( LOGTag, "%s not found", "Data/Mono/Game.dll" );
         return;
     }

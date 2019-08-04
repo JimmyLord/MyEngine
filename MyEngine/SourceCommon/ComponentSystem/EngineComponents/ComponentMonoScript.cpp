@@ -326,55 +326,72 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
 
     // Show list of available Mono classes.
     {
+        MonoImage* pMonoImage = m_pMonoGameState->GetImage();
         ImGui::Text( "Class: %s", m_MonoClassName );
 
-        ImGui::Text( "List of classes" );
-        MonoImage* pMonoImage = m_pMonoGameState->GetImage();
-
-        const MonoTableInfo* pTableInfo = mono_image_get_table_info( pMonoImage, MONO_TABLE_TYPEDEF );
-
-        int numRows = mono_table_info_get_rows( pTableInfo );
-        for( int i=0; i<numRows; i++ )
+        if( pMonoImage == nullptr )
         {
-            uint32_t cols[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row( pTableInfo, i, cols, MONO_TYPEDEF_SIZE );
+            ImGui::Text( "Mono dll not loaded" );
+        }
+        else
+        {
+            MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
+            if( pClass == nullptr )
+                ImGui::Text( "Class not found in dll", m_MonoClassName );
 
-            //const char* flags = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_FLAGS] );
-            const char* nameSpace = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_NAMESPACE] );
-            const char* className = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_NAME] );
-            //const char* extends = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_EXTENDS] );
-            //const char* fieldList = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_FIELD_LIST] );
-            //const char* methodList = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_METHOD_LIST] );
+            ImGui::Text( "List of classes" );
+
+            if( pMonoImage )
+            {
+                const MonoTableInfo* pTableInfo = mono_image_get_table_info( pMonoImage, MONO_TABLE_TYPEDEF );
+
+                int numRows = mono_table_info_get_rows( pTableInfo );
+                for( int i=0; i<numRows; i++ )
+                {
+                    uint32_t cols[MONO_TYPEDEF_SIZE];
+                    mono_metadata_decode_row( pTableInfo, i, cols, MONO_TYPEDEF_SIZE );
+
+                    //const char* flags = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_FLAGS] );
+                    const char* nameSpace = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_NAMESPACE] );
+                    const char* className = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_NAME] );
+                    //const char* extends = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_EXTENDS] );
+                    //const char* fieldList = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_FIELD_LIST] );
+                    //const char* methodList = mono_metadata_string_heap( pMonoImage, cols[MONO_TYPEDEF_METHOD_LIST] );
             
-            MonoClass* pClass = mono_class_from_name( pMonoImage, nameSpace, className );
-            //MonoType* pType = mono_class_enum_basetype( pClass );
-            //MonoType* pType = mono_class_get_byref_type( pClass );
-            //MonoClass* pElementClass = mono_class_get_element_class( pClass );
-            uint32 flags = mono_class_get_flags( pClass );
-            //mono_class_get_interfaces
-            MonoClass* pParentClass = mono_class_get_parent( pClass );
-            const char* parentClassName = "";
-            if( pParentClass )
-                parentClassName = mono_class_get_name( pParentClass );
+                    MonoClass* pClass = mono_class_from_name( pMonoImage, nameSpace, className );
+                    //MonoType* pType = mono_class_enum_basetype( pClass );
+                    //MonoType* pType = mono_class_get_byref_type( pClass );
+                    //MonoClass* pElementClass = mono_class_get_element_class( pClass );
+                    uint32 flags = mono_class_get_flags( pClass );
+                    //mono_class_get_interfaces
+                    MonoClass* pParentClass = mono_class_get_parent( pClass );
+                    const char* parentClassName = "";
+                    if( pParentClass )
+                        parentClassName = mono_class_get_name( pParentClass );
 
 #define TYPE_ATTRIBUTE_PUBLIC                0x00000001
 #define TYPE_ATTRIBUTE_BEFORE_FIELD_INIT     0x00100000
 
-            if( flags & TYPE_ATTRIBUTE_PUBLIC &&
-                strcmp( parentClassName, "MyScriptInterface" ) == 0 )
-            {
-                ImGui::Text( "%s::%s : %s", nameSpace, className, parentClassName );
-                strcpy_s( m_MonoClassName, 255, className );
+                    if( flags & TYPE_ATTRIBUTE_PUBLIC &&
+                        strcmp( parentClassName, "MyScriptInterface" ) == 0 )
+                    {
+                        ImGui::Text( "%s.%s : %s", nameSpace, className, parentClassName );
+
+                        // If we don't already have a class, just pick the first one.
+                        if( m_MonoClassName[0] == '\0' )
+                            strcpy_s( m_MonoClassName, 255, className );
+                    }
+                }
+
+                // Get list of methods from a class.
+                //void* iter = NULL;
+                //MonoMethod* method;
+                //while(method = mono_class_get_methods(mono_class, &iter))
+                //{
+                //    cout << mono_method_full_name(method, 1);
+                //}
             }
         }
-
-        // Get list of methods from a class.
-        //void* iter = NULL;
-        //MonoMethod* method;
-        //while(method = mono_class_get_methods(mono_class, &iter))
-        //{
-        //    cout << mono_method_full_name(method, 1);
-        //}
     }
 
     // Add all component variables.
@@ -967,6 +984,9 @@ cJSON* ComponentMonoScript::ExportAsJSONObject(bool savesceneid, bool saveid)
     if( m_pScriptFile )
         cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->GetFullPath() );
 
+    if( m_MonoClassName[0] != '\0' )
+        cJSON_AddStringToObject( jComponent, "MonoClassName", m_MonoClassName );
+
     // Save the array of exposed variables.
     if( m_ExposedVars.Count() > 0 )
     {
@@ -1027,6 +1047,10 @@ void ComponentMonoScript::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
             pFile->Release(); // Free ref added by RequestFile.
         }
     }
+
+    cJSON* jMonoClassName = cJSON_GetObjectItem( jsonobj, "MonoClassName" );
+    if( jMonoClassName )
+        strcpy_s( m_MonoClassName, 255, jMonoClassName->valuestring );
 
     // Load the array of exposed variables.
     cJSON* exposedvararray = cJSON_GetObjectItem( jsonobj, "ExposedVars" );
@@ -1189,68 +1213,75 @@ void ComponentMonoScript::LoadScript()
         // Get the class object from mono.
         MonoDomain* pMonoDomain = m_pMonoGameState->GetActiveDomain();
         MonoImage* pMonoImage = m_pMonoGameState->GetImage();
-        MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
-
-        // Get pointers to all the interface methods of the object.
+        
+        if( pMonoImage )
         {
-            MonoMethod* pMonoMethod;
+            MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
 
-            pMonoMethod = mono_class_get_method_from_name( pClass, "OnLoad", 0 );
-            if( pMonoMethod )
-                m_pMonoFuncPtr_OnLoad = (OnLoadFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+            // Get pointers to all the interface methods of the object.
+            if( pClass )
+            {
+                {
+                    MonoMethod* pMonoMethod;
 
-            pMonoMethod = mono_class_get_method_from_name( pClass, "OnPlay", 0 );
-            if( pMonoMethod )
-                m_pMonoFuncPtr_OnPlay = (OnPlayFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+                    pMonoMethod = mono_class_get_method_from_name( pClass, "OnLoad", 0 );
+                    if( pMonoMethod )
+                        m_pMonoFuncPtr_OnLoad = (OnLoadFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
 
-            pMonoMethod = mono_class_get_method_from_name( pClass, "OnStop", 0 );
-            if( pMonoMethod )
-                m_pMonoFuncPtr_OnStop = (OnStopFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+                    pMonoMethod = mono_class_get_method_from_name( pClass, "OnPlay", 0 );
+                    if( pMonoMethod )
+                        m_pMonoFuncPtr_OnPlay = (OnPlayFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
 
-            pMonoMethod = mono_class_get_method_from_name( pClass, "OnTouch", 6 );
-            if( pMonoMethod )
-                m_pMonoFuncPtr_OnTouch = (OnTouchFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+                    pMonoMethod = mono_class_get_method_from_name( pClass, "OnStop", 0 );
+                    if( pMonoMethod )
+                        m_pMonoFuncPtr_OnStop = (OnStopFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
 
-            pMonoMethod = mono_class_get_method_from_name( pClass, "OnButtons", 2 );
-            if( pMonoMethod )
-                m_pMonoFuncPtr_OnButtons = (OnButtonsFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+                    pMonoMethod = mono_class_get_method_from_name( pClass, "OnTouch", 6 );
+                    if( pMonoMethod )
+                        m_pMonoFuncPtr_OnTouch = (OnTouchFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
 
-            pMonoMethod = mono_class_get_method_from_name( pClass, "Update", 1 );
-            if( pMonoMethod )
-                m_pMonoFuncPtr_Update = (UpdateFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
-        }
+                    pMonoMethod = mono_class_get_method_from_name( pClass, "OnButtons", 2 );
+                    if( pMonoMethod )
+                        m_pMonoFuncPtr_OnButtons = (OnButtonsFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
 
-        // Create an instance of this class type and call the constructor.
-        m_pMonoObjectInstance = mono_object_new( pMonoDomain, pClass );
-        MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
-        mono_runtime_invoke( pConstructor, m_pMonoObjectInstance, nullptr, nullptr );
+                    pMonoMethod = mono_class_get_method_from_name( pClass, "Update", 1 );
+                    if( pMonoMethod )
+                        m_pMonoFuncPtr_Update = (UpdateFunc*)mono_method_get_unmanaged_thunk( pMonoMethod );
+                }
 
-        // Create and setup the GameObject variable in this m_pMonoObjectInstance.
-        {
-            MonoClass* pGameObjectClass = mono_class_from_name( pMonoImage, "MyEngine", "GameObject" );
-            MonoObject* pMonoGameObjectInstance = mono_object_new( pMonoDomain, pGameObjectClass );
-            mono_runtime_object_init( pMonoGameObjectInstance );
+                // Create an instance of this class type and call the constructor.
+                m_pMonoObjectInstance = mono_object_new( pMonoDomain, pClass );
+                MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
+                mono_runtime_invoke( pConstructor, m_pMonoObjectInstance, nullptr, nullptr );
+
+                // Create and setup the GameObject variable in this m_pMonoObjectInstance.
+                {
+                    MonoClass* pGameObjectClass = mono_class_from_name( pMonoImage, "MyEngine", "GameObject" );
+                    MonoObject* pMonoGameObjectInstance = mono_object_new( pMonoDomain, pGameObjectClass );
+                    mono_runtime_object_init( pMonoGameObjectInstance );
             
-            MonoClassField* pNativeGameObjectField = mono_class_get_field_from_name( pGameObjectClass, "m_pNativeObject" );
-            mono_field_set_value( pMonoGameObjectInstance, pNativeGameObjectField, &m_pGameObject );
+                    MonoClassField* pNativeGameObjectField = mono_class_get_field_from_name( pGameObjectClass, "m_pNativeObject" );
+                    mono_field_set_value( pMonoGameObjectInstance, pNativeGameObjectField, &m_pGameObject );
 
-            MonoClassField* pGameObjectField = mono_class_get_field_from_name( pClass, "m_GameObject" );
-            mono_field_set_value( m_pMonoObjectInstance, pGameObjectField, pMonoGameObjectInstance );
+                    MonoClassField* pGameObjectField = mono_class_get_field_from_name( pClass, "m_GameObject" );
+                    mono_field_set_value( m_pMonoObjectInstance, pGameObjectField, pMonoGameObjectInstance );
+                }
+
+                // Call the OnLoad method.
+                MonoException* pException = nullptr;
+                m_pMonoFuncPtr_OnLoad( m_pMonoObjectInstance, &pException );
+                MyAssert( pException == nullptr );
+
+        //      ParseExterns( LuaObject );
+
+        //      // If OnKeys() exists as a lua function, then register for keyboard events.
+        //      if( DoesFunctionExist( "OnKeys" ) )
+        //      {
+        //          EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
+        //          pEventManager->RegisterForEvents( "Keyboard", this, &ComponentMonoScript::StaticOnEvent );
+        //      }
+            }
         }
-
-        // Call the OnLoad method.
-        MonoException* pException = nullptr;
-        m_pMonoFuncPtr_OnLoad( m_pMonoObjectInstance, &pException );
-        MyAssert( pException == nullptr );
-
-//      ParseExterns( LuaObject );
-
-//      // If OnKeys() exists as a lua function, then register for keyboard events.
-//      if( DoesFunctionExist( "OnKeys" ) )
-//      {
-//          EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
-//          pEventManager->RegisterForEvents( "Keyboard", this, &ComponentMonoScript::StaticOnEvent );
-//      }
     }
 }
 

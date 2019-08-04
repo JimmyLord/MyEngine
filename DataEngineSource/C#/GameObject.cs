@@ -14,7 +14,7 @@ namespace MyEngine
 { 
     public class GameObject
     {
-        public IntPtr m_pNativeObject = (IntPtr)null;
+        private IntPtr m_pNativeObject = (IntPtr)null;
 
         public vec3 GetPosition() { return GameObject.GetPosition( m_pNativeObject ); }
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static vec3 GetPosition(IntPtr pNativeObject);
