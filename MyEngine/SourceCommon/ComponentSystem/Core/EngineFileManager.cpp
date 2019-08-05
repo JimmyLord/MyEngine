@@ -46,7 +46,6 @@ MyFileObject* EngineFileManager::RequestFile(const char* filename, SceneID scene
         pFile = FileManager::RequestFile( filename );
     }
 
-    
     return pFile;
 }
 

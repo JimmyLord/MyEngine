@@ -49,6 +49,13 @@ ComponentMonoScript::ComponentMonoScript(EngineCore* pEngineCore, ComponentSyste
 
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // Hard coded nonsense for now, max of 4 exposed vars in a script.
 
+    m_pMonoFuncPtr_OnLoad = nullptr;
+    m_pMonoFuncPtr_OnPlay = nullptr;
+    m_pMonoFuncPtr_OnStop = nullptr;
+    m_pMonoFuncPtr_OnTouch = nullptr;
+    m_pMonoFuncPtr_OnButtons = nullptr;
+    m_pMonoFuncPtr_Update = nullptr;
+
 #if MYFW_EDITOR
     m_ValueWhenControlSelected = 0;
     m_ImGuiControlIDForCurrentlySelectedVariable = -1;
@@ -317,8 +324,6 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
 {
     ComponentBase::AddAllVariablesToWatchPanel();
 
-    ImGui::Indent( 20 );
-
     if( ImGui::GetIO().MouseDown[0] == false )
     {
         m_LinkNextUndoCommandToPrevious = false;
@@ -327,19 +332,28 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
     // Show list of available Mono classes.
     {
         MonoImage* pMonoImage = m_pMonoGameState->GetImage();
-        ImGui::Text( "Class: %s", m_MonoClassName );
+        //ImGui::Text( "Class: %s", m_MonoClassName );
 
         if( pMonoImage == nullptr )
         {
+            ImGui::Indent( 20 );
             ImGui::Text( "Mono dll not loaded" );
+            ImGui::Unindent( 20 );
         }
         else
         {
             MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
             if( pClass == nullptr )
+            {
+                ImGui::Indent( 20 );
                 ImGui::Text( "Class not found in dll", m_MonoClassName );
+                ImGui::Unindent( 20 );
+            }
 
-            ImGui::Text( "List of classes" );
+            //ImGui::Text( "List of classes" );
+
+            std::vector<std::string> validClasses;
+            int32 currentClassIndex = -1;
 
             if( pMonoImage )
             {
@@ -372,14 +386,22 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
 #define TYPE_ATTRIBUTE_PUBLIC                0x00000001
 #define TYPE_ATTRIBUTE_BEFORE_FIELD_INIT     0x00100000
 
+                    // Check if this is a valid class type.
                     if( flags & TYPE_ATTRIBUTE_PUBLIC &&
                         strcmp( parentClassName, "MyScriptInterface" ) == 0 )
                     {
-                        ImGui::Text( "%s.%s : %s", nameSpace, className, parentClassName );
+                        //ImGui::Text( "%s.%s : %s", nameSpace, className, parentClassName );
 
                         // If we don't already have a class, just pick the first one.
                         if( m_MonoClassName[0] == '\0' )
+                        {
                             strcpy_s( m_MonoClassName, 255, className );
+                        }
+
+                        if( strcmp( className, m_MonoClassName ) == 0 )
+                            currentClassIndex = validClasses.size();
+
+                        validClasses.push_back( className );
                     }
                 }
 
@@ -391,8 +413,32 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
                 //    cout << mono_method_full_name(method, 1);
                 //}
             }
+
+            if( currentClassIndex != -1 )
+            {
+                if( ImGui::BeginCombo( "MonoClass", m_MonoClassName ) )
+                {
+                    for( uint32 n = 0; n < validClasses.size(); n++ )
+                    {
+                        bool is_selected = (n == (uint32)currentClassIndex);
+                        if( ImGui::Selectable( validClasses[n].c_str(), is_selected ) )
+                        {
+                            strcpy_s( m_MonoClassName, 255, validClasses[n].c_str() );
+                            m_ScriptLoaded = false;
+                            LoadScript();
+                        }
+                        if( is_selected )
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            }
         }
     }
+
+    ImGui::Indent( 20 );
 
     // Add all component variables.
     for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
@@ -1195,10 +1241,17 @@ void ComponentMonoScript::SetScriptFile(MyFileObject* script)
     }
 }
 
-void ComponentMonoScript::LoadScript()
+void ComponentMonoScript::LoadScript(bool forceLoad)
 {
-    if( m_ScriptLoaded == true )
+    if( m_ScriptLoaded == true && forceLoad == false )
         return;
+
+    m_pMonoFuncPtr_OnLoad = nullptr;
+    m_pMonoFuncPtr_OnPlay = nullptr;
+    m_pMonoFuncPtr_OnStop = nullptr;
+    m_pMonoFuncPtr_OnTouch = nullptr;
+    m_pMonoFuncPtr_OnButtons = nullptr;
+    m_pMonoFuncPtr_Update = nullptr;
 
     // Unregister all event callbacks, they will be Registered again based on what the script needs.
     EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();

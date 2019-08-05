@@ -125,7 +125,7 @@ public:
 
     MyFileObject* GetScriptFile() { return m_pScriptFile; }
     void SetScriptFile(MyFileObject* script);
-    void LoadScript();
+    void LoadScript(bool forceLoad = false);
     void ParseExterns(MonoGameState* pMonoGameState);
     void ProgramVariables(MonoGameState* pMonoGameState, bool updateExposedVariables = false);
     void SetExternFloat(const char* name, float newValue);
