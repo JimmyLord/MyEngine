@@ -19,6 +19,8 @@ protected:
     EngineCore* m_pEngineCore;
     MonoDomain* m_pCoreDomain;
 
+    MyFileObject* m_pDLLFile;
+
     MonoDomain* m_pActiveDomain;
     MonoImage* m_pMonoImage;
 
@@ -26,8 +28,16 @@ public:
     MonoGameState(EngineCore* pEngineCore);
     ~MonoGameState();
 
+    // Getters.
     MonoDomain* GetActiveDomain() { return m_pActiveDomain; }
     MonoImage* GetImage() { return m_pMonoImage; }
+
+#if MYFW_EDITOR
+#define FileTimeDataType FILETIME // TODO: Will only work on Windows, change to time_t (used by stat.st_mtime) for other platforms.
+    std::vector<std::string> m_NamesOfCompiledFiles;
+    std::vector<FileTimeDataType> m_LastModifiedTimeOfCompiledFiles;
+    void CheckForUpdatedScripts();
+#endif
 
     void Rebuild();
 };

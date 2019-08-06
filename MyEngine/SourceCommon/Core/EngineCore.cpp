@@ -515,6 +515,9 @@ void EngineCore::OneTimeInit()
     // TODO: Fix! This won't work if flags were customized and saved into editorprefs.ini.
     InitializeGameObjectFlagStrings( nullptr );
 #endif
+
+    // Check for mono script updates.
+    m_pMonoGameState->CheckForUpdatedScripts();
 }
 
 bool EngineCore::IsReadyToRender()
@@ -801,6 +804,11 @@ void EngineCore::OnFocusGained()
         return;
 
     int filesupdated = GetManagers()->GetFileManager()->ReloadAnyUpdatedFiles( this, OnFileUpdated_CallbackFunction );
+
+#if MYFW_EDITOR
+    // Check if any C# scripts were changed and rebuild the mono game state.
+    m_pMonoGameState->CheckForUpdatedScripts();
+#endif
 
     if( filesupdated )
     {
