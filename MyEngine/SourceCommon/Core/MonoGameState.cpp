@@ -247,9 +247,16 @@ void MonoGameState::CheckForUpdatedScripts()
 
     if( monoDLLNeedsRebuilding )
     {
+        std::vector<std::string> output;
+
         LaunchApplication( "C:\\Program Files (x86)\\Mono\\bin\\csc",
             "/t:library /out:Data/Mono/Game.dll DataSource/C#/*.cs ../../Engine/DataEngineSource/C#/*.cs",
-            true, false );
+            true, false, &output );
+
+        for( std::string str : output )
+        {
+            LOGInfo( LOGTag, "%s\n", str.c_str() );
+        }
 
         m_pEngineCore->GetManagers()->GetFileManager()->ReloadFileNow( m_pDLLFile );
 
