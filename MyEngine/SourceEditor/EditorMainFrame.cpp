@@ -66,6 +66,7 @@ void EditorMainFrame::ParseLogMessage(const char* message)
             else
                 g_pPanelObjectList->SelectObject( pGameObject );
 #endif
+            return;
         }
 
         // Check if the line is a Material.
@@ -79,6 +80,29 @@ void EditorMainFrame::ParseLogMessage(const char* message)
 #endif
 
             // TODO: MAYBE? select the material in the memory panel.
+            return;
+        }
+
+        // Check if the line is a error or warning from a compiler in this format:
+        //      relative path/filename.ext(line#, char#): error error#
+        {
+            // Simply launch any filename/path followed by a bracket.
+            // TODO: Figure out how to send the line number to the associated app.
+            //       This will be different per app, so maybe start with an app selector with VSCode, Notepad++, etc.
+            const char* posOpenBracket = strstr( message, "(" );
+            if( posOpenBracket != nullptr )
+            {
+                int pathLen = posOpenBracket - message;
+                if( pathLen > 0 && pathLen < MAX_PATH )
+                {
+                    char relativePath[MAX_PATH];
+                    strncpy_s( relativePath, MAX_PATH, message, pathLen );
+                    relativePath[pathLen] = '\0';
+                    LaunchFileInDefaultApp( relativePath );
+
+                    return;
+                }
+            }
         }
     }
 }

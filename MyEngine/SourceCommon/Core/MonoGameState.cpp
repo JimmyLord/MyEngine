@@ -247,10 +247,12 @@ void MonoGameState::CheckForUpdatedScripts()
 
     if( monoDLLNeedsRebuilding )
     {
+        LOGInfo( LOGTag, "Rebuilding Mono DLL.\n" );
+
         std::vector<std::string> output;
 
         LaunchApplication( "C:\\Program Files (x86)\\Mono\\bin\\csc",
-            "/t:library /out:Data/Mono/Game.dll DataSource/C#/*.cs ../../Engine/DataEngineSource/C#/*.cs",
+            "/t:library /out:Data/Mono/Game.dll DataSource/C#/*.cs DataSource/DataEngineSource/C#/*.cs",
             true, false, &output );
 
         for( std::string str : output )
@@ -316,7 +318,7 @@ void MonoGameState::Rebuild()
         }
 
         MonoImageOpenStatus openStatus;
-        LOGInfo( LOGTag, "Creating Mono Image: %d\n", m_pDLLFile->GetBuffer() );
+        //LOGInfo( LOGTag, "Creating Mono Image.\n" );
         m_pMonoImage = mono_image_open_from_data( const_cast<char*>(m_pDLLFile->GetBuffer()), m_pDLLFile->GetFileLength(), false, &openStatus );
         MyAssert( openStatus == MONO_IMAGE_OK );
         pMonoAssembly = mono_assembly_load_from_full( m_pMonoImage, "C:\\", &openStatus, false );
@@ -325,8 +327,6 @@ void MonoGameState::Rebuild()
 
     MyAssert( pMonoAssembly );
     m_pMonoImage = mono_assembly_get_image( pMonoAssembly );
-    
-    //MonoAssembly* pMonoAssembly = mono_assembly_load_from( m_image, assembliesName.c_str(), &status);
 
     g_pActiveDomain = m_pActiveDomain; // HACK: REMOVE ME.
     g_pMonoImage = m_pMonoImage; // HACK: REMOVE ME.
