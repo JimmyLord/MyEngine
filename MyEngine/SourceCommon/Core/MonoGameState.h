@@ -33,10 +33,8 @@ public:
     MonoImage* GetImage() { return m_pMonoImage; }
 
 #if MYFW_EDITOR
-#define FileTimeDataType FILETIME // TODO: Will only work on Windows, change to time_t (used by stat.st_mtime) for other platforms.
-    std::vector<std::string> m_NamesOfCompiledFiles;
-    std::vector<FileTimeDataType> m_LastModifiedTimeOfCompiledFiles;
     void CheckForUpdatedScripts();
+    void CompileDLL();
 #endif
 
     void Rebuild();

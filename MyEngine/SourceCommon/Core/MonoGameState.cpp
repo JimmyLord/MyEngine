@@ -177,96 +177,61 @@ void GetListOfFilesInFolder(std::vector<std::string>* pFileList, const char *nam
 
 void MonoGameState::CheckForUpdatedScripts()
 {
-    std::vector<std::string> currentFileList;
-    GetListOfFilesInFolder( &currentFileList, "DataSource/C#", ".cs" );
-
+    // If any of the .cs files are newer than the dll, rebuild the dll.
     bool monoDLLNeedsRebuilding = false;
 
-    if( m_NamesOfCompiledFiles.size() == 0 || m_NamesOfCompiledFiles.size() != currentFileList.size() )
+    std::vector<std::string> fileList;
+    GetListOfFilesInFolder( &fileList, "DataSource/C#", ".cs" );
+
+    if( fileList.size() > 0 )
     {
-        if( currentFileList.size() > 0 )
+        FileTimeStamp DLLTimeStamp = GetFileLastModifiedTime( "Data/Mono/Game.dll" );
+
+        for( uint32 i=0; i<fileList.size(); i++ )
         {
-            monoDLLNeedsRebuilding = true;
+            FileTimeStamp fileTimeStamp = GetFileLastModifiedTime( fileList[i].c_str() );
 
-            m_NamesOfCompiledFiles = currentFileList;
-            m_LastModifiedTimeOfCompiledFiles.clear();
-
-            for( uint32 i=0; i<m_NamesOfCompiledFiles.size(); i++ )
+            if( fileTimeStamp > DLLTimeStamp )
             {
-#if MYFW_WINDOWS
-                void GetFileData(const char* path, WIN32_FIND_DATAA* data); // in MyFileObject.cpp
-
-                WIN32_FIND_DATAA data;
-                memset( &data, 0, sizeof( data ) );
-                GetFileData( m_NamesOfCompiledFiles[i].c_str(), &data );
-
-                m_LastModifiedTimeOfCompiledFiles.push_back( data.ftLastWriteTime );
-#else
-                MyAssert( false ); // Test this.
-
-                struct stat data;
-                stat( m_FullPath, &data );
-                m_LastModifiedTimeOfCompiledFiles.push_back( data.st_mtime );
-#endif
+                monoDLLNeedsRebuilding = true;
+                break;
             }
-
         }
     }
     else
     {
-        for( uint32 i=0; i<m_NamesOfCompiledFiles.size(); i++ )
-        {
-#if MYFW_WINDOWS
-            void GetFileData(const char* path, WIN32_FIND_DATAA* data); // in MyFileObject.cpp
-
-            WIN32_FIND_DATAA data;
-            memset( &data, 0, sizeof( data ) );
-            GetFileData( currentFileList[i].c_str(), &data );
-
-            if( m_LastModifiedTimeOfCompiledFiles[i].dwHighDateTime != data.ftLastWriteTime.dwHighDateTime ||
-                m_LastModifiedTimeOfCompiledFiles[i].dwLowDateTime != data.ftLastWriteTime.dwLowDateTime )
-            {
-                monoDLLNeedsRebuilding = true;
-
-                m_LastModifiedTimeOfCompiledFiles[i] = data.ftLastWriteTime;
-            }
-#else
-            MyAssert( false ); // Test this.
-
-            struct stat data;
-            stat( m_FullPath, &data );
-            if( m_LastModifiedTimeOfCompiledFiles[i] != data.st_mtime )
-            {
-                monoDLLNeedsRebuilding = true;
-
-                m_LastModifiedTimeOfCompiledFiles[i] = data.st_mtime;
-            }
-#endif
-        }
+        // TODO: All .cs files are gone, unload and delete the .dll?
+        // It should still build and load with just engine .cs files.
+        LOGInfo( LOGTag, "No .cs files found. Old game.dll still in effect.\n" );
     }
 
     if( monoDLLNeedsRebuilding )
     {
-        LOGInfo( LOGTag, "Rebuilding Mono DLL.\n" );
+        LOGInfo( LOGTag, "Recompiling Mono DLL.\n" );
 
-        std::vector<std::string> output;
-
-        LaunchApplication( "C:\\Program Files (x86)\\Mono\\bin\\csc",
-            "/t:library /out:Data/Mono/Game.dll DataSource/C#/*.cs DataSource/DataEngineSource/C#/*.cs",
-            true, false, &output );
-
-        for( std::string str : output )
-        {
-            LOGInfo( LOGTag, "%s\n", str.c_str() );
-        }
-
-        m_pEngineCore->GetManagers()->GetFileManager()->ReloadFileNow( m_pDLLFile );
-
-        Rebuild();
-
-        ComponentMonoScript* pComponent = (ComponentMonoScript*)m_pEngineCore->GetComponentSystemManager()->GetFirstComponentOfType( "MonoScriptComponent" );
-        pComponent->LoadScript( true );
+        CompileDLL();
     }
+}
+
+void MonoGameState::CompileDLL()
+{
+    std::vector<std::string> output;
+
+    LaunchApplication( "C:\\Program Files (x86)\\Mono\\bin\\csc",
+        "/t:library /out:Data/Mono/Game.dll DataSource/C#/*.cs DataSource/DataEngineSource/C#/*.cs",
+        true, false, &output );
+
+    for( std::string str : output )
+    {
+        LOGInfo( LOGTag, "%s\n", str.c_str() );
+    }
+
+    m_pEngineCore->GetManagers()->GetFileManager()->ReloadFileNow( m_pDLLFile );
+
+    Rebuild();
+
+    ComponentMonoScript* pComponent = (ComponentMonoScript*)m_pEngineCore->GetComponentSystemManager()->GetFirstComponentOfType( "MonoScriptComponent" );
+    pComponent->LoadScript( true );
 }
 #endif //MYFW_EDITOR
 
