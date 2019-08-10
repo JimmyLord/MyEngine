@@ -571,6 +571,10 @@ float EngineCore::Tick(float deltaTime)
     m_pLuaGameState->Tick();
 #endif
 
+#if MYFW_USING_MONO && MYFW_EDITOR
+    m_pMonoGameState->Tick();
+#endif
+
     if( m_pImGuiManager )
     {
         m_pImGuiManager->StartTick( deltaTime );

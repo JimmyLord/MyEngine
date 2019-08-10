@@ -13,6 +13,8 @@
 #include "mono/metadata/object-forward.h"
 #include "mono/utils/mono-forward.h"
 
+class Job_RebuildDLL;
+
 class MonoGameState
 {
 protected:
@@ -24,6 +26,11 @@ protected:
     MonoDomain* m_pActiveDomain;
     MonoImage* m_pMonoImage;
 
+#if MYFW_EDITOR
+    bool m_RebuildWhenCompileFinishes;
+    Job_RebuildDLL* m_pJob_RebuildDLL;
+#endif
+
 public:
     MonoGameState(EngineCore* pEngineCore);
     ~MonoGameState();
@@ -34,7 +41,10 @@ public:
 
 #if MYFW_EDITOR
     void CheckForUpdatedScripts();
+    void Tick();
     void CompileDLL();
+
+    bool IsRebuilding();
 #endif
 
     void Rebuild();

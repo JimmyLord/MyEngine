@@ -115,6 +115,26 @@ void Mono_LOGError(MonoString* monoStr)
     LOGError( "MonoLog", "Received string: %s", str );
 }
 
+#if MYFW_EDITOR
+class Job_RebuildDLL : public MyJob
+{
+protected:
+    MonoGameState* m_pMonoGameState;
+
+public:
+    Job_RebuildDLL(MonoGameState* pMonoGameState)
+    {
+        m_pMonoGameState = pMonoGameState;
+    }
+    virtual ~Job_RebuildDLL() {}
+
+    virtual void DoWork()
+    {
+        m_pMonoGameState->CompileDLL();
+    }
+};
+#endif
+
 MonoGameState::MonoGameState(EngineCore* pEngineCore)
 {
     m_pEngineCore = pEngineCore;
@@ -127,6 +147,11 @@ MonoGameState::MonoGameState(EngineCore* pEngineCore)
 
     m_pActiveDomain = nullptr;
     m_pMonoImage = nullptr;
+
+#if MYFW_EDITOR
+    m_RebuildWhenCompileFinishes = false;
+    m_pJob_RebuildDLL = MyNew Job_RebuildDLL( this );
+#endif
 }
 
 MonoGameState::~MonoGameState()
@@ -134,6 +159,8 @@ MonoGameState::~MonoGameState()
     mono_jit_cleanup( m_pCoreDomain );
 
     SAFE_RELEASE( m_pDLLFile );
+
+    delete m_pJob_RebuildDLL;
 }
 
 #if MYFW_EDITOR
@@ -209,7 +236,27 @@ void MonoGameState::CheckForUpdatedScripts()
     {
         LOGInfo( LOGTag, "Recompiling Mono DLL.\n" );
 
-        CompileDLL();
+        m_pEngineCore->GetManagers()->GetJobManager()->AddJob( m_pJob_RebuildDLL );
+
+        m_RebuildWhenCompileFinishes = true;
+    }
+}
+
+void MonoGameState::Tick()
+{
+    if( m_RebuildWhenCompileFinishes )
+    {
+        if( m_pJob_RebuildDLL->IsFinished() )
+        {
+            m_RebuildWhenCompileFinishes = false;
+            m_pJob_RebuildDLL->Reset();
+
+            LOGInfo( LOGTag, "Compiling finished, rebuilding Mono game state.\n" );
+            Rebuild();
+
+            ComponentMonoScript* pComponent = (ComponentMonoScript*)m_pEngineCore->GetComponentSystemManager()->GetFirstComponentOfType( "MonoScriptComponent" );
+            pComponent->LoadScript( true );
+        }
     }
 }
 
@@ -227,11 +274,14 @@ void MonoGameState::CompileDLL()
     }
 
     m_pEngineCore->GetManagers()->GetFileManager()->ReloadFileNow( m_pDLLFile );
+}
 
-    Rebuild();
+bool MonoGameState::IsRebuilding()
+{
+    if( m_pJob_RebuildDLL->IsActive() )
+        return true;
 
-    ComponentMonoScript* pComponent = (ComponentMonoScript*)m_pEngineCore->GetComponentSystemManager()->GetFirstComponentOfType( "MonoScriptComponent" );
-    pComponent->LoadScript( true );
+    return false;
 }
 #endif //MYFW_EDITOR
 
