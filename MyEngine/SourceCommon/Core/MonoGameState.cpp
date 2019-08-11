@@ -115,26 +115,6 @@ void Mono_LOGError(MonoString* monoStr)
     LOGError( "MonoLog", "Received string: %s", str );
 }
 
-#if MYFW_EDITOR
-class Job_RebuildDLL : public MyJob
-{
-protected:
-    MonoGameState* m_pMonoGameState;
-
-public:
-    Job_RebuildDLL(MonoGameState* pMonoGameState)
-    {
-        m_pMonoGameState = pMonoGameState;
-    }
-    virtual ~Job_RebuildDLL() {}
-
-    virtual void DoWork()
-    {
-        m_pMonoGameState->CompileDLL();
-    }
-};
-#endif
-
 MonoGameState::MonoGameState(EngineCore* pEngineCore)
 {
     m_pEngineCore = pEngineCore;
@@ -150,7 +130,7 @@ MonoGameState::MonoGameState(EngineCore* pEngineCore)
 
 #if MYFW_EDITOR
     m_RebuildWhenCompileFinishes = false;
-    m_pJob_RebuildDLL = MyNew Job_RebuildDLL( this );
+    m_pJob_RebuildDLL = MyNew JobWithCallbackFunction( this, MonoGameState::CompileDLL );
 #endif
 }
 

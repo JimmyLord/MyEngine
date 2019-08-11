@@ -13,8 +13,6 @@
 #include "mono/metadata/object-forward.h"
 #include "mono/utils/mono-forward.h"
 
-class Job_RebuildDLL;
-
 class MonoGameState
 {
 protected:
@@ -28,7 +26,7 @@ protected:
 
 #if MYFW_EDITOR
     bool m_RebuildWhenCompileFinishes;
-    Job_RebuildDLL* m_pJob_RebuildDLL;
+    JobWithCallbackFunction* m_pJob_RebuildDLL;
 #endif
 
 public:
@@ -42,6 +40,7 @@ public:
 #if MYFW_EDITOR
     void CheckForUpdatedScripts();
     void Tick();
+    static void CompileDLL(void* pObject) { ((MonoGameState*)pObject)->CompileDLL(); }
     void CompileDLL();
 
     bool IsRebuilding();
