@@ -9,9 +9,11 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace MyEngine
 { 
+    [StructLayout(LayoutKind.Sequential)]
     public class vec3
     {
         public float x, y, z;
@@ -22,6 +24,17 @@ namespace MyEngine
             y = ny;
             z = nz;
         }
+
+        public void Randomize()
+        {
+            GCHandle handle = GCHandle.Alloc( this, GCHandleType.Pinned );
+            //IntPtr ptr = GCHandle.ToIntPtr( handle );
+            IntPtr ptr = handle.AddrOfPinnedObject();
+            Log.Info( "ptr: " + ptr );
+            Randomize( ptr );
+            handle.Free();
+        }
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Randomize(IntPtr pThis);
 
         //private IntPtr m_pNativeObject = (IntPtr)null;
 

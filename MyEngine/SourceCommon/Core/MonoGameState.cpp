@@ -103,16 +103,23 @@ float Mono_GetX(Vector3* pVec3) { return pVec3->x; }
 float Mono_GetY(Vector3* pVec3) { return pVec3->y; }
 float Mono_GetZ(Vector3* pVec3) { return pVec3->z; }
 
+void Mono_vec3_Randomize(Vector3* pVec3)
+{
+    pVec3->x = 1;
+    pVec3->y = 12;
+    pVec3->z = 123;
+}
+
 void Mono_LOGInfo(MonoString* monoStr)
 {
     char* str = mono_string_to_utf8( monoStr );
-    LOGInfo( "MonoLog", "Received string: %s", str );
+    LOGInfo( "MonoLog", "Received string: %s\n", str );
 }
 
 void Mono_LOGError(MonoString* monoStr)
 {
     char* str = mono_string_to_utf8( monoStr );
-    LOGError( "MonoLog", "Received string: %s", str );
+    LOGError( "MonoLog", "Received string: %s\n", str );
 }
 
 MonoGameState::MonoGameState(EngineCore* pEngineCore)
@@ -334,6 +341,7 @@ void MonoGameState::Rebuild()
     mono_add_internal_call( "MyEngine.vec3::GetX", Mono_GetX );
     mono_add_internal_call( "MyEngine.vec3::GetY", Mono_GetY );
     mono_add_internal_call( "MyEngine.vec3::GetZ", Mono_GetZ );
+    mono_add_internal_call( "MyEngine.vec3::Randomize", Mono_vec3_Randomize );
 
     //GameObject::LuaRegister( nullptr );
     mono_add_internal_call( "MyEngine.GameObject::GetPosition", Mono_GetPosition );
