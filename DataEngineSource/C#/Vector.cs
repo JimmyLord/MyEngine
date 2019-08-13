@@ -18,23 +18,20 @@ namespace MyEngine
     {
         public float x, y, z;
 
-        public vec3( float nx, float ny, float nz )
+        public vec3(float nx, float ny, float nz)
         {
             x = nx;
             y = ny;
             z = nz;
         }
 
-        public void Randomize()
-        {
-            GCHandle handle = GCHandle.Alloc( this, GCHandleType.Pinned );
-            //IntPtr ptr = GCHandle.ToIntPtr( handle );
-            IntPtr ptr = handle.AddrOfPinnedObject();
-            Log.Info( "ptr: " + ptr );
-            Randomize( ptr );
-            handle.Free();
-        }
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Randomize(IntPtr pThis);
+        public void Length()        { GCHandle h = GCHandle.Alloc(this, GCHandleType.Pinned); Length( h.AddrOfPinnedObject() );        h.Free(); }
+        public void LengthSquared() { GCHandle h = GCHandle.Alloc(this, GCHandleType.Pinned); LengthSquared( h.AddrOfPinnedObject() ); h.Free(); }
+        public void Normalize()     { GCHandle h = GCHandle.Alloc(this, GCHandleType.Pinned); Normalize( h.AddrOfPinnedObject() );     h.Free(); }
+
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Length(IntPtr pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void LengthSquared(IntPtr pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Normalize(IntPtr pThis);
 
         //private IntPtr m_pNativeObject = (IntPtr)null;
 
