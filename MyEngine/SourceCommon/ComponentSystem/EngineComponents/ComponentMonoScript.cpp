@@ -1323,7 +1323,11 @@ void ComponentMonoScript::LoadScript(bool forceLoad)
                 // Call the OnLoad method.
                 MonoException* pException = nullptr;
                 m_pMonoFuncPtr_OnLoad( m_pMonoObjectInstance, &pException );
-                MyAssert( pException == nullptr );
+                if( pException )
+                {
+                    char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+                    LOGError( "MonoScript", "Exception thrown calling OnLoad(): %s\n", str );
+                }
 
         //      ParseExterns( LuaObject );
 
@@ -1583,7 +1587,11 @@ void ComponentMonoScript::OnStop()
     {
         MonoException* pException = nullptr;
         m_pMonoFuncPtr_OnStop( m_pMonoObjectInstance, &pException );
-        MyAssert( pException == nullptr );
+        if( pException )
+        {
+            char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+            LOGError( "MonoScript", "Exception thrown calling OnStop(): %s\n", str );
+        }
     }
 
     m_ScriptLoaded = false;
@@ -1688,7 +1696,11 @@ void ComponentMonoScript::TickCallback(float deltaTime)
                 // Call OnPlay().
                 MonoException* pException = nullptr;
                 m_pMonoFuncPtr_OnPlay( m_pMonoObjectInstance, &pException );
-                MyAssert( pException == nullptr );
+                if( pException )
+                {
+                    char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+                    LOGError( "MonoScript", "Exception thrown calling OnPlay(): %s\n", str );
+                }
             }
 
             m_Playing = true;
@@ -1700,7 +1712,11 @@ void ComponentMonoScript::TickCallback(float deltaTime)
     {
         MonoException* pException = nullptr;
         m_pMonoFuncPtr_Update( m_pMonoObjectInstance, deltaTime, &pException );
-        MyAssert( pException == nullptr );
+        if( pException )
+        {
+            char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+            LOGError( "MonoScript", "Exception thrown calling Update(): %s\n", str );
+        }
     }
 }
 
@@ -1715,9 +1731,14 @@ bool ComponentMonoScript::OnTouchCallback(int action, int id, float x, float y, 
     if( m_Playing )
     {
         MonoException* pException = nullptr;
-        if( m_pMonoFuncPtr_OnTouch( m_pMonoObjectInstance, action, id, x, y, pressure, size, &pException ) )
-            return true;
-        MyAssert( pException == nullptr );
+        bool result = m_pMonoFuncPtr_OnTouch( m_pMonoObjectInstance, action, id, x, y, pressure, size, &pException );
+        if( pException )
+        {
+            char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+            LOGError( "MonoScript", "Exception thrown calling OnTouch(): %s\n", str );
+            return false;
+        }
+        return result;
     }
 
     return false;
@@ -1736,12 +1757,14 @@ bool ComponentMonoScript::OnButtonsCallback(GameCoreButtonActions action, GameCo
         int a = action;
         int i = id;
         MonoException* pException = nullptr;
-        if( m_pMonoFuncPtr_OnButtons( m_pMonoObjectInstance, a, i, &pException ) )
+        bool result = m_pMonoFuncPtr_OnButtons( m_pMonoObjectInstance, a, i, &pException );
+        if( pException )
         {
-            MyAssert( pException == nullptr );
-            return true;
+            char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+            LOGError( "MonoScript", "Exception thrown calling OnButtons(): %s\n", str );
+            return false;
         }
-        MyAssert( pException == nullptr );
+        return result;
     }
 
     return false;
@@ -1782,9 +1805,14 @@ bool ComponentMonoScript::OnEvent(MyEvent* pEvent) // StaticOnEvent
 
     // TODO: Removed when converting to mono.
     //MonoException* pException = nullptr;
-    //if( m_pMonoFuncPtr_OnKeys( m_pMonoObjectInstance, action, keyCode, &pException ) )
-    //    return true;
-    //MyAssert( pException == nullptr );
+    //bool result = m_pMonoFuncPtr_OnKeys( m_pMonoObjectInstance, action, keyCode, &pException ) )
+    //if( pException )
+    //{
+    //    char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+    //    LOGError( "MonoScript", "Exception thrown calling OnKeys(): %s\n", str );
+    //    return false;
+    //}
+    // return result;
 
     return false;
 }
