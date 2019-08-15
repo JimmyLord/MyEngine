@@ -21,5 +21,8 @@ namespace MyEngine
 
         public void SetPosition(vec3 pos) { GameObject.SetPosition( m_pNativeObject, pos.x, pos.y, pos.z ); }
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetPosition(IntPtr pNativeObject, float x, float y, float z);
+
+        public void SetLocalTransform(mat4 transform) { GameObject.SetLocalTransform( m_pNativeObject, transform ); }
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetLocalTransform(IntPtr pNativeObject, mat4 transform);
     }
 }
