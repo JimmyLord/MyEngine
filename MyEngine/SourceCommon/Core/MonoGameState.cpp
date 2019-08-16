@@ -102,9 +102,11 @@ void MonoGameState::CheckForUpdatedScripts()
 
     std::vector<std::string> fileList;
     GetListOfFilesInFolder( &fileList, "DataSource/C#", ".cs" );
-
     if( fileList.size() > 0 )
     {
+        // Add all the internal engine .cs files to the list.
+        GetListOfFilesInFolder( &fileList, "DataSource/DataEngineSource/C#", ".cs" );
+
         FileTimeStamp DLLTimeStamp = GetFileLastModifiedTime( "Data/Mono/Game.dll" );
 
         for( uint32 i=0; i<fileList.size(); i++ )
