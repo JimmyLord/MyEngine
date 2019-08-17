@@ -7,30 +7,14 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+#ifndef __MonoFrameworkClasses_H__
+#define __MonoFrameworkClasses_H__
 
-namespace MyEngine
-{ 
-    [StructLayout(LayoutKind.Sequential)]
-    public class vec3
-    {
-        public float x, y, z;
+class MonoGameState;
 
-        public vec3(float nx, float ny, float nz)
-        {
-            x = nx;
-            y = ny;
-            z = nz;
-        }
+void RegisterMonoFrameworkClasses(MonoGameState* pMonoState);
 
-        public void Length()        { Length( this ); }
-        public void LengthSquared() { LengthSquared( this ); }
-        public void Normalize()     { Normalize( this ); }
+MonoObject* Mono_ConstructVec3(Vector3 pos);
+MonoObject* Mono_ConstructMat4();
 
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Length(vec3 pThis);
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void LengthSquared(vec3 pThis);
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Normalize(vec3 pThis);
-    }
-}
+#endif //__MonoFrameworkClasses_H__

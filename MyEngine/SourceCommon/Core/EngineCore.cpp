@@ -572,6 +572,7 @@ float EngineCore::Tick(float deltaTime)
 #endif
 
 #if MYFW_USING_MONO && MYFW_EDITOR
+    m_pMonoGameState->SetAsGlobalState();
     m_pMonoGameState->Tick();
 #endif
 

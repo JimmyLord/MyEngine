@@ -13,8 +13,19 @@
 #include "mono/metadata/object-forward.h"
 #include "mono/utils/mono-forward.h"
 
+// Complete hack macros to shift the pointer passed from C# to the start of the data.
+#define MONO_VTABLE_AND_LOCK_BYTES 8
+#define fixPtr(type, x)     ((type*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
+#define fixVec3(x)       ((Vector3*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
+#define fixMat4(x)      ((MyMatrix*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
+
 class MonoGameState
 {
+public:
+    // Globals used by C callback functions when creating new managed objects.
+    static MonoDomain* g_pActiveDomain;
+    static MonoImage* g_pMonoImage;
+
 protected:
     EngineCore* m_pEngineCore;
     MonoDomain* m_pCoreDomain;
@@ -36,6 +47,11 @@ public:
     // Getters.
     MonoDomain* GetActiveDomain() { return m_pActiveDomain; }
     MonoImage* GetImage() { return m_pMonoImage; }
+
+    // Global State.
+    // If multiple MonoGameStates exist, any registered C callback functions need to know which state to work with.
+    // This means 2 mono functions from different core domains can't run simultaneously on 2 threads.
+    void SetAsGlobalState();
 
 #if MYFW_EDITOR
     void CheckForUpdatedScripts();

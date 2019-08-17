@@ -18,7 +18,8 @@
 #include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
 #endif //MYFW_USING_MONO
 #include "Core/EngineCore.h"
-#include "MonoClasses/MonoFrameworkClasses.h"
+#include "Mono/MonoFrameworkClasses.h"
+#include "Mono/MonoGameObject.h"
 
 #if MYFW_EDITOR
 #if MYFW_WINDOWS
@@ -27,6 +28,9 @@
 #include <dirent.h>
 #endif
 #endif
+
+MonoDomain* MonoGameState::g_pActiveDomain = nullptr;
+MonoImage* MonoGameState::g_pMonoImage = nullptr;
 
 MonoGameState::MonoGameState(EngineCore* pEngineCore)
 {
@@ -93,6 +97,12 @@ void GetListOfFilesInFolder(std::vector<std::string>* pFileList, const char *nam
     }
 
     closedir(dir);
+}
+
+void MonoGameState::SetAsGlobalState()
+{
+    g_pActiveDomain = m_pActiveDomain;
+    g_pMonoImage = m_pMonoImage;
 }
 
 void MonoGameState::CheckForUpdatedScripts()
@@ -238,5 +248,7 @@ void MonoGameState::Rebuild()
     MyAssert( pMonoAssembly );
     m_pMonoImage = mono_assembly_get_image( pMonoAssembly );
 
+    // Register Mono interface functions.
     RegisterMonoFrameworkClasses( this );
+    RegisterMonoGameObject( this );
 }

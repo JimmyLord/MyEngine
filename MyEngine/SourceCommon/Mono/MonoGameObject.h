@@ -7,11 +7,11 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __MonoFrameworkClasses_H__
-#define __MonoFrameworkClasses_H__
+#ifndef __MonoGameObject_H__
+#define __MonoGameObject_H__
 
 class MonoGameState;
 
-void RegisterMonoFrameworkClasses(MonoGameState* pMonoState);
+void RegisterMonoGameObject(MonoGameState* pMonoState);
 
-#endif //__MonoFrameworkClasses_H__
+#endif //__MonoGameObject_H__

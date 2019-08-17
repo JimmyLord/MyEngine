@@ -13,12 +13,8 @@
 #include "mono/metadata/assembly.h"
 
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
-#include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
 #include "Core/MonoGameState.h"
-
-static MonoDomain* g_pActiveDomain;
-static MonoImage* g_pMonoImage;
 
 //============================================================================================================
 // LOG.
@@ -36,75 +32,49 @@ void Mono_LOGError(MonoString* monoStr)
 }
 
 //============================================================================================================
-// Temp GameObject stuff to remove.
+// Helpers to construct mono base types (MyEngine.vec3 and MyEngine.mat4) with mono lifespan.
 //============================================================================================================
-MonoObject* Mono_GetPosition(GameObject* pGameObject)
+MonoObject* Mono_ConstructVec3(Vector3 pos)
 {
-    MonoClass* pVec3Class = mono_class_from_name( g_pMonoImage, "MyEngine", "vec3" );
-    MonoObject* pVec3Instance = mono_object_new( g_pActiveDomain, pVec3Class );
+    MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "vec3" );
+    MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
 
-    MonoMethod* pConstructor = mono_class_get_method_from_name( pVec3Class, ".ctor", 3 );
-    Vector3 pos = pGameObject->GetTransform()->GetLocalPosition();
+    MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 3 );
     void* args[3];
     args[0] = &pos.x;
     args[1] = &pos.y;
     args[2] = &pos.z;
-    mono_runtime_invoke( pConstructor, pVec3Instance, args, nullptr );
+    mono_runtime_invoke( pConstructor, pInstance, args, nullptr );
 
-    return pVec3Instance;
+    return pInstance;
 }
 
-void Mono_SetPosition(GameObject* pGameObject, float x, float y, float z)
+MonoObject* Mono_ConstructMat4()
 {
-    pGameObject->GetTransform()->SetLocalPosition( Vector3( x, y, z ) );
-}
+    MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "mat4" );
+    MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
 
-void Mono_SetLocalTransform(GameObject* pGameObject, char* pMat4)
-{
-    // HACK: Passing a mat4 from C# gives a pointer 8 bytes earlier than data... this is a bad way to deal with it.
-    pGameObject->GetTransform()->SetLocalTransform( (MyMatrix*)(pMat4+8) );
+    MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
+    mono_runtime_invoke( pConstructor, pInstance, nullptr, nullptr );
+
+    return pInstance;
 }
 
 //============================================================================================================
 // Vector3.
 //============================================================================================================
-void Mono_vec3_Length(Vector3* pVec3)        { pVec3->Length(); }
-void Mono_vec3_LengthSquared(Vector3* pVec3) { pVec3->LengthSquared(); }
-void Mono_vec3_Normalize(Vector3* pVec3)     { pVec3->Normalize(); }
+void Mono_vec3_Length(Vector3* pVec3)        { fixVec3(pVec3)->Length(); }
+void Mono_vec3_LengthSquared(Vector3* pVec3) { fixVec3(pVec3)->LengthSquared(); }
+void Mono_vec3_Normalize(Vector3* pVec3)     { fixVec3(pVec3)->Normalize(); }
 
 //============================================================================================================
 // MyMatrix.
 //============================================================================================================
-#define fixPtr(type, x) ((type*)(((char*)x)+8))
-void Mono_mat4_SetIdentity(MyMatrix* pMat4)
-{
-    fixPtr(MyMatrix, pMat4)->SetIdentity();
-}
+void Mono_mat4_SetIdentity(MyMatrix* pMat4)  { fixMat4(pMat4)->SetIdentity(); }
 
-void Mono_mat4_CreateSRTPinned(MyMatrix* pMat4, Vector3* scale, Vector3* rot, Vector3* pos)
+void Mono_mat4_CreateSRT(MyMatrix* pMat4, Vector3* pScale, Vector3* pRot, Vector3* pPos)
 {
-    pMat4->CreateSRT( *scale, *rot, *pos);
-}
-
-void Mono_mat4_CreateSRT(MyMatrix* pMat4, Vector3* scale, Vector3* rot, Vector3* pos)
-{
-    fixPtr(MyMatrix, pMat4)->CreateSRT( *fixPtr(Vector3, scale), *fixPtr(Vector3, rot), *fixPtr(Vector3, pos) );
-}
-
-void Mono_mat4_CreateSRTMillion(MyMatrix* pMat4, Vector3* scale, Vector3* rot, Vector3* pos)
-{
-    MyMatrix* tMat = fixPtr(MyMatrix, pMat4);
-    Vector3 tScale = *fixPtr(Vector3, scale);
-    Vector3 tRot = *fixPtr(Vector3, rot);
-    Vector3 tPos = *fixPtr(Vector3, pos);
-
-    //double start = MyTime_GetSystemTime();
-    for( int i=0; i<1000000; i++ )
-    {
-        tMat->CreateSRT( tScale, tRot, tPos );
-    }
-    //double end = MyTime_GetSystemTime();
-    //LOGInfo( LOGTag, "C++ Out: %f", end - start );
+    fixMat4(pMat4)->CreateSRT( *fixVec3(pScale), *fixVec3(pRot), *fixVec3(pPos) );
 }
 
 //============================================================================================================
@@ -112,18 +82,9 @@ void Mono_mat4_CreateSRTMillion(MyMatrix* pMat4, Vector3* scale, Vector3* rot, V
 //============================================================================================================
 void RegisterMonoFrameworkClasses(MonoGameState* pMonoState)
 {
-    // Set globals for some of the "C" functions above.
-    g_pActiveDomain = pMonoState->GetActiveDomain();
-    g_pMonoImage = pMonoState->GetImage();
-
     // Log.
     mono_add_internal_call( "MyEngine.Log::Info",  Mono_LOGInfo );
     mono_add_internal_call( "MyEngine.Log::Error", Mono_LOGError );
-
-    // Temp.
-    mono_add_internal_call( "MyEngine.GameObject::GetPosition", Mono_GetPosition );
-    mono_add_internal_call( "MyEngine.GameObject::SetPosition", Mono_SetPosition );
-    mono_add_internal_call( "MyEngine.GameObject::SetLocalTransform", Mono_SetLocalTransform );
 
     // Vector3.
     mono_add_internal_call( "MyEngine.vec3::Length",        Mono_vec3_Length );
@@ -131,8 +92,6 @@ void RegisterMonoFrameworkClasses(MonoGameState* pMonoState)
     mono_add_internal_call( "MyEngine.vec3::Normalize",     Mono_vec3_Normalize );
 
     // MyMatrix.
-    mono_add_internal_call( "MyEngine.mat4::SetIdentity",      Mono_mat4_SetIdentity );
-    mono_add_internal_call( "MyEngine.mat4::CreateSRTPinned",  Mono_mat4_CreateSRTPinned );
-    mono_add_internal_call( "MyEngine.mat4::CreateSRT",        Mono_mat4_CreateSRT );
-    mono_add_internal_call( "MyEngine.mat4::CreateSRTMillion", Mono_mat4_CreateSRTMillion );
+    mono_add_internal_call( "MyEngine.mat4::SetIdentity",   Mono_mat4_SetIdentity );
+    mono_add_internal_call( "MyEngine.mat4::CreateSRT",     Mono_mat4_CreateSRT );
 }
