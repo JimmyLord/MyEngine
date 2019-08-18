@@ -12,27 +12,13 @@
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
 
+#include "MonoFrameworkClasses.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "Core/EngineCore.h"
-#include "Core/MonoGameState.h"
+#include "Mono/MonoGameState.h"
 
 //============================================================================================================
-// LOG.
-//============================================================================================================
-void Mono_LOGInfo(MonoString* monoStr)
-{
-    char* str = mono_string_to_utf8( monoStr );
-    LOGInfo( "MonoLog", "Received string: %s\n", str );
-}
-
-void Mono_LOGError(MonoString* monoStr)
-{
-    char* str = mono_string_to_utf8( monoStr );
-    LOGError( "MonoLog", "Received string: %s\n", str );
-}
-
-//============================================================================================================
-// Helpers to construct mono base types (MyEngine.vec3 and MyEngine.mat4) with mono lifespan.
+// Helpers to create a vec3 and mat4 objects in managed memory.
 //============================================================================================================
 MonoObject* Mono_ConstructVec3(Vector3 pos)
 {
@@ -61,20 +47,35 @@ MonoObject* Mono_ConstructMat4()
 }
 
 //============================================================================================================
-// Vector3.
+// LOG methods.
 //============================================================================================================
-void Mono_vec3_Length(Vector3* pVec3)        { fixVec3(pVec3)->Length(); }
-void Mono_vec3_LengthSquared(Vector3* pVec3) { fixVec3(pVec3)->LengthSquared(); }
-void Mono_vec3_Normalize(Vector3* pVec3)     { fixVec3(pVec3)->Normalize(); }
-
-//============================================================================================================
-// MyMatrix.
-//============================================================================================================
-void Mono_mat4_SetIdentity(MyMatrix* pMat4)  { fixMat4(pMat4)->SetIdentity(); }
-
-void Mono_mat4_CreateSRT(MyMatrix* pMat4, Vector3* pScale, Vector3* pRot, Vector3* pPos)
+void Mono_LOGInfo(MonoString* monoStr)
 {
-    fixMat4(pMat4)->CreateSRT( *fixVec3(pScale), *fixVec3(pRot), *fixVec3(pPos) );
+    char* str = mono_string_to_utf8( monoStr );
+    LOGInfo( "MonoLog", "Received string: %s\n", str );
+}
+
+void Mono_LOGError(MonoString* monoStr)
+{
+    char* str = mono_string_to_utf8( monoStr );
+    LOGError( "MonoLog", "Received string: %s\n", str );
+}
+
+//============================================================================================================
+// Vector3 methods.
+//============================================================================================================
+void Mono_vec3_Length(MonoVec3* pVec3)        { pVec3->Get()->Length(); }
+void Mono_vec3_LengthSquared(MonoVec3* pVec3) { pVec3->Get()->LengthSquared(); }
+void Mono_vec3_Normalize(MonoVec3* pVec3)     { pVec3->Get()->Normalize(); }
+
+//============================================================================================================
+// MyMatrix methods.
+//============================================================================================================
+void Mono_mat4_SetIdentity(MonoMat4* pMat4)  { pMat4->Get()->SetIdentity(); }
+
+void Mono_mat4_CreateSRT(MonoMat4* pMat4, MonoVec3* pScale, MonoVec3* pRot, MonoVec3* pPos)
+{
+    pMat4->Get()->CreateSRT( *pScale->Get(), *pRot->Get(), *pPos->Get() );
 }
 
 //============================================================================================================

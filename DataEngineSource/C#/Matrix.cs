@@ -26,7 +26,7 @@ namespace MyEngine
         public void SetIdentity() { SetIdentity( this ); }
         public void CreateSRT(vec3 scale, vec3 rot, vec3 pos) { CreateSRT( this, scale, rot, pos ); }
 
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void SetIdentity(mat4 pThis);
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void CreateSRT(mat4 pThis, vec3 scale, vec3 rot, vec3 pos);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetIdentity(mat4 pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void CreateSRT(mat4 pThis, vec3 scale, vec3 rot, vec3 pos);
     }
 }

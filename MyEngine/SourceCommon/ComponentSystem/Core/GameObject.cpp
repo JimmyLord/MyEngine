@@ -1215,29 +1215,32 @@ ComponentBase* GameObject::GetNextComponentOfBaseType(ComponentBase* pLastCompon
 // Exposed to Lua, change elsewhere if function signature changes.
 ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
 {
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    for( unsigned int i=0; i<GetComponentCountIncludingCore(); i++ )
     {
-        if( ((ComponentBase*)m_Components[i])->IsA( type ) )
-            return (ComponentBase*)m_Components[i];
+        ComponentBase* pComponent = GetComponentByIndexIncludingCore( i );
+        if( pComponent->IsA( type ) )
+            return pComponent;
     }
 
-    return 0; // component not found.
+    return nullptr; // Component not found.
 }
 
 ComponentBase* GameObject::GetNextComponentOfType(ComponentBase* pLastComponent)
 {
     MyAssert( pLastComponent != 0 );
 
-    bool foundlast = false;
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    bool foundLast = false;
+    for( unsigned int i=0; i<GetComponentCountIncludingCore(); i++ )
     {
-        if( pLastComponent == m_Components[i] )
-            foundlast = true;
-        else if( foundlast && ((ComponentBase*)m_Components[i])->IsA( pLastComponent->GetClassname() ) )
-            return (ComponentBase*)m_Components[i];
+        ComponentBase* pComponent = GetComponentByIndexIncludingCore( i );
+
+        if( pLastComponent == pComponent )
+            foundLast = true;
+        else if( foundLast && ((ComponentBase*)pComponent)->IsA( pLastComponent->GetClassname() ) )
+            return (ComponentBase*)pComponent;
     }
 
-    return 0; // component not found.
+    return nullptr; // Component not found.
 }
 
 void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc* pCallback)

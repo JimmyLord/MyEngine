@@ -29,8 +29,8 @@ namespace MyEngine
         public void LengthSquared() { LengthSquared( this ); }
         public void Normalize()     { Normalize( this ); }
 
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Length(vec3 pThis);
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void LengthSquared(vec3 pThis);
-        [MethodImpl(MethodImplOptions.InternalCall)] public extern static void Normalize(vec3 pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void Length(vec3 pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void LengthSquared(vec3 pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void Normalize(vec3 pThis);
     }
 }

@@ -13,13 +13,15 @@
 #include "mono/metadata/assembly.h"
 
 #include "MonoGameState.h"
+#include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #if MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
 #endif //MYFW_USING_MONO
 #include "Core/EngineCore.h"
-#include "Mono/MonoFrameworkClasses.h"
-#include "Mono/MonoGameObject.h"
+#include "Mono/BaseComponents/MonoComponentTransform.h"
+#include "Mono/Core/MonoGameObject.h"
+#include "Mono/FrameworkComponents/MonoFrameworkClasses.h"
 
 #if MYFW_EDITOR
 #if MYFW_WINDOWS
@@ -251,4 +253,5 @@ void MonoGameState::Rebuild()
     // Register Mono interface functions.
     RegisterMonoFrameworkClasses( this );
     RegisterMonoGameObject( this );
+    RegisterMonoComponentTransform( this );
 }

@@ -7,11 +7,13 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __MonoGameObject_H__
-#define __MonoGameObject_H__
+using System;
+using System.Runtime.CompilerServices;
 
-class MonoGameState;
-
-void RegisterMonoGameObject(MonoGameState* pMonoState);
-
-#endif //__MonoGameObject_H__
+namespace MyEngine
+{ 
+    public class ComponentBase
+    {
+        protected IntPtr m_pNativeObject = (IntPtr)null;
+    }
+}

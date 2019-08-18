@@ -7,19 +7,13 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-using System;
-using System.Runtime.CompilerServices;
+#ifndef __MonoGameObject_H__
+#define __MonoGameObject_H__
 
-namespace MyEngine
-{ 
-    public class GameObject
-    {
-        private IntPtr m_pNativeObject = (IntPtr)null;
+class MonoGameState;
 
-        public ComponentTransform GetTransform() { return GameObject.GetTransform( m_pNativeObject ); }
-        public ComponentBase GetFirstComponentOfType(string type) { return GameObject.GetFirstComponentOfType( m_pNativeObject, type ); }
+MonoObject* Mono_ConstructGameObject(GameObject* pObject);
 
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static ComponentTransform GetTransform(IntPtr pNativeObject);
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static ComponentBase GetFirstComponentOfType(IntPtr pNativeObject, string type);
-    }
-}
+void RegisterMonoGameObject(MonoGameState* pMonoState);
+
+#endif //__MonoGameObject_H__

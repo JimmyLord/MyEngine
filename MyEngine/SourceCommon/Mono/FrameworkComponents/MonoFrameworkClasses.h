@@ -7,19 +7,18 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-using System;
-using System.Runtime.CompilerServices;
+#ifndef __MonoFrameworkClasses_H__
+#define __MonoFrameworkClasses_H__
 
-namespace MyEngine
-{ 
-    public class GameObject
-    {
-        private IntPtr m_pNativeObject = (IntPtr)null;
+class MonoGameState;
 
-        public ComponentTransform GetTransform() { return GameObject.GetTransform( m_pNativeObject ); }
-        public ComponentBase GetFirstComponentOfType(string type) { return GameObject.GetFirstComponentOfType( m_pNativeObject, type ); }
+#define MONO_VTABLE_AND_LOCK_BYTES 8
+struct MonoMat4 { MyMatrix* Get() { return (MyMatrix*)(((char*)this)+MONO_VTABLE_AND_LOCK_BYTES); } };
+struct MonoVec3 { Vector3*  Get() { return  (Vector3*)(((char*)this)+MONO_VTABLE_AND_LOCK_BYTES); } };
 
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static ComponentTransform GetTransform(IntPtr pNativeObject);
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static ComponentBase GetFirstComponentOfType(IntPtr pNativeObject, string type);
-    }
-}
+MonoObject* Mono_ConstructVec3(Vector3 pos);
+MonoObject* Mono_ConstructMat4();
+
+void RegisterMonoFrameworkClasses(MonoGameState* pMonoState);
+
+#endif //__MonoFrameworkClasses_H__

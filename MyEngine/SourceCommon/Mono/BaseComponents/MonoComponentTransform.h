@@ -7,14 +7,13 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __MonoFrameworkClasses_H__
-#define __MonoFrameworkClasses_H__
+#ifndef __MonoComponentTransform_H__
+#define __MonoComponentTransform_H__
 
 class MonoGameState;
 
-void RegisterMonoFrameworkClasses(MonoGameState* pMonoState);
+MonoObject* Mono_ConstructComponentTransform(ComponentTransform* pObject);
 
-MonoObject* Mono_ConstructVec3(Vector3 pos);
-MonoObject* Mono_ConstructMat4();
+void RegisterMonoComponentTransform(MonoGameState* pMonoState);
 
-#endif //__MonoFrameworkClasses_H__
+#endif //__MonoGameObject_H__

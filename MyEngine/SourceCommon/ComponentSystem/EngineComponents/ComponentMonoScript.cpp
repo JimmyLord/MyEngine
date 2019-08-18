@@ -17,7 +17,7 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
-#include "Core/MonoGameState.h"
+#include "Mono/MonoGameState.h"
 #include "../../../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
 #if MYFW_EDITOR

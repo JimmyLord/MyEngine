@@ -14,10 +14,10 @@
 #include "mono/utils/mono-forward.h"
 
 // Complete hack macros to shift the pointer passed from C# to the start of the data.
-#define MONO_VTABLE_AND_LOCK_BYTES 8
-#define fixPtr(type, x)     ((type*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
-#define fixVec3(x)       ((Vector3*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
-#define fixMat4(x)      ((MyMatrix*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
+//#define MONO_VTABLE_AND_LOCK_BYTES 8
+//#define fixPtr(type, x)     ((type*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
+//#define fixVec3(x)       ((Vector3*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
+//#define fixMat4(x)      ((MyMatrix*)(((char*)x)+MONO_VTABLE_AND_LOCK_BYTES))
 
 class MonoGameState
 {
