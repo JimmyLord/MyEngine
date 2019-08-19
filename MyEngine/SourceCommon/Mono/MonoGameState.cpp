@@ -20,6 +20,7 @@
 #endif //MYFW_USING_MONO
 #include "Core/EngineCore.h"
 #include "Mono/BaseComponents/MonoComponentTransform.h"
+#include "Mono/Core/MonoComponentSystemManager.h"
 #include "Mono/Core/MonoGameObject.h"
 #include "Mono/FrameworkComponents/MonoFrameworkClasses.h"
 
@@ -250,8 +251,11 @@ void MonoGameState::Rebuild()
     MyAssert( pMonoAssembly );
     m_pMonoImage = mono_assembly_get_image( pMonoAssembly );
 
+    SetAsGlobalState();
+
     // Register Mono interface functions.
     RegisterMonoFrameworkClasses( this );
+    RegisterMonoComponentSystemManager( this );
     RegisterMonoGameObject( this );
     RegisterMonoComponentTransform( this );
 }

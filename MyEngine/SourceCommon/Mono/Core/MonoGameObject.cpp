@@ -35,14 +35,14 @@ MonoObject* Mono_ConstructGameObject(GameObject* pObject)
 }
 
 //============================================================================================================
-// GameObject.
+// GameObject methods.
 //============================================================================================================
-MonoObject* Mono_GameObject_GetTransform(GameObject* pGameObject)
+static MonoObject* GetTransform(GameObject* pGameObject)
 {
     return Mono_ConstructComponentTransform( pGameObject->GetTransform() );
 }
 
-MonoObject* Mono_GameObject_GetFirstComponentOfType(GameObject* pGameObject, MonoObject* pType)
+static MonoObject* GetFirstComponentOfType(GameObject* pGameObject, MonoObject* pType)
 {
     char* typeStr = mono_string_to_utf8( mono_object_to_string( pType, nullptr ) );
     ComponentBase* pComponent = pGameObject->GetFirstComponentOfType( typeStr );
@@ -62,7 +62,7 @@ MonoObject* Mono_GameObject_GetFirstComponentOfType(GameObject* pGameObject, Mon
 //============================================================================================================
 void RegisterMonoGameObject(MonoGameState* pMonoState)
 {
-    // GameObject.
-    mono_add_internal_call( "MyEngine.GameObject::GetTransform", Mono_GameObject_GetTransform );
-    mono_add_internal_call( "MyEngine.GameObject::GetFirstComponentOfType", Mono_GameObject_GetFirstComponentOfType );
+    // GameObject methods.
+    mono_add_internal_call( "MyEngine.GameObject::GetTransform", GetTransform );
+    mono_add_internal_call( "MyEngine.GameObject::GetFirstComponentOfType", GetFirstComponentOfType );
 }
