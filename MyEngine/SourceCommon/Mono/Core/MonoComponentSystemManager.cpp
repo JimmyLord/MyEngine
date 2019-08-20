@@ -20,10 +20,10 @@
 //============================================================================================================
 // ComponentSystemManager methods.
 //============================================================================================================
-static MonoObject* CreateGameObject(ComponentSystemManager* pComponentSystemManager, MonoObject* nameMonoStr, int sceneID, bool isFolder, bool hasTransform)
+static MonoObject* CreateGameObject(ComponentSystemManager* pComponentSystemManager, MonoObject* nameMonoStr, bool isFolder, bool hasTransform)
 {
     char* nameStr = mono_string_to_utf8( mono_object_to_string( nameMonoStr, nullptr ) );
-    GameObject* pGameObject = pComponentSystemManager->EditorLua_CreateGameObject( nameStr, (SceneID)sceneID, isFolder, hasTransform );
+    GameObject* pGameObject = pComponentSystemManager->EditorLua_CreateGameObject( nameStr, SCENEID_Unmanaged, isFolder, hasTransform );
     return Mono_ConstructGameObject( pGameObject );
 }
 

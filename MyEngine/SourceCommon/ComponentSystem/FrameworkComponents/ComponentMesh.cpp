@@ -132,7 +132,7 @@ void ComponentMesh::Reset()
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
         SAFE_RELEASE( m_pMaterials[i] );
 
-    if( m_pGameObject )
+    if( m_pGameObject && m_pGameObject->GetTransform() )
     {
         m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
     }

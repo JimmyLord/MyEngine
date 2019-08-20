@@ -18,8 +18,10 @@ namespace MyEngine
 
         public ComponentTransform GetTransform() { return GameObject.GetTransform( m_pNativeObject ); }
         public ComponentBase GetFirstComponentOfType(string type) { return GameObject.GetFirstComponentOfType( m_pNativeObject, type ); }
+        public ComponentBase AddNewComponent(string type) { return GameObject.AddNewComponent( m_pNativeObject, type ); }
 
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static ComponentTransform GetTransform(IntPtr pNativeObject);
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static ComponentBase GetFirstComponentOfType(IntPtr pNativeObject, string type);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static ComponentBase AddNewComponent(IntPtr pNativeObject, string type);
     }
 }

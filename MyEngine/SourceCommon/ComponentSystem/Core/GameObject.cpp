@@ -878,9 +878,14 @@ ComponentBase* GameObject::GetComponentByIndexIncludingCore(unsigned int index)
     }
 }
 
-ComponentBase* GameObject::AddNewComponent(const char* componentName)
+ComponentBase* GameObject::AddNewComponent(const char* componentType)
 {
-    int type = g_pComponentTypeManager->GetTypeByName( componentName );
+    int type = g_pComponentTypeManager->GetTypeByName( componentType );
+    if( type == -1 )
+    {
+        LOGError( LOGTag, "AddNewComponent: Type not found: %s\n", componentType );
+        return nullptr;
+    }
     
     return AddNewComponent( type, m_SceneID, g_pComponentSystemManager );
 }

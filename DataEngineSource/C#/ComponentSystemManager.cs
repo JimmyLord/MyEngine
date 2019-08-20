@@ -16,8 +16,8 @@ namespace MyEngine
     {
         private static IntPtr m_pNativeObject = (IntPtr)null;
 
-        public static GameObject CreateGameObject(String name, int sceneID, bool isFolder, bool hasTransform) { return ComponentSystemManager.CreateGameObject( m_pNativeObject, name, sceneID, isFolder, hasTransform ); }
+        public static GameObject CreateGameObject(String name, bool isFolder, bool hasTransform) { return ComponentSystemManager.CreateGameObject( m_pNativeObject, name, isFolder, hasTransform ); }
 
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static GameObject CreateGameObject(IntPtr pNativeObject, String name, int sceneID, bool isFolder, bool hasTransform);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static GameObject CreateGameObject(IntPtr pNativeObject, String name, bool isFolder, bool hasTransform);
     }
 }

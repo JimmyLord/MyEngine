@@ -140,7 +140,7 @@ public:
     ComponentBase* GetComponentByIndex_Friendly(unsigned int index);
     ComponentBase* GetComponentByIndex(unsigned int index);
 
-    ComponentBase* AddNewComponent(const char* componentName);
+    ComponentBase* AddNewComponent(const char* componentType);
     ComponentBase* AddNewComponent(int componentType, SceneID sceneID, ComponentSystemManager* pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);

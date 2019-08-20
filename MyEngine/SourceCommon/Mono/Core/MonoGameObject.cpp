@@ -34,6 +34,21 @@ MonoObject* Mono_ConstructGameObject(GameObject* pObject)
     return pInstance;
 }
 
+MonoObject* ConstructCorrectComponentBasedOnType(ComponentBase* pComponent)
+{
+    if( pComponent == nullptr )
+        return nullptr;
+
+    if( pComponent->IsA( "TransformComponent" ) )
+    {
+        return Mono_ConstructComponentTransform( (ComponentTransform*)pComponent );
+    }
+
+    LOGError( LOGTag, "FIXME: ComponentType not registered with Mono: %s\n", pComponent->GetTypeName() );
+
+    return nullptr;
+}
+
 //============================================================================================================
 // GameObject methods.
 //============================================================================================================
@@ -46,15 +61,14 @@ static MonoObject* GetFirstComponentOfType(GameObject* pGameObject, MonoObject* 
 {
     char* typeStr = mono_string_to_utf8( mono_object_to_string( pType, nullptr ) );
     ComponentBase* pComponent = pGameObject->GetFirstComponentOfType( typeStr );
-    if( pComponent )
-    {
-        if( pComponent->IsA( "TransformComponent" ) )
-        {
-            return Mono_ConstructComponentTransform( (ComponentTransform*)pComponent );
-        }
-    }
+    return ConstructCorrectComponentBasedOnType( pComponent );
+}
 
-    return nullptr;
+static MonoObject* AddNewComponent(GameObject* pGameObject, MonoObject* pType)
+{
+    char* typeStr = mono_string_to_utf8( mono_object_to_string( pType, nullptr ) );
+    ComponentBase* pComponent = pGameObject->AddNewComponent( typeStr );
+    return ConstructCorrectComponentBasedOnType( pComponent );
 }
 
 //============================================================================================================
@@ -65,4 +79,5 @@ void RegisterMonoGameObject(MonoGameState* pMonoState)
     // GameObject methods.
     mono_add_internal_call( "MyEngine.GameObject::GetTransform", GetTransform );
     mono_add_internal_call( "MyEngine.GameObject::GetFirstComponentOfType", GetFirstComponentOfType );
+    mono_add_internal_call( "MyEngine.GameObject::AddNewComponent", AddNewComponent );
 }
