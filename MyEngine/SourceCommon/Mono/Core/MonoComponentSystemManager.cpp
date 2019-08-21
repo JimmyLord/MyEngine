@@ -35,11 +35,14 @@ void RegisterMonoComponentSystemManager(MonoGameState* pMonoState)
     // Set m_pNativeObject in the static C# ComponentSystemManager class.
     {
         MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "ComponentSystemManager" );
-        MonoVTable* pVTable = mono_class_vtable( MonoGameState::g_pActiveDomain, pClass );
-        mono_runtime_class_init( pVTable );
+        if( pClass )
+        {
+            MonoVTable* pVTable = mono_class_vtable( MonoGameState::g_pActiveDomain, pClass );
+            mono_runtime_class_init( pVTable );
 
-        MonoClassField* pField = mono_class_get_field_from_name( pClass, "m_pNativeObject" );
-        mono_field_static_set_value( pVTable, pField, &g_pComponentSystemManager );
+            MonoClassField* pField = mono_class_get_field_from_name( pClass, "m_pNativeObject" );
+            mono_field_static_set_value( pVTable, pField, &g_pComponentSystemManager );
+        }
     }
 
     // ComponentSystemManager methods.

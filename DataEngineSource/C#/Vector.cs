@@ -25,6 +25,8 @@ namespace MyEngine
             z = nz;
         }
 
+        public override string ToString() { return "(" + x + "," + y + "," + z + ")"; }
+
         public void Length()        { Length( this ); }
         public void LengthSquared() { LengthSquared( this ); }
         public void Normalize()     { Normalize( this ); }

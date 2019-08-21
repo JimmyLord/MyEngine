@@ -25,13 +25,18 @@
 MonoObject* Mono_ConstructGameObject(GameObject* pObject)
 {
     MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "GameObject" );
-    MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
-    mono_runtime_object_init( pInstance );
+    if( pClass )
+    {
+        MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
+        mono_runtime_object_init( pInstance );
 
-    MonoClassField* pField = mono_class_get_field_from_name( pClass, "m_pNativeObject" );
-    mono_field_set_value( pInstance, pField, &pObject );
+        MonoClassField* pField = mono_class_get_field_from_name( pClass, "m_pNativeObject" );
+        mono_field_set_value( pInstance, pField, &pObject );
 
-    return pInstance;
+        return pInstance;
+    }
+
+    return nullptr;
 }
 
 MonoObject* ConstructCorrectComponentBasedOnType(ComponentBase* pComponent)

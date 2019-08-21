@@ -23,13 +23,18 @@
 MonoObject* Mono_ConstructComponentTransform(ComponentTransform* pObject)
 {
     MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "ComponentTransform" );
-    MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
-    mono_runtime_object_init( pInstance );
+    if( pClass )
+    {
+        MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
+        mono_runtime_object_init( pInstance );
 
-    MonoClassField* pField = mono_class_get_field_from_name( pClass, "m_pNativeObject" );
-    mono_field_set_value( pInstance, pField, &pObject );
+        MonoClassField* pField = mono_class_get_field_from_name( pClass, "m_pNativeObject" );
+        mono_field_set_value( pInstance, pField, &pObject );
 
-    return pInstance;
+        return pInstance;
+    }
+
+    return nullptr;
 }
 
 //============================================================================================================
@@ -60,7 +65,7 @@ static void SetLocalTransform(ComponentTransform* pComponentTransform, MonoMat4*
 //============================================================================================================
 void RegisterMonoComponentTransform(MonoGameState* pMonoState)
 {
-    // ComponentTransform.
+    // ComponentTransform methods.
     mono_add_internal_call( "MyEngine.ComponentTransform::GetLocalPosition", GetLocalPosition );
     mono_add_internal_call( "MyEngine.ComponentTransform::SetLocalPosition(intptr,single,single,single)", SetLocalPosition3f );
     mono_add_internal_call( "MyEngine.ComponentTransform::SetLocalPosition(intptr,MyEngine.vec3)", SetLocalPositionVec3 );

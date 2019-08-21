@@ -1310,14 +1310,17 @@ void ComponentMonoScript::LoadScript(bool forceLoad)
                 // Create and setup the GameObject variable in this m_pMonoObjectInstance.
                 {
                     MonoClass* pGameObjectClass = mono_class_from_name( pMonoImage, "MyEngine", "GameObject" );
-                    MonoObject* pMonoGameObjectInstance = mono_object_new( pMonoDomain, pGameObjectClass );
-                    mono_runtime_object_init( pMonoGameObjectInstance );
+                    if( pGameObjectClass )
+                    {
+                        MonoObject* pMonoGameObjectInstance = mono_object_new( pMonoDomain, pGameObjectClass );
+                        mono_runtime_object_init( pMonoGameObjectInstance );
             
-                    MonoClassField* pNativeGameObjectField = mono_class_get_field_from_name( pGameObjectClass, "m_pNativeObject" );
-                    mono_field_set_value( pMonoGameObjectInstance, pNativeGameObjectField, &m_pGameObject );
+                        MonoClassField* pNativeGameObjectField = mono_class_get_field_from_name( pGameObjectClass, "m_pNativeObject" );
+                        mono_field_set_value( pMonoGameObjectInstance, pNativeGameObjectField, &m_pGameObject );
 
-                    MonoClassField* pGameObjectField = mono_class_get_field_from_name( pClass, "m_GameObject" );
-                    mono_field_set_value( m_pMonoObjectInstance, pGameObjectField, pMonoGameObjectInstance );
+                        MonoClassField* pGameObjectField = mono_class_get_field_from_name( pClass, "m_GameObject" );
+                        mono_field_set_value( m_pMonoObjectInstance, pGameObjectField, pMonoGameObjectInstance );
+                    }
                 }
 
                 // Call the OnLoad method.

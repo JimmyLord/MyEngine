@@ -23,27 +23,37 @@
 MonoObject* Mono_ConstructVec3(Vector3 pos)
 {
     MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "vec3" );
-    MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
+    if( pClass )
+    {
+        MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
 
-    MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 3 );
-    void* args[3];
-    args[0] = &pos.x;
-    args[1] = &pos.y;
-    args[2] = &pos.z;
-    mono_runtime_invoke( pConstructor, pInstance, args, nullptr );
+        MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 3 );
+        void* args[3];
+        args[0] = &pos.x;
+        args[1] = &pos.y;
+        args[2] = &pos.z;
+        mono_runtime_invoke( pConstructor, pInstance, args, nullptr );
 
-    return pInstance;
+        return pInstance;
+    }
+
+    return nullptr;
 }
 
 MonoObject* Mono_ConstructMat4()
 {
     MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "mat4" );
-    MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
+    if( pClass )
+    {
+        MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
 
-    MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
-    mono_runtime_invoke( pConstructor, pInstance, nullptr, nullptr );
+        MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 0 );
+        mono_runtime_invoke( pConstructor, pInstance, nullptr, nullptr );
 
-    return pInstance;
+        return pInstance;
+    }
+
+    return nullptr;
 }
 
 //============================================================================================================
@@ -83,16 +93,16 @@ void Mono_mat4_CreateSRT(MonoMat4* pMat4, MonoVec3* pScale, MonoVec3* pRot, Mono
 //============================================================================================================
 void RegisterMonoFrameworkClasses(MonoGameState* pMonoState)
 {
-    // Log.
+    // Log methods.
     mono_add_internal_call( "MyEngine.Log::Info",  Mono_LOGInfo );
     mono_add_internal_call( "MyEngine.Log::Error", Mono_LOGError );
 
-    // Vector3.
+    // Vector3 methods.
     mono_add_internal_call( "MyEngine.vec3::Length",        Mono_vec3_Length );
     mono_add_internal_call( "MyEngine.vec3::LengthSquared", Mono_vec3_LengthSquared );
     mono_add_internal_call( "MyEngine.vec3::Normalize",     Mono_vec3_Normalize );
 
-    // MyMatrix.
+    // MyMatrix methods.
     mono_add_internal_call( "MyEngine.mat4::SetIdentity",   Mono_mat4_SetIdentity );
     mono_add_internal_call( "MyEngine.mat4::CreateSRT",     Mono_mat4_CreateSRT );
 }

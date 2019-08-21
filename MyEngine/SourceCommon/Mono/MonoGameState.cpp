@@ -199,7 +199,16 @@ void MonoGameState::Rebuild()
     if( m_pActiveDomain )
     {
         mono_domain_set( m_pCoreDomain, true );
-        mono_domain_unload( m_pActiveDomain );
+        MonoObject* pException = nullptr;
+        mono_domain_try_unload( m_pActiveDomain, &pException );
+        if( pException )
+        {
+            char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+            LOGError( "MonoScript", "Exception thrown calling mono_domain_try_unload(): %s\n", str );
+        }
+        m_pActiveDomain = nullptr;
+        mono_image_close( m_pMonoImage );
+        m_pMonoImage = nullptr;
     }
 
     // Create a domain for the game assembly that we will load.
@@ -218,7 +227,13 @@ void MonoGameState::Rebuild()
         if( pMonoAssembly == nullptr )
         {
             mono_domain_set( m_pCoreDomain, true );
-            mono_domain_unload( m_pActiveDomain );
+            MonoObject* pException = nullptr;
+            mono_domain_try_unload( m_pActiveDomain, &pException );
+            if( pException )
+            {
+                char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+                LOGError( "MonoScript", "Exception thrown calling mono_domain_try_unload(): %s\n", str );
+            }
             m_pActiveDomain = nullptr;
             LOGError( LOGTag, "%s not found", pMonoDLLFilename );
             return;
@@ -234,7 +249,13 @@ void MonoGameState::Rebuild()
         if( m_pDLLFile == nullptr )
         {
             mono_domain_set( m_pCoreDomain, true );
-            mono_domain_unload( m_pActiveDomain );
+            MonoObject* pException = nullptr;
+            mono_domain_try_unload( m_pActiveDomain, &pException );
+            if( pException )
+            {
+                char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
+                LOGError( "MonoScript", "Exception thrown calling mono_domain_try_unload(): %s\n", str );
+            }
             m_pActiveDomain = nullptr;
             LOGError( LOGTag, "%s not found", pMonoDLLFilename );
             return;
