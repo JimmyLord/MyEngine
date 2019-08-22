@@ -11,6 +11,7 @@
 
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
+#include "Mono/metadata/mono-debug.h"
 
 #include "MonoGameState.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
@@ -38,6 +39,29 @@ MonoImage* MonoGameState::g_pMonoImage = nullptr;
 MonoGameState::MonoGameState(EngineCore* pEngineCore)
 {
     m_pEngineCore = pEngineCore;
+
+    // Setup debugger.
+
+    // From mono\mini\debugger-agent.c
+    //   Usage: mono --debugger-agent=[<option>=<value>,...] ...
+    //   Available options:
+    //     transport=<transport>        Transport to use for connecting to the debugger (mandatory, possible values: 'dt_socket')
+    //     address=<hostname>:<port>    Address to connect to (mandatory)
+    //     loglevel=<n>                 Log level (defaults to 0)
+    //     logfile=<file>               File to log to (defaults to stdout)
+    //     suspend=y/n                  Whether to suspend after startup.
+    //     timeout=<n>                  Timeout for connecting in milliseconds.
+    //     server=y/n                   Whether to listen for a client connection.
+    //     keepalive=<n>                Send keepalive events every n milliseconds.
+    //     setpgid=y/n                  Whether to call setpid(0, 0) after startup.
+    char* options[] =
+    {
+        "--soft-breakpoints",
+        //"--debugger-agent=transport=dt_socket,address=127.0.0.1:55555,loglevel=10,logfile=monoLog.txt,suspend=n,server=y"
+        "--debugger-agent=transport=dt_socket,address=127.0.0.1:55555,loglevel=10,logfile=monoLog.txt,server=y"
+    };
+    mono_jit_parse_options( 2, options );
+    mono_debug_init( MONO_DEBUG_FORMAT_MONO );
 
     // Create the core mono JIT domain.
     mono_set_dirs( "./mono/lib", "" );
@@ -172,8 +196,8 @@ void MonoGameState::CompileDLL()
 {
     std::vector<std::string> output;
 
-    LaunchApplication( "C:\\Program Files (x86)\\Mono\\bin\\csc",
-        "/t:library /out:Data/Mono/Game.dll DataSource/C#/*.cs DataSource/DataEngineSource/C#/*.cs",
+    LaunchApplication( "C:\\Program Files (x86)\\Mono\\bin\\mcs",
+        "-debug /t:library /out:Data/Mono/Game.dll DataSource/C#/*.cs DataSource/DataEngineSource/C#/*.cs",
         true, false, &output );
 
     for( std::string str : output )
