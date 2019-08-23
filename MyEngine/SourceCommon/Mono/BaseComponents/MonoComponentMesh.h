@@ -7,14 +7,14 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __MonoComponentTransform_H__
-#define __MonoComponentTransform_H__
+#ifndef __MonoComponentMesh_H__
+#define __MonoComponentMesh_H__
 
-class ComponentTransform;
+class ComponentMesh;
 class MonoGameState;
 
-MonoObject* Mono_ConstructComponentTransform(ComponentTransform* pObject);
+MonoObject* Mono_ConstructComponentMesh(ComponentMesh* pObject);
 
-void RegisterMonoComponentTransform(MonoGameState* pMonoState);
+void RegisterMonoComponentMesh(MonoGameState* pMonoState);
 
-#endif //__MonoComponentTransform_H__
+#endif //__MonoComponentMesh_H__

@@ -16,6 +16,7 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
 #include "Mono/MonoGameState.h"
+#include "Mono/BaseComponents/MonoComponentMeshPrimitive.h"
 #include "Mono/BaseComponents/MonoComponentTransform.h"
 #include "Mono/FrameworkComponents/MonoFrameworkClasses.h"
 
@@ -47,6 +48,10 @@ MonoObject* ConstructCorrectComponentBasedOnType(ComponentBase* pComponent)
     if( pComponent->IsA( "TransformComponent" ) )
     {
         return Mono_ConstructComponentTransform( (ComponentTransform*)pComponent );
+    }
+    if( pComponent->IsA( "MeshPrimitiveComponent" ) )
+    {
+        return Mono_ConstructComponentMeshPrimitive( (ComponentMeshPrimitive*)pComponent );
     }
 
     LOGError( LOGTag, "FIXME: ComponentType not registered with Mono: %s\n", pComponent->GetTypeName() );

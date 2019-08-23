@@ -14,12 +14,12 @@
 #include "Mono/metadata/mono-debug.h"
 
 #include "MonoGameState.h"
-#include "ComponentSystem/BaseComponents/ComponentTransform.h"
-#include "ComponentSystem/Core/ComponentSystemManager.h"
 #if MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
 #endif //MYFW_USING_MONO
 #include "Core/EngineCore.h"
+#include "Mono/BaseComponents/MonoComponentMesh.h"
+#include "Mono/BaseComponents/MonoComponentMeshPrimitive.h"
 #include "Mono/BaseComponents/MonoComponentTransform.h"
 #include "Mono/Core/MonoComponentSystemManager.h"
 #include "Mono/Core/MonoGameObject.h"
@@ -57,8 +57,8 @@ MonoGameState::MonoGameState(EngineCore* pEngineCore)
     char* options[] =
     {
         "--soft-breakpoints",
-        //"--debugger-agent=transport=dt_socket,address=127.0.0.1:55555,loglevel=10,logfile=monoLog.txt,suspend=n,server=y"
-        "--debugger-agent=transport=dt_socket,address=127.0.0.1:55555,loglevel=10,logfile=monoLog.txt,server=y"
+        "--debugger-agent=transport=dt_socket,address=127.0.0.1:55555,loglevel=10,logfile=monoLog.txt,suspend=n,server=y"
+        //"--debugger-agent=transport=dt_socket,address=127.0.0.1:55555,loglevel=10,logfile=monoLog.txt,server=y"
     };
     mono_jit_parse_options( 2, options );
     mono_debug_init( MONO_DEBUG_FORMAT_MONO );
@@ -303,4 +303,6 @@ void MonoGameState::Rebuild()
     RegisterMonoComponentSystemManager( this );
     RegisterMonoGameObject( this );
     RegisterMonoComponentTransform( this );
+    RegisterMonoComponentMesh( this );
+    RegisterMonoComponentMeshPrimitive( this );
 }

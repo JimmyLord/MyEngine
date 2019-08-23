@@ -7,14 +7,15 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __MonoComponentTransform_H__
-#define __MonoComponentTransform_H__
+using System;
+using System.Runtime.CompilerServices;
 
-class ComponentTransform;
-class MonoGameState;
+namespace MyEngine
+{
+    public class ComponentMesh : ComponentBase
+    {
+        public void SetMaterial(MaterialDefinition material, int submeshIndex) { ComponentMesh.SetMaterial( m_pNativeObject, material, submeshIndex ); }
 
-MonoObject* Mono_ConstructComponentTransform(ComponentTransform* pObject);
-
-void RegisterMonoComponentTransform(MonoGameState* pMonoState);
-
-#endif //__MonoComponentTransform_H__
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetMaterial(IntPtr pNativeObject, MaterialDefinition material, int submeshIndex);
+    }
+}
