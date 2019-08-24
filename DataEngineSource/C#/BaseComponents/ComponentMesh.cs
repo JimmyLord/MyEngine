@@ -14,8 +14,8 @@ namespace MyEngine
 {
     public class ComponentMesh : ComponentBase
     {
-        public void SetMaterial(MaterialDefinition material, int submeshIndex) { ComponentMesh.SetMaterial( m_pNativeObject, material, submeshIndex ); }
+        public void SetMaterial(MyMaterial material, int submeshIndex) { ComponentMesh.SetMaterial( m_pNativeObject, material.NativeObject, submeshIndex ); }
 
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetMaterial(IntPtr pNativeObject, MaterialDefinition material, int submeshIndex);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetMaterial(IntPtr pNativeObject, IntPtr material, int submeshIndex);
     }
 }

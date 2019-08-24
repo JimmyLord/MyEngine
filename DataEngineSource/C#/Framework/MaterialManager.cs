@@ -13,8 +13,12 @@ using System.Runtime.InteropServices;
 
 namespace MyEngine
 { 
-    public class MaterialDefinition
+    public class MaterialManager
     {
-        private IntPtr m_pNativeObject = (IntPtr)null;
+        private static IntPtr m_pNativeObject = (IntPtr)null;
+
+        public static MyMaterial GetFirstMaterial() { return MaterialManager.GetFirstMaterial( m_pNativeObject ); }
+
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static MyMaterial GetFirstMaterial(IntPtr pNativeObject);
     }
 }

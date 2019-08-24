@@ -12,17 +12,16 @@
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
 
-#include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
-#include "Core/EngineCore.h"
 #include "Mono/MonoGameState.h"
-#include "Mono/Framework/MonoFrameworkClasses.h"
+#include "Mono/Framework/MonoMaterialDefinition.h"
+#include "Mono/Core/MonoGameObject.h"
 
 //============================================================================================================
-// Create a ComponentMesh object in managed memory and give it the pointer to the unmanaged object.
+// Create a MaterialDefinition object in managed memory and give it the pointer to the unmanaged object.
 //============================================================================================================
-MonoObject* Mono_ConstructComponentMesh(ComponentMesh* pObject)
+MonoObject* Mono_ConstructMaterialDefinition(MaterialDefinition* pObject)
 {
-    MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "ComponentMesh" );
+    MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "MyMaterial" );
     if( pClass )
     {
         MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
@@ -38,18 +37,19 @@ MonoObject* Mono_ConstructComponentMesh(ComponentMesh* pObject)
 }
 
 //============================================================================================================
-// ComponentMesh methods.
+// MaterialDefinition methods.
 //============================================================================================================
-static void SetMaterial(ComponentMesh* pComponentMesh, MaterialDefinition* pMaterial, int submeshIndex)
+MonoString* GetName(MaterialDefinition* pMaterial)
 {
-    pComponentMesh->SetMaterial( pMaterial, submeshIndex );
+    MonoString* name = mono_string_new( MonoGameState::g_pActiveDomain, pMaterial->GetName() );
+    return name;
 }
 
 //============================================================================================================
 // Registration.
 //============================================================================================================
-void RegisterMonoComponentMesh(MonoGameState* pMonoState)
+void RegisterMonoMaterialDefinition(MonoGameState* pMonoState)
 {
-    // ComponentMesh methods.
-    mono_add_internal_call( "MyEngine.ComponentMesh::SetMaterial", SetMaterial );
+    // MaterialDefinition methods.
+    mono_add_internal_call( "MyEngine.MyMaterial::GetName", GetName );
 }

@@ -7,14 +7,19 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __MonoGameObject_H__
-#define __MonoGameObject_H__
+using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
-class GameObject;
-class MonoGameState;
+namespace MyEngine
+{ 
+    public class MyMaterial
+    {
+        private IntPtr m_pNativeObject = (IntPtr)null;
+        public IntPtr NativeObject { get { return m_pNativeObject; } }
 
-MonoObject* Mono_ConstructGameObject(GameObject* pObject);
+        public String GetName() { return MyMaterial.GetName( m_pNativeObject ); }
 
-void RegisterMonoGameObject(MonoGameState* pMonoState);
-
-#endif //__MonoGameObject_H__
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static String GetName(IntPtr pNativeObject);
+    }
+}

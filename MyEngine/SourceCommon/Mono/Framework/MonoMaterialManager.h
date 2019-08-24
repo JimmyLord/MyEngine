@@ -7,14 +7,11 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __MonoGameObject_H__
-#define __MonoGameObject_H__
+#ifndef __MonoMaterialManager_H__
+#define __MonoMaterialManager_H__
 
-class GameObject;
 class MonoGameState;
 
-MonoObject* Mono_ConstructGameObject(GameObject* pObject);
+void RegisterMonoMaterialManager(MonoGameState* pMonoState);
 
-void RegisterMonoGameObject(MonoGameState* pMonoState);
-
-#endif //__MonoGameObject_H__
+#endif //__MonoMaterialManager_H__

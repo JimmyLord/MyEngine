@@ -23,7 +23,9 @@
 #include "Mono/BaseComponents/MonoComponentTransform.h"
 #include "Mono/Core/MonoComponentSystemManager.h"
 #include "Mono/Core/MonoGameObject.h"
-#include "Mono/FrameworkComponents/MonoFrameworkClasses.h"
+#include "Mono/Framework/MonoFrameworkClasses.h"
+#include "Mono/Framework/MonoMaterialDefinition.h"
+#include "Mono/Framework/MonoMaterialManager.h"
 
 #if MYFW_EDITOR
 #if MYFW_WINDOWS
@@ -197,7 +199,7 @@ void MonoGameState::CompileDLL()
     std::vector<std::string> output;
 
     LaunchApplication( "C:\\Program Files (x86)\\Mono\\bin\\mcs",
-        "-debug /t:library /out:Data/Mono/Game.dll DataSource/C#/*.cs DataSource/DataEngineSource/C#/*.cs",
+        "-debug /t:library /out:Data/Mono/Game.dll -recurse:DataSource/C#/*.cs -recurse:DataSource/DataEngineSource/C#/*.cs",
         true, false, &output );
 
     for( std::string str : output )
@@ -300,6 +302,8 @@ void MonoGameState::Rebuild()
 
     // Register Mono interface functions.
     RegisterMonoFrameworkClasses( this );
+    RegisterMonoMaterialDefinition( this );
+    RegisterMonoMaterialManager( this );
     RegisterMonoComponentSystemManager( this );
     RegisterMonoGameObject( this );
     RegisterMonoComponentTransform( this );

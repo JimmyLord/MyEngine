@@ -12,44 +12,40 @@
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
 
-#include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
 #include "Core/EngineCore.h"
 #include "Mono/MonoGameState.h"
-#include "Mono/Framework/MonoFrameworkClasses.h"
+#include "Mono/Framework/MonoMaterialDefinition.h"
+#include "Mono/Framework/MonoMaterialManager.h"
+#include "Mono/Core/MonoGameObject.h"
 
 //============================================================================================================
-// Create a ComponentMesh object in managed memory and give it the pointer to the unmanaged object.
+// MaterialManager methods.
 //============================================================================================================
-MonoObject* Mono_ConstructComponentMesh(ComponentMesh* pObject)
+static MonoObject* GetFirstMaterial(MaterialManager* pMaterialManager)
 {
-    MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "ComponentMesh" );
-    if( pClass )
-    {
-        MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
-        mono_runtime_object_init( pInstance );
-
-        MonoClassField* pField = mono_class_get_field_from_name( pClass, "m_pNativeObject" );
-        mono_field_set_value( pInstance, pField, &pObject );
-
-        return pInstance;
-    }
-
-    return nullptr;
-}
-
-//============================================================================================================
-// ComponentMesh methods.
-//============================================================================================================
-static void SetMaterial(ComponentMesh* pComponentMesh, MaterialDefinition* pMaterial, int submeshIndex)
-{
-    pComponentMesh->SetMaterial( pMaterial, submeshIndex );
+    MaterialDefinition* pMaterial = pMaterialManager->GetFirstMaterial();
+    return Mono_ConstructMaterialDefinition( pMaterial );
 }
 
 //============================================================================================================
 // Registration.
 //============================================================================================================
-void RegisterMonoComponentMesh(MonoGameState* pMonoState)
+void RegisterMonoMaterialManager(MonoGameState* pMonoState)
 {
-    // ComponentMesh methods.
-    mono_add_internal_call( "MyEngine.ComponentMesh::SetMaterial", SetMaterial );
+    // Set m_pNativeObject in the static C# MaterialManager class.
+    {
+        MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "MaterialManager" );
+        if( pClass )
+        {
+            MonoVTable* pVTable = mono_class_vtable( MonoGameState::g_pActiveDomain, pClass );
+            mono_runtime_class_init( pVTable );
+
+            MonoClassField* pField = mono_class_get_field_from_name( pClass, "m_pNativeObject" );
+            MaterialManager* pManager = g_pEngineCore->GetManagers()->GetMaterialManager();
+            mono_field_static_set_value( pVTable, pField, &pManager );
+        }
+    }
+
+    // MaterialManager methods.
+    mono_add_internal_call( "MyEngine.MaterialManager::GetFirstMaterial", GetFirstMaterial );
 }

@@ -15,7 +15,7 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "Core/EngineCore.h"
 #include "Mono/MonoGameState.h"
-#include "Mono/FrameworkComponents/MonoFrameworkClasses.h"
+#include "Mono/Framework/MonoFrameworkClasses.h"
 
 //============================================================================================================
 // Create a ComponentTransform object in managed memory and give it the pointer to the unmanaged object.

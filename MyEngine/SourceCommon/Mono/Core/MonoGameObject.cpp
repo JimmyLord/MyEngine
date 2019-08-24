@@ -18,7 +18,7 @@
 #include "Mono/MonoGameState.h"
 #include "Mono/BaseComponents/MonoComponentMeshPrimitive.h"
 #include "Mono/BaseComponents/MonoComponentTransform.h"
-#include "Mono/FrameworkComponents/MonoFrameworkClasses.h"
+#include "Mono/Framework/MonoFrameworkClasses.h"
 
 //============================================================================================================
 // Create a GameObject object in managed memory and give it the pointer to the unmanaged object.
