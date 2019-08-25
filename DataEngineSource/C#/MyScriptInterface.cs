@@ -7,14 +7,17 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-public class MyScriptInterface
+namespace MyEngine
 {
-    public MyEngine.GameObject m_GameObject;
+    public class MyScriptInterface
+    {
+        public MyEngine.GameObject m_GameObject;
 
-    public virtual void OnLoad() { }
-    public virtual void OnPlay() { }
-    public virtual void OnStop() { }
-    public virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size) { return false; }
-    public virtual bool OnButtons(int action, int id) { return false; }
-    public virtual void Update(float deltaTime) { }
+        public virtual void OnLoad() { }
+        public virtual void OnPlay() { }
+        public virtual void OnStop() { }
+        public virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size) { return false; }
+        public virtual bool OnButtons(int action, int id) { return false; }
+        public virtual void Update(float deltaTime) { }
+    }
 }

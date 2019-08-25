@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 
 namespace MyEngine
 { 
-    public class MaterialManager
+    public static class MaterialManager
     {
         private static IntPtr m_pNativeObject = (IntPtr)null;
 

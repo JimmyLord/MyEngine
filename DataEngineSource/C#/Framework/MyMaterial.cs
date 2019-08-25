@@ -9,16 +9,12 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace MyEngine
 { 
-    public class MyMaterial
+    public class MyMaterial : MyNativeObject
     {
-        private IntPtr m_pNativeObject = (IntPtr)null;
-        public IntPtr NativeObject { get { return m_pNativeObject; } }
-
-        public String GetName() { return MyMaterial.GetName( m_pNativeObject ); }
+        public String GetName() { return MyMaterial.GetName( NativeObject ); }
 
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static String GetName(IntPtr pNativeObject);
     }

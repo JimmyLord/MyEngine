@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MyEngine
-{ 
+{
     [StructLayout(LayoutKind.Sequential)]
     public class vec3
     {

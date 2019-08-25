@@ -11,20 +11,17 @@ using System;
 using System.Runtime.CompilerServices;
 
 namespace MyEngine
-{
-    public class ComponentMeshPrimitive : ComponentMesh
+{ 
+    public static class EngineCore
     {
-        // Defined in ComponentMeshPrimitive.h, values must line up.
-        public enum PrimitiveType
-        {
-            Plane,
-            Icosphere,
-            Circle2D,
-            Grass,
-        };
+        private static IntPtr m_pNativeObject = (IntPtr)null;
 
-        public void SetPrimitiveType(PrimitiveType type) { ComponentMeshPrimitive.SetPrimitiveType( m_pNativeObject, type ); }
+        public static void RequestScene(string fullPath) { EngineCore.RequestScene( m_pNativeObject, fullPath ); }
+        public static void SwitchScene(string fullPath) { EngineCore.SwitchScene( m_pNativeObject, fullPath ); }
+        public static void ReloadScene(int sceneID) { EngineCore.ReloadScene( m_pNativeObject, sceneID ); }
 
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetPrimitiveType(IntPtr pNativeObject, PrimitiveType type);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void RequestScene(IntPtr pNativeObject, string fullPath);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SwitchScene(IntPtr pNativeObject, string fullPath);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void ReloadScene(IntPtr pNativeObject, int sceneID);
     }
 }

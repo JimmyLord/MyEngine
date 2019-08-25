@@ -33,6 +33,8 @@ project "MyEngine"
         "Libraries/Lua/src/*.h",
         "Libraries/LuaBridge/**.h",
         "DataEngineSource/**.cs",
+        "VSCode-MyEngineLua/snippets/snippets.json",
+        "VSCode-MyEngineLua/source/**",
         "README.md",
         "premake5inc.lua",
     }
@@ -54,6 +56,10 @@ project "MyEngine"
         -- Place the DataEngineSource folder in the root of the project.
         ["DataEngineSource*"] = {
             "DataEngineSource",
+        },
+        -- Place the VSCode-MyEngineLua folder in the root of the project.
+        ["VSCode-MyEngineLua*"] = {
+            "VSCode-MyEngineLua",
         },
     }
 

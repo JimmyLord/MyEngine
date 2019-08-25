@@ -236,10 +236,10 @@ void ComponentLuaScript::CreateNewScriptFile()
                         fprintf( file, "%s =\n", m_pScriptFile->GetFilenameWithoutExtension() );
                         fprintf( file, "{\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "OnVisible = function(visible)\n" );
+                        fprintf( file, "OnVisible = function(this, visible)\n" );
                         fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "OnAction = function(action)\n" );
+                        fprintf( file, "OnAction = function(this, action)\n" );
                         fprintf( file, "--LogInfo( \"OnAction was called: \" .. action .. \"\\n\" );\n" );
                         fprintf( file, "end\n" );
                         fprintf( file, "\n" );
@@ -252,28 +252,28 @@ void ComponentLuaScript::CreateNewScriptFile()
                         fprintf( file, "%s =\n", m_pScriptFile->GetFilenameWithoutExtension() );
                         fprintf( file, "{\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "OnLoad = function()\n" );
+                        fprintf( file, "OnLoad = function(this)\n" );
                         fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "OnPlay = function()\n" );
+                        fprintf( file, "OnPlay = function(this)\n" );
                         fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "OnStop = function()\n" );
+                        fprintf( file, "OnStop = function(this)\n" );
                         fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "OnTouch = function(action, id, x, y, pressure, size)\n" );
+                        fprintf( file, "OnTouch = function(this, action, id, x, y, pressure, size)\n" );
                         fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "OnButtons = function(action, id)\n" );
+                        fprintf( file, "OnButtons = function(this, action, id)\n" );
                         fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "Tick = function(deltaTime)\n" );
+                        fprintf( file, "Tick = function(this, deltaTime)\n" );
 
                         if( isMeshScript )
                         {
                             fprintf( file, "end,\n" );
                             fprintf( file, "\n" );
-                            fprintf( file, "SetupCustomUniforms = function(programhandle)\n" );
+                            fprintf( file, "SetupCustomUniforms = function(this, programhandle)\n" );
                         }
 
                         fprintf( file, "end\n" );

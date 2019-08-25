@@ -16,6 +16,7 @@ class ComponentTransform;
 
 enum ComponentMeshPrimitives // Saved as string, order can change.
 {
+    // Also defined for mono in ComponentMeshPrimitive.cs, values must line up.
     ComponentMeshPrimitive_Plane,
     ComponentMeshPrimitive_Icosphere,
     ComponentMeshPrimitive_2DCircle,

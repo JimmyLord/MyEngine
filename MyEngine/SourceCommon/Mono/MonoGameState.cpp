@@ -22,6 +22,7 @@
 #include "Mono/BaseComponents/MonoComponentMeshPrimitive.h"
 #include "Mono/BaseComponents/MonoComponentTransform.h"
 #include "Mono/Core/MonoComponentSystemManager.h"
+#include "Mono/Core/MonoEngineCore.h"
 #include "Mono/Core/MonoGameObject.h"
 #include "Mono/Framework/MonoFrameworkClasses.h"
 #include "Mono/Framework/MonoMaterialDefinition.h"
@@ -305,6 +306,7 @@ void MonoGameState::Rebuild()
     RegisterMonoMaterialDefinition( this );
     RegisterMonoMaterialManager( this );
     RegisterMonoComponentSystemManager( this );
+    RegisterMonoEngineCore( this );
     RegisterMonoGameObject( this );
     RegisterMonoComponentTransform( this );
     RegisterMonoComponentMesh( this );

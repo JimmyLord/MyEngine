@@ -8,23 +8,12 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 using System;
-using System.Runtime.CompilerServices;
 
 namespace MyEngine
 {
-    public class ComponentMeshPrimitive : ComponentMesh
+    public class MyNativeObject
     {
-        // Defined in ComponentMeshPrimitive.h, values must line up.
-        public enum PrimitiveType
-        {
-            Plane,
-            Icosphere,
-            Circle2D,
-            Grass,
-        };
-
-        public void SetPrimitiveType(PrimitiveType type) { ComponentMeshPrimitive.SetPrimitiveType( m_pNativeObject, type ); }
-
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetPrimitiveType(IntPtr pNativeObject, PrimitiveType type);
+        private IntPtr m_pNativeObject = (IntPtr)null;
+        public IntPtr NativeObject { get { return m_pNativeObject; } }
     }
 }

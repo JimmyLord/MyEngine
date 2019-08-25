@@ -7,24 +7,11 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-using System;
-using System.Runtime.CompilerServices;
+#ifndef __MonoEngineCore_H__
+#define __MonoEngineCore_H__
 
-namespace MyEngine
-{
-    public class ComponentMeshPrimitive : ComponentMesh
-    {
-        // Defined in ComponentMeshPrimitive.h, values must line up.
-        public enum PrimitiveType
-        {
-            Plane,
-            Icosphere,
-            Circle2D,
-            Grass,
-        };
+class MonoGameState;
 
-        public void SetPrimitiveType(PrimitiveType type) { ComponentMeshPrimitive.SetPrimitiveType( m_pNativeObject, type ); }
+void RegisterMonoEngineCore(MonoGameState* pMonoState);
 
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetPrimitiveType(IntPtr pNativeObject, PrimitiveType type);
-    }
-}
+#endif //__MonoEngineCore_H__
