@@ -43,8 +43,9 @@ project "BulletCollision"
         optimize            "Full"
         vectorextensions    "SSE2"
 
-    filter { "system:windows", "configurations:Release" }
-        buildoptions        { "\\GF" } -- /GF -> Enable String Pooling 
+-- String pooling is causing build errors in VS2019, don't feel like looking into it, so disabling.
+--    filter { "system:windows", "configurations:Release" }
+--        buildoptions        { "\\GF" } -- /GF -> Enable String Pooling 
 
 ------------------------------------------------------------------------------------------------------------------
 
@@ -84,8 +85,9 @@ project "BulletDynamics"
         optimize            "Full"
         vectorextensions    "SSE2"
 
-    filter { "system:windows", "configurations:Release" }
-        buildoptions        { "\\GF" } -- /GF -> Enable String Pooling 
+-- String pooling is causing build errors in VS2019, don't feel like looking into it, so disabling.
+--    filter { "system:windows", "configurations:Release" }
+--        buildoptions        { "\\GF" } -- /GF -> Enable String Pooling 
 
 ------------------------------------------------------------------------------------------------------------------
 
@@ -125,5 +127,6 @@ project "LinearMath"
         optimize            "Full"
         vectorextensions    "SSE2"
 
-    filter { "system:windows", "configurations:Release" }
-        buildoptions        { "\\GF" } -- /GF -> Enable String Pooling 
+-- String pooling is causing build errors in VS2019, don't feel like looking into it, so disabling.
+--    filter { "system:windows", "configurations:Release" }
+--        buildoptions        { "\\GF" } -- /GF -> Enable String Pooling 

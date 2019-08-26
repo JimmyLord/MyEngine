@@ -87,7 +87,15 @@ MonoGameState::~MonoGameState()
 
     SAFE_RELEASE( m_pDLLFile );
 
+#if MYFW_EDITOR
     delete m_pJob_RebuildDLL;
+#endif //MYFW_EDITOR
+}
+
+void MonoGameState::SetAsGlobalState()
+{
+    g_pActiveDomain = m_pActiveDomain;
+    g_pMonoImage = m_pMonoImage;
 }
 
 #if MYFW_EDITOR
@@ -127,12 +135,6 @@ void GetListOfFilesInFolder(std::vector<std::string>* pFileList, const char *nam
     }
 
     closedir(dir);
-}
-
-void MonoGameState::SetAsGlobalState()
-{
-    g_pActiveDomain = m_pActiveDomain;
-    g_pMonoImage = m_pMonoImage;
 }
 
 void MonoGameState::CheckForUpdatedScripts()
@@ -186,11 +188,20 @@ void MonoGameState::Tick()
             m_RebuildWhenCompileFinishes = false;
             m_pJob_RebuildDLL->Reset();
 
-            LOGInfo( LOGTag, "Compiling finished, rebuilding Mono game state.\n" );
-            Rebuild();
+            LOGInfo( LOGTag, "Compiling finished, loading new DLL.\n" );
+        }
+    }
 
-            ComponentMonoScript* pComponent = (ComponentMonoScript*)m_pEngineCore->GetComponentSystemManager()->GetFirstComponentOfType( "MonoScriptComponent" );
-            pComponent->LoadScript( true );
+    if( m_pMonoImage == nullptr )
+    {
+        if( m_pDLLFile && m_pDLLFile->IsFinishedLoading() == true )
+        {
+            if( Rebuild() )
+            {
+                LOGInfo( LOGTag, "Compiling finished, DLL Loaded and Mono game state built.\n" );
+                ComponentMonoScript* pComponent = (ComponentMonoScript*)m_pEngineCore->GetComponentSystemManager()->GetFirstComponentOfType( "MonoScriptComponent" );
+                pComponent->LoadScript( true );
+            }
         }
     }
 }
@@ -220,7 +231,7 @@ bool MonoGameState::IsRebuilding()
 }
 #endif //MYFW_EDITOR
 
-void MonoGameState::Rebuild()
+bool MonoGameState::Rebuild()
 {
     // If the domain has been created and an assembly loaded, then destroy that domain and rebuild.
     if( m_pActiveDomain )
@@ -238,11 +249,6 @@ void MonoGameState::Rebuild()
         m_pMonoImage = nullptr;
     }
 
-    // Create a domain for the game assembly that we will load.
-    m_pActiveDomain = mono_domain_create_appdomain( "TestDomain", nullptr );
-    // Set the new domain as active.
-    mono_domain_set( m_pActiveDomain, true );
-
     const char* pMonoDLLFilename = "Data/Mono/Game.dll";
 
     MonoAssembly* pMonoAssembly = nullptr;
@@ -250,6 +256,11 @@ void MonoGameState::Rebuild()
     // Load the assembly and grab a pointer to the image from the assembly.
     if( false ) // Load DLL directly from disk.
     {
+        // Create a domain for the game assembly that we will load.
+        m_pActiveDomain = mono_domain_create_appdomain( "TestDomain", nullptr );
+        // Set the new domain as active.
+        mono_domain_set( m_pActiveDomain, true );
+
         pMonoAssembly = mono_domain_assembly_open( m_pActiveDomain, pMonoDLLFilename );
         if( pMonoAssembly == nullptr )
         {
@@ -263,30 +274,29 @@ void MonoGameState::Rebuild()
             }
             m_pActiveDomain = nullptr;
             LOGError( LOGTag, "%s not found", pMonoDLLFilename );
-            return;
+            return true;
         }
     }
     else // Load DLL into memory then create image and assembly.
     {
-        if( m_pDLLFile == 0 )
-        {
-            m_pDLLFile = m_pEngineCore->GetManagers()->GetFileManager()->LoadFileNow( pMonoDLLFilename );
-        }
-
         if( m_pDLLFile == nullptr )
         {
-            mono_domain_set( m_pCoreDomain, true );
-            MonoObject* pException = nullptr;
-            mono_domain_try_unload( m_pActiveDomain, &pException );
-            if( pException )
-            {
-                char* str = mono_string_to_utf8( mono_object_to_string( (MonoObject*)pException, nullptr ) );
-                LOGError( "MonoScript", "Exception thrown calling mono_domain_try_unload(): %s\n", str );
-            }
-            m_pActiveDomain = nullptr;
-            LOGError( LOGTag, "%s not found", pMonoDLLFilename );
-            return;
+#if MYFW_EDITOR
+            m_pDLLFile = m_pEngineCore->GetManagers()->GetFileManager()->LoadFileNow( pMonoDLLFilename );
+#else
+            m_pDLLFile = m_pEngineCore->GetManagers()->GetFileManager()->RequestFile( pMonoDLLFilename );
+#endif
         }
+
+        if( m_pDLLFile == nullptr || m_pDLLFile->IsFinishedLoading() == false )
+        {
+            return false;
+        }
+
+        // Create a domain for the game assembly that we will load.
+        m_pActiveDomain = mono_domain_create_appdomain( "TestDomain", nullptr );
+        // Set the new domain as active.
+        mono_domain_set( m_pActiveDomain, true );
 
         MonoImageOpenStatus openStatus;
         //LOGInfo( LOGTag, "Creating Mono Image.\n" );
@@ -311,4 +321,6 @@ void MonoGameState::Rebuild()
     RegisterMonoComponentTransform( this );
     RegisterMonoComponentMesh( this );
     RegisterMonoComponentMeshPrimitive( this );
+
+    return true;
 }

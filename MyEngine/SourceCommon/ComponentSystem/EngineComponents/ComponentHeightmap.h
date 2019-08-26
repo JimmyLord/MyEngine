@@ -49,8 +49,6 @@ public:
     //virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneID);
     virtual void FinishImportingFromJSONObject(cJSON* jComponent) override;
 
-    virtual void AddAllVariablesToWatchPanel() override;
-
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentHeightmap&)*pObject; }
     ComponentHeightmap& operator=(const ComponentHeightmap& other);
@@ -94,9 +92,10 @@ protected:
     void RecalculateNormals();
     void RecalculateNormals(Vertex_XYZUVNorm* pVerts);
 
-    void SaveAsMyMesh(const char* filename);
     void SaveAsHeightmap(const char* filename);
 #if MYFW_EDITOR
+    void SaveAsMyMesh(const char* filename);
+    virtual void AddAllVariablesToWatchPanel() override;
     void LoadFromHeightmap(const char* filename);
 #endif
     void LoadFromHeightmap();

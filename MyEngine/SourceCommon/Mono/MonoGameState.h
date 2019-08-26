@@ -62,7 +62,7 @@ public:
     bool IsRebuilding();
 #endif
 
-    void Rebuild();
+    bool Rebuild();
 };
 
 #endif //__MonoGameState_H__

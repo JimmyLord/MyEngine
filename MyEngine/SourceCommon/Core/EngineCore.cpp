@@ -511,13 +511,13 @@ void EngineCore::OneTimeInit()
     }
 
     m_pEditorPrefs->LoadLastSceneLoaded();
+
+    // Check for mono script updates.
+    m_pMonoGameState->CheckForUpdatedScripts();
 #else
     // TODO: Fix! This won't work if flags were customized and saved into editorprefs.ini.
     InitializeGameObjectFlagStrings( nullptr );
 #endif
-
-    // Check for mono script updates.
-    m_pMonoGameState->CheckForUpdatedScripts();
 }
 
 bool EngineCore::IsReadyToRender()

@@ -199,67 +199,6 @@ void ComponentHeightmap::FinishImportingFromJSONObject(cJSON* jComponent)
 {
 }
 
-void ComponentHeightmap::AddAllVariablesToWatchPanel()
-{
-    if( m_WaitingForHeightmapFileToFinishLoading )
-    {
-        ImGui::Text( "Heightmap file is still loading..." );
-        return;
-    }
-
-    //if( g_pEngineCore->GetCurrentEditorInterfaceType() == EditorInterfaceType::HeightmapEditor )
-    //{
-    //    EditorInterface_HeightmapEditor* pHeightmapEditor = (EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface();
-
-    //    if( pHeightmapEditor->GetHeightmapBeingEdited() == this )
-    //    {
-    //        if( pHeightmapEditor->IsBusy() )
-    //        {
-    //            ImGui::Text( "Heightmap is being edited." );
-    //            ImGui::Text( "   Recalculating normals..." );
-    //        }
-    //        else
-    //        {
-    //            ImGui::Text( "Heightmap is being edited." );
-    //        }
-
-    //        return;
-    //    }
-    //}
-
-    ComponentBase::AddAllVariablesToWatchPanel();
-
-    if( m_VertCount != m_HeightmapFileSize && m_HeightmapFileSize.x != 0 )
-    {
-        ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_HeightmapFileSize.x, m_HeightmapFileSize.y );
-        if( ImGui::Button( "Change vertCount" ) )
-        {
-            // TODO: Undo.
-            m_VertCount = m_HeightmapFileSize;
-            GenerateHeightmapMesh( true, true, true );
-        }
-    }
-
-    if( m_VertCount != m_HeightmapTextureSize && m_HeightmapTextureSize.x != 0 )
-    {
-        ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_HeightmapTextureSize.x, m_HeightmapTextureSize.y );
-        if( ImGui::Button( "Change vertCount" ) )
-        {
-            // TODO: Undo.
-            m_VertCount = m_HeightmapTextureSize;
-            GenerateHeightmapMesh( true, true, true );
-        }
-    }
-
-    if( m_Heights != nullptr )
-    {
-        if( ImGui::Button( "Edit Heightmap" ) )
-        {
-            OnButtonEditHeightmap();
-        }
-    }
-}
-
 ComponentHeightmap& ComponentHeightmap::operator=(const ComponentHeightmap& other)
 {
     MyAssert( &other != this );
@@ -668,11 +607,6 @@ void ComponentHeightmap::RecalculateNormals(Vertex_XYZUVNorm* pVerts)
     }
 }
 
-void ComponentHeightmap::SaveAsMyMesh(const char* filename)
-{
-    m_pMesh->ExportToFile( filename );
-}
-
 void ComponentHeightmap::SaveAsHeightmap(const char* filename)
 {
     char outputFilename[260];
@@ -699,6 +633,72 @@ void ComponentHeightmap::SaveAsHeightmap(const char* filename)
 }
 
 #if MYFW_EDITOR
+void ComponentHeightmap::SaveAsMyMesh(const char* filename)
+{
+    m_pMesh->ExportToFile( filename );
+}
+
+void ComponentHeightmap::AddAllVariablesToWatchPanel()
+{
+    if( m_WaitingForHeightmapFileToFinishLoading )
+    {
+        ImGui::Text( "Heightmap file is still loading..." );
+        return;
+    }
+
+    //if( g_pEngineCore->GetCurrentEditorInterfaceType() == EditorInterfaceType::HeightmapEditor )
+    //{
+    //    EditorInterface_HeightmapEditor* pHeightmapEditor = (EditorInterface_HeightmapEditor*)g_pEngineCore->GetCurrentEditorInterface();
+
+    //    if( pHeightmapEditor->GetHeightmapBeingEdited() == this )
+    //    {
+    //        if( pHeightmapEditor->IsBusy() )
+    //        {
+    //            ImGui::Text( "Heightmap is being edited." );
+    //            ImGui::Text( "   Recalculating normals..." );
+    //        }
+    //        else
+    //        {
+    //            ImGui::Text( "Heightmap is being edited." );
+    //        }
+
+    //        return;
+    //    }
+    //}
+
+    ComponentBase::AddAllVariablesToWatchPanel();
+
+    if( m_VertCount != m_HeightmapFileSize && m_HeightmapFileSize.x != 0 )
+    {
+        ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_HeightmapFileSize.x, m_HeightmapFileSize.y );
+        if( ImGui::Button( "Change vertCount" ) )
+        {
+            // TODO: Undo.
+            m_VertCount = m_HeightmapFileSize;
+            GenerateHeightmapMesh( true, true, true );
+        }
+    }
+
+    if( m_VertCount != m_HeightmapTextureSize && m_HeightmapTextureSize.x != 0 )
+    {
+        ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_HeightmapTextureSize.x, m_HeightmapTextureSize.y );
+        if( ImGui::Button( "Change vertCount" ) )
+        {
+            // TODO: Undo.
+            m_VertCount = m_HeightmapTextureSize;
+            GenerateHeightmapMesh( true, true, true );
+        }
+    }
+
+    if( m_Heights != nullptr )
+    {
+        if( ImGui::Button( "Edit Heightmap" ) )
+        {
+            OnButtonEditHeightmap();
+        }
+    }
+}
+
 void ComponentHeightmap::LoadFromHeightmap(const char* filename)
 {
     FILE* file;
