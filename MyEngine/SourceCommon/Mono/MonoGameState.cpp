@@ -14,9 +14,7 @@
 #include "Mono/metadata/mono-debug.h"
 
 #include "MonoGameState.h"
-#if MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
-#endif //MYFW_USING_MONO
 #include "Core/EngineCore.h"
 #include "Mono/BaseComponents/MonoComponentMesh.h"
 #include "Mono/BaseComponents/MonoComponentMeshPrimitive.h"

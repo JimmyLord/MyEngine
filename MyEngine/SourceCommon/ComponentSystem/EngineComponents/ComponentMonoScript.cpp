@@ -25,8 +25,6 @@
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #endif
 
-#if MYFW_USING_MONO
-
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMonoScript ); //_VARIABLE_LIST
 
@@ -106,7 +104,9 @@ void ComponentMonoScript::Reset()
 {
     ComponentUpdateable::Reset();
 
+#if MYFW_USING_MONO
     m_pMonoGameState = m_pEngineCore->GetMonoGameState();
+#endif //MYFW_USING_MONO
 
     m_ScriptLoaded = false;
     m_Playing = false;
@@ -322,6 +322,11 @@ void TestForMonoExposedVariableModificationAndCreateUndoCommand(ComponentMonoScr
 
 void ComponentMonoScript::AddAllVariablesToWatchPanel()
 {
+#if !MYFW_USING_MONO
+    ImGui::Text( "Mono is disabled in this build." );
+    return;
+#endif //!MYFW_USING_MONO
+
     ComponentBase::AddAllVariablesToWatchPanel();
 
     if( ImGui::GetIO().MouseDown[0] == false )
@@ -1243,6 +1248,10 @@ void ComponentMonoScript::SetScriptFile(MyFileObject* script)
 
 void ComponentMonoScript::LoadScript(bool forceLoad)
 {
+#if !MYFW_USING_MONO
+    return;
+#endif //!MYFW_USING_MONO
+
     if( m_ScriptLoaded == true && forceLoad == false )
         return;
 
@@ -1819,5 +1828,3 @@ bool ComponentMonoScript::OnEvent(MyEvent* pEvent) // StaticOnEvent
 
     return false;
 }
-
-#endif //MYFW_USING_MONO

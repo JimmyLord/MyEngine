@@ -15,9 +15,7 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
-#if MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
-#endif //MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
@@ -126,11 +124,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 #else
     case ComponentType_LuaScript:           pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
 #endif //MYFW_USING_LUA
-#if MYFW_USING_MONO
     case ComponentType_MonoScript:          pComponent = MyNew ComponentMonoScript(         pEngineCore, m_pComponentSystemManager ); break;
-#else
-    case ComponentType_MonoScript:          pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
-#endif //MYFW_USING_LUA
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter(    pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer(    pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_AnimationPlayer2D:   pComponent = MyNew ComponentAnimationPlayer2D(  pEngineCore, m_pComponentSystemManager ); break;

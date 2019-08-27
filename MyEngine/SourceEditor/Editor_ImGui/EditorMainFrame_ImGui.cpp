@@ -1676,10 +1676,12 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                     ImGui::SetCursorPos( ImVec2( 8, 28 ) );
                     m_pEngineCore->GetCurrentEditorInterface()->AddImGuiOverlayItems();
 
+#if MYFW_USING_MONO
                     if( m_pEngineCore->GetMonoGameState()->IsRebuilding() )
                     {
                         ImGui::Text( "Recompiling C# files..." );
                     }
+#endif //MYFW_USING_MONO
                 }
             }
         }

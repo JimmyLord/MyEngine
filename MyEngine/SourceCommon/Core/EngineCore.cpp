@@ -510,10 +510,13 @@ void EngineCore::OneTimeInit()
         InitializeGameObjectFlagStrings( nullptr );
     }
 
-    m_pEditorPrefs->LoadLastSceneLoaded();
-
+#if MYFW_USING_MONO
     // Check for mono script updates.
     m_pMonoGameState->CheckForUpdatedScripts();
+#endif //MYFW_USING_MONO
+
+    m_pEditorPrefs->LoadLastSceneLoaded();
+
 #else
     // TODO: Fix! This won't work if flags were customized and saved into editorprefs.ini.
     InitializeGameObjectFlagStrings( nullptr );
@@ -811,8 +814,10 @@ void EngineCore::OnFocusGained()
     int filesupdated = GetManagers()->GetFileManager()->ReloadAnyUpdatedFiles( this, OnFileUpdated_CallbackFunction );
 
 #if MYFW_EDITOR
+#if MYFW_USING_MONO
     // Check if any C# scripts were changed and rebuild the mono game state.
     m_pMonoGameState->CheckForUpdatedScripts();
+#endif //MYFW_USING_MONO
 #endif
 
     if( filesupdated )
