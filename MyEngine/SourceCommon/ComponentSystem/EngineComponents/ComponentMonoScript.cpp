@@ -18,6 +18,7 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
+#include "Mono/Framework/MonoFrameworkClasses.h"
 #include "Mono/MonoGameState.h"
 #include "../../../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
@@ -25,6 +26,9 @@
 #include "GUI/ImGuiExtensions.h"
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #endif
+
+#define MonoExposedVariableType ScriptExposedVariableType
+#define MonoExposedVariableDesc ScriptExposedVariableDesc
 
 // Component Variable List.
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMonoScript ); //_VARIABLE_LIST
@@ -308,11 +312,11 @@ void TestForMonoExposedVariableModificationAndCreateUndoCommand(ComponentMonoScr
         MyAssert( id == pComponent->m_ImGuiControlIDForCurrentlySelectedVariable );
 
         // TODO: Removed when converting to mono.
-        //// Add an undo action.
-        //EditorCommand* pCommand = MyNew EditorCommand_LuaExposedVariableFloatChanged(
-        //    newValue, pVar, ComponentMonoScript::StaticOnExposedVarValueChanged, pComponent );
+        // Add an undo action.
+        EditorCommand* pCommand = MyNew EditorCommand_ScriptExposedVariableFloatChanged(
+            newValue, pVar, ComponentMonoScript::StaticOnExposedVarValueChanged, pComponent );
 
-        //pComponent->GetComponentSystemManager()->GetEngineCore()->GetCommandStack()->Do( pCommand, pComponent->m_LinkNextUndoCommandToPrevious );
+        pComponent->GetComponentSystemManager()->GetEngineCore()->GetCommandStack()->Do( pCommand, pComponent->m_LinkNextUndoCommandToPrevious );
 
         // Link the next undo command to this one.
         // TODO: Since we're passing in the starting value,
@@ -1427,29 +1431,19 @@ void ComponentMonoScript::ParseExterns(MonoGameState* pMonoGameState)
                     pVar->type = MonoExposedVariableType::Float;
                     pVar->inUse = true;
                 }
-                //else if( vartype == "Vector3" )
-                //{
-                //    // If it's a new variable or it changed type, set it to it's initial value.
-                //    if( pVar->inuse == false || pVar->type != MonoExposedVariableType::Vector3 )
-                //    {
-                //        if( variableinitialvalue.isTable() == false ||
-                //            variableinitialvalue[1].isNil() || 
-                //            variableinitialvalue[2].isNil() || 
-                //            variableinitialvalue[3].isNil() )
-                //        {
-                //            LOGError( "LuaScript", "Initial value for vector3 isn't an array of 3 values\n" );
-                //        }
-                //        else
-                //        {
-                //            pVar->valuevector3[0] = variableinitialvalue[1].cast<float>();
-                //            pVar->valuevector3[1] = variableinitialvalue[2].cast<float>();
-                //            pVar->valuevector3[2] = variableinitialvalue[3].cast<float>();
-                //        }
-                //    }
+                else if( strcmp( typeName, "MyEngine.vec3" ) == 0 )
+                {
+                    // If it's a new variable or it changed type, set it to it's initial value.
+                    if( pVar->inUse == false || pVar->type != MonoExposedVariableType::Vector3 )
+                    {
+                        MonoVec3* value;
+                        mono_field_get_value( pInstance, pField, &value );
+                        pVar->valueVec3 = *value->Get();
+                    }
 
-                //    pVar->type = MonoExposedVariableType::Vector3;
-                //    pVar->inUse = true;
-                //}
+                    pVar->type = MonoExposedVariableType::Vector3;
+                    pVar->inUse = true;
+                }
                 else if( strcmp( typeName, "System.Boolean" ) == 0 )
                 {
                     // If it's a new variable or it changed type, set it to it's initial value.
@@ -1463,18 +1457,19 @@ void ComponentMonoScript::ParseExterns(MonoGameState* pMonoGameState)
                     pVar->type = MonoExposedVariableType::Bool;
                     pVar->inUse = true;
                 }
-                //else if( vartype == "GameObject" )
-                //{
-                //    // If it's a new variable or it changed type, set it to it's initial value.
-                //    if( pVar->inuse == false || pVar->type != MonoExposedVariableType::GameObject )
-                //    {
-                //        pVar->pointer = m_pComponentSystemManager->FindGameObjectByName( variableinitialvalue.tostring().c_str() );
-                //        if( pVar->pointer )
-                //            static_cast<GameObject*>( pVar->pointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-                //    }
-                //    pVar->type = MonoExposedVariableType::GameObject;
-                //    pVar->inUse = true;
-                //}
+                else if( strcmp( typeName, "MyEngine.GameObject" ) == 0 )
+                {
+                    // If it's a new variable or it changed type, set it to it's initial value.
+                    if( pVar->inUse == false || pVar->type != MonoExposedVariableType::GameObject )
+                    {
+                        void* value;
+                        mono_field_get_value( pInstance, pField, &value );
+                        pVar->pointer = value;
+                    }
+                    
+                    pVar->type = MonoExposedVariableType::GameObject;
+                    pVar->inUse = true;
+                }
                 else
                 {
                     LOGInfo( LOGTag, "Exposed variable type not supported: %s", typeName );
@@ -1503,32 +1498,41 @@ void ComponentMonoScript::ParseExterns(MonoGameState* pMonoGameState)
 
 void ComponentMonoScript::ProgramVariables(MonoGameState* pMonoGameState, bool updateExposedVariables)
 {
-    //if( m_ScriptLoaded == false )
-    //    return;
+    if( m_ScriptLoaded == false )
+        return;
 
-    //// Get the Lua data table for this GameObject.
-    //luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
+    MonoDomain* pMonoDomain = m_pMonoGameState->GetActiveDomain();
+    MonoImage* pMonoImage = m_pMonoGameState->GetImage();
 
-    //// Only program the exposed vars if they change.
-    //if( updateExposedVariables )
-    //{
-    //    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
-    //    {
-    //        MonoExposedVariableDesc* pVar = m_ExposedVars[i];
+    MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
 
-    //        if( pVar->type == MonoExposedVariableType::Float )
-    //            gameObjectData[pVar->name] = pVar->valuedouble;
+    if( pClass )
+    {
+        // Only program the exposed vars if they change.
+        if( updateExposedVariables )
+        {
+            for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+            {
+                MonoExposedVariableDesc* pVar = m_ExposedVars[i];
 
-    //        if( pVar->type == MonoExposedVariableType::Bool )
-    //            gameObjectData[pVar->name] = pVar->valuebool;
+                if( pVar->type == MonoExposedVariableType::Float )
+                {
+                    MonoClassField* pField = mono_class_get_field_from_name( pClass, pVar->name.c_str() );
+                    float value = (float)pVar->valueDouble;
+                    mono_field_set_value( m_pMonoObjectInstance, pField, &value );
+                }
 
-    //        if( pVar->type == MonoExposedVariableType::Vector3 )
-    //            gameObjectData[pVar->name] = Vector3( pVar->valuevector3[0], pVar->valuevector3[1], pVar->valuevector3[2] );
+        //        if( pVar->type == MonoExposedVariableType::Bool )
+        //            gameObjectData[pVar->name] = pVar->valuebool;
 
-    //        if( pVar->type == MonoExposedVariableType::GameObject )
-    //            gameObjectData[pVar->name] = static_cast<GameObject*>( pVar->pointer );
-    //    }
-    //}
+        //        if( pVar->type == MonoExposedVariableType::Vector3 )
+        //            gameObjectData[pVar->name] = Vector3( pVar->valuevector3[0], pVar->valuevector3[1], pVar->valuevector3[2] );
+
+        //        if( pVar->type == MonoExposedVariableType::GameObject )
+        //            gameObjectData[pVar->name] = static_cast<GameObject*>( pVar->pointer );
+            }
+        }
+    }
 }
 
 void ComponentMonoScript::SetExternFloat(const char* name, float newValue)

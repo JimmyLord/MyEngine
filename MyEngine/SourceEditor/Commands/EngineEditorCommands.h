@@ -10,6 +10,7 @@
 #ifndef __EngineEditorCommands_H__
 #define __EngineEditorCommands_H__
 
+#include "ComponentSystem/EngineComponents/ComponentScriptBase.h"
 #include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
 
@@ -543,6 +544,27 @@ protected:
 public:
     EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue* pNewValue);
     virtual ~EditorCommand_ComponentVariablePointerChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ScriptExposedVariableFloatChanged : public EditorCommand
+{
+protected:
+    double m_NewValue;
+    double m_OldValue;
+    ScriptExposedVariableDesc* m_pVar;
+
+    ScriptExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
+    void* m_pCallbackObj;
+
+public:
+    EditorCommand_ScriptExposedVariableFloatChanged(double newValue, ScriptExposedVariableDesc* pVar, ScriptExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
+    virtual ~EditorCommand_ScriptExposedVariableFloatChanged();
 
     virtual void Do();
     virtual void Undo();

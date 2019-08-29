@@ -1678,6 +1678,48 @@ EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_ScriptExposedVariableFloatChanged
+//====================================================================================================
+
+EditorCommand_ScriptExposedVariableFloatChanged::EditorCommand_ScriptExposedVariableFloatChanged(double newValue, ScriptExposedVariableDesc* pVar, ScriptExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
+{
+    m_Name = "EditorCommand_ScriptExposedVariableFloatChanged";
+
+    m_NewValue = newValue;
+    m_pVar = pVar;
+
+    m_OldValue = pVar->valueDouble;
+
+    m_pOnValueChangedCallBackFunc = callbackFunc;
+    m_pCallbackObj = callbackObj;
+}
+
+EditorCommand_ScriptExposedVariableFloatChanged::~EditorCommand_ScriptExposedVariableFloatChanged()
+{
+}
+
+void EditorCommand_ScriptExposedVariableFloatChanged::Do()
+{
+    m_pVar->valueDouble = m_NewValue;
+
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_OldValue, nullptr );
+}
+
+void EditorCommand_ScriptExposedVariableFloatChanged::Undo()
+{
+    m_pVar->valueDouble = m_OldValue;
+
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_NewValue, nullptr );
+}
+
+EditorCommand* EditorCommand_ScriptExposedVariableFloatChanged::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
 // EditorCommand_LuaExposedVariableFloatChanged
 //====================================================================================================
 
