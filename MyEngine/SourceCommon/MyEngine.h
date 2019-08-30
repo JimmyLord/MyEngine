@@ -42,6 +42,9 @@
 
 // MyEngine components.
 #include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
+#if MYFW_USING_LUA
+#include "ComponentSystem/EngineComponents/ComponentLuaScript.h"
+#endif //MYFW_USING_LUA
 #if MYFW_USING_MONO
 #include "ComponentSystem/EngineComponents/ComponentMonoScript.h"
 #endif //MYFW_USING_MONO
@@ -56,9 +59,6 @@
 #include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
 #include "ComponentSystem/FrameworkComponents/ComponentCameraShadow.h"
 #include "ComponentSystem/FrameworkComponents/ComponentLight.h"
-#if MYFW_USING_LUA
-#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
-#endif //MYFW_USING_LUA
 #include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMeshOBJ.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"

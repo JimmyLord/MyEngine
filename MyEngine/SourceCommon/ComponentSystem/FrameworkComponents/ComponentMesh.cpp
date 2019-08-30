@@ -10,10 +10,10 @@
 #include "MyEnginePCH.h"
 
 #include "ComponentCameraShadow.h"
-#include "ComponentLuaScript.h"
 #include "ComponentMesh.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/EngineComponents/ComponentLuaScript.h"
 #include "Core/EngineCore.h"
 #include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Flat.h"

@@ -14,3 +14,13 @@
 #include "mono/metadata/attrdefs.h"
 
 #include "ComponentScriptBase.h"
+
+ComponentScriptBase::ComponentScriptBase(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
+: ComponentUpdateable( pEngineCore, pComponentSystemManager )
+{
+    m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // Hard coded nonsense for now, max of 4 exposed vars in a script.
+}
+
+ComponentScriptBase::~ComponentScriptBase()
+{
+}

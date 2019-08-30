@@ -11,7 +11,7 @@
 
 #include "ComponentMenuPage.h"
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
-#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#include "ComponentSystem/EngineComponents/ComponentLuaScript.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
 #include "../../../SharedGameCode/Menus/MenuInputBox.h"

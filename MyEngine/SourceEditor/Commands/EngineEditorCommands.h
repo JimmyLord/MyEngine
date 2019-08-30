@@ -11,12 +11,13 @@
 #define __EngineEditorCommands_H__
 
 #include "ComponentSystem/EngineComponents/ComponentScriptBase.h"
-#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#include "ComponentSystem/EngineComponents/ComponentLuaScript.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
 
 class Component2DCollisionObject;
 class ComponentAudioPlayer;
 class ComponentRenderable;
+class ComponentScriptBase;
 class ExposedVariableDesc;
 
 class EditorCommand_ImGuiPanelWatchNumberValueChanged;
@@ -42,9 +43,8 @@ class EditorCommand_Move2DPoint;
 class EditorCommand_Insert2DPoint;
 class EditorCommand_Delete2DPoint;
 class EditorCommand_ComponentVariablePointerChanged;
-class EditorCommand_LuaExposedVariableFloatChanged;
-class EditorCommand_LuaExposedVariablePointerChanged;
-class EditorCommand_LuaClearExposedVariables;
+class EditorCommand_ExposedVariablePointerChanged;
+class EditorCommand_ClearExposedVariables;
 class EditorCommand_DeletePrefabs;
 class EditorCommand_DivorceOrMarryComponentVariable;
 class EditorCommand_ComponentVariableIndirectPointerChanged;
@@ -552,40 +552,19 @@ public:
 
 //====================================================================================================
 
-class EditorCommand_ScriptExposedVariableFloatChanged : public EditorCommand
-{
-protected:
-    double m_NewValue;
-    double m_OldValue;
-    ScriptExposedVariableDesc* m_pVar;
-
-    ScriptExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
-    void* m_pCallbackObj;
-
-public:
-    EditorCommand_ScriptExposedVariableFloatChanged(double newValue, ScriptExposedVariableDesc* pVar, ScriptExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
-    virtual ~EditorCommand_ScriptExposedVariableFloatChanged();
-
-    virtual void Do();
-    virtual void Undo();
-    virtual EditorCommand* Repeat();
-};
-
-//====================================================================================================
-
-class EditorCommand_LuaExposedVariableFloatChanged : public EditorCommand
+class EditorCommand_ExposedVariableFloatChanged : public EditorCommand
 {
 protected:
     double m_NewValue;
     double m_OldValue;
     ExposedVariableDesc* m_pVar;
 
-    LuaExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
+    ExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
     void* m_pCallbackObj;
 
 public:
-    EditorCommand_LuaExposedVariableFloatChanged(double newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
-    virtual ~EditorCommand_LuaExposedVariableFloatChanged();
+    EditorCommand_ExposedVariableFloatChanged(double newValue, ExposedVariableDesc* pVar, ExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
+    virtual ~EditorCommand_ExposedVariableFloatChanged();
 
     virtual void Do();
     virtual void Undo();
@@ -594,19 +573,19 @@ public:
 
 //====================================================================================================
 
-class EditorCommand_LuaExposedVariablePointerChanged : public EditorCommand
+class EditorCommand_ExposedVariablePointerChanged : public EditorCommand
 {
 protected:
     void* m_NewValue;
     void* m_OldValue;
     ExposedVariableDesc* m_pVar;
 
-    LuaExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
+    ExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
     void* m_pCallbackObj;
 
 public:
-    EditorCommand_LuaExposedVariablePointerChanged(void* newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
-    virtual ~EditorCommand_LuaExposedVariablePointerChanged();
+    EditorCommand_ExposedVariablePointerChanged(void* newValue, ExposedVariableDesc* pVar, ExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
+    virtual ~EditorCommand_ExposedVariablePointerChanged();
 
     virtual void Do();
     virtual void Undo();
@@ -615,17 +594,17 @@ public:
 
 //====================================================================================================
 
-class EditorCommand_LuaClearExposedVariables : public EditorCommand
+class EditorCommand_ScriptClearExposedVariables : public EditorCommand
 {
 protected:
-    ComponentLuaScript* m_pLuaScriptComponent;
+    ComponentScriptBase* m_pScriptComponent;
     MyList<ExposedVariableDesc*>& m_OriginalExposedVariablesListFromComponent;
     std::vector<ExposedVariableDesc*> m_CopyOfExposedVariables;
     bool m_DeleteExposedVarsWhenDestroyed;
 
 public:
-    EditorCommand_LuaClearExposedVariables(ComponentLuaScript* pLuaScriptComponent, MyList<ExposedVariableDesc*>& exposedVariablesList);
-    virtual ~EditorCommand_LuaClearExposedVariables();
+    EditorCommand_ScriptClearExposedVariables(ComponentScriptBase* pScriptComponent, MyList<ExposedVariableDesc*>& exposedVariablesList);
+    virtual ~EditorCommand_ScriptClearExposedVariables();
 
     virtual void Do();
     virtual void Undo();

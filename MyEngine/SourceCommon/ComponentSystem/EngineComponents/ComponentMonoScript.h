@@ -19,53 +19,9 @@ class MonoGameState;
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/EngineComponents/ComponentScriptBase.h"
 
-//enum class MonoExposedVariableType
-//{
-//    Unused,
-//    Float,
-//    Bool,
-//    Vector3,
-//    GameObject,
-//};
+typedef void MonoExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
 
-//class MonoExposedVariableDesc
-//{
-//public:
-//    std::string name;
-//    MonoExposedVariableType type;
-//    union // TODO?: Make these values shared between c++ and mono so they can be changed/saved more easily.
-//    {
-//        double valueDouble;
-//        bool valueBool;
-//        Vector3 valueVec3;
-//        void* pointer;
-//    };
-//
-//    bool divorced;
-//    bool inUse; // Used internally when reparsing the file.
-//    int controlID;
-//
-//    MonoExposedVariableDesc()
-//    {
-//        Reset();
-//    }
-//
-//    void Reset()
-//    {
-//        name = "";
-//        type = MonoExposedVariableType::Unused;
-//        valueDouble = 0;
-//        valueBool = 0;
-//        valueVec3.Set( 0, 0, 0 );
-//        divorced = false;
-//        inUse = false;
-//        controlID = -1;
-//    }
-//};
-
-typedef void MonoExposedVarValueChangedCallback(void* pObjectPtr, ScriptExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
-
-class ComponentMonoScript : public ComponentUpdateable
+class ComponentMonoScript : public ComponentScriptBase
 {
 private:
     typedef void __stdcall OnLoadFunc(MonoObject* pObj, MonoException** pException);
@@ -77,8 +33,6 @@ private:
 
     // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentMonoScript );
-
-    static const int MAX_EXPOSED_VARS = 4; // TODO: Fix this hardcodedness.
 
 public:
     MonoGameState* m_pMonoGameState; // A reference to a global mono state managed elsewhere.
@@ -95,7 +49,6 @@ protected:
     MyFileObject* m_pScriptFile;
     char m_MonoClassName[255];
     MonoObject* m_pMonoObjectInstance;
-    MyList<ScriptExposedVariableDesc*> m_ExposedVars;
 
     // Mono function ptrs.
     OnLoadFunc* m_pMonoFuncPtr_OnLoad;
@@ -144,8 +97,7 @@ public:
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) { return false; } // TODO: Remove when clearing these out from ComponentUpdatable.
 
     // GameObject callbacks.
-    static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentMonoScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
-    void OnGameObjectDeleted(GameObject* pGameObject);
+    virtual void OnGameObjectDeleted(GameObject* pGameObject) override;
 
     // Event callbacks.
     static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentMonoScript*)pObjectPtr)->OnEvent( pEvent ); }
@@ -201,17 +153,17 @@ public:
 #endif
     
     // Exposed variable changed callback (not from watch panel).
-    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ScriptExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) { ((ComponentMonoScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
-    void OnExposedVarValueChanged(ScriptExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
+    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) { ((ComponentMonoScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
+    void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
 
     static void StaticOnRightClickExposedVariable(void* pObjectPtr, int controlid) { ((ComponentMonoScript*)pObjectPtr)->OnRightClickExposedVariable( controlid ); }
     void OnRightClickExposedVariable(int controlid);
 
-    bool DoesExposedVariableMatchParent(ScriptExposedVariableDesc* pVar);
-    void UpdateChildrenWithNewValue(ScriptExposedVariableDesc* pVar, bool finishedChanging, double oldValue, void* oldPointer);
-    void UpdateChildrenInGameObjectListWithNewValue(ScriptExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedChanging, double oldValue, void* oldPointer);
-    void UpdateChildGameObjectWithNewValue(ScriptExposedVariableDesc* pVar, unsigned int varIndex, GameObject* pChildGameObject, bool finishedChanging, double oldValue, void* oldPointer);
-    void CopyExposedVarValueFromParent(ScriptExposedVariableDesc* pVar);
+    bool DoesExposedVariableMatchParent(ExposedVariableDesc* pVar);
+    void UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedChanging, double oldValue, void* oldPointer);
+    void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedChanging, double oldValue, void* oldPointer);
+    void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varIndex, GameObject* pChildGameObject, bool finishedChanging, double oldValue, void* oldPointer);
+    void CopyExposedVarValueFromParent(ExposedVariableDesc* pVar);
 
     bool ClearExposedVariableList(bool addUndoCommands);
 #endif //MYFW_EDITOR

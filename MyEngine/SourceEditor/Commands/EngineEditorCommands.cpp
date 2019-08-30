@@ -1678,12 +1678,12 @@ EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
 }
 
 //====================================================================================================
-// EditorCommand_ScriptExposedVariableFloatChanged
+// EditorCommand_ExposedVariableFloatChanged
 //====================================================================================================
 
-EditorCommand_ScriptExposedVariableFloatChanged::EditorCommand_ScriptExposedVariableFloatChanged(double newValue, ScriptExposedVariableDesc* pVar, ScriptExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
+EditorCommand_ExposedVariableFloatChanged::EditorCommand_ExposedVariableFloatChanged(double newValue, ExposedVariableDesc* pVar, ExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
 {
-    m_Name = "EditorCommand_ScriptExposedVariableFloatChanged";
+    m_Name = "EditorCommand_ExposedVariableFloatChanged";
 
     m_NewValue = newValue;
     m_pVar = pVar;
@@ -1694,11 +1694,11 @@ EditorCommand_ScriptExposedVariableFloatChanged::EditorCommand_ScriptExposedVari
     m_pCallbackObj = callbackObj;
 }
 
-EditorCommand_ScriptExposedVariableFloatChanged::~EditorCommand_ScriptExposedVariableFloatChanged()
+EditorCommand_ExposedVariableFloatChanged::~EditorCommand_ExposedVariableFloatChanged()
 {
 }
 
-void EditorCommand_ScriptExposedVariableFloatChanged::Do()
+void EditorCommand_ExposedVariableFloatChanged::Do()
 {
     m_pVar->valueDouble = m_NewValue;
 
@@ -1706,7 +1706,7 @@ void EditorCommand_ScriptExposedVariableFloatChanged::Do()
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_OldValue, nullptr );
 }
 
-void EditorCommand_ScriptExposedVariableFloatChanged::Undo()
+void EditorCommand_ExposedVariableFloatChanged::Undo()
 {
     m_pVar->valueDouble = m_OldValue;
 
@@ -1714,60 +1714,18 @@ void EditorCommand_ScriptExposedVariableFloatChanged::Undo()
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_NewValue, nullptr );
 }
 
-EditorCommand* EditorCommand_ScriptExposedVariableFloatChanged::Repeat()
+EditorCommand* EditorCommand_ExposedVariableFloatChanged::Repeat()
 {
     return 0;
 }
 
 //====================================================================================================
-// EditorCommand_LuaExposedVariableFloatChanged
+// EditorCommand_ExposedVariablePointerChanged
 //====================================================================================================
 
-EditorCommand_LuaExposedVariableFloatChanged::EditorCommand_LuaExposedVariableFloatChanged(double newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
+EditorCommand_ExposedVariablePointerChanged::EditorCommand_ExposedVariablePointerChanged(void* newValue, ExposedVariableDesc* pVar, ExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
 {
-    m_Name = "EditorCommand_LuaExposedVariableFloatChanged";
-
-    m_NewValue = newValue;
-    m_pVar = pVar;
-
-    m_OldValue = pVar->valuedouble;
-
-    m_pOnValueChangedCallBackFunc = callbackFunc;
-    m_pCallbackObj = callbackObj;
-}
-
-EditorCommand_LuaExposedVariableFloatChanged::~EditorCommand_LuaExposedVariableFloatChanged()
-{
-}
-
-void EditorCommand_LuaExposedVariableFloatChanged::Do()
-{
-    m_pVar->valuedouble = m_NewValue;
-
-    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
-        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_OldValue, nullptr );
-}
-
-void EditorCommand_LuaExposedVariableFloatChanged::Undo()
-{
-    m_pVar->valuedouble = m_OldValue;
-
-    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
-        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_NewValue, nullptr );
-}
-
-EditorCommand* EditorCommand_LuaExposedVariableFloatChanged::Repeat()
-{
-    return 0;
-}
-
-//====================================================================================================
-// EditorCommand_LuaExposedVariablePointerChanged
-//====================================================================================================
-
-EditorCommand_LuaExposedVariablePointerChanged::EditorCommand_LuaExposedVariablePointerChanged(void* newValue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
-{
-    m_Name = "EditorCommand_LuaExposedVariablePointerChanged";
+    m_Name = "EditorCommand_ExposedVariablePointerChanged";
 
     m_NewValue = newValue;
     m_pVar = pVar;
@@ -1778,11 +1736,11 @@ EditorCommand_LuaExposedVariablePointerChanged::EditorCommand_LuaExposedVariable
     m_pCallbackObj = callbackObj;
 }
 
-EditorCommand_LuaExposedVariablePointerChanged::~EditorCommand_LuaExposedVariablePointerChanged()
+EditorCommand_ExposedVariablePointerChanged::~EditorCommand_ExposedVariablePointerChanged()
 {
 }
 
-void EditorCommand_LuaExposedVariablePointerChanged::Do()
+void EditorCommand_ExposedVariablePointerChanged::Do()
 {
     m_pVar->pointer = m_NewValue;
 
@@ -1790,7 +1748,7 @@ void EditorCommand_LuaExposedVariablePointerChanged::Do()
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_OldValue );
 }
 
-void EditorCommand_LuaExposedVariablePointerChanged::Undo()
+void EditorCommand_ExposedVariablePointerChanged::Undo()
 {
     m_pVar->pointer = m_OldValue;
 
@@ -1798,21 +1756,21 @@ void EditorCommand_LuaExposedVariablePointerChanged::Undo()
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_NewValue );
 }
 
-EditorCommand* EditorCommand_LuaExposedVariablePointerChanged::Repeat()
+EditorCommand* EditorCommand_ExposedVariablePointerChanged::Repeat()
 {
     return 0;
 }
 
 //====================================================================================================
-// EditorCommand_LuaClearExposedVariables
+// EditorCommand_ScriptClearExposedVariables
 //====================================================================================================
 
-EditorCommand_LuaClearExposedVariables::EditorCommand_LuaClearExposedVariables(ComponentLuaScript* pLuaScriptComponent, MyList<ExposedVariableDesc*>& exposedVariablesList)
+EditorCommand_ScriptClearExposedVariables::EditorCommand_ScriptClearExposedVariables(ComponentScriptBase* pScriptComponent, MyList<ExposedVariableDesc*>& exposedVariablesList)
 : m_OriginalExposedVariablesListFromComponent( exposedVariablesList )
 {
-    m_Name = "EditorCommand_LuaClearExposedVariables";
+    m_Name = "EditorCommand_ScriptClearExposedVariables";
 
-    m_pLuaScriptComponent = pLuaScriptComponent;
+    m_pScriptComponent = pScriptComponent;
 
     // Make a backup of all the exposed variable pointers.
     for( uint32 i=0; i<exposedVariablesList.size(); i++ )
@@ -1823,7 +1781,7 @@ EditorCommand_LuaClearExposedVariables::EditorCommand_LuaClearExposedVariables(C
     m_DeleteExposedVarsWhenDestroyed = false;
 }
 
-EditorCommand_LuaClearExposedVariables::~EditorCommand_LuaClearExposedVariables()
+EditorCommand_ScriptClearExposedVariables::~EditorCommand_ScriptClearExposedVariables()
 {
     // If deleting this command from the redo stack, then delete the exposed variables.
     if( m_DeleteExposedVarsWhenDestroyed )
@@ -1836,7 +1794,7 @@ EditorCommand_LuaClearExposedVariables::~EditorCommand_LuaClearExposedVariables(
     }
 }
 
-void EditorCommand_LuaClearExposedVariables::Do()
+void EditorCommand_ScriptClearExposedVariables::Do()
 {
     MyAssert( m_OriginalExposedVariablesListFromComponent.size() == m_CopyOfExposedVariables.size() );
 
@@ -1845,10 +1803,10 @@ void EditorCommand_LuaClearExposedVariables::Do()
     {
         ExposedVariableDesc* pVariable = m_CopyOfExposedVariables[i];
 
-        if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
+        if( pVariable->type == ExposedVariableType::GameObject && pVariable->pointer )
         {
             GameObject* pGameObject = static_cast<GameObject*>( pVariable->pointer );
-            pGameObject->UnregisterOnDeleteCallback( m_pLuaScriptComponent, ComponentLuaScript::StaticOnGameObjectDeleted );
+            pGameObject->UnregisterOnDeleteCallback( m_pScriptComponent, ComponentScriptBase::StaticOnGameObjectDeleted );
         }
     }
 
@@ -1858,7 +1816,7 @@ void EditorCommand_LuaClearExposedVariables::Do()
     m_DeleteExposedVarsWhenDestroyed = true;
 }
 
-void EditorCommand_LuaClearExposedVariables::Undo()
+void EditorCommand_ScriptClearExposedVariables::Undo()
 {
     MyAssert( m_OriginalExposedVariablesListFromComponent.size() == 0 );
 
@@ -1874,14 +1832,14 @@ void EditorCommand_LuaClearExposedVariables::Undo()
         ExposedVariableDesc* pVariable = m_OriginalExposedVariablesListFromComponent[i];
 
         // Unregister gameobject deleted callback, if we registered one.
-        if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
-            static_cast<GameObject*>( pVariable->pointer )->RegisterOnDeleteCallback( m_pLuaScriptComponent, ComponentLuaScript::StaticOnGameObjectDeleted );
+        if( pVariable->type == ExposedVariableType::GameObject && pVariable->pointer )
+            static_cast<GameObject*>( pVariable->pointer )->RegisterOnDeleteCallback( m_pScriptComponent, ComponentScriptBase::StaticOnGameObjectDeleted );
     }
 
     m_DeleteExposedVarsWhenDestroyed = false;
 }
 
-EditorCommand* EditorCommand_LuaClearExposedVariables::Repeat()
+EditorCommand* EditorCommand_ScriptClearExposedVariables::Repeat()
 {
     return 0;
 }

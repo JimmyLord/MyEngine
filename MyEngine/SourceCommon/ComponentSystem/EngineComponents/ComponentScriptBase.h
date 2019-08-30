@@ -13,7 +13,7 @@
 #include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 
-enum class ScriptExposedVariableType
+enum class ExposedVariableType
 {
     Unused,
     Float,
@@ -22,11 +22,11 @@ enum class ScriptExposedVariableType
     GameObject,
 };
 
-class ScriptExposedVariableDesc
+class ExposedVariableDesc
 {
 public:
     std::string name;
-    ScriptExposedVariableType type;
+    ExposedVariableType type;
     union // TODO?: Make these values shared between c++ and the script so they can be changed/saved more easily.
     {
         double valueDouble;
@@ -39,7 +39,7 @@ public:
     bool inUse; // Used internally when reparsing the file.
     int controlID;
 
-    ScriptExposedVariableDesc()
+    ExposedVariableDesc()
     {
         Reset();
     }
@@ -47,7 +47,7 @@ public:
     void Reset()
     {
         name = "";
-        type = ScriptExposedVariableType::Unused;
+        type = ExposedVariableType::Unused;
         valueDouble = 0;
         valueBool = 0;
         valueVec3.Set( 0, 0, 0 );
@@ -57,6 +57,23 @@ public:
     }
 };
 
-typedef void ScriptExposedVarValueChangedCallback(void* pObjectPtr, ScriptExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
+typedef void ExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
+
+class ComponentScriptBase : public ComponentUpdateable
+{
+private:
+    static const int MAX_EXPOSED_VARS = 4; // TODO: Fix this hardcodedness.
+
+protected:
+    MyList<ExposedVariableDesc*> m_ExposedVars;
+
+public:
+    ComponentScriptBase(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
+    virtual ~ComponentScriptBase();
+
+    // GameObject callbacks.
+    static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentScriptBase*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
+    virtual void OnGameObjectDeleted(GameObject* pGameObject) = 0;
+};
 
 #endif //__ComponentScriptBase_H__

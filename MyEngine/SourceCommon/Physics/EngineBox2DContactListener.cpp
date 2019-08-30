@@ -10,8 +10,8 @@
 #include "MyEnginePCH.h"
 
 #include "EngineBox2DContactListener.h"
+#include "ComponentSystem/EngineComponents/ComponentLuaScript.h"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
-#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
 
 EngineBox2DContactListener::EngineBox2DContactListener()
 {

@@ -14,8 +14,8 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/Core/GameObject.h"
+#include "ComponentSystem/EngineComponents/ComponentLuaScript.h"
 #include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
-#include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
 

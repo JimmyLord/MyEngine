@@ -12,60 +12,13 @@
 
 #include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
+#include "ComponentSystem/EngineComponents/ComponentScriptBase.h"
 
-enum ExposedVariableTypes
-{
-    ExposedVariableType_Unused,
-    ExposedVariableType_Float,
-    ExposedVariableType_Bool,
-    ExposedVariableType_Vector3,
-    ExposedVariableType_GameObject,
-};
-
-class ExposedVariableDesc
-{
-public:
-    std::string name;
-    ExposedVariableTypes type;
-    union // TODO?: Make these values shared between c++ and lua so they can be changed/saved more easily.
-    {
-        double valuedouble;
-        bool valuebool;
-        float valuevector3[3];
-        void* pointer;
-    };
-
-    bool divorced;
-    bool inuse; // Used internally when reparsing the file.
-    int controlID;
-
-    ExposedVariableDesc()
-    {
-        Reset();
-    }
-
-    void Reset()
-    {
-        name = "";
-        type = ExposedVariableType_Unused;
-        valuedouble = 0;
-        valuebool = 0;
-        valuevector3[0] = valuevector3[1] = valuevector3[2] = 0;
-        divorced = false;
-        inuse = false;
-        controlID = -1;
-    }
-};
-
-typedef void LuaExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
-
-class ComponentLuaScript : public ComponentUpdateable
+class ComponentLuaScript : public ComponentScriptBase
 {
 private:
     // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentLuaScript );
-
-    static const int MAX_EXPOSED_VARS = 4; // TODO: Fix this hardcodedness.
 
 public:
     LuaGameState* m_pLuaGameState; // A reference to a global lua_State managed elsewhere.
@@ -85,7 +38,6 @@ protected:
 #else
     char* m_pLuaInlineScript_OnPlay; // If this isn't nullptr, this string will get run instead of the OnPlay function in the lua file.
 #endif
-    MyList<ExposedVariableDesc*> m_ExposedVars;
 
 public:
     ComponentLuaScript(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
@@ -127,8 +79,7 @@ public:
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) { return false; } // TODO: Remove when clearing these out from ComponentUpdatable.
 
     // GameObject callbacks.
-    static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentLuaScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
-    void OnGameObjectDeleted(GameObject* pGameObject);
+    virtual void OnGameObjectDeleted(GameObject* pGameObject) override;
 
     // Event callbacks.
     static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentLuaScript*)pObjectPtr)->OnEvent( pEvent ); }
