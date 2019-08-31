@@ -81,7 +81,7 @@ public:
     void SetScriptFile(MyFileObject* script);
     void LoadScript(bool forceLoad = false);
     void ParseExterns(MonoGameState* pMonoGameState);
-    void ProgramVariables(MonoGameState* pMonoGameState, bool updateExposedVariables = false);
+    virtual void ProgramVariables(bool updateExposedVariables = false) override;
     void SetExternFloat(const char* name, float newValue);
 
     void HandleMonoError(const char* functionname, const char* errormessage);
@@ -133,11 +133,6 @@ public:
     void CreateNewScriptFile();
 
 #if MYFW_USING_IMGUI
-    // For TestForVariableModificationAndCreateUndoCommand.
-    double m_ValueWhenControlSelected;
-    ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
-    bool m_LinkNextUndoCommandToPrevious;
-
     virtual void AddAllVariablesToWatchPanel();
 #endif
 
@@ -153,19 +148,7 @@ public:
 #endif
     
     // Exposed variable changed callback (not from watch panel).
-    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) { ((ComponentMonoScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
-    void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
-
-    static void StaticOnRightClickExposedVariable(void* pObjectPtr, int controlid) { ((ComponentMonoScript*)pObjectPtr)->OnRightClickExposedVariable( controlid ); }
-    void OnRightClickExposedVariable(int controlid);
-
-    bool DoesExposedVariableMatchParent(ExposedVariableDesc* pVar);
-    void UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedChanging, double oldValue, void* oldPointer);
-    void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedChanging, double oldValue, void* oldPointer);
-    void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varIndex, GameObject* pChildGameObject, bool finishedChanging, double oldValue, void* oldPointer);
-    void CopyExposedVarValueFromParent(ExposedVariableDesc* pVar);
-
-    bool ClearExposedVariableList(bool addUndoCommands);
+    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) override;
 #endif //MYFW_EDITOR
 };
 

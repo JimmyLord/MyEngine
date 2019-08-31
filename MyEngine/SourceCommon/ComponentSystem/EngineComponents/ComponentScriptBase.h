@@ -71,9 +71,42 @@ public:
     ComponentScriptBase(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentScriptBase();
 
+    cJSON* ExportExposedVariablesAsJSONObject();
+    void ImportExposedVariablesFromJSONObject(cJSON* jExposedVarArray);
+
+    void AddExposedVariablesToInterface();
+
+    void CopyExposedVariablesFromOtherComponent(const ComponentScriptBase& other);
+
+    virtual void ProgramVariables(bool updateExposedVariables = false) = 0;
+
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentScriptBase*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     virtual void OnGameObjectDeleted(GameObject* pGameObject) = 0;
+
+    // Exposed variable changed callback.
+    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) { ((ComponentScriptBase*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
+    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) = 0;
+
+#if MYFW_EDITOR
+protected:
+#if MYFW_USING_IMGUI
+    // For TestForVariableModificationAndCreateUndoCommand.
+    double m_ValueWhenControlSelected;
+    ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
+    bool m_LinkNextUndoCommandToPrevious;
+
+    static void TestForExposedVariableModificationAndCreateUndoCommand(ComponentScriptBase* pComponent, ImGuiID id, bool modified, ExposedVariableDesc* pVar, double newValue);
+#endif //MYFW_USING_IMGUI
+
+    bool DoesExposedVariableMatchParent(ExposedVariableDesc* pVar);
+    void UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedChanging, double oldValue, void* oldPointer);
+    void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedChanging, double oldValue, void* oldPointer);
+    void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varIndex, GameObject* pChildGameObject, bool finishedChanging, double oldValue, void* oldPointer);
+    void CopyExposedVarValueFromParent(ExposedVariableDesc* pVar);
+
+    bool ClearExposedVariableList(bool addUndoCommands);
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentScriptBase_H__

@@ -63,7 +63,7 @@ public:
     void LoadScript();
     void LoadInLineScripts();
     void ParseExterns(luabridge::LuaRef LuaObject);
-    void ProgramVariables(luabridge::LuaRef LuaObject, bool updateExposedVariables = false);
+    virtual void ProgramVariables(bool updateExposedVariables = false) override;
     void SetExternFloat(const char* name, float newValue);
 
     void HandleLuaError(const char* functionname, const char* errormessage);
@@ -115,11 +115,6 @@ public:
     void CreateNewScriptFile();
 
 #if MYFW_USING_IMGUI
-    // For TestForVariableModificationAndCreateUndoCommand.
-    double m_ValueWhenControlSelected;
-    ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
-    bool m_LinkNextUndoCommandToPrevious;
-
     virtual void AddAllVariablesToWatchPanel();
 #endif
 
@@ -135,19 +130,10 @@ public:
 #endif
     
     // Exposed variable changed callback (not from watch panel).
-    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
-    void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
+    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) override;
 
     static void StaticOnRightClickExposedVariable(void* pObjectPtr, int controlid) { ((ComponentLuaScript*)pObjectPtr)->OnRightClickExposedVariable( controlid ); }
     void OnRightClickExposedVariable(int controlid);
-
-    bool DoesExposedVariableMatchParent(ExposedVariableDesc* pVar);
-    void UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedChanging, double oldValue, void* oldPointer);
-    void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedChanging, double oldValue, void* oldPointer);
-    void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varIndex, GameObject* pChildGameObject, bool finishedChanging, double oldValue, void* oldPointer);
-    void CopyExposedVarValueFromParent(ExposedVariableDesc* pVar);
-
-    bool ClearExposedVariableList(bool addUndoCommands);
 #endif //MYFW_EDITOR
 
 public:
@@ -180,7 +166,7 @@ public:
 
         luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-        ProgramVariables( LuaObject, false );
+        ProgramVariables( false );
         try { if( LuaObject[pFuncName]( gameObjectData ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
@@ -201,7 +187,7 @@ public:
 
         luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-        ProgramVariables( LuaObject, false );
+        ProgramVariables( false );
         try { if( LuaObject[pFuncName]( gameObjectData ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
@@ -223,7 +209,7 @@ public:
 
         luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-        ProgramVariables( LuaObject, false );
+        ProgramVariables( false );
         try { if( LuaObject[pFuncName]( gameObjectData, p1 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
@@ -245,7 +231,7 @@ public:
 
         luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-        ProgramVariables( LuaObject, false );
+        ProgramVariables( false );
         try { if( LuaObject[pFuncName]( gameObjectData, p1, p2 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
@@ -267,7 +253,7 @@ public:
 
         luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-        ProgramVariables( LuaObject, false );
+        ProgramVariables( false );
         try { if( LuaObject[pFuncName]( gameObjectData, p1, p2, p3 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
@@ -289,7 +275,7 @@ public:
 
         luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-        ProgramVariables( LuaObject, false );
+        ProgramVariables( false );
         try { if( LuaObject[pFuncName]( gameObjectData, p1, p2, p3, p4, p5 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
@@ -311,7 +297,7 @@ public:
 
         luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-        ProgramVariables( LuaObject, false );
+        ProgramVariables( false );
         try { if( LuaObject[pFuncName]( gameObjectData, p1, p2, p3, p4, p5, p6 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
@@ -333,7 +319,7 @@ public:
 
         luabridge::LuaRef gameObjectData = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_LuaGameObjectName );
 
-        ProgramVariables( LuaObject, false );
+        ProgramVariables( false );
         try { if( LuaObject[pFuncName]( gameObjectData, p1, p2, p3, p4, p5, p6, p7, p8 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
