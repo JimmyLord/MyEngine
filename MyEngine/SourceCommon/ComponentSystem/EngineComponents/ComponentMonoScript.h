@@ -19,8 +19,6 @@ class MonoGameState;
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/EngineComponents/ComponentScriptBase.h"
 
-typedef void MonoExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
-
 class ComponentMonoScript : public ComponentScriptBase
 {
 private:
@@ -148,7 +146,7 @@ public:
 #endif
     
     // Exposed variable changed callback (not from watch panel).
-    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) override;
+    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) override;
 #endif //MYFW_EDITOR
 };
 

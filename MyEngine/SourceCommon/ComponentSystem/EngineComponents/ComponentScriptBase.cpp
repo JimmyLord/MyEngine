@@ -44,27 +44,24 @@ cJSON* ComponentScriptBase::ExportExposedVariablesAsJSONObject()
         cJSON_AddItemToArray( jExposedVarArray, jExposedVar );
 
         cJSON_AddStringToObject( jExposedVar, "Name", pVar->name.c_str() );
-        cJSON_AddNumberToObject( jExposedVar, "Type", (int)pVar->type );
+        cJSON_AddNumberToObject( jExposedVar, "Type", (int)pVar->value.type );
 
-        if( pVar->type == ExposedVariableType::Float )
+        if( pVar->value.type == ExposedVariableType::Float )
         {
-            cJSON_AddNumberToObject( jExposedVar, "Value", pVar->valueDouble );
+            cJSON_AddNumberToObject( jExposedVar, "Value", pVar->value.valueDouble );
         }
-        if( pVar->type == ExposedVariableType::Bool )
+        if( pVar->value.type == ExposedVariableType::Bool )
         {
-            cJSON_AddNumberToObject( jExposedVar, "Value", pVar->valueBool );
+            cJSON_AddNumberToObject( jExposedVar, "Value", pVar->value.valueBool );
         }
-        if( pVar->type == ExposedVariableType::Vector3 )
+        if( pVar->value.type == ExposedVariableType::Vector3 )
         {
-            cJSONExt_AddFloatArrayToObject( jExposedVar, "Value", &pVar->valueVec3.x, 3 );
+            cJSONExt_AddFloatArrayToObject( jExposedVar, "Value", &pVar->value.valueVec3.x, 3 );
         }
-        else if( pVar->type == ExposedVariableType::GameObject && pVar->pointer )
+        else if( pVar->value.type == ExposedVariableType::GameObject && pVar->value.valuePointer )
         {
-            cJSON* gameobjectref = static_cast<GameObject*>( pVar->pointer )->ExportReferenceAsJSONObject( m_SceneIDLoadedFrom );
-            cJSON_AddItemToObject( jExposedVar, "Value", gameobjectref );
-
-            // TODO: Find a way to uniquely identify a game object...
-            //cJSON_AddStringToObject( jExposedVar, "Value", static_cast<GameObject*>( pVar->pointer )->GetName() );
+            cJSON* jGameObjectRef = static_cast<GameObject*>( pVar->value.valuePointer )->ExportReferenceAsJSONObject( m_SceneIDLoadedFrom );
+            cJSON_AddItemToObject( jExposedVar, "Value", jGameObjectRef );
         }
 
         if( pVar->divorced )
@@ -110,32 +107,32 @@ void ComponentScriptBase::ImportExposedVariablesFromJSONObject(cJSON* jExposedVa
         pVar->Reset();
 
         pVar->name = obj->valuestring;
-        cJSONExt_GetInt( jsonvar, "Type", (int*)&pVar->type );
+        cJSONExt_GetInt( jsonvar, "Type", (int*)&pVar->value.type );
 
-        if( pVar->type == ExposedVariableType::Float )
+        if( pVar->value.type == ExposedVariableType::Float )
         {
-            cJSONExt_GetDouble( jsonvar, "Value", &pVar->valueDouble );
+            cJSONExt_GetDouble( jsonvar, "Value", &pVar->value.valueDouble );
         }
-        if( pVar->type == ExposedVariableType::Bool )
+        if( pVar->value.type == ExposedVariableType::Bool )
         {
-            cJSONExt_GetBool( jsonvar, "Value", &pVar->valueBool );
+            cJSONExt_GetBool( jsonvar, "Value", &pVar->value.valueBool );
         }
-        if( pVar->type == ExposedVariableType::Vector3 )
+        if( pVar->value.type == ExposedVariableType::Vector3 )
         {
-            cJSONExt_GetFloatArray( jsonvar, "Value", &pVar->valueVec3.x, 3 );
+            cJSONExt_GetFloatArray( jsonvar, "Value", &pVar->value.valueVec3.x, 3 );
         }
-        else if( pVar->type == ExposedVariableType::GameObject )
+        else if( pVar->value.type == ExposedVariableType::GameObject )
         {
             cJSON* obj = cJSON_GetObjectItem( jsonvar, "Value" );
             if( obj )
             {
-                pVar->pointer = m_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID(), false );
+                pVar->value.valuePointer = m_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID(), false );
 
                 // TODO: Handle cases where the Scene containing the GameObject referenced isn't loaded.
                 //MyAssert( pVar->pointer != nullptr );
-                if( pVar->pointer )
+                if( pVar->value.valuePointer )
                 {
-                    static_cast<GameObject*>( pVar->pointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                    static_cast<GameObject*>( pVar->value.valuePointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
                 }
                 else
                 {
@@ -154,7 +151,7 @@ void ComponentScriptBase::AddExposedVariablesToInterface()
     {
         ExposedVariableDesc* pVar = m_ExposedVars[i];
 
-        switch( pVar->type )
+        switch( pVar->value.type )
         {
         case ExposedVariableType::Unused:
             MyAssert( false );
@@ -162,19 +159,23 @@ void ComponentScriptBase::AddExposedVariablesToInterface()
 
         case ExposedVariableType::Float:
             {
-                float tempFloat = (float)pVar->valueDouble;
+                float tempFloat = (float)pVar->value.valueDouble;
                 bool modified = ImGui::DragFloat( pVar->name.c_str(), &tempFloat, 0.1f );
                 if( modified )
                 {
-                    TestForExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetActiveItemId(), modified, pVar, tempFloat );
+                    TestForExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetActiveItemId(), modified, pVar, ExposedVariableValue(tempFloat) );
                 }
             }
             break;
 
         case ExposedVariableType::Bool:
             {
-                ImGui::Text( "(TODO) Bool: %s", pVar->name.c_str() );
-                //id = g_pPanelWatch->AddBool( pVar->name.c_str(), &pVar->valueBool, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
+                bool tempBool = (float)pVar->value.valueBool;
+                bool modified = ImGui::Checkbox( pVar->name.c_str(), &tempBool );
+                if( modified )
+                {
+                    TestForExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetLastItemId(), modified, pVar, ExposedVariableValue(tempBool) );
+                }
             }
             break;
 
@@ -190,7 +191,7 @@ void ComponentScriptBase::AddExposedVariablesToInterface()
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
 
-                GameObject* pGameObject = static_cast<GameObject*>( pVar->pointer );
+                GameObject* pGameObject = static_cast<GameObject*>( pVar->value.valuePointer );
 
                 const char* pDesc = "none";
                 if( pGameObject )
@@ -272,35 +273,35 @@ void ComponentScriptBase::CopyExposedVariablesFromOtherComponent(const Component
 
         if( pOtherVar != nullptr )
         {
-            if( pVar->type == ExposedVariableType::Float )
+            if( pVar->value.type == ExposedVariableType::Float )
             {
-                pVar->valueDouble = pOtherVar->valueDouble;
+                pVar->value.valueDouble = pOtherVar->value.valueDouble;
             }
 
-            if( pVar->type == ExposedVariableType::Bool )
+            if( pVar->value.type == ExposedVariableType::Bool )
             {
-                pVar->valueBool = pOtherVar->valueBool;
+                pVar->value.valueBool = pOtherVar->value.valueBool;
             }
 
-            if( pVar->type == ExposedVariableType::Vector3 )
+            if( pVar->value.type == ExposedVariableType::Vector3 )
             {
                 for( int i=0; i<3; i++ )
-                    pVar->valueVec3[0] = pOtherVar->valueVec3[0];
+                    pVar->value.valueVec3[0] = pOtherVar->value.valueVec3[0];
             }
 
-            if( pVar->type == ExposedVariableType::GameObject )
+            if( pVar->value.type == ExposedVariableType::GameObject )
             {
-                pVar->pointer = pOtherVar->pointer;
+                pVar->value.valuePointer = pOtherVar->value.valuePointer;
 
-                if( pVar->pointer )
-                    static_cast<GameObject*>( pVar->pointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                if( pVar->value.valuePointer )
+                    static_cast<GameObject*>( pVar->value.valuePointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
             }
         }
     }
 }
 
 // Static.
-void ComponentScriptBase::TestForExposedVariableModificationAndCreateUndoCommand(ComponentScriptBase* pComponent, ImGuiID id, bool modified, ExposedVariableDesc* pVar, double newValue)
+void ComponentScriptBase::TestForExposedVariableModificationAndCreateUndoCommand(ComponentScriptBase* pComponent, ImGuiID id, bool modified, ExposedVariableDesc* pVar, ExposedVariableValue newValue)
 {
     MyAssert( pComponent != nullptr );
 
@@ -308,7 +309,7 @@ void ComponentScriptBase::TestForExposedVariableModificationAndCreateUndoCommand
     if( id != pComponent->m_ImGuiControlIDForCurrentlySelectedVariable )
     {
         // If a new control was selected, store the starting value and start a new undo chain.
-        pComponent->m_ValueWhenControlSelected = pVar->valueDouble;
+        pComponent->m_ValueWhenControlSelected = pVar->value.valueDouble;
         pComponent->m_LinkNextUndoCommandToPrevious = false;
         pComponent->m_ImGuiControlIDForCurrentlySelectedVariable = id;
     }
@@ -319,7 +320,7 @@ void ComponentScriptBase::TestForExposedVariableModificationAndCreateUndoCommand
         MyAssert( id == pComponent->m_ImGuiControlIDForCurrentlySelectedVariable );
 
         // Add an undo action.
-        EditorCommand* pCommand = MyNew EditorCommand_ExposedVariableFloatChanged(
+        EditorCommand* pCommand = MyNew EditorCommand_ExposedVariableChanged(
             newValue, pVar, ComponentScriptBase::StaticOnExposedVarValueChanged, pComponent );
 
         pComponent->GetComponentSystemManager()->GetEngineCore()->GetCommandStack()->Do( pCommand, pComponent->m_LinkNextUndoCommandToPrevious );
@@ -361,19 +362,19 @@ bool ComponentScriptBase::DoesExposedVariableMatchParent(ExposedVariableDesc* pV
 
                 if( pVar->name == pOtherVar->name )
                 {
-                    switch( pVar->type )
+                    switch( pVar->value.type )
                     {
                     case ExposedVariableType::Float:
-                        return pVar->valueDouble == pOtherVar->valueDouble;
+                        return pVar->value.valueDouble == pOtherVar->value.valueDouble;
 
                     case ExposedVariableType::Bool:
-                        return pVar->valueBool == pOtherVar->valueBool;
+                        return pVar->value.valueBool == pOtherVar->value.valueBool;
 
                     case ExposedVariableType::Vector3:
-                        return pVar->valueVec3 == pOtherVar->valueVec3;
+                        return pVar->value.valueVec3 == pOtherVar->value.valueVec3;
 
                     case ExposedVariableType::GameObject:
-                        return pVar->pointer == pOtherVar->pointer;
+                        return pVar->value.valuePointer == pOtherVar->value.valuePointer;
 
                     case ExposedVariableType::Unused:
                     default:
@@ -468,12 +469,12 @@ void ComponentScriptBase::UpdateChildGameObjectWithNewValue(ExposedVariableDesc*
                 if( pChildVar )
                 {
                     // Found the matching component, now compare the variable.
-                    if( pChildVar->type == ExposedVariableType::Float ||
-                        pChildVar->type == ExposedVariableType::Bool )
+                    if( pChildVar->value.type == ExposedVariableType::Float ||
+                        pChildVar->value.type == ExposedVariableType::Bool )
                     {
-                        if( fequal( pChildVar->valueDouble, oldValue ) )
+                        if( fequal( pChildVar->value.valueDouble, oldValue ) )
                         {
-                            pChildVar->valueDouble = pVar->valueDouble;
+                            pChildVar->value.valueDouble = pVar->value.valueDouble;
                             //pChildScript->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue );
 
                             pChildScript->ProgramVariables( true );
@@ -481,7 +482,7 @@ void ComponentScriptBase::UpdateChildGameObjectWithNewValue(ExposedVariableDesc*
                         }
                     }
 
-                    if( pChildVar->type == ExposedVariableType::Vector3 )
+                    if( pChildVar->value.type == ExposedVariableType::Vector3 )
                     {
                         MyAssert( false );
                         //if( fequal( pChildVar->valueVec3[0], oldvalue ) )
@@ -494,13 +495,13 @@ void ComponentScriptBase::UpdateChildGameObjectWithNewValue(ExposedVariableDesc*
                         //}
                     }
 
-                    if( pVar->type == ExposedVariableType::GameObject )
+                    if( pVar->value.type == ExposedVariableType::GameObject )
                     {
-                        if( pChildVar->pointer == oldPointer )
+                        if( pChildVar->value.valuePointer == oldPointer )
                         {
-                            pChildVar->pointer = pVar->pointer;
-                            if( pVar->pointer )
-                                static_cast<GameObject*>( pVar->pointer )->RegisterOnDeleteCallback( pChildScript, StaticOnGameObjectDeleted );
+                            pChildVar->value.valuePointer = pVar->value.valuePointer;
+                            if( pVar->value.valuePointer )
+                                static_cast<GameObject*>( pVar->value.valuePointer )->RegisterOnDeleteCallback( pChildScript, StaticOnGameObjectDeleted );
 
                             pChildScript->ProgramVariables( true );
                             pChildScript->UpdateChildrenWithNewValue( pChildVar, finishedChanging, oldValue, oldPointer );
@@ -541,74 +542,47 @@ void ComponentScriptBase::CopyExposedVarValueFromParent(ExposedVariableDesc* pVa
 
                 if( pVar->name == pOtherVar->name )
                 {
-                    switch( pVar->type )
+                    switch( pVar->value.type )
                     {
                     case ExposedVariableType::Float:
                         {
-                            double oldvalue = pVar->valueDouble;
-                            double newvalue = pOtherVar->valueDouble;
-                            pVar->valueDouble = pOtherVar->valueDouble;
+                            double oldvalue = pVar->value.valueDouble;
+                            double newvalue = pOtherVar->value.valueDouble;
+                            pVar->value.valueDouble = pOtherVar->value.valueDouble;
 
                             // Notify component and it's children that the value changed.
-                            OnExposedVarValueChanged( pVar, 0, true, oldvalue, nullptr );
-
-#if MYFW_USING_WX
-                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue - oldvalue, PanelWatchType_Double, ((char*)&pVar->valueDouble), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
-#endif
+                            OnExposedVarValueChanged( pVar, 0, true, ExposedVariableValue((float)oldvalue), nullptr );
                         }
                         break;
 
                     case ExposedVariableType::Bool:
                         {
-                            bool oldvalue = pVar->valueBool;
-                            bool newvalue = pOtherVar->valueBool;
-                            pVar->valueDouble = pOtherVar->valueBool;
+                            bool oldvalue = pVar->value.valueBool;
+                            bool newvalue = pOtherVar->value.valueBool;
+                            pVar->value.valueDouble = pOtherVar->value.valueBool;
 
                             // Notify component and it's children that the value changed.
-                            OnExposedVarValueChanged( pVar, 0, true, oldvalue, nullptr );
-
-#if MYFW_USING_WX
-                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue - oldvalue, PanelWatchType_Bool, ((char*)&pVar->valueBool), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
-#endif
+                            OnExposedVarValueChanged( pVar, 0, true, ExposedVariableValue(oldvalue), nullptr );
                         }
                         break;
 
                     case ExposedVariableType::Vector3:
                         {
-                            Vector3 oldvalue = *(Vector3*)&pVar->valueVec3;
-                            Vector3 newvalue = *(Vector3*)&pOtherVar->valueVec3;
-                            *(Vector3*)&pVar->valueVec3 = *(Vector3*)&pOtherVar->valueVec3;
+                            Vector3 oldvalue = *(Vector3*)&pVar->value.valueVec3;
+                            Vector3 newvalue = *(Vector3*)&pOtherVar->value.valueVec3;
+                            *(Vector3*)&pVar->value.valueVec3 = *(Vector3*)&pOtherVar->value.valueVec3;
 
                             // Notify component and it's children that the value changed.
                             OnExposedVarValueChanged( pVar, 0, true, oldvalue.x, nullptr );
                             OnExposedVarValueChanged( pVar, 1, true, oldvalue.y, nullptr );
                             OnExposedVarValueChanged( pVar, 2, true, oldvalue.z, nullptr );
-
-#if MYFW_USING_WX
-                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)&pVar->valueVec3[0]), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
-                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)&pVar->valueVec3[1]), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
-                            m_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue.z - oldvalue.z, PanelWatchType_Float, ((char*)&pVar->valueVec3[2]), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
-#endif
                         }
                         break;
 
                     case ExposedVariableType::GameObject:
                         g_DragAndDropStruct.Clear();
                         g_DragAndDropStruct.SetControlID( pVar->controlID );
-                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pOtherVar->pointer );
-#if MYFW_USING_WX
-                        OnDropExposedVar( pVar->controlID, 0, 0 );
-#endif
+                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pOtherVar->value.valuePointer );
                         break;
 
                     case ExposedVariableType::Unused:
@@ -644,8 +618,8 @@ bool ComponentScriptBase::ClearExposedVariableList(bool addUndoCommands)
             ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
 
             // Unregister gameobject deleted callback, if we registered one.
-            if( pVariable->type == ExposedVariableType::GameObject && pVariable->pointer )
-                static_cast<GameObject*>( pVariable->pointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+            if( pVariable->value.type == ExposedVariableType::GameObject && pVariable->value.valuePointer )
+                static_cast<GameObject*>( pVariable->value.valuePointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
             delete pVariable;
         }

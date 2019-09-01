@@ -62,8 +62,8 @@ ComponentLuaScript::~ComponentLuaScript()
         ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
 
         // Unregister gameobject deleted callback, if we registered one.
-        if( pVariable->type == ExposedVariableType::GameObject && pVariable->pointer )
-            static_cast<GameObject*>( pVariable->pointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        if( pVariable->value.type == ExposedVariableType::GameObject && pVariable->value.valuePointer )
+            static_cast<GameObject*>( pVariable->value.valuePointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         delete pVariable;
     }
@@ -118,8 +118,8 @@ void ComponentLuaScript::Reset()
         ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
 
         // Unregister gameobject deleted callback, if we registered one.
-        if( pVariable->type == ExposedVariableType::GameObject && pVariable->pointer )
-            static_cast<GameObject*>( pVariable->pointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        if( pVariable->value.type == ExposedVariableType::GameObject && pVariable->value.valuePointer )
+            static_cast<GameObject*>( pVariable->value.valuePointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         delete pVariable;
     }
@@ -422,13 +422,13 @@ void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar)
 }
 #endif
 
-void ComponentLuaScript::OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer)
+void ComponentLuaScript::OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer)
 {
     // Register/unregister GameObject onDelete callbacks.
-    if( pVar->type == ExposedVariableType::GameObject )
+    if( pVar->value.type == ExposedVariableType::GameObject )
     {
         GameObject* pOldGameObject = static_cast<GameObject*>( oldPointer );
-        GameObject* pGameObject = static_cast<GameObject*>( pVar->pointer );
+        GameObject* pGameObject = static_cast<GameObject*>( pVar->value.valuePointer );
 
         // Unregister GameObject deleted callback, if we registered one.
         if( pOldGameObject )
@@ -452,7 +452,7 @@ void ComponentLuaScript::OnExposedVarValueChanged(ExposedVariableDesc* pVar, int
     }
 
     // Pass the new value to children.
-    UpdateChildrenWithNewValue( pVar, finishedChanging, oldValue, oldPointer );
+    UpdateChildrenWithNewValue( pVar, finishedChanging, oldValue.valueDouble, oldPointer );
 
     // Update the lua state with the new value.
     ProgramVariables( true );
@@ -888,15 +888,15 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
             if( vartype == "Float" )
             {
                 // If it's a new variable or it changed type, set it to it's initial value.
-                if( pVar->inUse == false || pVar->type != ExposedVariableType::Float )
-                    pVar->valueDouble = variableinitialvalue.cast<double>();
+                if( pVar->inUse == false || pVar->value.type != ExposedVariableType::Float )
+                    pVar->value.valueDouble = variableinitialvalue.cast<double>();
 
-                pVar->type = ExposedVariableType::Float;
+                pVar->value.type = ExposedVariableType::Float;
             }
             else if( vartype == "Vector3" )
             {
                 // If it's a new variable or it changed type, set it to it's initial value.
-                if( pVar->inUse == false || pVar->type != ExposedVariableType::Vector3 )
+                if( pVar->inUse == false || pVar->value.type != ExposedVariableType::Vector3 )
                 {
                     if( variableinitialvalue.isTable() == false ||
                         variableinitialvalue[1].isNil() || 
@@ -907,32 +907,32 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
                     }
                     else
                     {
-                        pVar->valueVec3[0] = variableinitialvalue[1].cast<float>();
-                        pVar->valueVec3[1] = variableinitialvalue[2].cast<float>();
-                        pVar->valueVec3[2] = variableinitialvalue[3].cast<float>();
+                        pVar->value.valueVec3[0] = variableinitialvalue[1].cast<float>();
+                        pVar->value.valueVec3[1] = variableinitialvalue[2].cast<float>();
+                        pVar->value.valueVec3[2] = variableinitialvalue[3].cast<float>();
                     }
                 }
 
-                pVar->type = ExposedVariableType::Vector3;
+                pVar->value.type = ExposedVariableType::Vector3;
             }
             else if( vartype == "Bool" )
             {
                 // If it's a new variable or it changed type, set it to it's initial value.
-                if( pVar->inUse == false || pVar->type != ExposedVariableType::Bool )
-                    pVar->valueBool = variableinitialvalue.cast<bool>();
+                if( pVar->inUse == false || pVar->value.type != ExposedVariableType::Bool )
+                    pVar->value.valueBool = variableinitialvalue.cast<bool>();
 
-                pVar->type = ExposedVariableType::Bool;
+                pVar->value.type = ExposedVariableType::Bool;
             }
             else if( vartype == "GameObject" )
             {
                 // If it's a new variable or it changed type, set it to it's initial value.
-                if( pVar->inUse == false || pVar->type != ExposedVariableType::GameObject )
+                if( pVar->inUse == false || pVar->value.type != ExposedVariableType::GameObject )
                 {
-                    pVar->pointer = m_pComponentSystemManager->FindGameObjectByName( variableinitialvalue.tostring().c_str() );
-                    if( pVar->pointer )
-                        static_cast<GameObject*>( pVar->pointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                    pVar->value.valuePointer = m_pComponentSystemManager->FindGameObjectByName( variableinitialvalue.tostring().c_str() );
+                    if( pVar->value.valuePointer )
+                        static_cast<GameObject*>( pVar->value.valuePointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
                 }
-                pVar->type = ExposedVariableType::GameObject;
+                pVar->value.type = ExposedVariableType::GameObject;
             }
             else
             {
@@ -951,8 +951,8 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
             ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex_MaintainOrder( i );
 
             // Unregister gameobject deleted callback, if we registered one.
-            if( pVariable->type == ExposedVariableType::GameObject && pVariable->pointer )
-                static_cast<GameObject*>( pVariable->pointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+            if( pVariable->value.type == ExposedVariableType::GameObject && pVariable->value.valuePointer )
+                static_cast<GameObject*>( pVariable->value.valuePointer )->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
             delete pVariable;
             i--;
@@ -975,17 +975,17 @@ void ComponentLuaScript::ProgramVariables(bool updateExposedVariables)
         {
             ExposedVariableDesc* pVar = m_ExposedVars[i];
 
-            if( pVar->type == ExposedVariableType::Float )
-                gameObjectData[pVar->name] = pVar->valueDouble;
+            if( pVar->value.type == ExposedVariableType::Float )
+                gameObjectData[pVar->name] = pVar->value.valueDouble;
 
-            if( pVar->type == ExposedVariableType::Bool )
-                gameObjectData[pVar->name] = pVar->valueBool;
+            if( pVar->value.type == ExposedVariableType::Bool )
+                gameObjectData[pVar->name] = pVar->value.valueBool;
 
-            if( pVar->type == ExposedVariableType::Vector3 )
-                gameObjectData[pVar->name] = Vector3( pVar->valueVec3[0], pVar->valueVec3[1], pVar->valueVec3[2] );
+            if( pVar->value.type == ExposedVariableType::Vector3 )
+                gameObjectData[pVar->name] = Vector3( pVar->value.valueVec3[0], pVar->value.valueVec3[1], pVar->value.valueVec3[2] );
 
-            if( pVar->type == ExposedVariableType::GameObject )
-                gameObjectData[pVar->name] = static_cast<GameObject*>( pVar->pointer );
+            if( pVar->value.type == ExposedVariableType::GameObject )
+                gameObjectData[pVar->name] = static_cast<GameObject*>( pVar->value.valuePointer );
         }
     }
 }
@@ -1002,13 +1002,13 @@ void ComponentLuaScript::SetExternFloat(const char* name, float newValue)
         if( pVar->name == name )
         {
             found = true;
-            if( pVar->type != ExposedVariableType::Float )
+            if( pVar->value.type != ExposedVariableType::Float )
             {
-                LOGError( LOGTag, "SetExternFloat called on wrong type: %d", pVar->type );
+                LOGError( LOGTag, "SetExternFloat called on wrong type: %d", pVar->value.type );
                 return;
             }
 
-            pVar->valueDouble = newValue;
+            pVar->value.valueDouble = newValue;
         }
     }
 
@@ -1026,8 +1026,8 @@ void ComponentLuaScript::SetExternFloat(const char* name, float newValue)
         pVar->Reset();
 
         pVar->name = name;
-        pVar->type = ExposedVariableType::Float;
-        pVar->valueDouble = newValue;
+        pVar->value.type = ExposedVariableType::Float;
+        pVar->value.valueDouble = newValue;
         return;
     }
 #endif
@@ -1233,9 +1233,9 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
         ExposedVariableDesc* pVar = m_ExposedVars[i];
 
         // If any of our variables is a gameobject, clear it if that gameobject was deleted.
-        if( pVar->type == ExposedVariableType::GameObject )
+        if( pVar->value.type == ExposedVariableType::GameObject )
         {
-            if( pVar->pointer == pGameObject )
+            if( pVar->value.valuePointer == pGameObject )
             {
 #if MYFW_EDITOR
                 if( m_pEngineCore->GetCommandStack() )
@@ -1244,7 +1244,7 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
                         nullptr, pVar, ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                 }
 #endif
-                pVar->pointer = nullptr;
+                pVar->value.valuePointer = nullptr;
             }
         }
     }

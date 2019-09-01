@@ -43,6 +43,7 @@ class EditorCommand_Move2DPoint;
 class EditorCommand_Insert2DPoint;
 class EditorCommand_Delete2DPoint;
 class EditorCommand_ComponentVariablePointerChanged;
+class EditorCommand_ExposedVariableChanged;
 class EditorCommand_ExposedVariablePointerChanged;
 class EditorCommand_ClearExposedVariables;
 class EditorCommand_DeletePrefabs;
@@ -552,19 +553,19 @@ public:
 
 //====================================================================================================
 
-class EditorCommand_ExposedVariableFloatChanged : public EditorCommand
+class EditorCommand_ExposedVariableChanged : public EditorCommand
 {
 protected:
-    double m_NewValue;
-    double m_OldValue;
+    ExposedVariableValue m_NewValue;
+    ExposedVariableValue m_OldValue;
     ExposedVariableDesc* m_pVar;
 
     ExposedVarValueChangedCallback* m_pOnValueChangedCallBackFunc;
     void* m_pCallbackObj;
 
 public:
-    EditorCommand_ExposedVariableFloatChanged(double newValue, ExposedVariableDesc* pVar, ExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
-    virtual ~EditorCommand_ExposedVariableFloatChanged();
+    EditorCommand_ExposedVariableChanged(ExposedVariableValue newValue, ExposedVariableDesc* pVar, ExposedVarValueChangedCallback* callbackFunc, void* callbackObj);
+    virtual ~EditorCommand_ExposedVariableChanged();
 
     virtual void Do();
     virtual void Undo();

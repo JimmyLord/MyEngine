@@ -22,19 +22,52 @@ enum class ExposedVariableType
     GameObject,
 };
 
-class ExposedVariableDesc
+class ExposedVariableValue
 {
 public:
-    std::string name;
     ExposedVariableType type;
     union // TODO?: Make these values shared between c++ and the script so they can be changed/saved more easily.
     {
         double valueDouble;
         bool valueBool;
         Vector3 valueVec3;
-        void* pointer;
+        void* valuePointer;
     };
 
+    ExposedVariableValue()
+    {
+        Reset();
+    }
+
+    ExposedVariableValue(float value)
+    {
+        Reset();
+        type = ExposedVariableType::Float;
+        valueDouble = value;
+    }
+
+    ExposedVariableValue(bool value)
+    {
+        Reset();
+        type = ExposedVariableType::Bool;
+        valueBool = value;
+    }
+
+    void Reset()
+    {
+        type = ExposedVariableType::Unused;
+        valueDouble = 0;
+        valueBool = 0;
+        valueVec3.Set( 0, 0, 0 );
+        valuePointer = nullptr;
+    }
+};
+
+class ExposedVariableDesc
+{
+public:
+    std::string name;
+    ExposedVariableValue value;
     bool divorced;
     bool inUse; // Used internally when reparsing the file.
     int controlID;
@@ -47,17 +80,14 @@ public:
     void Reset()
     {
         name = "";
-        type = ExposedVariableType::Unused;
-        valueDouble = 0;
-        valueBool = 0;
-        valueVec3.Set( 0, 0, 0 );
+        value.Reset();
         divorced = false;
         inUse = false;
         controlID = -1;
     }
 };
 
-typedef void ExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer);
+typedef void ExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer);
 
 class ComponentScriptBase : public ComponentUpdateable
 {
@@ -85,8 +115,8 @@ public:
     virtual void OnGameObjectDeleted(GameObject* pGameObject) = 0;
 
     // Exposed variable changed callback.
-    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) { ((ComponentScriptBase*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
-    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, double oldValue, void* oldPointer) = 0;
+    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) { ((ComponentScriptBase*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
+    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) = 0;
 
 #if MYFW_EDITOR
 protected:
@@ -96,7 +126,7 @@ protected:
     ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
     bool m_LinkNextUndoCommandToPrevious;
 
-    static void TestForExposedVariableModificationAndCreateUndoCommand(ComponentScriptBase* pComponent, ImGuiID id, bool modified, ExposedVariableDesc* pVar, double newValue);
+    static void TestForExposedVariableModificationAndCreateUndoCommand(ComponentScriptBase* pComponent, ImGuiID id, bool modified, ExposedVariableDesc* pVar, ExposedVariableValue newValue);
 #endif //MYFW_USING_IMGUI
 
     bool DoesExposedVariableMatchParent(ExposedVariableDesc* pVar);

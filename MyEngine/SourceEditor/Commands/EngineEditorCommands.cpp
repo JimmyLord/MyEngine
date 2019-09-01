@@ -1678,43 +1678,43 @@ EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
 }
 
 //====================================================================================================
-// EditorCommand_ExposedVariableFloatChanged
+// EditorCommand_ExposedVariableChanged
 //====================================================================================================
 
-EditorCommand_ExposedVariableFloatChanged::EditorCommand_ExposedVariableFloatChanged(double newValue, ExposedVariableDesc* pVar, ExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
+EditorCommand_ExposedVariableChanged::EditorCommand_ExposedVariableChanged(ExposedVariableValue newValue, ExposedVariableDesc* pVar, ExposedVarValueChangedCallback* callbackFunc, void* callbackObj)
 {
-    m_Name = "EditorCommand_ExposedVariableFloatChanged";
+    m_Name = "EditorCommand_ExposedVariableChanged";
 
     m_NewValue = newValue;
     m_pVar = pVar;
 
-    m_OldValue = pVar->valueDouble;
+    m_OldValue = pVar->value;
 
     m_pOnValueChangedCallBackFunc = callbackFunc;
     m_pCallbackObj = callbackObj;
 }
 
-EditorCommand_ExposedVariableFloatChanged::~EditorCommand_ExposedVariableFloatChanged()
+EditorCommand_ExposedVariableChanged::~EditorCommand_ExposedVariableChanged()
 {
 }
 
-void EditorCommand_ExposedVariableFloatChanged::Do()
+void EditorCommand_ExposedVariableChanged::Do()
 {
-    m_pVar->valueDouble = m_NewValue;
+    m_pVar->value = m_NewValue;
 
     if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_OldValue, nullptr );
 }
 
-void EditorCommand_ExposedVariableFloatChanged::Undo()
+void EditorCommand_ExposedVariableChanged::Undo()
 {
-    m_pVar->valueDouble = m_OldValue;
+    m_pVar->value = m_OldValue;
 
     if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, m_NewValue, nullptr );
 }
 
-EditorCommand* EditorCommand_ExposedVariableFloatChanged::Repeat()
+EditorCommand* EditorCommand_ExposedVariableChanged::Repeat()
 {
     return 0;
 }
@@ -1730,7 +1730,7 @@ EditorCommand_ExposedVariablePointerChanged::EditorCommand_ExposedVariablePointe
     m_NewValue = newValue;
     m_pVar = pVar;
 
-    m_OldValue = pVar->pointer;
+    m_OldValue = pVar->value.valuePointer;
 
     m_pOnValueChangedCallBackFunc = callbackFunc;
     m_pCallbackObj = callbackObj;
@@ -1742,18 +1742,18 @@ EditorCommand_ExposedVariablePointerChanged::~EditorCommand_ExposedVariablePoint
 
 void EditorCommand_ExposedVariablePointerChanged::Do()
 {
-    m_pVar->pointer = m_NewValue;
+    m_pVar->value.valuePointer = m_NewValue;
 
     if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
-        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_OldValue );
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, ExposedVariableValue((float)0), m_OldValue );
 }
 
 void EditorCommand_ExposedVariablePointerChanged::Undo()
 {
-    m_pVar->pointer = m_OldValue;
+    m_pVar->value.valuePointer = m_OldValue;
 
     if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
-        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_NewValue );
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, ExposedVariableValue((float)0), m_NewValue );
 }
 
 EditorCommand* EditorCommand_ExposedVariablePointerChanged::Repeat()
@@ -1803,9 +1803,9 @@ void EditorCommand_ScriptClearExposedVariables::Do()
     {
         ExposedVariableDesc* pVariable = m_CopyOfExposedVariables[i];
 
-        if( pVariable->type == ExposedVariableType::GameObject && pVariable->pointer )
+        if( pVariable->value.type == ExposedVariableType::GameObject && pVariable->value.valuePointer )
         {
-            GameObject* pGameObject = static_cast<GameObject*>( pVariable->pointer );
+            GameObject* pGameObject = static_cast<GameObject*>( pVariable->value.valuePointer );
             pGameObject->UnregisterOnDeleteCallback( m_pScriptComponent, ComponentScriptBase::StaticOnGameObjectDeleted );
         }
     }
@@ -1832,8 +1832,8 @@ void EditorCommand_ScriptClearExposedVariables::Undo()
         ExposedVariableDesc* pVariable = m_OriginalExposedVariablesListFromComponent[i];
 
         // Unregister gameobject deleted callback, if we registered one.
-        if( pVariable->type == ExposedVariableType::GameObject && pVariable->pointer )
-            static_cast<GameObject*>( pVariable->pointer )->RegisterOnDeleteCallback( m_pScriptComponent, ComponentScriptBase::StaticOnGameObjectDeleted );
+        if( pVariable->value.type == ExposedVariableType::GameObject && pVariable->value.valuePointer )
+            static_cast<GameObject*>( pVariable->value.valuePointer )->RegisterOnDeleteCallback( m_pScriptComponent, ComponentScriptBase::StaticOnGameObjectDeleted );
     }
 
     m_DeleteExposedVarsWhenDestroyed = false;
