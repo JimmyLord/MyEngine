@@ -41,16 +41,20 @@ public:
 
     ExposedVariableValue(float value)
     {
-        Reset();
         type = ExposedVariableType::Float;
         valueDouble = value;
     }
 
     ExposedVariableValue(bool value)
     {
-        Reset();
         type = ExposedVariableType::Bool;
         valueBool = value;
+    }
+
+    ExposedVariableValue(Vector3 value)
+    {
+        type = ExposedVariableType::Vector3;
+        valueVec3 = value;
     }
 
     void Reset()

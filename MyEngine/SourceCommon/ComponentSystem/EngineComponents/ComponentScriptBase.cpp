@@ -159,30 +159,34 @@ void ComponentScriptBase::AddExposedVariablesToInterface()
 
         case ExposedVariableType::Float:
             {
-                float tempFloat = (float)pVar->value.valueDouble;
-                bool modified = ImGui::DragFloat( pVar->name.c_str(), &tempFloat, 0.1f );
+                float tempValue = (float)pVar->value.valueDouble;
+                bool modified = ImGui::DragFloat( pVar->name.c_str(), &tempValue, 0.1f );
                 if( modified )
                 {
-                    TestForExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetActiveItemId(), modified, pVar, ExposedVariableValue(tempFloat) );
+                    TestForExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetActiveItemId(), modified, pVar, ExposedVariableValue(tempValue) );
                 }
             }
             break;
 
         case ExposedVariableType::Bool:
             {
-                bool tempBool = (float)pVar->value.valueBool;
-                bool modified = ImGui::Checkbox( pVar->name.c_str(), &tempBool );
+                bool tempValue = pVar->value.valueBool;
+                bool modified = ImGui::Checkbox( pVar->name.c_str(), &tempValue );
                 if( modified )
                 {
-                    TestForExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetLastItemId(), modified, pVar, ExposedVariableValue(tempBool) );
+                    TestForExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetLastItemId(), modified, pVar, ExposedVariableValue(tempValue) );
                 }
             }
             break;
 
         case ExposedVariableType::Vector3:
             {
-                ImGui::Text( "(TODO) Vector3: %s", pVar->name.c_str() );
-                //id = g_pPanelWatch->AddVector3( pVar->name.c_str(), (Vector3*)&pVar->valueVec3, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
+                Vector3 tempValue = pVar->value.valueVec3;
+                bool modified = ImGui::DragFloat3( pVar->name.c_str(), &tempValue.x );
+                if( modified )
+                {
+                    TestForExposedVariableModificationAndCreateUndoCommand( this, ImGuiExt::GetLastItemId(), modified, pVar, ExposedVariableValue(tempValue) );
+                }
             }
             break;
 
