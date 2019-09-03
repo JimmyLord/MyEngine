@@ -936,35 +936,65 @@ void ComponentMonoScript::ProgramVariables(bool updateExposedVariables)
     if( m_ScriptLoaded == false )
         return;
 
-    MonoDomain* pMonoDomain = m_pMonoGameState->GetActiveDomain();
-    MonoImage* pMonoImage = m_pMonoGameState->GetImage();
-
-    MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
-
-    if( pClass )
+    // Only program the exposed vars if they change.
+    if( updateExposedVariables )
     {
-        // Only program the exposed vars if they change.
-        if( updateExposedVariables )
+        MonoDomain* pMonoDomain = m_pMonoGameState->GetActiveDomain();
+        MonoImage* pMonoImage = m_pMonoGameState->GetImage();
+
+        MonoClass* pClass = mono_class_from_name( pMonoImage, "", m_MonoClassName );
+
+        if( pClass )
         {
             for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
             {
                 ExposedVariableDesc* pVar = m_ExposedVars[i];
 
-                if( pVar->value.type == ExposedVariableType::Float )
+                switch( pVar->value.type )
                 {
-                    MonoClassField* pField = mono_class_get_field_from_name( pClass, pVar->name.c_str() );
-                    float value = (float)pVar->value.valueDouble;
-                    mono_field_set_value( m_pMonoObjectInstance, pField, &value );
+                case ExposedVariableType::Float:
+                    {
+                        MonoClassField* pField = mono_class_get_field_from_name( pClass, pVar->name.c_str() );
+                        float value = (float)pVar->value.valueDouble;
+                        mono_field_set_value( m_pMonoObjectInstance, pField, &value );
+                    }
+                    break;
+
+                case ExposedVariableType::Bool:
+                    {
+                        MonoClassField* pField = mono_class_get_field_from_name( pClass, pVar->name.c_str() );
+                        bool value = (bool)pVar->value.valueBool;
+                        mono_field_set_value( m_pMonoObjectInstance, pField, &value );
+                    }
+                    break;
+
+                case ExposedVariableType::Vector3:
+                    {
+                        MonoClassField* pField = mono_class_get_field_from_name( pClass, pVar->name.c_str() );
+
+                        MonoClass* pVec3Class = mono_class_from_name( pMonoImage, "MyEngine", "vec3" );
+                        MonoClassField* pFieldX = mono_class_get_field_from_name( pVec3Class, "x" );
+                        MonoClassField* pFieldY = mono_class_get_field_from_name( pVec3Class, "y" );
+                        MonoClassField* pFieldZ = mono_class_get_field_from_name( pVec3Class, "z" );
+
+                        MonoObject* pVec3Instance = mono_field_get_value_object( pMonoDomain, pField, m_pMonoObjectInstance );
+                        Vector3 value = pVar->value.valueVec3;
+                        mono_field_set_value( pVec3Instance, pFieldX, &value.x );
+                        mono_field_set_value( pVec3Instance, pFieldY, &value.y );
+                        mono_field_set_value( pVec3Instance, pFieldZ, &value.z );
+                    }
+                    break;
+
+                case ExposedVariableType::GameObject:
+                    {
+                        //gameObjectData[pVar->name] = static_cast<GameObject*>( pVar->value.valuePointer );
+                    }
+                    break;
+                
+                case ExposedVariableType::Unused:
+                    MyAssert( false );
+                    break;
                 }
-
-        //        if( pVar->value.type == ExposedVariableType::Bool )
-        //            gameObjectData[pVar->name] = pVar->valuebool;
-
-        //        if( pVar->value.type == ExposedVariableType::Vector3 )
-        //            gameObjectData[pVar->name] = Vector3( pVar->valuevector3[0], pVar->valuevector3[1], pVar->valuevector3[2] );
-
-        //        if( pVar->value.type == ExposedVariableType::GameObject )
-        //            gameObjectData[pVar->name] = static_cast<GameObject*>( pVar->value.valuePointer );
             }
         }
     }
