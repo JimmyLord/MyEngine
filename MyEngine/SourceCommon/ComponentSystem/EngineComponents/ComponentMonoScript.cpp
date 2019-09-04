@@ -18,6 +18,7 @@
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
+#include "Mono/Core/MonoGameObject.h"
 #include "Mono/Framework/MonoFrameworkClasses.h"
 #include "Mono/MonoGameState.h"
 #include "../../../SourceEditor/PlatformSpecific/FileOpenDialog.h"
@@ -848,7 +849,7 @@ void ComponentMonoScript::ParseExterns(MonoGameState* pMonoGameState)
                 {
                     pVar = MyNew ExposedVariableDesc();
                     m_ExposedVars.Add( pVar );
-                    pVar->inUse = false; // Is new, will be marked inuse after being initialized.
+                    pVar->inUse = false; // Is new, will be marked inUse after being initialized.
                 }
 
                 pVar->name = varName;
@@ -987,7 +988,10 @@ void ComponentMonoScript::ProgramVariables(bool updateExposedVariables)
 
                 case ExposedVariableType::GameObject:
                     {
-                        //gameObjectData[pVar->name] = static_cast<GameObject*>( pVar->value.valuePointer );
+                        MonoClassField* pField = mono_class_get_field_from_name( pClass, pVar->name.c_str() );
+                        GameObject* pGameObject = (GameObject*)pVar->value.valuePointer;
+                        MonoObject* pMonoGO = Mono_ConstructGameObject( pGameObject );
+                        mono_field_set_value( m_pMonoObjectInstance, pField, pMonoGO );
                     }
                     break;
                 

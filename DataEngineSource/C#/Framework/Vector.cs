@@ -27,12 +27,16 @@ namespace MyEngine
 
         public override string ToString() { return "(" + x + "," + y + "," + z + ")"; }
 
-        public void Length()        { Length( this ); }
-        public void LengthSquared() { LengthSquared( this ); }
-        public void Normalize()     { Normalize( this ); }
+        public float Length()                           { return Length( this ); }
+        public float LengthSquared()                    { return LengthSquared( this ); }
+        public void Normalize()                         { Normalize( this ); }
+        public static vec3 operator+(vec3 t, vec3 o)    { return new vec3( t.x+o.x, t.y+o.y, t.z+o.z ); }
+        public static vec3 operator-(vec3 t, vec3 o)    { return OperatorMinus( t, o ); }
+        public static vec3 operator*(vec3 t, float o)   { return new vec3( t.x*o, t.y*o, t.z*o ); }
 
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void Length(vec3 pThis);
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void LengthSquared(vec3 pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static float Length(vec3 pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static float LengthSquared(vec3 pThis);
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static void Normalize(vec3 pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static vec3 OperatorMinus(vec3 pThis, vec3 pOther);
     }
 }

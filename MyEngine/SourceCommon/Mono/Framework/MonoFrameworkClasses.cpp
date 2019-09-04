@@ -59,13 +59,13 @@ MonoObject* Mono_ConstructMat4()
 //============================================================================================================
 // LOG methods.
 //============================================================================================================
-void Mono_LOGInfo(MonoString* monoStr)
+static void Mono_LOGInfo(MonoString* monoStr)
 {
     char* str = mono_string_to_utf8( monoStr );
     LOGInfo( "MonoLog", "Received string: %s\n", str );
 }
 
-void Mono_LOGError(MonoString* monoStr)
+static void Mono_LOGError(MonoString* monoStr)
 {
     char* str = mono_string_to_utf8( monoStr );
     LOGError( "MonoLog", "Received string: %s\n", str );
@@ -74,16 +74,22 @@ void Mono_LOGError(MonoString* monoStr)
 //============================================================================================================
 // Vector3 methods.
 //============================================================================================================
-void Mono_vec3_Length(MonoVec3* pVec3)        { pVec3->Get()->Length(); }
-void Mono_vec3_LengthSquared(MonoVec3* pVec3) { pVec3->Get()->LengthSquared(); }
-void Mono_vec3_Normalize(MonoVec3* pVec3)     { pVec3->Get()->Normalize(); }
+static float Mono_vec3_Length(MonoVec3* pVec3)          { return pVec3->Get()->Length(); }
+static float Mono_vec3_LengthSquared(MonoVec3* pVec3)   { return pVec3->Get()->LengthSquared(); }
+static void Mono_vec3_Normalize(MonoVec3* pVec3)        { pVec3->Get()->Normalize(); }
+
+static MonoObject* Mono_vec3_OperatorMinus(MonoVec3* pVec3, MonoVec3* o)
+{
+    Vector3 result = pVec3->Get()->operator-( *o->Get() );
+    return Mono_ConstructVec3( result );
+}
 
 //============================================================================================================
 // MyMatrix methods.
 //============================================================================================================
-void Mono_mat4_SetIdentity(MonoMat4* pMat4)  { pMat4->Get()->SetIdentity(); }
+static void Mono_mat4_SetIdentity(MonoMat4* pMat4)  { pMat4->Get()->SetIdentity(); }
 
-void Mono_mat4_CreateSRT(MonoMat4* pMat4, MonoVec3* pScale, MonoVec3* pRot, MonoVec3* pPos)
+static void Mono_mat4_CreateSRT(MonoMat4* pMat4, MonoVec3* pScale, MonoVec3* pRot, MonoVec3* pPos)
 {
     pMat4->Get()->CreateSRT( *pScale->Get(), *pRot->Get(), *pPos->Get() );
 }
@@ -101,6 +107,7 @@ void RegisterMonoFrameworkClasses(MonoGameState* pMonoState)
     mono_add_internal_call( "MyEngine.vec3::Length",        Mono_vec3_Length );
     mono_add_internal_call( "MyEngine.vec3::LengthSquared", Mono_vec3_LengthSquared );
     mono_add_internal_call( "MyEngine.vec3::Normalize",     Mono_vec3_Normalize );
+    mono_add_internal_call( "MyEngine.vec3::OperatorMinus", Mono_vec3_OperatorMinus );
 
     // MyMatrix methods.
     mono_add_internal_call( "MyEngine.mat4::SetIdentity",   Mono_mat4_SetIdentity );
