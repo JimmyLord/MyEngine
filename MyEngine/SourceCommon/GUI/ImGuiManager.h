@@ -10,6 +10,9 @@
 #ifndef __ImGuiManager_H__
 #define __ImGuiManager_H__
 
+#include "../../../Libraries/imgui/imgui.h"
+#include "../../../Libraries/imgui/imgui_internal.h"
+
 class ImGuiManager;
 
 class ImGuiManager

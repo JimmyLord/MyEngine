@@ -28,7 +28,10 @@
 
 #if MYFW_EDITOR
 #if MYFW_WINDOWS
+#pragma warning( push )
+#pragma warning( disable:4267 )
 #include "../../Libraries/dirent/dirent.h"
+#pragma warning( pop )
 #else
 #include <dirent.h>
 #endif
@@ -119,8 +122,8 @@ void GetListOfFilesInFolder(std::vector<std::string>* pFileList, const char *nam
         }
         else
         {
-            int len = strlen( entry->d_name );
-            int extLen = strlen( ext );
+            int len = (int)strlen( entry->d_name );
+            int extLen = (int)strlen( ext );
             if( len > extLen )
             {
                 if( strcmp( &entry->d_name[len-extLen], ext ) == 0 )

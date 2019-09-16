@@ -367,7 +367,7 @@ void ComponentMonoScript::AddAllVariablesToWatchPanel()
                             }
 
                             if( strcmp( className, m_MonoClassName ) == 0 )
-                                currentClassIndex = validClasses.size();
+                                currentClassIndex = (int)validClasses.size();
 
                             validClasses.push_back( className );
                         }

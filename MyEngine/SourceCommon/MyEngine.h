@@ -107,6 +107,7 @@
 #include "../SourceEditor/DragAndDropHackeryExtended.h"
 #include "../SourceEditor/EditorMainFrame.h"
 #include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/Documents/EditorDocument.h"
 #include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/TransformGizmo.h"
 #include "../SourceEditor/Commands/EngineCommandStack.h"

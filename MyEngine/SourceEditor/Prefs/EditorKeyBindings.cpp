@@ -317,7 +317,7 @@ void EditorKeyBindings::AddCustomizationTab()
                 if( strncmp( currentHeader, g_KeyBindingStrings[action], strlen( currentHeader ) ) )
                 {
                     const char* underscoreLocation = reinterpret_cast<const char*>( memchr( g_KeyBindingStrings[action], '_', strlen( g_KeyBindingStrings[action] ) ) );
-                    int underscoreOffset = underscoreLocation ? underscoreLocation - g_KeyBindingStrings[action] : 0;
+                    int underscoreOffset = underscoreLocation ? (int)(underscoreLocation - g_KeyBindingStrings[action]) : 0;
 
                     ImGui::Columns( 1 );
                     strncpy_s( currentHeader, 32, g_KeyBindingStrings[action], underscoreOffset );

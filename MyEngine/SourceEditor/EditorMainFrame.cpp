@@ -92,7 +92,7 @@ void EditorMainFrame::ParseLogMessage(const char* message)
             const char* posOpenBracket = strstr( message, "(" );
             if( posOpenBracket != nullptr )
             {
-                int pathLen = posOpenBracket - message;
+                int pathLen = (int)(posOpenBracket - message);
                 if( pathLen > 0 && pathLen < MAX_PATH )
                 {
                     char relativePath[MAX_PATH];

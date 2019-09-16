@@ -5,6 +5,14 @@
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
+if MyEnginePremakeConfig_FrameworkFolder == nil then
+    MyEnginePremakeConfig_FrameworkFolder = "$(SolutionDir)../Framework"
+end
+
+if monoInstallationPath == nil then
+    monoInstallationPath = "C:/Program Files (x86)/Mono" -- TODO: Don't hardcode the path to mono installation.
+end
+
 project "MyEngine"
     configurations      { "Debug", "Release", "EditorDebug", "EditorRelease" }
     uuid                "CBF52F7E-23CE-4846-B48C-0146D0879805"
@@ -18,9 +26,9 @@ project "MyEngine"
     includedirs {
         "MyEngine/SourceCommon",
         "Libraries/bullet3/src",
-        "$(SolutionDir)../Framework/Libraries/b2Settings",
-        "$(SolutionDir)../Framework/Libraries/Box2D",
-        "C:/Program Files (x86)/Mono/include/mono-2.0", -- TODO: Don't hardcode the path to mono installation.
+        MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/b2Settings",
+        MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/Box2D",
+        monoInstallationPath .. "include/mono-2.0",
     }
 
     files {
@@ -90,7 +98,11 @@ project "MyEngine"
     filter "configurations:EditorDebug or EditorRelease"
         defines         { "MYFW_EDITOR", "MYFW_USING_IMGUI" }
 
+if MyEnginePremakeConfig_ForceIncludeEditorFiles == true then
+    filter {}
+else
     filter "configurations:EditorDebug or EditorRelease"
+end
         files {
             "MyEngine/SourceEditor/**.cpp",
             "MyEngine/SourceEditor/**.h",

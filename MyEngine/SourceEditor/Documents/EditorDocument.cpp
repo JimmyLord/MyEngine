@@ -81,7 +81,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
             // Request a file path from the OS.
             char tempFilter[256];
             sprintf_s( tempFilter, 256, "%s=All=*.*=", GetDefaultFileSaveFilter() );
-            uint32 tempFilterLen = strlen( tempFilter );
+            uint32 tempFilterLen = (int)strlen( tempFilter );
             for( uint32 i=0; i<tempFilterLen; i++ )
             {
                 if( tempFilter[i] == '=' )
@@ -94,7 +94,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
             if( path[0] != 0 )
             {
                 int len = (int)strlen( path );
-                int defaultFileExtensionLength = strlen( GetFileExtension() );
+                int defaultFileExtensionLength = (int)strlen( GetFileExtension() );
 
                 // Append extension to end of filename if it wasn't already there.
                 char fullPath[MAX_PATH];
@@ -177,7 +177,7 @@ EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorD
 
                 if( ImGui::MenuItem( relativePath ) )
                 {
-                    uint32 len = strlen( relativePath );
+                    uint32 len = (uint32)strlen( relativePath );
 
                     if( strcmp( &relativePath[len-strlen(".myvisualscript")], ".myvisualscript" ) == 0 )
                     {
@@ -261,7 +261,7 @@ EditorDocument* EditorDocument::LoadDocument(EngineCore* pEngineCore)
         "VisualScript Files=*.myvisualscript",
         "MyHeightmap Files=*.myheightmap"
     );
-    uint32 tempFilterLen = strlen( tempFilter );
+    uint32 tempFilterLen = (uint32)strlen( tempFilter );
     for( uint32 i=0; i<tempFilterLen; i++ )
     {
         if( tempFilter[i] == '=' )

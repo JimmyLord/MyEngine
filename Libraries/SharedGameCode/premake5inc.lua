@@ -5,6 +5,16 @@
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
+if SharedGameCodePremakeConfig_EngineFolder == nil then
+    SharedGameCodePremakeConfig_EngineFolder = "$(SolutionDir)../Engine"
+end
+if SharedGameCodePremakeConfig_FrameworkFolder == nil then
+    SharedGameCodePremakeConfig_FrameworkFolder = "$(SolutionDir)../Framework"
+end
+if SharedGameCodePremakeConfig_SharedGameCodeFolder == nil then
+    SharedGameCodePremakeConfig_SharedGameCodeFolder = "$(SolutionDir)../SharedGameCode"
+end
+
 project "SharedGameCode"
     configurations      { "Debug", "Release", "EditorDebug", "EditorRelease" }
     uuid                "9E4D91C3-6ED5-4DFD-B6CD-ADA011C049B8"
@@ -15,12 +25,12 @@ project "SharedGameCode"
     pchheader           "SharedCommonHeader.h"
     pchsource           "SharedCommonHeader.cpp"
     includedirs {
-        "$(SolutionDir)../Engine/MyEngine/SourceCommon",
-        "$(SolutionDir)../Engine/Libraries/bullet3/src/",
-        "$(SolutionDir)../Engine/Libraries/SharedGameCode",
-        "$(SolutionDir)../Framework/Libraries/b2Settings",
-        "$(SolutionDir)../Framework/Libraries/Box2D",
-        "$(SolutionDir)../SharedGameCode",
+        SharedGameCodePremakeConfig_EngineFolder .. "MyEngine/SourceCommon",
+        SharedGameCodePremakeConfig_EngineFolder .. "Libraries/bullet3/src/",
+        SharedGameCodePremakeConfig_EngineFolder .. "Libraries/SharedGameCode",
+        SharedGameCodePremakeConfig_FrameworkFolder .. "/Libraries/b2Settings",
+        SharedGameCodePremakeConfig_FrameworkFolder .. "/Libraries/Box2D",
+        SharedGameCodePremakeConfig_SharedGameCodeFolder,
     }
 
     files {

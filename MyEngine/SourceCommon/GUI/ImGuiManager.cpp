@@ -427,7 +427,10 @@ void ImGuiManager::CreateFont() // Static.
     config.MergeMode = true;
     config.GlyphMinAdvanceX = 13.0f; // Use if you want to make the icon monospaced
     static const ImWchar icon_ranges[] = { EditorIconData_First, EditorIconData_Last, 0 };
-    io.Fonts->AddFontFromFileTTF( EditorIconData_Filename, 13.0f, &config, icon_ranges );
+    if( FileManager::DoesFileExist( EditorIconData_Filename ) )
+    {
+        io.Fonts->AddFontFromFileTTF( EditorIconData_Filename, 13.0f, &config, icon_ranges );
+    }
     io.Fonts->Build();
 }
 

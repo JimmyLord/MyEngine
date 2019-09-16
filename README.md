@@ -17,3 +17,4 @@ For VSCode extension:
 
 Mono (early testing on Windows):
 mono-6.0.0.313-gtksharp-2.12.45-win32-0
+mono-6.0.0.334-x64-0.msi

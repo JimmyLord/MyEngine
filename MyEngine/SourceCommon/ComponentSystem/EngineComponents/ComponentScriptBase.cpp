@@ -16,6 +16,7 @@
 #include "ComponentScriptBase.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"
+#include "GUI/ImGuiExtensions.h"
 
 #if MYFW_EDITOR
 #include "GUI/ImGuiExtensions.h"

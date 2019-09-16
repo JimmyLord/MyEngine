@@ -23,7 +23,7 @@ project "BulletCollision"
     warnings                "Off"
 
     includedirs {
-        "$(SolutionDir)../Engine/Libraries/bullet3/src/",
+        "bullet3/src/",
     }
 
     files {
@@ -65,7 +65,7 @@ project "BulletDynamics"
     warnings                "Off"
 
     includedirs {
-        "$(SolutionDir)../Engine/Libraries/bullet3/src/",
+        "bullet3/src/",
     }
 
     files {
@@ -107,7 +107,7 @@ project "LinearMath"
     warnings                "Off"
 
     includedirs {
-        "$(SolutionDir)../Engine/Libraries/bullet3/src/",
+        "bullet3/src/",
     }
 
     files {
