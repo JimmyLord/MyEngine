@@ -124,6 +124,13 @@
 #include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"
 #include "../SourceEditor/Interfaces/EditorInterface_SceneManagement.h"
 #include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
-#endif
+
+// NodeGraph
+#include "../SourceEditor/NodeGraph/MyNode.h"
+#include "../SourceEditor/NodeGraph/MyNodeGraph.h"
+#include "../SourceEditor/NodeGraph/NodeGraphEditorCommands.h"
+#include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
+#include "../SourceEditor/NodeGraph/VisualScriptNodeTypeManager.h"
+#endif //MYFW_EDITOR
 
 #endif //__MyEngine_H__
