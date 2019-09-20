@@ -150,6 +150,8 @@ public:
 
     // Returns true if in focus.
     virtual void Update() override;
+    virtual void AddItemsAboveNodeGraphWindow();
+    virtual void AddAdditionalItemsToNodeContextMenu(MyNodeGraph::MyNode* pNode) {}
 
     // Getters.
     MyNodeLink* FindLinkConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex = 0);
