@@ -17,7 +17,7 @@ class ComponentTransform;
 
 class EditorDocument
 {
-protected:
+public:
     enum EditorDocumentMenuCommands
     {
         EditorDocumentMenuCommand_Undo,
@@ -46,10 +46,11 @@ protected:
     bool m_WindowFocused;
     bool m_WindowVisible;
 
-protected:
+public:
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command);
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value);
 
+protected:
     // File IO.
     virtual const char* GetFileExtension() = 0;
     virtual const char* GetDefaultDataFolder() = 0;

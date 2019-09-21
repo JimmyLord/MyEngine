@@ -122,7 +122,11 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
             if( m_RelativePath[0] != '\0' )
             {
                 Save();
-                m_pEngineCore->GetEditorPrefs()->AddRecentDocument( m_RelativePath );
+
+                if( m_pEngineCore )
+                {
+                    m_pEngineCore->GetEditorPrefs()->AddRecentDocument( m_RelativePath );
+                }
             }
         }
         break;

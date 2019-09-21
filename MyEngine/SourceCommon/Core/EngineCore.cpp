@@ -152,8 +152,6 @@ EngineCore::~EngineCore()
 
 void EngineCore::Cleanup()
 {
-    SaveEditorPrefs();
-
     SAFE_DELETE( m_pImGuiManager );
 
     SAFE_DELETE( g_pRTQGlobals );
@@ -523,6 +521,11 @@ void EngineCore::OneTimeInit()
 #endif
 }
 
+void EngineCore::OnPrepareToDie()
+{
+    SaveEditorPrefs();
+}
+
 bool EngineCore::IsReadyToRender()
 {
     return true;
@@ -531,7 +534,14 @@ bool EngineCore::IsReadyToRender()
 void EngineCore::RequestClose()
 {
 #if MYFW_EDITOR
-    ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->RequestCloseWindow();
+    if( m_pEditorMainFrame )
+    {
+        ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->RequestCloseWindow();
+    }
+    else
+    {
+        GameCore::RequestClose();
+    }
 #else
     GameCore::RequestClose();
 #endif
@@ -1335,7 +1345,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
         if( GameCore::OnKeys( action, keycode, unicodechar ) )
             return true;
 
-        if( m_pComponentSystemManager->OnKeys( action, keycode, unicodechar ) )
+        if( m_pComponentSystemManager && m_pComponentSystemManager->OnKeys( action, keycode, unicodechar ) )
             return true;
     }
 
@@ -1536,7 +1546,11 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
     m_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     // Pass all inputs to our imgui frame, which will deliver it to the correct window (game, editor or widget).
-    bool inputUsed = ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+    bool inputUsed = false;
+    if( m_pEditorMainFrame )
+    {
+        inputUsed = ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+    }
 
     // inputUsed will be false if the game window was in focus and the input event wasn't a hotkey.
     return inputUsed;

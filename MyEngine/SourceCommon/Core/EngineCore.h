@@ -231,6 +231,7 @@ public:
     virtual EditorMainFrame* CreateEditorMainFrame();
 #endif
     virtual void OneTimeInit();
+    virtual void OnPrepareToDie();
     virtual bool IsReadyToRender();
 
     virtual void RequestClose(); // Override GameCore, will popup a confirm dialog in ImGui Editor builds.

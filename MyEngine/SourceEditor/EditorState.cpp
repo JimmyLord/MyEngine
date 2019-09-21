@@ -189,7 +189,9 @@ void EditorState::OpenDocument(EditorDocument* pDocument)
 
 ComponentCamera* EditorState::GetEditorCamera()
 {
-    MyAssert( m_pEditorCamera );
+    if( m_pEditorCamera == nullptr )
+        return nullptr;
+
     return (ComponentCamera*)m_pEditorCamera->GetFirstComponentOfBaseType( BaseComponentType_Camera );
 }
 

@@ -186,7 +186,10 @@ void EditorPrefs::LoadPrefs()
     }
 
     m_pImGuiStylePrefs->LoadPrefs( m_jEditorPrefs );
-    g_pEngineCore->GetEditorMainFrame_ImGui()->GetLayoutManager()->LoadPrefs( m_jEditorPrefs );
+    if( g_pEngineCore->GetEditorMainFrame_ImGui() )
+    {
+        g_pEngineCore->GetEditorMainFrame_ImGui()->GetLayoutManager()->LoadPrefs( m_jEditorPrefs );
+    }
 
     m_pKeyBindings->LoadPrefs( m_jEditorPrefs );
 }
@@ -259,6 +262,11 @@ cJSON* EditorPrefs::SaveStart()
             else
                 m_IsWindowMaximized = false;
         }
+        else
+        {
+            DWORD err = GetLastError();
+            int bp = 1;
+        }
 #endif //MYFW_USING_IMGUI
 
         cJSON_AddNumberToObject( jPrefs, "WindowX", m_WindowX );
@@ -267,19 +275,28 @@ cJSON* EditorPrefs::SaveStart()
         cJSON_AddNumberToObject( jPrefs, "WindowHeight", m_WindowHeight );
         cJSON_AddNumberToObject( jPrefs, "IsMaximized", m_IsWindowMaximized );
 
-        const char* relativePath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
-        if( relativePath )
-            cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", relativePath );
-        else
-            cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
-
-        cJSON_AddItemToObject( jPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
-
-        // 2D Animation Editor.
-        My2DAnimInfo* pAnimInfo = g_pEngineCore->GetEditorMainFrame_ImGui()->Get2DAnimInfoBeingEdited();
-        if( pAnimInfo && pAnimInfo->GetSourceFile() && pAnimInfo->GetSourceFile()->GetFullPath() )
+        if( g_pComponentSystemManager )
         {
-            cJSON_AddStringToObject( jPrefs, "2DAnimInfoBeingEdited", pAnimInfo->GetSourceFile()->GetFullPath() );
+            const char* relativePath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
+            if( relativePath )
+                cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", relativePath );
+            else
+                cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
+        }
+
+        if( g_pEngineCore->GetEditorState()->GetEditorCamera() )
+        {
+            cJSON_AddItemToObject( jPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
+        }
+
+        if( g_pEngineCore->GetEditorMainFrame_ImGui() )
+        {
+            // 2D Animation Editor.
+            My2DAnimInfo* pAnimInfo = g_pEngineCore->GetEditorMainFrame_ImGui()->Get2DAnimInfoBeingEdited();
+            if( pAnimInfo && pAnimInfo->GetSourceFile() && pAnimInfo->GetSourceFile()->GetFullPath() )
+            {
+                cJSON_AddStringToObject( jPrefs, "2DAnimInfoBeingEdited", pAnimInfo->GetSourceFile()->GetFullPath() );
+            }
         }
 
         //cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
@@ -338,7 +355,10 @@ cJSON* EditorPrefs::SaveStart()
         cJSON_AddItemToObject( jPrefs, "Lua_RecentFiles", jRecentFilesArray );
 
         m_pImGuiStylePrefs->SavePrefs( jPrefs );
-        g_pEngineCore->GetEditorMainFrame_ImGui()->GetLayoutManager()->SavePrefs( jPrefs );
+        if( g_pEngineCore->GetEditorMainFrame_ImGui() )
+        {
+            g_pEngineCore->GetEditorMainFrame_ImGui()->GetLayoutManager()->SavePrefs( jPrefs );
+        }
 
         m_pKeyBindings->SavePrefs( jPrefs );
 
