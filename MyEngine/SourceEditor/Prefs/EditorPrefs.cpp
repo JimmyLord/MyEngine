@@ -15,6 +15,7 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "Core/EngineCore.h"
 #include "GUI/ImGuiExtensions.h"
+#include "../SourceEditor/Documents/EditorDocument.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
@@ -298,6 +299,15 @@ cJSON* EditorPrefs::SaveStart()
                 cJSON_AddStringToObject( jPrefs, "2DAnimInfoBeingEdited", pAnimInfo->GetSourceFile()->GetFullPath() );
             }
         }
+
+        // Open Documents.
+        cJSON* jOpenDocumentsArray = cJSON_CreateArray();
+        for( unsigned int i=0; i<g_pEngineCore->GetEditorState()->m_pOpenDocuments.size(); i++ )
+        {
+            cJSON* jDocument = cJSON_CreateString( g_pEngineCore->GetEditorState()->m_pOpenDocuments[i]->GetRelativePath() );
+            cJSON_AddItemToArray( jOpenDocumentsArray, jDocument );
+        }
+        cJSON_AddItemToObject( jPrefs, "State_OpenDocuments", jOpenDocumentsArray );
 
         //cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
         //cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );

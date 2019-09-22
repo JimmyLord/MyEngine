@@ -373,6 +373,7 @@ void EngineCore::OneTimeInit()
 
 #if MYFW_EDITOR
     m_pEditorState = MyNew EditorState( this );
+    m_pEditorState->Init();
     m_pEditorState->m_pDebugViewFBO = GetManagers()->GetTextureManager()->CreateFBO( 0, 0, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_None, 0, false, true );
     m_pEditorState->m_pMousePickerFBO = GetManagers()->GetTextureManager()->CreateFBO( 0, 0, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_None, 0, false, true );
 

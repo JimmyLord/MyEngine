@@ -61,6 +61,34 @@ EditorState::EditorState(EngineCore* pEngineCore)
     m_pGameObjectCameraIsFollowing = 0;
     m_OffsetFromObject.SetIdentity();
 
+    for( int i=0; i<EditorIcon_NumIcons; i++ )
+    {
+        m_pEditorIcons[i] = nullptr;
+    }
+}
+
+EditorState::~EditorState()
+{
+    SAFE_RELEASE( m_pDebugViewFBO );
+    SAFE_RELEASE( m_pMousePickerFBO );
+
+    SAFE_DELETE( m_pTransformGizmo );
+    SAFE_DELETE( m_p3DGridPlane );
+    SAFE_DELETE( m_pEditorCamera );
+
+    for( int i=0; i<EditorIcon_NumIcons; i++ )
+    {
+        SAFE_RELEASE( m_pEditorIcons[i] );
+    }
+
+    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
+    {
+        delete m_pOpenDocuments[i];
+    }
+}
+
+void EditorState::Init()
+{
     ShaderGroup* pShader = m_pEngineCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByName( "Shader_TintColor" );
 
     // Load all the editor icons (Lights/Cameras/Etc)
@@ -116,26 +144,6 @@ EditorState::EditorState(EngineCore* pEngineCore)
             }
             pFile->Release();
         }
-    }
-}
-
-EditorState::~EditorState()
-{
-    SAFE_RELEASE( m_pDebugViewFBO );
-    SAFE_RELEASE( m_pMousePickerFBO );
-
-    SAFE_DELETE( m_pTransformGizmo );
-    SAFE_DELETE( m_p3DGridPlane );
-    SAFE_DELETE( m_pEditorCamera );
-
-    for( int i=0; i<EditorIcon_NumIcons; i++ )
-    {
-        SAFE_RELEASE( m_pEditorIcons[i] );
-    }
-
-    for( uint32 i=0; i<m_pOpenDocuments.size(); i++ )
-    {
-        delete m_pOpenDocuments[i];
     }
 }
 

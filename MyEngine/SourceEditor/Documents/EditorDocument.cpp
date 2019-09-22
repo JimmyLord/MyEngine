@@ -108,7 +108,7 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
                 }
 
                 // Only set the filename and save if the path is relative.
-                const char* relativePath = ::GetRelativePath( path );
+                const char* relativePath = ::GetRelativePath( fullPath );
                 if( relativePath )
                 {
                     SetRelativePath( relativePath );

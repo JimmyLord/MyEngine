@@ -104,6 +104,8 @@ public:
     EditorState(EngineCore* pEngineCore);
     ~EditorState();
 
+    void Init();
+
     void SaveAllMiscFiles();
     void SaveAllOpenDocuments();
     bool DoAnyOpenDocumentsHaveUnsavedChanges();
