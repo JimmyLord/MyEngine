@@ -14,9 +14,7 @@ class MonoGameState;
 
 #define MONO_VTABLE_AND_LOCK_BYTES 8
 struct MonoMat4 { MyMatrix* Get() { return (MyMatrix*)(((char*)this)+MONO_VTABLE_AND_LOCK_BYTES); } };
-struct MonoVec3 { Vector3*  Get() { return  (Vector3*)(((char*)this)+MONO_VTABLE_AND_LOCK_BYTES); } };
 
-MonoObject* Mono_ConstructVec3(Vector3 pos);
 MonoObject* Mono_ConstructMat4();
 
 void RegisterMonoFrameworkClasses(MonoGameState* pMonoState);

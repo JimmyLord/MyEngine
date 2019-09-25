@@ -18,28 +18,8 @@
 #include "Mono/MonoGameState.h"
 
 //============================================================================================================
-// Helpers to create a vec3 and mat4 objects in managed memory.
+// Helpers to create mat4 objects in managed memory.
 //============================================================================================================
-MonoObject* Mono_ConstructVec3(Vector3 pos)
-{
-    MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "vec3" );
-    if( pClass )
-    {
-        MonoObject* pInstance = mono_object_new( MonoGameState::g_pActiveDomain, pClass );
-
-        MonoMethod* pConstructor = mono_class_get_method_from_name( pClass, ".ctor", 3 );
-        void* args[3];
-        args[0] = &pos.x;
-        args[1] = &pos.y;
-        args[2] = &pos.z;
-        mono_runtime_invoke( pConstructor, pInstance, args, nullptr );
-
-        return pInstance;
-    }
-
-    return nullptr;
-}
-
 MonoObject* Mono_ConstructMat4()
 {
     MonoClass* pClass = mono_class_from_name( MonoGameState::g_pMonoImage, "MyEngine", "mat4" );
@@ -74,14 +54,13 @@ static void Mono_LOGError(MonoString* monoStr)
 //============================================================================================================
 // Vector3 methods.
 //============================================================================================================
-static float Mono_vec3_Length(MonoVec3* pVec3)          { return pVec3->Get()->Length(); }
-static float Mono_vec3_LengthSquared(MonoVec3* pVec3)   { return pVec3->Get()->LengthSquared(); }
-static void Mono_vec3_Normalize(MonoVec3* pVec3)        { pVec3->Get()->Normalize(); }
+static float Mono_vec3_Length(Vector3 vec)          { return vec.Length(); }
+static float Mono_vec3_LengthSquared(Vector3 vec)   { return vec.LengthSquared(); }
+static void Mono_vec3_Normalize(Vector3 vec)        { vec.Normalize(); }
 
-static MonoObject* Mono_vec3_OperatorMinus(MonoVec3* pVec3, MonoVec3* o)
+static Vector3 Mono_vec3_OperatorMinus(Vector3 vec, Vector3 o)
 {
-    Vector3 result = pVec3->Get()->operator-( *o->Get() );
-    return Mono_ConstructVec3( result );
+    return vec.operator-( o );
 }
 
 //============================================================================================================
@@ -89,9 +68,9 @@ static MonoObject* Mono_vec3_OperatorMinus(MonoVec3* pVec3, MonoVec3* o)
 //============================================================================================================
 static void Mono_mat4_SetIdentity(MonoMat4* pMat4)  { pMat4->Get()->SetIdentity(); }
 
-static void Mono_mat4_CreateSRT(MonoMat4* pMat4, MonoVec3* pScale, MonoVec3* pRot, MonoVec3* pPos)
+static void Mono_mat4_CreateSRT(MonoMat4* pMat4, Vector3 scale, Vector3 rot, Vector3 pos)
 {
-    pMat4->Get()->CreateSRT( *pScale->Get(), *pRot->Get(), *pPos->Get() );
+    pMat4->Get()->CreateSRT( scale, rot, pos );
 }
 
 //============================================================================================================

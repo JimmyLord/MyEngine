@@ -40,9 +40,9 @@ MonoObject* Mono_ConstructComponentTransform(ComponentTransform* pObject)
 //============================================================================================================
 // ComponentTransform methods.
 //============================================================================================================
-static MonoObject* GetLocalPosition(ComponentTransform* pComponentTransform)
+static Vector3 GetLocalPosition(ComponentTransform* pComponentTransform)
 {
-    return Mono_ConstructVec3( pComponentTransform->GetLocalPosition() );
+    return pComponentTransform->GetLocalPosition();
 }
 
 static void SetLocalPosition3f(ComponentTransform* pComponentTransform, float x, float y, float z)
@@ -50,9 +50,9 @@ static void SetLocalPosition3f(ComponentTransform* pComponentTransform, float x,
     pComponentTransform->SetLocalPosition( Vector3( x, y, z ) );
 }
 
-static void SetLocalPositionVec3(ComponentTransform* pComponentTransform, MonoVec3* pVec3)
+static void SetLocalPositionVec3(ComponentTransform* pComponentTransform, Vector3 vec)
 {
-    pComponentTransform->SetLocalPosition( *pVec3->Get() );
+    pComponentTransform->SetLocalPosition( vec );
 }
 
 static void SetLocalTransform(ComponentTransform* pComponentTransform, MonoMat4* pMat4)

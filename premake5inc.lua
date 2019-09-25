@@ -28,7 +28,7 @@ project "MyEngine"
         "Libraries/bullet3/src",
         MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/b2Settings",
         MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/Box2D",
-        monoInstallationPath .. "include/mono-2.0",
+        monoInstallationPath .. "/include/mono-2.0",
     }
 
     files {

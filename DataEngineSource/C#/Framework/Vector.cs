@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 namespace MyEngine
 {
     [StructLayout(LayoutKind.Sequential)]
-    public class vec3
+    public struct vec3
     {
         public float x, y, z;
 

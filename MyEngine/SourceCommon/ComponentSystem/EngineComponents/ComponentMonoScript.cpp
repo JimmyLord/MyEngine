@@ -872,9 +872,9 @@ void ComponentMonoScript::ParseExterns(MonoGameState* pMonoGameState)
                     // If it's a new variable or it changed type, set it to it's initial value.
                     if( pVar->inUse == false || pVar->value.type != ExposedVariableType::Vector3 )
                     {
-                        MonoVec3* value;
+                        Vector3 value;
                         mono_field_get_value( pInstance, pField, &value );
-                        pVar->value.valueVec3 = *value->Get();
+                        pVar->value.valueVec3 = value;
                     }
 
                     pVar->value.type = ExposedVariableType::Vector3;
