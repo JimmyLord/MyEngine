@@ -12,9 +12,9 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MyEngine
-{ 
+{
     [StructLayout(LayoutKind.Sequential)]
-    public class mat4
+    public struct mat4
     {
         // Values are stored column major.
         // m11 m21 m31 m41       Sx  0  0 Tx
@@ -23,10 +23,10 @@ namespace MyEngine
         // m14 m24 m34 m44        0  0  0  1
         public float m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44;
 
-        public void SetIdentity() { SetIdentity( this ); }
-        public void CreateSRT(vec3 scale, vec3 rot, vec3 pos) { CreateSRT( this, scale, rot, pos ); }
+        public void SetIdentity() { SetIdentity( ref this ); }
+        public void CreateSRT(vec3 scale, vec3 rot, vec3 pos) { CreateSRT( ref this, scale, rot, pos ); }
 
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetIdentity(mat4 pThis);
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void CreateSRT(mat4 pThis, vec3 scale, vec3 rot, vec3 pos);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetIdentity(ref mat4 pThis);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void CreateSRT(ref mat4 pThis, vec3 scale, vec3 rot, vec3 pos);
     }
 }

@@ -55,9 +55,9 @@ static void SetLocalPositionVec3(ComponentTransform* pComponentTransform, Vector
     pComponentTransform->SetLocalPosition( vec );
 }
 
-static void SetLocalTransform(ComponentTransform* pComponentTransform, MonoMat4* pMat4)
+static void SetLocalTransform(ComponentTransform* pComponentTransform, MyMatrix* pMat4)
 {
-    pComponentTransform->SetLocalTransform( pMat4->Get() );
+    pComponentTransform->SetLocalTransform( pMat4 );
 }
 
 //============================================================================================================

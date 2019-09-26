@@ -17,11 +17,11 @@ namespace MyEngine
         public vec3 GetLocalPosition() { return ComponentTransform.GetLocalPosition( m_pNativeObject ); }
         public void SetLocalPosition(float x, float y, float z) { ComponentTransform.SetLocalPosition( m_pNativeObject, x, y, z ); }
         public void SetLocalPosition(vec3 pos) { ComponentTransform.SetLocalPosition( m_pNativeObject, pos ); }
-        public void SetLocalTransform(mat4 transform) { ComponentTransform.SetLocalTransform( m_pNativeObject, transform ); }
+        public void SetLocalTransform(ref mat4 transform) { ComponentTransform.SetLocalTransform( m_pNativeObject, ref transform ); }
 
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static vec3 GetLocalPosition(IntPtr pNativeObject);
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetLocalPosition(IntPtr pNativeObject, float x, float y, float z);
         [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetLocalPosition(IntPtr pNativeObject, vec3 pos);
-        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetLocalTransform(IntPtr pNativeObject, mat4 transform);
+        [MethodImpl(MethodImplOptions.InternalCall)] private extern static void SetLocalTransform(IntPtr pNativeObject, ref mat4 transform);
     }
 }

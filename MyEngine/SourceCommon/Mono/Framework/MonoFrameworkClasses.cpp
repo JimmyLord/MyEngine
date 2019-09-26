@@ -66,11 +66,11 @@ static Vector3 Mono_vec3_OperatorMinus(Vector3 vec, Vector3 o)
 //============================================================================================================
 // MyMatrix methods.
 //============================================================================================================
-static void Mono_mat4_SetIdentity(MonoMat4* pMat4)  { pMat4->Get()->SetIdentity(); }
+static void Mono_mat4_SetIdentity(MyMatrix* pMat4)  { pMat4->SetIdentity(); }
 
-static void Mono_mat4_CreateSRT(MonoMat4* pMat4, Vector3 scale, Vector3 rot, Vector3 pos)
+static void Mono_mat4_CreateSRT(MyMatrix* pMat4, Vector3 scale, Vector3 rot, Vector3 pos)
 {
-    pMat4->Get()->CreateSRT( scale, rot, pos );
+    pMat4->CreateSRT( scale, rot, pos );
 }
 
 //============================================================================================================
