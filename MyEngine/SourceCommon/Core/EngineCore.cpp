@@ -971,7 +971,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
             }
         }
 
-#if MYFW_WINDOWS
+#if MYFW_WINDOWS && MYFW_USE_MEMORY_TRACKER
         // Draw Main ram memory usage.
         {
             size_t bytesused = MyMemory_GetNumberOfBytesAllocated();
@@ -994,7 +994,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
             m_TotalMemoryAllocatedLastFrame = bytesused;
         }
-#endif
+#endif //MYFW_WINDOWS && MYFW_USE_MEMORY_TRACKER
 
         // Draw single frame stack ram memory usage.
         {

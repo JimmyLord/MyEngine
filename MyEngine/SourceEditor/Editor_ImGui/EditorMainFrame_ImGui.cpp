@@ -2743,6 +2743,7 @@ void EditorMainFrame_ImGui::AddLogWindow()
 
 void EditorMainFrame_ImGui::AddMemoryWindow()
 {
+#if MYFW_WINDOWS && MYFW_USE_MEMORY_TRACKER
     ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowPos( ImVec2(6, 476), ImGuiCond_FirstUseEver );
 
@@ -2775,6 +2776,7 @@ void EditorMainFrame_ImGui::AddMemoryWindow()
         m_pMemoryWindow->DrawMid();
         m_pMemoryWindow->DrawEnd();
     }
+#endif //MYFW_WINDOWS && MYFW_USE_MEMORY_TRACKER
 }
 
 void EditorMainFrame_ImGui::AddCommandStacksWindow()

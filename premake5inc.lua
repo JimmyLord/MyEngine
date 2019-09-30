@@ -1,12 +1,15 @@
 -- This is not a complete premake5 lua script, it's meant to be included from another script that defines the workspace.
 -- Like this, for example:
---     local rootDir = os.getcwd();
+--     local rootDir = os.getcwd()
 --     os.chdir( "../Engine/" )
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
 if MyEnginePremakeConfig_FrameworkFolder == nil then
     MyEnginePremakeConfig_FrameworkFolder = "$(SolutionDir)../Framework"
+end
+if PremakeConfig_UseMemoryTracker == nil then
+    PremakeConfig_UseMemoryTracker = true
 end
 
 if monoInstallationPath == nil then
@@ -90,6 +93,9 @@ project "MyEngine"
     filter "configurations:Debug or EditorDebug"
         defines         "_DEBUG"
         symbols         "on"
+if PremakeConfig_UseMemoryTracker == true then
+        defines         "MYFW_USE_MEMORY_TRACKER"
+end
 
     filter "configurations:Release or EditorRelease"
         defines         "NDEBUG"
@@ -97,6 +103,9 @@ project "MyEngine"
 
     filter "configurations:EditorDebug or EditorRelease"
         defines         { "MYFW_EDITOR", "MYFW_USING_IMGUI" }
+if PremakeConfig_UseMemoryTracker == true then
+        defines         "MYFW_USE_MEMORY_TRACKER"
+end
 
 if MyEnginePremakeConfig_ForceIncludeEditorFiles == true then
     filter {}

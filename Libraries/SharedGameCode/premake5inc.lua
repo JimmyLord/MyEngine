@@ -1,6 +1,6 @@
 -- This is not a complete premake5 lua script, it's meant to be included from another script that defines the workspace.
 -- Like this, for example:
---     local rootDir = os.getcwd();
+--     local rootDir = os.getcwd()
 --     os.chdir( "../Engine/" )
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
