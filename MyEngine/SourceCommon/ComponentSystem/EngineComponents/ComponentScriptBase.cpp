@@ -146,6 +146,53 @@ void ComponentScriptBase::ImportExposedVariablesFromJSONObject(cJSON* jExposedVa
     }
 }
 
+void ComponentScriptBase::CopyExposedVariablesFromOtherComponent(const ComponentScriptBase& other)
+{
+    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+    {
+        ExposedVariableDesc* pVar = m_ExposedVars[i];
+        ExposedVariableDesc* pOtherVar = nullptr;// = other.m_ExposedVars[i];            
+
+        // Find the first variable in the other object with the same name.
+        for( unsigned int oi=0; oi<m_ExposedVars.Count(); oi++ )
+        {
+            if( pVar->name == other.m_ExposedVars[oi]->name )
+            {
+                pOtherVar = other.m_ExposedVars[oi];
+                break;
+            }
+        }
+
+        if( pOtherVar != nullptr )
+        {
+            if( pVar->value.type == ExposedVariableType::Float )
+            {
+                pVar->value.valueDouble = pOtherVar->value.valueDouble;
+            }
+
+            if( pVar->value.type == ExposedVariableType::Bool )
+            {
+                pVar->value.valueBool = pOtherVar->value.valueBool;
+            }
+
+            if( pVar->value.type == ExposedVariableType::Vector3 )
+            {
+                for( int i=0; i<3; i++ )
+                    pVar->value.valueVec3[0] = pOtherVar->value.valueVec3[0];
+            }
+
+            if( pVar->value.type == ExposedVariableType::GameObject )
+            {
+                pVar->value.valuePointer = pOtherVar->value.valuePointer;
+
+                if( pVar->value.valuePointer )
+                    static_cast<GameObject*>( pVar->value.valuePointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+            }
+        }
+    }
+}
+
+#if MYFW_EDITOR
 void ComponentScriptBase::AddExposedVariablesToInterface()
 {
     for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
@@ -255,52 +302,6 @@ void ComponentScriptBase::AddExposedVariablesToInterface()
 
         if( pVar->divorced )
         {
-        }
-    }
-}
-
-void ComponentScriptBase::CopyExposedVariablesFromOtherComponent(const ComponentScriptBase& other)
-{
-    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
-    {
-        ExposedVariableDesc* pVar = m_ExposedVars[i];
-        ExposedVariableDesc* pOtherVar = nullptr;// = other.m_ExposedVars[i];            
-
-        // Find the first variable in the other object with the same name.
-        for( unsigned int oi=0; oi<m_ExposedVars.Count(); oi++ )
-        {
-            if( pVar->name == other.m_ExposedVars[oi]->name )
-            {
-                pOtherVar = other.m_ExposedVars[oi];
-                break;
-            }
-        }
-
-        if( pOtherVar != nullptr )
-        {
-            if( pVar->value.type == ExposedVariableType::Float )
-            {
-                pVar->value.valueDouble = pOtherVar->value.valueDouble;
-            }
-
-            if( pVar->value.type == ExposedVariableType::Bool )
-            {
-                pVar->value.valueBool = pOtherVar->value.valueBool;
-            }
-
-            if( pVar->value.type == ExposedVariableType::Vector3 )
-            {
-                for( int i=0; i<3; i++ )
-                    pVar->value.valueVec3[0] = pOtherVar->value.valueVec3[0];
-            }
-
-            if( pVar->value.type == ExposedVariableType::GameObject )
-            {
-                pVar->value.valuePointer = pOtherVar->value.valuePointer;
-
-                if( pVar->value.valuePointer )
-                    static_cast<GameObject*>( pVar->value.valuePointer )->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-            }
         }
     }
 }
@@ -632,3 +633,4 @@ bool ComponentScriptBase::ClearExposedVariableList(bool addUndoCommands)
 
     return false;
 }
+#endif //MYFW_EDITOR

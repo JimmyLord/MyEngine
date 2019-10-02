@@ -96,7 +96,7 @@ typedef void ExposedVarValueChangedCallback(void* pObjectPtr, ExposedVariableDes
 class ComponentScriptBase : public ComponentUpdateable
 {
 private:
-    static const int MAX_EXPOSED_VARS = 4; // TODO: Fix this hardcodedness.
+    static const int MAX_EXPOSED_VARS = 16; // TODO: Fix this hardcodedness.
 
 protected:
     MyList<ExposedVariableDesc*> m_ExposedVars;
@@ -108,8 +108,6 @@ public:
     cJSON* ExportExposedVariablesAsJSONObject();
     void ImportExposedVariablesFromJSONObject(cJSON* jExposedVarArray);
 
-    void AddExposedVariablesToInterface();
-
     void CopyExposedVariablesFromOtherComponent(const ComponentScriptBase& other);
 
     virtual void ProgramVariables(bool updateExposedVariables = false) = 0;
@@ -117,10 +115,6 @@ public:
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentScriptBase*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     virtual void OnGameObjectDeleted(GameObject* pGameObject) = 0;
-
-    // Exposed variable changed callback.
-    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) { ((ComponentScriptBase*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
-    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) = 0;
 
 #if MYFW_EDITOR
 protected:
@@ -130,8 +124,14 @@ protected:
     ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
     bool m_LinkNextUndoCommandToPrevious;
 
+    void AddExposedVariablesToInterface();
+
     static void TestForExposedVariableModificationAndCreateUndoCommand(ComponentScriptBase* pComponent, ImGuiID id, bool modified, ExposedVariableDesc* pVar, ExposedVariableValue newValue);
 #endif //MYFW_USING_IMGUI
+
+    // Exposed variable changed callback.
+    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) { ((ComponentScriptBase*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedChanging, oldValue, oldPointer ); }
+    virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) = 0;
 
     bool DoesExposedVariableMatchParent(ExposedVariableDesc* pVar);
     void UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedChanging, double oldValue, void* oldPointer);
