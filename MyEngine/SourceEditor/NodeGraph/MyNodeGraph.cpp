@@ -423,7 +423,9 @@ void MyNodeGraph::Update()
         // Deal with context menus.
         {
             // If we right-click an empty part of the grid, unselect everything and open context menu.
-            if( !ImGui::IsAnyItemHovered() && ImGui::IsMouseHoveringWindow() && ImGui::IsMouseReleased( 1 ) )
+            if( !ImGui::IsAnyItemHovered() &&
+                ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem )
+                && ImGui::IsMouseReleased( 1 ) )
             {
                 m_SelectedNodeIDs.clear();
                 m_SelectedNodeLinkIndex = -1;

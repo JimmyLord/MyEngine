@@ -1045,7 +1045,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     if( false )
 #endif
     {
-        ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
+        ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiCond_FirstUseEver );
         ImGui::Begin( "Timing" );
         //ImGui::Text( "Hello world!" );
         //ImGui::SliderFloat( "", &m_AnimationTime, 0, 1, "Time: %.3f" );

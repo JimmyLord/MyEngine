@@ -259,7 +259,7 @@ void VoxelWorld::Tick(float deltaTime, void* pUserData)
     // Some stats posted in an ImGui window
     {
 #if !MYFW_OPENGLES2
-        ImGui::SetNextWindowSize( ImVec2(150,100), ImGuiSetCond_FirstUseEver );
+        ImGui::SetNextWindowSize( ImVec2(150,100), ImGuiCond_FirstUseEver );
         ImGui::Begin( "Voxel World Stats" );
 
         ImGui::Text( "Active Gen's: %d", m_NumActiveChunkGenerators );

@@ -728,7 +728,7 @@ void EditorMainFrame_ImGui::AddEverything()
     {
         EditorDocument* pDocument = (*pOpenDocuments)[i];
 
-        ImGui::SetNextWindowSize( ImVec2(400, 400), ImGuiSetCond_FirstUseEver );
+        ImGui::SetNextWindowSize( ImVec2(400, 400), ImGuiCond_FirstUseEver );
         bool documentStillOpen = true;
         pDocument->CreateWindowAndUpdate( &documentStillOpen );
         if( pDocument->IsWindowFocused() )

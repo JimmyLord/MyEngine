@@ -203,7 +203,7 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
 #endif
 
     // If a window is hovered, don't let mouse events pass through it.
-    if( mouseaction != -1 && ImGui::IsMouseHoveringAnyWindow() )
+    if( mouseaction != -1 && ImGui::IsWindowHovered( ImGuiHoveredFlags_AnyWindow ) )
     {
         return true;
     }
