@@ -360,6 +360,7 @@ void ComponentBase::NotifyOthersThisWasDeleted()
     }
 }
 
+// Static method.
 void ComponentBase::ClearAllVariables_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList)
 {
     while( CPPListNode* pNode = pComponentVariableList->GetHead() )
@@ -370,6 +371,7 @@ void ComponentBase::ClearAllVariables_Base(TCPPListHead<ComponentVariable*>* pCo
     }
 }
 
+// Static method.
 ComponentVariable* ComponentBase::AddVariable_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel,
@@ -385,6 +387,7 @@ ComponentVariable* ComponentBase::AddVariable_Base(TCPPListHead<ComponentVariabl
     return pVariable;
 }
 
+// Static method.
 ComponentVariable* ComponentBase::AddVariablePointer_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch, watchlabel,
@@ -401,6 +404,7 @@ ComponentVariable* ComponentBase::AddVariablePointer_Base(TCPPListHead<Component
     return pVariable;
 }
 
+// Static method.
 ComponentVariable* ComponentBase::AddVariableEnum_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Enum, offset, saveload, displayinwatch,
@@ -412,6 +416,7 @@ ComponentVariable* ComponentBase::AddVariableEnum_Base(TCPPListHead<ComponentVar
     return pVariable;
 }
 
+// Static method.
 ComponentVariable* ComponentBase::AddVariableFlags_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Flags, offset, saveload, displayinwatch,
@@ -580,10 +585,9 @@ void ComponentBase::AddAllVariablesToWatchPanel()
     }
 }
 
-void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObject, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent)
+// Static method.
+void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObject, EngineCore* pEngineCore, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent)
 {
-    EngineCore* pEngineCore = nullptr;
-
     // If the id passed in is different than the last known value, then assume a new control was selected.
     if( pObjectAsComponent )
     {
@@ -649,6 +653,7 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
     }
 }
 
+// Static method.
 void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent)
 {
     MyAssert( pObject != nullptr );
@@ -699,7 +704,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 bool modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
                 if( pObjectAsComponent )
                 {
-                    pObjectAsComponent->TestForVariableModificationAndCreateUndoCommand( pObject, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
+                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
                 }
             }
             break;
@@ -847,7 +852,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 if( pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit > 0 )
                     speed = (pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit) / 300.0f;
                 bool modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
-                pObjectAsComponent->TestForVariableModificationAndCreateUndoCommand( pObject, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
             }
             break;
 
@@ -866,7 +871,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 // TODO: Implement undo/redo for ColorByte.
                 //if( pObjectAsComponent )
                 //{
-                //    pObjectAsComponent->TestForVariableModificationAndCreateUndoCommand( pObject, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
+                //    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
                 //}
             }
             break;
@@ -876,7 +881,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 bool modified = ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 if( pObjectAsComponent )
                 {
-                    pObjectAsComponent->TestForVariableModificationAndCreateUndoCommand( pObject, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
+                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
                 }
             }
             break;
@@ -886,7 +891,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 bool modified = ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 if( pObjectAsComponent )
                 {
-                    pObjectAsComponent->TestForVariableModificationAndCreateUndoCommand( pObject, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
+                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
                 }
             }
             break;
@@ -896,7 +901,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 bool modified = ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
                 if( pObjectAsComponent )
                 {
-                    pObjectAsComponent->TestForVariableModificationAndCreateUndoCommand( pObject, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
+                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
                 }
             }
             break;
