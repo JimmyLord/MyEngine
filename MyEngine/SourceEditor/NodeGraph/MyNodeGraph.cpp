@@ -342,12 +342,31 @@ void MyNodeGraph::Update()
         // Draw grid.
         DrawGrid( offset );
 
-        // Split draw into 2 channels (0 for background, 1 for foreground).
-        pDrawList->ChannelsSplit( 2 );
+        // Split draw into many channels (0 for background, 2-(numNodes+2) for nodes).
+        uint32 numNodes = (uint32)m_Nodes.size();
+        pDrawList->ChannelsSplit( 1 + numNodes );
 
         int nodeLinkIndexHoveredInScene = -1;
 
-        // Draw the links between nodes.
+        // Draw nodes into many foreground layers, so they get first crack at input.
+        {
+            for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
+            {
+                pDrawList->ChannelsSetCurrent( 1 + numNodes - 1 - nodeIndex ); // 1-numNodes in Foreground.
+
+                MyNode* pNode = m_Nodes[nodeIndex];
+                pNode->Draw( pDrawList, offset, m_SelectedNodeIDs.contains( pNode->m_ID ), &m_MouseNodeLinkStartPoint );
+
+                // Check for right-click context menu.
+                if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
+                {
+                    nodeIndexHoveredInScene = nodeIndex;
+                    openContextMenu = true;
+                }
+            }
+        }
+
+        // Draw the links between nodes into a background layer.
         {
             // Draw established links.
             pDrawList->ChannelsSetCurrent( 0 ); // Background.
@@ -392,22 +411,6 @@ void MyNodeGraph::Update()
                 pDrawList->AddBezierCurve( p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2, m_MouseNodeLinkStartPoint.m_Color, 3.0f );
 
                 m_MouseNodeLinkStartPoint.m_Color = COLOR_LINK_IN_PROGRESS_DEFAULT;
-            }
-        }
-
-        // Draw nodes.
-        {
-            for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
-            {
-                MyNode* pNode = m_Nodes[nodeIndex];
-                pNode->Draw( pDrawList, offset, m_SelectedNodeIDs.contains( pNode->m_ID ), &m_MouseNodeLinkStartPoint );
-
-                // Check for right-click context menu.
-                if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
-                {
-                    nodeIndexHoveredInScene = nodeIndex;
-                    openContextMenu = true;
-                }
             }
         }
 
