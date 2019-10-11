@@ -358,10 +358,14 @@ void MyNodeGraph::Update()
                 pNode->Draw( pDrawList, offset, m_SelectedNodeIDs.contains( pNode->m_ID ), &m_MouseNodeLinkStartPoint );
 
                 // Check for right-click context menu.
-                if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
+                if( nodeIndexHoveredInScene == -1 && ImGui::IsItemHovered() )
                 {
                     nodeIndexHoveredInScene = nodeIndex;
-                    openContextMenu = true;
+
+                    if( ImGui::IsMouseReleased( 1 ) )
+                    {
+                        openContextMenu = true;
+                    }
                 }
             }
         }
@@ -380,7 +384,8 @@ void MyNodeGraph::Update()
 
                 ImU32 color = COLOR_LINK_NORMAL;
 
-                if( nodeLinkIndexHoveredInScene == -1 && IsNearBezierCurve( ImGui::GetIO().MousePos, p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2 ) )
+                if( nodeIndexHoveredInScene == -1 && nodeLinkIndexHoveredInScene == -1 &&
+                    IsNearBezierCurve( ImGui::GetIO().MousePos, p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2 ) )
                 {
                     nodeLinkIndexHoveredInScene = linkIndex;
                     color = COLOR_LINK_HIGHLIGHTED;
