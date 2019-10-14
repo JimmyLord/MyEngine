@@ -287,6 +287,15 @@ void MyNodeGraph::Update()
         m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
     }
 
+    // Pull the selected nodes to the foreground.
+    // This breaks the order of the nodes list on the left, but I'm okay with that.
+    for( int i=m_SelectedNodeIDs.size()-1; i>=0; i-- )
+    {
+        MyNode* pNode = m_Nodes[FindNodeIndexByID( m_SelectedNodeIDs[i] )];
+        RemoveExistingNode( pNode );
+        m_Nodes.insert( m_Nodes.begin(), pNode );
+    }
+
     // Draw a list of nodes on the left side.
     ImGui::BeginChild( "node list", ImVec2(100, 0) );
     ImGui::Text( "Nodes" );
