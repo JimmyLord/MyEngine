@@ -130,6 +130,10 @@ EditorDocument* EditorDocument::EditorDocumentMenuCommand(EditorDocumentMenuComm
             }
         }
         break;
+
+    case EditorDocumentMenuCommand_Run:
+        Run();
+        break;
     }
 
     return nullptr;
@@ -249,6 +253,11 @@ EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorD
         //    pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_SaveAll );
         //}
 
+        //if( ImGui::MenuItem( "Run", "F5", false, pDocument != nullptr ) )
+        //{
+        //    pDocument->EditorDocumentMenuCommand( EditorDocument::EditorDocumentMenuCommand_Run );
+        //}
+
         ImGui::EndMenu(); // "Document"
     }
 
@@ -327,6 +336,7 @@ bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, in
         if( CS && keyCode == 'Z' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Redo ); return true; }
         if( C  && keyCode == 'S' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Save ); return true; }
         //if( CS && keyCode == 'S' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_SaveAll ); return true; }
+        //if( N  && keyCode == VK_F5) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Run ); return true; }
     }
 
     return false;
@@ -346,6 +356,10 @@ void EditorDocument::Load()
 {
     m_pCommandStack->ClearStacks();
     m_UndoStackDepthAtLastSave = 0;
+}
+
+void EditorDocument::Run()
+{
 }
 
 void EditorDocument::GetWindowTitle(char* pTitle, const uint32 titleAllocationSize)

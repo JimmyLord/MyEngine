@@ -24,6 +24,7 @@ public:
         EditorDocumentMenuCommand_Redo,
         EditorDocumentMenuCommand_Save,
         EditorDocumentMenuCommand_SaveAs,
+        EditorDocumentMenuCommand_Run,
     };
 
 protected:
@@ -70,6 +71,7 @@ public:
 
     virtual void Save();
     virtual void Load();
+    virtual void Run();
 
     void GetWindowTitle(char* pTitle, const uint32 titleAllocationSize);
     virtual void CreateWindowAndUpdate(bool* pDocumentStillOpen);
