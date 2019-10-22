@@ -47,6 +47,7 @@ public:
     friend class MyNodeLink;
     friend class EditorCommand_NodeGraph_AddNode;
     friend class EditorCommand_NodeGraph_DeleteNodes;
+    friend class EditorCommand_NodeGraph_MoveNodes;
     friend class EditorCommand_NodeGraph_CreateLink;
     friend class EditorCommand_NodeGraph_DeleteLink;
 

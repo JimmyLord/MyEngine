@@ -164,6 +164,60 @@ EditorCommand* EditorCommand_NodeGraph_DeleteNodes::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_NodeGraph_MoveNodes
+//====================================================================================================
+
+EditorCommand_NodeGraph_MoveNodes::EditorCommand_NodeGraph_MoveNodes(MyNodeGraph* pNodeGraph, ImVector<MyNodeGraph::NodeID>& selectedNodeIDs, Vector2 amountMoved)
+{
+    m_Name = "EditorCommand_NodeGraph_MoveNodes";
+
+    MyAssert( selectedNodeIDs.size() != 0 );
+
+    m_pNodeGraph = pNodeGraph;
+    for( int i=0; i<selectedNodeIDs.Size; i++ )
+    {
+        MyNodeGraph::NodeID nodeID = selectedNodeIDs[i];
+
+        int nodeIndex = m_pNodeGraph->FindNodeIndexByID( nodeID );
+        MyNodeGraph::MyNode* pNode = m_pNodeGraph->m_Nodes[nodeIndex];
+        MyAssert( pNode->GetNodeGraph() == m_pNodeGraph );
+
+        m_pNodes.push_back( pNode );
+    }
+
+    m_AmountMoved = amountMoved;
+}
+
+EditorCommand_NodeGraph_MoveNodes::~EditorCommand_NodeGraph_MoveNodes()
+{
+}
+
+void EditorCommand_NodeGraph_MoveNodes::Do()
+{
+    // Move nodes to new positions.
+    for( uint32 nodeIndex=0; nodeIndex<m_pNodes.size(); nodeIndex++ )
+    {
+        m_pNodes[nodeIndex]->m_Pos += m_AmountMoved;
+    }
+}
+
+void EditorCommand_NodeGraph_MoveNodes::Undo()
+{
+    // Return nodes to original positions.
+    for( uint32 nodeIndex=0; nodeIndex<m_pNodes.size(); nodeIndex++ )
+    {
+        m_pNodes[nodeIndex]->m_Pos -= m_AmountMoved;
+    }
+}
+
+EditorCommand* EditorCommand_NodeGraph_MoveNodes::Repeat()
+{
+    // Do nothing.
+
+    return nullptr;
+}
+
+//====================================================================================================
 // EditorCommand_NodeGraph_CreateLink
 //====================================================================================================
 

@@ -16,6 +16,7 @@ class MyNodeGraph::MyNode;
 
 class EditorCommand_NodeGraph_AddNode;
 class EditorCommand_NodeGraph_DeleteNodes;
+class EditorCommand_NodeGraph_MoveNodes;
 class EditorCommand_NodeGraph_CreateLink;
 class EditorCommand_NodeGraph_DeleteLink;
 
@@ -54,6 +55,26 @@ protected:
 public:
     EditorCommand_NodeGraph_DeleteNodes(MyNodeGraph* pNodeGraph, ImVector<MyNodeGraph::NodeID>& selectedNodeIDs);
     virtual ~EditorCommand_NodeGraph_DeleteNodes();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+// EditorCommand_NodeGraph_MoveNodes
+//====================================================================================================
+
+class EditorCommand_NodeGraph_MoveNodes : public EditorCommand
+{
+protected:
+    MyNodeGraph* m_pNodeGraph;
+    std::vector<MyNodeGraph::MyNode*> m_pNodes;
+    Vector2 m_AmountMoved;
+
+public:
+    EditorCommand_NodeGraph_MoveNodes(MyNodeGraph* pNodeGraph, ImVector<MyNodeGraph::NodeID>& selectedNodeIDs, Vector2 amountMoved);
+    virtual ~EditorCommand_NodeGraph_MoveNodes();
 
     virtual void Do();
     virtual void Undo();
