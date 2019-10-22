@@ -285,6 +285,8 @@ void MyNodeGraph::Update()
     if( ImGui::IsKeyPressed( MYKEYCODE_DELETE, false ) )
     {
         m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+        m_SelectedNodeIDs.clear();
+        m_SelectedNodeLinkIndex = -1;
     }
 
     // Pull the selected nodes to the foreground.

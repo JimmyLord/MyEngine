@@ -198,8 +198,20 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
 
     // Select/Deselect nodes if the title is clicked.
     static bool ignoreNextMouseRelease = false;
+    static Vector2 mouseDownPosition(0,0);
     if( titleOfNodeIsHovered )
     {
+        if( ImGui::IsMouseDown( 0 ) && !ImGui::IsMouseDragging() )
+        {
+            // Store mouse down position.
+            mouseDownPosition = ImGui::GetIO().MousePos;
+        }
+        if( ImGui::IsMouseReleased( 0 ) )
+        {
+            Vector2 amountMoved = ImGui::GetIO().MousePos - mouseDownPosition;
+            m_pNodeGraph->m_pCommandStack->Add( MyNew EditorCommand_NodeGraph_MoveNodes( m_pNodeGraph, m_pNodeGraph->m_SelectedNodeIDs, amountMoved ) );
+        }
+
         // Select on clicks.
         if( ImGui::IsMouseClicked( 0 ) )
         {
