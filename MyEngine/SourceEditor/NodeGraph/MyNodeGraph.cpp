@@ -86,7 +86,7 @@ MyNodeGraph::MyNodeGraph(EngineCore* pEngineCore, MyNodeTypeManager* pNodeTypeMa
 
     m_ScrollOffset.Set( 0.0f, 0.0f );
     m_GridVisible = true;
-    m_SelectedNodeLinkIndex = -1;
+    m_SelectedNodeLinkIndexes.clear();
 
     m_MouseNodeLinkStartPoint.Clear();
 
@@ -118,12 +118,10 @@ void MyNodeGraph::Clear()
         delete m_Nodes[nodeIndex];
     }
     m_Nodes.clear();
-
     m_Links.clear();
 
     m_SelectedNodeIDs.clear();
-
-    m_SelectedNodeLinkIndex = -1;
+    m_SelectedNodeLinkIndexes.clear();
 }
 
 void MyNodeGraph::DrawGrid(Vector2 offset)
@@ -155,6 +153,17 @@ int MyNodeGraph::FindNodeIndexByID(NodeID nodeID)
     }
 
     return -1;
+}
+
+bool MyNodeGraph::IsNodeLinkSelected(int nodeLinkIndex)
+{
+    for( int i = 0; i < m_SelectedNodeLinkIndexes.size(); i++ )
+    {
+        if( m_SelectedNodeLinkIndexes[i] == nodeLinkIndex )
+            return true;
+    }
+
+    return false;
 }
 
 MyNodeGraph::MyNodeLink* MyNodeGraph::FindLinkConnectedToInput(NodeID nodeID, SlotID slotID, int resultIndex)
@@ -288,12 +297,13 @@ void MyNodeGraph::Update()
         {
             m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
             m_SelectedNodeIDs.clear();
-            m_SelectedNodeLinkIndex = -1;
+            m_SelectedNodeLinkIndexes.clear();
         }
-        else if( m_SelectedNodeLinkIndex != -1 )
+        
+        if( m_SelectedNodeLinkIndexes.size() > 0 )
         {
-            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndex ) );
-            m_SelectedNodeLinkIndex = -1;
+            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndexes ) );
+            m_SelectedNodeLinkIndexes.clear();
         }
     }
 
@@ -410,7 +420,7 @@ void MyNodeGraph::Update()
                     color = COLOR_LINK_HIGHLIGHTED;
                 }
 
-                if( m_SelectedNodeLinkIndex == linkIndex )
+                if( IsNodeLinkSelected( linkIndex ) )
                 {
                     color = COLOR_LINK_SELECTED;
                 }
@@ -460,17 +470,21 @@ void MyNodeGraph::Update()
                 && ImGui::IsMouseReleased( 1 ) )
             {
                 m_SelectedNodeIDs.clear();
-                m_SelectedNodeLinkIndex = -1;
+                m_SelectedNodeLinkIndexes.clear();
                 nodeIndexHoveredInList = NodeID_Undefined;
                 nodeIndexHoveredInScene = SlotID_Undefined;
                 openContextMenu = true;
             }
 
-            if( !ImGui::IsAnyItemHovered() &&
+            // If we click a link, select it. // TODO: Handle Ctrl-click.
+            if( nodeLinkIndexHoveredInScene != -1 &&
+                !ImGui::IsAnyItemHovered() &&
                 ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem )
                 && ImGui::IsMouseReleased( 0 ) )
             {
-                m_SelectedNodeLinkIndex = nodeLinkIndexHoveredInScene;
+                // TODO: Only clear if control isn't held when right-clicking.
+                m_SelectedNodeLinkIndexes.clear();
+                m_SelectedNodeLinkIndexes.push_back( nodeLinkIndexHoveredInScene );
                 m_SelectedNodeIDs.clear();
             }
 
@@ -480,12 +494,12 @@ void MyNodeGraph::Update()
 
                 if( nodeLinkIndexHoveredInScene != -1 )
                 {
-                    m_SelectedNodeLinkIndex = nodeLinkIndexHoveredInScene;
+                    m_SelectedNodeLinkIndexes.push_back( nodeLinkIndexHoveredInScene );
                 }
                 else if( nodeIndexHoveredInList != -1 )
                 {
                     m_SelectedNodeIDs.clear();
-                    m_SelectedNodeLinkIndex = -1;
+                    m_SelectedNodeLinkIndexes.clear();
                     m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInList]->m_ID );
                 }
                 else if( nodeIndexHoveredInScene != -1 )
@@ -495,7 +509,7 @@ void MyNodeGraph::Update()
                     if( isSelected == false || m_SelectedNodeIDs.size() == 1 )
                     {
                         m_SelectedNodeIDs.clear();
-                        m_SelectedNodeLinkIndex = -1;
+                        m_SelectedNodeLinkIndexes.clear();
                         m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInScene]->m_ID );
                     }
                 }
@@ -505,12 +519,12 @@ void MyNodeGraph::Update()
             ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2(8, 8) );
             if( ImGui::BeginPopup( "context menu" ) )
             {
-                if( m_SelectedNodeLinkIndex != -1 )
+                if( m_SelectedNodeLinkIndexes.size() > 0 )
                 {
                     // Remove the link.
                     if( ImGui::MenuItem( "Remove" ) )
                     {
-                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndex ) );
+                        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndexes ) );
                     }
                 }
                 else 
@@ -582,6 +596,7 @@ void MyNodeGraph::Update()
                     if( ImGui::GetIO().KeyCtrl == false )
                     {
                         m_SelectedNodeIDs.clear();
+                        m_SelectedNodeLinkIndexes.clear();
                     }
 
                     for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
@@ -625,6 +640,7 @@ void MyNodeGraph::Update()
                 if( ImGui::IsMouseClicked( 0 ) && ImGui::GetIO().KeyCtrl == false && m_MouseNodeLinkStartPoint.InUse() == false )
                 {
                     m_SelectedNodeIDs.clear();
+                    m_SelectedNodeLinkIndexes.clear();
                 }
             }
         }

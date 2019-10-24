@@ -109,12 +109,11 @@ class EditorCommand_NodeGraph_DeleteLink : public EditorCommand
 {
 protected:
     MyNodeGraph* m_pNodeGraph;
-    MyNodeGraph::MyNodeLink m_NodeLink;
-    int m_NodeLinkIndex;
-    bool m_DeleteLinkWhenDestroyed;
+    std::vector<MyNodeGraph::MyNodeLink> m_NodeLinks;
+    std::vector<int> m_NodeLinkIndexes;
 
 public:
-    EditorCommand_NodeGraph_DeleteLink(MyNodeGraph* pNodeGraph, int nodeLinkIndex);
+    EditorCommand_NodeGraph_DeleteLink(MyNodeGraph* pNodeGraph, const ImVector<int>& nodeLinkIndex);
     virtual ~EditorCommand_NodeGraph_DeleteLink();
 
     virtual void Do();

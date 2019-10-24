@@ -130,6 +130,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
                 if( ImGui::GetIO().KeyCtrl == false )
                 {
                     m_pNodeGraph->m_SelectedNodeIDs.clear();
+                    m_pNodeGraph->m_SelectedNodeLinkIndexes.clear();
                     m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
                 }
                 else
@@ -221,6 +222,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
                 if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) == false )
                 {
                     m_pNodeGraph->m_SelectedNodeIDs.clear();
+                    m_pNodeGraph->m_SelectedNodeLinkIndexes.clear();
                     m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
                 }
             }
@@ -253,6 +255,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
                     if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) )
                     {
                         m_pNodeGraph->m_SelectedNodeIDs.clear();
+                        m_pNodeGraph->m_SelectedNodeLinkIndexes.clear();
                         m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
                     }
                 }

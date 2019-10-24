@@ -23,7 +23,7 @@ const ImU32 COLOR_DRAG_SELECTOR = IM_COL32( 60, 200, 60, 75 );
 
 const ImU32 COLOR_LINK_NORMAL = IM_COL32( 200, 200, 100, 255 );
 const ImU32 COLOR_LINK_HIGHLIGHTED = IM_COL32( 100, 100, 200, 255 );
-const ImU32 COLOR_LINK_SELECTED = IM_COL32( 0, 0, 255, 255 );
+const ImU32 COLOR_LINK_SELECTED = IM_COL32( 245, 142, 0, 255 );
 
 const ImU32 COLOR_LINK_IN_PROGRESS_DEFAULT = IM_COL32( 100, 100, 100, 255 );
 const ImU32 COLOR_LINK_IN_PROGRESS_INVALID = IM_COL32( 200, 100, 100, 255 );
@@ -111,7 +111,7 @@ protected:
     std::vector<MyNode*> m_Nodes;
     ImVector<MyNodeLink> m_Links;
     ImVector<NodeID> m_SelectedNodeIDs;
-    int m_SelectedNodeLinkIndex;
+    ImVector<int> m_SelectedNodeLinkIndexes;
 
     Vector2 m_ScrollOffset;
     bool m_GridVisible;
@@ -126,6 +126,7 @@ protected:
 
     void DrawGrid(Vector2 offset);
     int FindNodeIndexByID(NodeID nodeID);
+    bool IsNodeLinkSelected(int nodeLinkIndex);
     bool IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType);
     void SetExpandedForAllSelectedNodes(bool expand);
 

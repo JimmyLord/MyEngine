@@ -256,14 +256,18 @@ EditorCommand* EditorCommand_NodeGraph_CreateLink::Repeat()
 // EditorCommand_NodeGraph_DeleteLink
 //====================================================================================================
 
-EditorCommand_NodeGraph_DeleteLink::EditorCommand_NodeGraph_DeleteLink(MyNodeGraph* pNodeGraph, int nodeLinkIndex)
+EditorCommand_NodeGraph_DeleteLink::EditorCommand_NodeGraph_DeleteLink(MyNodeGraph* pNodeGraph, const ImVector<int>& nodeLinkIndexes)
 {
+    MyAssert( nodeLinkIndexes.size() > 0 );
+
     m_Name = "EditorCommand_NodeGraph_DeleteLink";
 
     m_pNodeGraph = pNodeGraph;
-    m_NodeLinkIndex = nodeLinkIndex;
-
-    m_NodeLink = m_pNodeGraph->m_Links[nodeLinkIndex];
+    for( int i=0; i<nodeLinkIndexes.size(); i++ )
+    {
+        m_NodeLinkIndexes.push_back( nodeLinkIndexes[i] );
+        m_NodeLinks.push_back( m_pNodeGraph->m_Links[nodeLinkIndexes[i]] );
+    }
 }
 
 EditorCommand_NodeGraph_DeleteLink::~EditorCommand_NodeGraph_DeleteLink()
@@ -272,12 +276,18 @@ EditorCommand_NodeGraph_DeleteLink::~EditorCommand_NodeGraph_DeleteLink()
 
 void EditorCommand_NodeGraph_DeleteLink::Do()
 {
-    m_pNodeGraph->m_Links.erase_unsorted( m_pNodeGraph->m_Links.Data + m_NodeLinkIndex );
+    for( int i=(uint32)m_NodeLinkIndexes.size()-1; i>=0; i-- )
+    {
+        m_pNodeGraph->m_Links.erase_unsorted( m_pNodeGraph->m_Links.Data + m_NodeLinkIndexes[i] );
+    }
 }
 
 void EditorCommand_NodeGraph_DeleteLink::Undo()
 {
-    m_pNodeGraph->m_Links.insert( m_pNodeGraph->m_Links.Data + m_NodeLinkIndex, m_NodeLink );
+    for( uint32 i=0; i<m_NodeLinkIndexes.size(); i++ )
+    {
+        m_pNodeGraph->m_Links.insert( m_pNodeGraph->m_Links.Data + m_NodeLinkIndexes[i], m_NodeLinks[i] );
+    }
 }
 
 EditorCommand* EditorCommand_NodeGraph_DeleteLink::Repeat()
