@@ -284,9 +284,17 @@ void MyNodeGraph::Update()
     // Handle key presses.
     if( ImGui::IsKeyPressed( MYKEYCODE_DELETE, false ) )
     {
-        m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
-        m_SelectedNodeIDs.clear();
-        m_SelectedNodeLinkIndex = -1;
+        if( m_SelectedNodeIDs.size() > 0 )
+        {
+            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+            m_SelectedNodeIDs.clear();
+            m_SelectedNodeLinkIndex = -1;
+        }
+        else if( m_SelectedNodeLinkIndex != -1 )
+        {
+            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndex ) );
+            m_SelectedNodeLinkIndex = -1;
+        }
     }
 
     // Pull the selected nodes to the foreground.
@@ -381,7 +389,7 @@ void MyNodeGraph::Update()
             }
         }
 
-        // Draw the links between nodes into a background layer.
+        // Draw links between nodes into a background layer.
         {
             // Draw established links.
             pDrawList->ChannelsSetCurrent( 0 ); // Background.
@@ -400,6 +408,11 @@ void MyNodeGraph::Update()
                 {
                     nodeLinkIndexHoveredInScene = linkIndex;
                     color = COLOR_LINK_HIGHLIGHTED;
+                }
+
+                if( m_SelectedNodeLinkIndex == linkIndex )
+                {
+                    color = COLOR_LINK_SELECTED;
                 }
 
                 pDrawList->AddBezierCurve( p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2, color, 3.0f );
@@ -451,6 +464,14 @@ void MyNodeGraph::Update()
                 nodeIndexHoveredInList = NodeID_Undefined;
                 nodeIndexHoveredInScene = SlotID_Undefined;
                 openContextMenu = true;
+            }
+
+            if( !ImGui::IsAnyItemHovered() &&
+                ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem )
+                && ImGui::IsMouseReleased( 0 ) )
+            {
+                m_SelectedNodeLinkIndex = nodeLinkIndexHoveredInScene;
+                m_SelectedNodeIDs.clear();
             }
 
             if( openContextMenu )
