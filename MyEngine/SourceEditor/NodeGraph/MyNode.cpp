@@ -209,8 +209,14 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         }
         if( ImGui::IsMouseReleased( 0 ) )
         {
-            Vector2 amountMoved = ImGui::GetIO().MousePos - mouseDownPosition;
-            m_pNodeGraph->m_pCommandStack->Add( MyNew EditorCommand_NodeGraph_MoveNodes( m_pNodeGraph, m_pNodeGraph->m_SelectedNodeIDs, amountMoved ) );
+            if( m_pNodeGraph->m_SelectedNodeIDs.size() > 0 )
+            {
+                Vector2 amountMoved = ImGui::GetIO().MousePos - mouseDownPosition;
+                if( amountMoved.LengthSquared() > 0 )
+                {
+                    m_pNodeGraph->m_pCommandStack->Add( MyNew EditorCommand_NodeGraph_MoveNodes( m_pNodeGraph, m_pNodeGraph->m_SelectedNodeIDs, amountMoved ) );
+                }
+            }
         }
 
         // Select on clicks.

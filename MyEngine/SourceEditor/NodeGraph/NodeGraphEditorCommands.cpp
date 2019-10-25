@@ -266,7 +266,12 @@ EditorCommand_NodeGraph_DeleteLink::EditorCommand_NodeGraph_DeleteLink(MyNodeGra
     for( int i=0; i<nodeLinkIndexes.size(); i++ )
     {
         m_NodeLinkIndexes.push_back( nodeLinkIndexes[i] );
-        m_NodeLinks.push_back( m_pNodeGraph->m_Links[nodeLinkIndexes[i]] );
+    }
+    std::sort( m_NodeLinkIndexes.begin(), m_NodeLinkIndexes.end() );
+
+    for( uint32 i=0; i<m_NodeLinkIndexes.size(); i++ )
+    {
+        m_NodeLinks.push_back( m_pNodeGraph->m_Links[m_NodeLinkIndexes[i]] );
     }
 }
 

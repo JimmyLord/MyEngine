@@ -476,16 +476,20 @@ void MyNodeGraph::Update()
                 openContextMenu = true;
             }
 
-            // If we click a link, select it. // TODO: Handle Ctrl-click.
+            // If we click a link, select it.
             if( nodeLinkIndexHoveredInScene != -1 &&
                 !ImGui::IsAnyItemHovered() &&
                 ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem )
                 && ImGui::IsMouseReleased( 0 ) )
             {
-                // TODO: Only clear if control isn't held when right-clicking.
-                m_SelectedNodeLinkIndexes.clear();
+                // Only clear if control isn't held when right-clicking.
+                if( ImGui::GetIO().KeyCtrl == false )
+                {
+                    m_SelectedNodeLinkIndexes.clear();
+                    m_SelectedNodeIDs.clear();
+                }
+
                 m_SelectedNodeLinkIndexes.push_back( nodeLinkIndexHoveredInScene );
-                m_SelectedNodeIDs.clear();
             }
 
             if( openContextMenu )
