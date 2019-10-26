@@ -376,6 +376,7 @@ void MyNodeGraph::Update()
         pDrawList->ChannelsSplit( 1 + numNodes );
 
         int nodeLinkIndexHoveredInScene = -1;
+        bool wasDraggingNewLink = m_MouseNodeLinkStartPoint.InUse();
 
         // Draw nodes into many foreground layers, so they get first crack at input.
         {
@@ -489,7 +490,10 @@ void MyNodeGraph::Update()
                     m_SelectedNodeIDs.clear();
                 }
 
-                m_SelectedNodeLinkIndexes.push_back( nodeLinkIndexHoveredInScene );
+                if( wasDraggingNewLink == false )
+                {
+                    m_SelectedNodeLinkIndexes.push_back( nodeLinkIndexHoveredInScene );
+                }
             }
 
             if( openContextMenu )
