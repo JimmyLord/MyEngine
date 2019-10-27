@@ -22,6 +22,9 @@ float GetClosestPointToCubicBezier(int iterations, float fx, float fy, float sta
     if( iterations <= 0 )
         return (start + end) / 2;
 
+    if( fequal( start, end ) )
+        return (start + end) / 2;
+
     float tick = (end - start) / float(slices);
     float best = 0;
     float bestDistance = FLT_MAX;
@@ -561,6 +564,7 @@ void MyNodeGraph::Update()
                         if( ImGui::MenuItem( "Delete", nullptr, false ) )
                         {
                             m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+                            m_SelectedNodeIDs.clear();
                         }
                         if( ImGui::MenuItem( "Copy", nullptr, false, false ) ) {}
 
@@ -674,6 +678,23 @@ void MyNodeGraph::AddItemsAboveNodeGraphWindow()
     }
     ImGui::SameLine( ImGui::GetWindowWidth() - 300 );
     ImGui::Checkbox( "Show grid", &m_GridVisible );
+}
+
+bool MyNodeGraph::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
+{
+    for( int i=0; i<m_SelectedNodeIDs.Size; i++ )
+    {
+        NodeID nodeID = m_SelectedNodeIDs[i];
+        int nodeIndex = FindNodeIndexByID( nodeID );
+        MyNode* pNode = m_Nodes[nodeIndex];
+
+        if( pNode->HandleInput( keyAction, keyCode, mouseAction, id, x, y, pressure ) )
+        {
+            return true;
+        }
+    }
+
+    return EditorDocument::HandleInput( keyAction, keyCode, mouseAction, id, x, y, pressure );
 }
 
 void MyNodeGraph::Save()

@@ -38,6 +38,8 @@ public:
 
     virtual const char* GetType() = 0;
 
+    virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) { return false; }
+
     MyNodeGraph* GetNodeGraph();
 
     uint32 MyNode::GetInputSlotCount() const;

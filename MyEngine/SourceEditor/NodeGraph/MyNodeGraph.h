@@ -130,12 +130,15 @@ protected:
     bool IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType);
     void SetExpandedForAllSelectedNodes(bool expand);
 
+    // Input/Hotkey handling
+    virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) override; // from EditorDocument.
+
     virtual void Save() override; // from EditorDocument.
     virtual void Load() override; // from EditorDocument.
 
     const char* ExportAsLuaString();
     cJSON* ExportAsJSONObject();
-    void ImportFromJSONObject(cJSON* jNodeGraph);
+    virtual void ImportFromJSONObject(cJSON* jNodeGraph);
 
     // Used by EditorCommand_NodeGraph_AddNode and EditorCommand_NodeGraph_DeleteNodes for undo/redo.
     void AddExistingNode(MyNode* pNode);

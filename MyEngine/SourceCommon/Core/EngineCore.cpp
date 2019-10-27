@@ -780,7 +780,11 @@ void OnFileUpdated_CallbackFunction(GameCore* pGameCore, MyFileObject* pFile)
 {
 #if MYFW_EDITOR
     // Let all components know the file was updated.
-    static_cast<EngineCore*>(pGameCore)->GetComponentSystemManager()->OnFileUpdated( pFile );
+    ComponentSystemManager* pComponentSystemManager = static_cast<EngineCore*>(pGameCore)->GetComponentSystemManager();
+    if( pComponentSystemManager != nullptr )
+    {
+        pComponentSystemManager->OnFileUpdated( pFile );
+    }
 
     LOGInfo( LOGTag, "OnFileUpdated_CallbackFunction pFile = %s\n", pFile->GetFullPath() );
 
