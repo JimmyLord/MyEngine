@@ -682,6 +682,9 @@ void MyNodeGraph::AddItemsAboveNodeGraphWindow()
 
 bool MyNodeGraph::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
 {
+    if( ImGui::GetIO().WantTextInput )
+        return false;
+
     for( int i=0; i<m_SelectedNodeIDs.Size; i++ )
     {
         NodeID nodeID = m_SelectedNodeIDs[i];

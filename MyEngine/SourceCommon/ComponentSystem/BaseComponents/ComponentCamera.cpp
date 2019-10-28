@@ -671,7 +671,7 @@ void ComponentCamera::DrawScene()
             m_pDeferredMaterial_PointLight = new MaterialDefinition( pMaterialManager, m_pDeferredShader_PointLight );
 
             m_pDeferredQuadMesh = new MyMesh( m_pEngineCore );
-            m_pDeferredQuadMesh->CreateClipSpaceQuad( Vector2( m_pGBuffer->GetWidth()/(float)m_pGBuffer->GetTextureWidth(), m_pGBuffer->GetHeight()/(float)m_pGBuffer->GetTextureHeight() ) );
+            m_pDeferredQuadMesh->CreateClipSpaceQuad( Vector2( 0, 0 ), Vector2( m_pGBuffer->GetWidth()/(float)m_pGBuffer->GetTextureWidth(), m_pGBuffer->GetHeight()/(float)m_pGBuffer->GetTextureHeight() ) );
             m_pDeferredQuadMesh->SetMaterial( m_pDeferredMaterial_AmbientDirectional, 0 );
             m_pDeferredQuadMesh->RegisterSetupCustomUniformsCallback( this, StaticSetupCustomUniformsCallback );
 
