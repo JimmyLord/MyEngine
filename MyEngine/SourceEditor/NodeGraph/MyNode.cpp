@@ -85,6 +85,8 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
     float titleHeight = 28.0f;
     bool titleOfNodeIsActive = false;
     bool titleOfNodeIsHovered = false;
+    bool BGOfNodeIsHovered = false;
+    bool ControlInsideNodeIsActive = false;
 
     // Display node background, no BG on the first frame since we don't know the size of the node yet.
     if( m_Size.x > 0 )
@@ -174,6 +176,20 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         }
 
         ImGui::EndGroup();
+
+        // If the controls are hovered but not active, select the node.
+        {
+            if( ImGui::IsItemHovered() )
+                BGOfNodeIsHovered = true;
+
+            if( ImGui::IsItemActive() )
+                ControlInsideNodeIsActive = true;
+
+            if( BGOfNodeIsHovered && ControlInsideNodeIsActive == false && ImGui::IsMouseClicked( 0 ) )
+            {
+                m_pNodeGraph->SelectNode( m_ID, true );
+            }
+        }
 
         // Save the size of what we have emitted and whether any of the widgets are being used.
         if( m_Expanded )

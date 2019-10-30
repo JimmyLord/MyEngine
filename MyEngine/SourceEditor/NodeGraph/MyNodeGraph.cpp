@@ -285,6 +285,40 @@ void MyNodeGraph::SetExpandedForAllSelectedNodes(bool expand)
     }
 }
 
+void MyNodeGraph::ClearSelections()
+{
+    m_SelectedNodeIDs.clear();
+    m_SelectedNodeLinkIndexes.clear();
+}
+
+void MyNodeGraph::SelectNode(NodeID nodeID, bool checkControlKey)
+{
+    // Deal with control key if wanted.
+    if( checkControlKey )
+    {
+        // If control isn't held, clear all selected nodes.
+        if( ImGui::GetIO().KeyCtrl == false )
+        {
+            ClearSelections();
+        }
+        else // If control is held.
+        {
+            // If the node is selected, unselect it and return.
+            if( m_SelectedNodeIDs.contains( nodeID ) == true )
+            {
+                m_SelectedNodeIDs.erase( std::remove( m_SelectedNodeIDs.begin(), m_SelectedNodeIDs.end(), nodeID ), m_SelectedNodeIDs.end() );
+                return;
+            }
+        }
+    }
+
+    // Select the node if it's not already selected.
+    if( m_SelectedNodeIDs.contains( nodeID ) == false )
+    {
+        m_SelectedNodeIDs.push_back( nodeID );
+    }
+}
+
 void MyNodeGraph::Update()
 {
     EditorDocument::Update();

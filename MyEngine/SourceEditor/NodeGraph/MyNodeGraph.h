@@ -130,6 +130,9 @@ protected:
     bool IsNodeSlotInUse(NodeID nodeID, SlotID slotID, SlotType slotType);
     void SetExpandedForAllSelectedNodes(bool expand);
 
+    void ClearSelections();
+    void SelectNode(NodeID nodeID, bool checkControlKey);
+
     // Input/Hotkey handling
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) override; // from EditorDocument.
 
