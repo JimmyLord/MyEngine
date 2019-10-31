@@ -129,16 +129,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         {
             if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) == false )
             {
-                if( ImGui::GetIO().KeyCtrl == false )
-                {
-                    m_pNodeGraph->m_SelectedNodeIDs.clear();
-                    m_pNodeGraph->m_SelectedNodeLinkIndexes.clear();
-                    m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
-                }
-                else
-                {
-                    m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
-                }
+                m_pNodeGraph->SelectNode( m_ID, true );
             }
 
             m_pNodeGraph->SetExpandedForAllSelectedNodes( !m_Expanded );
@@ -243,9 +234,8 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
             {
                 if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) == false )
                 {
-                    m_pNodeGraph->m_SelectedNodeIDs.clear();
-                    m_pNodeGraph->m_SelectedNodeLinkIndexes.clear();
-                    m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
+                    m_pNodeGraph->ClearSelections();
+                    m_pNodeGraph->SelectNode( m_ID, false );
                 }
             }
             else
@@ -253,7 +243,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
                 // If control is held and the current node isn't already selected, add it to our list.
                 if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) == false )
                 {
-                    m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
+                    m_pNodeGraph->SelectNode( m_ID, false );
 
                     // Set to globally ignore next mouse release, this will prevent this node from immediately being deselected.
                     ignoreNextMouseRelease = true;
@@ -271,30 +261,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
             }
             else if( mouseMoved == false )
             {
-                if( ImGui::GetIO().KeyCtrl == false )
-                {
-                    // If multiple nodes are selected, including this one, clear them and only select this one.
-                    if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) )
-                    {
-                        m_pNodeGraph->m_SelectedNodeIDs.clear();
-                        m_pNodeGraph->m_SelectedNodeLinkIndexes.clear();
-                        m_pNodeGraph->m_SelectedNodeIDs.push_back( m_ID );
-                    }
-                }
-                else
-                {
-                    // If it is in the selected node list, find its index and remove it.
-                    int selectedNodeIndex;
-                    for( selectedNodeIndex = 0; selectedNodeIndex < m_pNodeGraph->m_SelectedNodeIDs.Size; selectedNodeIndex++ )
-                    {
-                        if( m_pNodeGraph->m_SelectedNodeIDs[selectedNodeIndex] == m_ID )
-                            break;
-                    }
-                    MyAssert( selectedNodeIndex < m_pNodeGraph->m_SelectedNodeIDs.Size );
-
-                    // Remove the node from the selected node list.
-                    m_pNodeGraph->m_SelectedNodeIDs.erase_unsorted( m_pNodeGraph->m_SelectedNodeIDs.Data + selectedNodeIndex );
-                }
+                m_pNodeGraph->SelectNode( m_ID, true );
             }
         }
     }

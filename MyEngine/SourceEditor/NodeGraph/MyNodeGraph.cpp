@@ -366,8 +366,7 @@ void MyNodeGraph::Update()
         isSelected = m_SelectedNodeIDs.contains( pNode->m_ID );
         if( ImGui::Selectable( pNode->m_Name, isSelected ) )
         {
-            m_SelectedNodeIDs.clear(); // TODO: Handle control/shift to multi-select.
-            m_SelectedNodeIDs.push_back( pNode->m_ID );
+            SelectNode( pNode->m_ID, true );
         }
 
         // Check for right-click context menu.
@@ -543,20 +542,11 @@ void MyNodeGraph::Update()
                 }
                 else if( nodeIndexHoveredInList != -1 )
                 {
-                    m_SelectedNodeIDs.clear();
-                    m_SelectedNodeLinkIndexes.clear();
-                    m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInList]->m_ID );
+                    SelectNode( m_Nodes[nodeIndexHoveredInList]->m_ID, true );
                 }
                 else if( nodeIndexHoveredInScene != -1 )
                 {
-                    bool isSelected = m_SelectedNodeIDs.contains(m_Nodes[nodeIndexHoveredInScene]->m_ID );
-
-                    if( isSelected == false || m_SelectedNodeIDs.size() == 1 )
-                    {
-                        m_SelectedNodeIDs.clear();
-                        m_SelectedNodeLinkIndexes.clear();
-                        m_SelectedNodeIDs.push_back( m_Nodes[nodeIndexHoveredInScene]->m_ID );
-                    }
+                    SelectNode( m_Nodes[nodeIndexHoveredInScene]->m_ID, true );
                 }
             }
 
@@ -588,6 +578,7 @@ void MyNodeGraph::Update()
                         if( ImGui::MenuItem( "Delete Nodes", nullptr, false ) )
                         {
                             m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+                            ClearSelections();
                         }
                     }
                     else if( pNode )
@@ -598,7 +589,7 @@ void MyNodeGraph::Update()
                         if( ImGui::MenuItem( "Delete", nullptr, false ) )
                         {
                             m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
-                            m_SelectedNodeIDs.clear();
+                            ClearSelections();
                         }
                         if( ImGui::MenuItem( "Copy", nullptr, false, false ) ) {}
 
@@ -654,10 +645,7 @@ void MyNodeGraph::Update()
 
                         if( nodeAABB.IsOverlapped( mouseAABB ) )
                         {
-                            if( m_SelectedNodeIDs.contains( pNode->m_ID ) == false )
-                            {
-                                m_SelectedNodeIDs.push_back( pNode->m_ID );
-                            }
+                            SelectNode( pNode->m_ID, false );
                         }
                     }
                 }
