@@ -37,6 +37,8 @@ MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, c
     m_InputsCount = inputsCount;
     m_OutputsCount = outputsCount;
     m_Expanded = true;
+
+    m_IsBeingDragged = false;
 }
 
 MyNodeGraph::MyNode::~MyNode()
@@ -168,20 +170,6 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
 
         ImGui::EndGroup();
 
-        // If the controls are hovered but not active, select the node.
-        {
-            if( ImGui::IsItemHovered() )
-                BGOfNodeIsHovered = true;
-
-            if( ImGui::IsItemActive() )
-                ControlInsideNodeIsActive = true;
-
-            if( BGOfNodeIsHovered && ControlInsideNodeIsActive == false && ImGui::IsMouseClicked( 0 ) )
-            {
-                m_pNodeGraph->SelectNode( m_ID, true );
-            }
-        }
-
         // Save the size of what we have emitted and whether any of the widgets are being used.
         if( m_Expanded )
         {
@@ -204,64 +192,52 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
     ImGui::SetCursorScreenPos( nodeRectMin );
     ImGui::InvisibleButton( "node", m_Size );
 
+    bool bodyOfNodeIsActive = ImGui::IsItemActive();
+    bool bodyOfNodeIsHovered = ImGui::IsItemHovered();
+
     // Select/Deselect nodes if the title is clicked.
-    static bool ignoreNextMouseRelease = false;
-    static Vector2 mouseDownPosition(0,0);
-    if( titleOfNodeIsHovered )
+    if( titleOfNodeIsHovered || bodyOfNodeIsHovered )
     {
+        // Setup for undo/redo of node movement.
         if( ImGui::IsMouseDown( 0 ) && !ImGui::IsMouseDragging() )
         {
             // Store mouse down position.
-            mouseDownPosition = ImGui::GetIO().MousePos;
+            m_MouseDownPosition = ImGui::GetIO().MousePos;
+            m_IsBeingDragged = true;
         }
         if( ImGui::IsMouseReleased( 0 ) )
         {
-            if( m_pNodeGraph->m_SelectedNodeIDs.size() > 0 )
+            if( m_IsBeingDragged )
             {
-                Vector2 amountMoved = ImGui::GetIO().MousePos - mouseDownPosition;
-                if( amountMoved.LengthSquared() > 0 )
+                if( m_pNodeGraph->m_SelectedNodeIDs.size() > 0 )
                 {
-                    m_pNodeGraph->m_pCommandStack->Add( MyNew EditorCommand_NodeGraph_MoveNodes( m_pNodeGraph, m_pNodeGraph->m_SelectedNodeIDs, amountMoved ) );
+                    Vector2 amountMoved = ImGui::GetIO().MousePos - m_MouseDownPosition;
+                    if( amountMoved.LengthSquared() > 0 )
+                    {
+                        m_pNodeGraph->m_pCommandStack->Add( MyNew EditorCommand_NodeGraph_MoveNodes( m_pNodeGraph, m_pNodeGraph->m_SelectedNodeIDs, amountMoved ) );
+                    }
                 }
             }
+
+            m_IsBeingDragged = false;
         }
 
         // Select on clicks.
         if( ImGui::IsMouseClicked( 0 ) )
         {
-            // If control key isn't held and the current node isn't selected, clear all selected nodes and select this one.
-            if( ImGui::GetIO().KeyCtrl == false )
+            // Select the node only if its not already selected.
+            // i.e. Ignore the click if the node is selected.
+            if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) == false )
             {
-                if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) == false )
-                {
-                    m_pNodeGraph->ClearSelections();
-                    m_pNodeGraph->SelectNode( m_ID, false );
-                }
+                m_pNodeGraph->SelectNode( m_ID, true );
             }
             else
             {
-                // If control is held and the current node isn't already selected, add it to our list.
-                if( m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID ) == false )
+                // If it is selected, allow a control click to deselect it.
+                if( ImGui::GetIO().KeyCtrl == true )
                 {
-                    m_pNodeGraph->SelectNode( m_ID, false );
-
-                    // Set to globally ignore next mouse release, this will prevent this node from immediately being deselected.
-                    ignoreNextMouseRelease = true;
+                    m_pNodeGraph->SelectNode( m_ID, true );
                 }
-            }
-        }
-
-        // Deselect on releases.
-        bool mouseMoved = ImGui::GetIO().MouseDragMaxDistanceSqr[0] > 2.0f ? true : false;
-        if( ImGui::IsMouseReleased( 0 ) )
-        {
-            if( ignoreNextMouseRelease == true )
-            {
-                ignoreNextMouseRelease = false;
-            }
-            else if( mouseMoved == false )
-            {
-                m_pNodeGraph->SelectNode( m_ID, true );
             }
         }
     }
@@ -281,9 +257,10 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
         }
     }
 
-    // Move selected nodes if the titlebar of a selected node is dragged and we're not creating a link.
+    // Move selected nodes if a selected node is dragged and we're not creating a link.
     bool nodeIsSelected = m_pNodeGraph->m_SelectedNodeIDs.contains( m_ID );
-    if( nodeIsSelected && titleOfNodeIsActive && ImGui::IsMouseDragging(0) && pMouseNodeLink->InUse() == false )
+    if( nodeIsSelected && ( titleOfNodeIsActive || bodyOfNodeIsActive ) &&
+        ImGui::IsMouseDragging(0) && pMouseNodeLink->InUse() == false )
     {
         for( int i=0; i<m_pNodeGraph->m_SelectedNodeIDs.Size; i++ )
         {

@@ -31,6 +31,8 @@ public:
     // Temp values, no need to save.
     Vector2 m_Size;
     float m_TitleWidth;
+    bool m_IsBeingDragged;       // Used for undo/redo of node movement.
+    Vector2 m_MouseDownPosition; // Used for undo/redo of node movement.
 
 public:
     MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, const Vector2& pos, int inputsCount, int outputsCount);
