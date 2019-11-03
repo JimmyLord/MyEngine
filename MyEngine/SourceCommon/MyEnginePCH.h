@@ -13,7 +13,9 @@
 #define MYFW_USING_MYENGINE 1 // Used by a couple of old modules in SharedGameCode.
 
 #define MYFW_USING_LUA 1
+#if MYFW_USE_MONO
 #define MYFW_USING_MONO 1
+#endif
 
 const int g_NumberOfVisibilityLayers = 8;
 

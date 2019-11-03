@@ -5,6 +5,9 @@
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
+if MyEnginePremakeConfig_UseMono == nil then
+    MyEnginePremakeConfig_UseMono = true
+end
 if MyEnginePremakeConfig_FrameworkFolder == nil then
     MyEnginePremakeConfig_FrameworkFolder = "$(SolutionDir)../Framework"
 end
@@ -93,9 +96,6 @@ project "MyEngine"
     filter "configurations:Debug or EditorDebug"
         defines         "_DEBUG"
         symbols         "on"
-if PremakeConfig_UseMemoryTracker == true then
-        defines         "MYFW_USE_MEMORY_TRACKER"
-end
 
     filter "configurations:Release or EditorRelease"
         defines         "NDEBUG"
@@ -103,9 +103,6 @@ end
 
     filter "configurations:EditorDebug or EditorRelease"
         defines         { "MYFW_EDITOR", "MYFW_USING_IMGUI" }
-if PremakeConfig_UseMemoryTracker == true then
-        defines         "MYFW_USE_MEMORY_TRACKER"
-end
 
 if MyEnginePremakeConfig_ForceIncludeEditorFiles == true then
     filter {}
@@ -116,3 +113,11 @@ end
             "MyEngine/SourceEditor/**.cpp",
             "MyEngine/SourceEditor/**.h",
         }
+
+    filter {}
+if PremakeConfig_UseMemoryTracker == true then
+        defines         "MYFW_USE_MEMORY_TRACKER"
+end
+if MyEnginePremakeConfig_UseMono == true then
+        defines         "MYFW_USE_MONO"
+end
