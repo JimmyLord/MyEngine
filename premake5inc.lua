@@ -5,14 +5,14 @@
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
-if MyEnginePremakeConfig_UseMono == nil then
-    MyEnginePremakeConfig_UseMono = true
-end
-if MyEnginePremakeConfig_FrameworkFolder == nil then
-    MyEnginePremakeConfig_FrameworkFolder = "$(SolutionDir)../Framework"
+if PremakeConfig_UseMono == nil then
+    PremakeConfig_UseMono = true
 end
 if PremakeConfig_UseMemoryTracker == nil then
     PremakeConfig_UseMemoryTracker = true
+end
+if MyEnginePremakeConfig_FrameworkFolder == nil then
+    MyEnginePremakeConfig_FrameworkFolder = "$(SolutionDir)../Framework"
 end
 
 if monoInstallationPath == nil then
@@ -114,10 +114,12 @@ end
             "MyEngine/SourceEditor/**.h",
         }
 
+if PremakeConfig_UseMono == true then
     filter {}
-if PremakeConfig_UseMemoryTracker == true then
-        defines         "MYFW_USE_MEMORY_TRACKER"
-end
-if MyEnginePremakeConfig_UseMono == true then
         defines         "MYFW_USE_MONO"
+end
+
+if PremakeConfig_UseMemoryTracker == true then
+    filter "configurations:Debug or EditorDebug or EditorRelease"
+        defines         "MYFW_USE_MEMORY_TRACKER"
 end
