@@ -155,16 +155,23 @@ void EditorInterface_VoxelMeshEditor::SaveVoxelMesh()
 
         char* string = cJSON_Print( jVoxelMesh );
 
-        FILE* pFile;
+        FILE* pFile = nullptr;
 #if MYFW_WINDOWS
         fopen_s( &pFile, m_pVoxelMesh->m_pMesh->GetFile()->GetFullPath(), "wb" );
 #else
         pFile = fopen( m_pVoxelMesh->m_pMesh->GetFile()->GetFullPath(), "wb" );
 #endif
-        fprintf( pFile, "%s", string );
-        fclose( pFile );
+        if( pFile != nullptr )
+        {
+            fprintf( pFile, "%s", string );
+            fclose( pFile );
 
-        cJSON_Delete( jVoxelMesh );
+            cJSON_Delete( jVoxelMesh );
+        }
+        else
+        {
+            LOGError( "File failed to open: %s\n", m_pVoxelMesh->m_pMesh->GetFile()->GetFullPath() );
+        }
 
         cJSONExt_free( string );
     }

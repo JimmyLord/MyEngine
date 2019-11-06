@@ -578,15 +578,22 @@ void PrefabFile::Save()
 
     char* jsonstring = cJSON_Print( jRoot );
 
-    FILE* pFile;
+    FILE* pFile = nullptr;
 #if MYFW_WINDOWS
     fopen_s( &pFile, m_pFile->GetFullPath(), "wb" );
 #else
     pFile = fopen( m_pFile->GetFullPath(), "wb" );
 #endif
-    fprintf( pFile, "%s", jsonstring );
-    fclose( pFile );
-    
+    if( pFile != nullptr )
+    {
+        fprintf( pFile, "%s", jsonstring );
+        fclose( pFile );
+    }
+    else
+    {
+        LOGError( "File failed to open: %s\n", m_pFile->GetFullPath() );
+    }
+
     cJSONExt_free( jsonstring );
     
     // Detach "Object" from the json branch since we're storing it in m_Prefabs[i]->m_jPrefab and will delete elsewhere
@@ -801,19 +808,23 @@ PrefabObject* PrefabManager::CreatePrefabInFile(unsigned int fileindex, const ch
 void PrefabManager::CreateFile(const char* relativepath)
 {
     // create an empty stub of a file so it can be properly requested by our code
-    FILE* pFile = 0;
+    FILE* pFile = nullptr;
 #if MYFW_WINDOWS
     fopen_s( &pFile, relativepath, "wb" );
 #else
     pFile = fopen( relativepath, "wb" );
 #endif
-    if( pFile )
+    if( pFile != nullptr )
     {
         fclose( pFile );
     }
+    else
+    {
+        LOGError( "File failed to open: %s\n", relativepath );
+    }
 
     // if the file managed to save, request it.
-    if( pFile != 0 )
+    if( pFile != nullptr )
     {
         FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
         pFileManager->RequestFile( relativepath );

@@ -740,14 +740,21 @@ void MyNodeGraph::Save()
 
         cJSON_Delete( jNodeGraph );
 
-        FILE* pFile;
+        FILE* pFile = nullptr;
 #if MYFW_WINDOWS
         fopen_s( &pFile, filename, "wb" );
 #else
         pFile = fopen( filename, "wb" );
 #endif
-        fprintf( pFile, "%s", jsonString );
-        fclose( pFile );
+        if( pFile != nullptr )
+        {
+            fprintf( pFile, "%s", jsonString );
+            fclose( pFile );
+        }
+        else
+        {
+            LOGError( "File failed to open: %s\n", filename );
+        }
 
         cJSONExt_free( jsonString );
     }
@@ -772,14 +779,21 @@ void MyNodeGraph::Save()
         char fullPath[MAX_PATH];
         sprintf_s( fullPath, MAX_PATH, "Data/ScriptsGenerated/%s.lua", filenameWithLuaExtension );
 
-        FILE* pFile;
+        FILE* pFile = nullptr;
 #if MYFW_WINDOWS
         fopen_s( &pFile, fullPath, "wb" );
 #else
         pFile = fopen( fullPath, "wb" );
 #endif
-        fprintf( pFile, "%s", m_pLuaString );
-        fclose( pFile );
+        if( pFile != nullptr )
+        {
+            fprintf( pFile, "%s", m_pLuaString );
+            fclose( pFile );
+        }
+        else
+        {
+            LOGError( "File failed to open: %s\n", fullPath );
+        }
 
         //delete[] luaString;
     }
