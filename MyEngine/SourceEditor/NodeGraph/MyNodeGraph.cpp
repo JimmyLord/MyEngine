@@ -853,6 +853,9 @@ const char* MyNodeGraph::ExportAsLuaString()
 
     // Class start.
     {
+        offset += sprintf_s( &string[offset], bufferSize - offset, "-- This is an auto-generated file.\n" );
+        offset += sprintf_s( &string[offset], bufferSize - offset, "-- Source: %s\n\n", this->GetRelativePath() );
+
         const int len = 32;
         char justTheFilename[len];
         const char* filenameWithExtension = this->GetFilename();
