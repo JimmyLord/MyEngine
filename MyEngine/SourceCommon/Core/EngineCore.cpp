@@ -489,6 +489,8 @@ void EngineCore::OneTimeInit()
 
 #if MYFW_EDITOR
     {
+        MyAssert( m_pEditorPrefs == nullptr );
+
         // This should be the editor pref load point for ImGui Editor builds.
         m_pEditorPrefs = MyNew EditorPrefs;
         m_pEditorPrefs->Init();
@@ -813,7 +815,10 @@ void EngineCore::OnFocusGained()
     GameCore::OnFocusGained();
 
 #if MYFW_EDITOR
-    m_pEditorState->ClearKeyAndActionStates();
+    if( m_pEditorState )
+    {
+        m_pEditorState->ClearKeyAndActionStates();
+    }
 
 #if MYFW_USING_WX
     // Check if any of the "source" files, like .fbx's were updated, they aren't loaded by FileManager so wouldn't be detected there.
@@ -2162,7 +2167,7 @@ void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 
 void EngineCore::SetGridVisible(bool visible)
 {
-    if( m_pEditorState->m_p3DGridPlane )
+    if( m_pEditorState && m_pEditorState->m_p3DGridPlane )
     {
         ComponentMesh* pComponentMesh = (ComponentMesh*)m_pEditorState->m_p3DGridPlane->GetFirstComponentOfType( "MeshComponent" );
         pComponentMesh->SetVisible( visible );
