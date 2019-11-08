@@ -212,6 +212,17 @@ EditorDocument* EditorDocument::AddDocumentMenu(EngineCore* pEngineCore, EditorD
                         numRecentDocuments--;
                     }
                 }
+
+                if( ImGui::BeginPopupContextItem() )
+                {
+                    if( ImGui::MenuItem( "Remove" ) )
+                    {
+                        pEngineCore->GetEditorPrefs()->RemoveRecentDocument( relativePath );
+                        i--;
+                        numRecentDocuments--;
+                    }
+                    ImGui::EndPopup();
+                }
             }
             ImGui::EndMenu();
         }
