@@ -10,6 +10,8 @@
 #ifndef __ComponentMonoScript_H__
 #define __ComponentMonoScript_H__
 
+#if MYFW_USE_MONO
+
 class MonoGameState;
 
 #include "mono/metadata/object-forward.h"
@@ -149,5 +151,7 @@ public:
     virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) override;
 #endif //MYFW_EDITOR
 };
+
+#endif //MYFW_USE_MONO
 
 #endif //__ComponentMonoScript_H__
