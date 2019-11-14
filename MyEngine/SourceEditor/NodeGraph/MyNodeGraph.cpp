@@ -327,23 +327,6 @@ void MyNodeGraph::Update()
     int nodeIndexHoveredInList = -1;
     int nodeIndexHoveredInScene = -1;
 
-    // Handle key presses.
-    if( ImGui::IsKeyPressed( MYKEYCODE_DELETE, false ) )
-    {
-        if( m_SelectedNodeIDs.size() > 0 )
-        {
-            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
-            m_SelectedNodeIDs.clear();
-            m_SelectedNodeLinkIndexes.clear();
-        }
-        
-        if( m_SelectedNodeLinkIndexes.size() > 0 )
-        {
-            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndexes ) );
-            m_SelectedNodeLinkIndexes.clear();
-        }
-    }
-
     // Pull the selected nodes to the foreground.
     // This breaks the order of the nodes list on the left, but I'm okay with that.
     for( int i=m_SelectedNodeIDs.size()-1; i>=0; i-- )
@@ -364,7 +347,21 @@ void MyNodeGraph::Update()
         
         bool isSelected = false;
         isSelected = m_SelectedNodeIDs.contains( pNode->m_ID );
-        if( ImGui::Selectable( pNode->m_Name, isSelected ) )
+
+        if( pNode->m_RenameState != MyNode::RenameState::Idle )
+        {
+            if( pNode->m_RenameState == MyNode::RenameState::Requested )
+            {
+                ImGui::SetKeyboardFocusHere();
+                pNode->m_RenameState = MyNode::RenameState::BeingRenamed;
+            }
+
+            if( ImGui::InputText( "", pNode->m_Name, 32, ImGuiInputTextFlags_EnterReturnsTrue ) )
+            {
+                pNode->m_RenameState = MyNode::RenameState::Idle;
+            }
+        }
+        else if( ImGui::Selectable( pNode->m_Name, isSelected ) )
         {
             SelectNode( pNode->m_ID, true );
         }
@@ -585,7 +582,7 @@ void MyNodeGraph::Update()
                     {
                         ImGui::Text( "Node '%s'", pNode->m_Name );
                         ImGui::Separator();
-                        if( ImGui::MenuItem( "Rename...", nullptr, false, false ) ) {}
+                        if( ImGui::MenuItem( "Rename...", nullptr, false ) ) { pNode->m_RenameState = MyNode::RenameState::Requested; }
                         if( ImGui::MenuItem( "Delete", nullptr, false ) )
                         {
                             m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
@@ -716,6 +713,23 @@ bool MyNodeGraph::HandleInput(int keyAction, int keyCode, int mouseAction, int i
         if( pNode->HandleInput( keyAction, keyCode, mouseAction, id, x, y, pressure ) )
         {
             return true;
+        }
+    }
+
+    // Handle key presses.
+    if( keyCode == MYKEYCODE_DELETE )
+    {
+        if( m_SelectedNodeIDs.size() > 0 )
+        {
+            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteNodes( this, m_SelectedNodeIDs ) );
+            m_SelectedNodeIDs.clear();
+            m_SelectedNodeLinkIndexes.clear();
+        }
+
+        if( m_SelectedNodeLinkIndexes.size() > 0 )
+        {
+            m_pCommandStack->Do( MyNew EditorCommand_NodeGraph_DeleteLink( this, m_SelectedNodeLinkIndexes ) );
+            m_SelectedNodeLinkIndexes.clear();
         }
     }
 

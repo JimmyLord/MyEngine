@@ -32,13 +32,15 @@ MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, c
     strncpy_s( m_Name, 32, name, 31 );
     m_Name[31] = '\0';
     m_Pos = pos;
-    m_Size.Set( 0, 0 );
-    m_TitleWidth = 1; // Initially set to a small width, will expand based on controls.
     m_InputsCount = inputsCount;
     m_OutputsCount = outputsCount;
     m_Expanded = true;
 
+    m_Size.Set( 0, 0 );
+    m_TitleWidth = 1; // Initially set to a small width, will expand based on controls.
+    m_RenameState = RenameState::Idle;
     m_IsBeingDragged = false;
+    m_MouseDownPosition.Set( -1, -1 );
 }
 
 MyNodeGraph::MyNode::~MyNode()
@@ -351,7 +353,22 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
 
 void MyNodeGraph::MyNode::DrawTitle()
 {
-    ImGui::Text( m_Name );
+    //if( m_RenamedProcess > 0 )
+    //{
+    //    if( m_RenamedProcess == 1 )
+    //    {
+    //        ImGui::SetKeyboardFocusHere();
+    //        m_RenamedProcess = 2;
+    //    }
+    //    if( ImGui::InputText( "", m_Name, 32, ImGuiInputTextFlags_EnterReturnsTrue ) )
+    //    {
+    //        m_RenamedProcess = 0;
+    //    }
+    //}
+    //else
+    {
+        ImGui::Text( m_Name );
+    }
 }
 
 void MyNodeGraph::MyNode::DrawContents()

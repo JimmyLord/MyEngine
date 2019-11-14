@@ -16,6 +16,14 @@
 class MyNodeGraph::MyNode : public ComponentVariableCallbackInterface
 {
 public:
+    enum class RenameState
+    {
+        Idle,
+        Requested,
+        BeingRenamed,
+    };
+
+public:
     MyNodeGraph* m_pNodeGraph;
 
     NodeID m_ID;
@@ -31,6 +39,7 @@ public:
     // Temp values, no need to save.
     Vector2 m_Size;
     float m_TitleWidth;
+    RenameState m_RenameState;
     bool m_IsBeingDragged;       // Used for undo/redo of node movement.
     Vector2 m_MouseDownPosition; // Used for undo/redo of node movement.
 
