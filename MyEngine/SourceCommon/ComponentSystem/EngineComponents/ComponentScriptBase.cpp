@@ -9,10 +9,6 @@
 
 #include "MyEnginePCH.h"
 
-#include "mono/jit/jit.h"
-#include "mono/metadata/assembly.h"
-#include "mono/metadata/attrdefs.h"
-
 #include "ComponentScriptBase.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "Core/EngineCore.h"

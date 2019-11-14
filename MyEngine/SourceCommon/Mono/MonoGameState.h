@@ -10,6 +10,8 @@
 #ifndef __MonoGameState_H__
 #define __MonoGameState_H__
 
+#if MYFW_USE_MONO
+
 #include "mono/metadata/object-forward.h"
 #include "mono/utils/mono-forward.h"
 
@@ -64,5 +66,7 @@ public:
 
     bool Rebuild();
 };
+
+#endif //MYFW_USE_MONO
 
 #endif //__MonoGameState_H__

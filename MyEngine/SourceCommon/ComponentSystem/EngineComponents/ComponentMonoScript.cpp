@@ -9,6 +9,8 @@
 
 #include "MyEnginePCH.h"
 
+#if MYFW_USE_MONO
+
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
 #include "mono/metadata/attrdefs.h"
@@ -1280,3 +1282,5 @@ bool ComponentMonoScript::OnEvent(MyEvent* pEvent) // StaticOnEvent
 
     return false;
 }
+
+#endif //MYFW_USE_MONO

@@ -124,7 +124,11 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 #else
     case ComponentType_LuaScript:           pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
 #endif //MYFW_USING_LUA
+#if MYFW_USE_MONO
     case ComponentType_MonoScript:          pComponent = MyNew ComponentMonoScript(         pEngineCore, m_pComponentSystemManager ); break;
+#else
+    case ComponentType_MonoScript:          pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+#endif //MYFW_USE_MONO
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter(    pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer(    pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_AnimationPlayer2D:   pComponent = MyNew ComponentAnimationPlayer2D(  pEngineCore, m_pComponentSystemManager ); break;

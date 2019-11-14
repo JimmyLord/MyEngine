@@ -117,6 +117,9 @@ end
 if PremakeConfig_UseMono == true then
     filter {}
         defines         "MYFW_USE_MONO"
+else
+    filter { "files:MyEngine/SourceCommon/Mono/**" }
+        flags           "ExcludeFromBuild"
 end
 
 if PremakeConfig_UseMemoryTracker == true then
