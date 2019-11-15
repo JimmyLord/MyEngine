@@ -350,15 +350,24 @@ void MyNodeGraph::Update()
 
         if( pNode->m_RenameState != MyNode::RenameState::Idle )
         {
-            if( pNode->m_RenameState == MyNode::RenameState::Requested )
-            {
-                ImGui::SetKeyboardFocusHere();
-                pNode->m_RenameState = MyNode::RenameState::BeingRenamed;
-            }
-
-            if( ImGui::InputText( "", pNode->m_Name, 32, ImGuiInputTextFlags_EnterReturnsTrue ) )
+            // Show an input box instead of plain text.
+            if( ImGui::InputText( "", pNode->m_Name, 32, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue ) )
             {
                 pNode->m_RenameState = MyNode::RenameState::Idle;
+            }
+
+            // If this isn't the first frame, then confirm the rename if the input loses focus.
+            if( pNode->m_RenameState == MyNode::RenameState::BeingRenamed )
+            {
+                if( ImGui::IsItemActive() == false )
+                    pNode->m_RenameState = MyNode::RenameState::Idle;
+            }
+
+            // If this is the first frame, set the keyboard focus.
+            if( pNode->m_RenameState == MyNode::RenameState::Requested )
+            {
+                pNode->m_RenameState = MyNode::RenameState::BeingRenamed;
+                ImGui::SetKeyboardFocusHere( -1 );
             }
         }
         else if( ImGui::Selectable( pNode->m_Name, isSelected ) )
@@ -703,6 +712,15 @@ bool MyNodeGraph::HandleInput(int keyAction, int keyCode, int mouseAction, int i
 {
     if( ImGui::GetIO().WantTextInput )
         return false;
+
+    //// If mouse is clicked, loop through all nodes and turn off rename.
+    //if( mouseAction == GCBA_Down && id == 0 )
+    //{
+    //    for( uint32 i=0; i<m_Nodes.size(); i++ )
+    //    {
+    //        m_Nodes[i]->m_RenameState = MyNode::RenameState::Idle;
+    //    }
+    //}
 
     for( int i=0; i<m_SelectedNodeIDs.Size; i++ )
     {
