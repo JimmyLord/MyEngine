@@ -27,6 +27,7 @@
 #include "../SourceEditor/EditorMainFrame.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Documents/EditorDocument.h"
 #include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/Interfaces/EditorInterface.h"
@@ -521,6 +522,11 @@ void EngineCore::OneTimeInit()
 #else
     // TODO: Fix! This won't work if flags were customized and saved into editorprefs.ini.
     InitializeGameObjectFlagStrings( nullptr );
+#endif
+
+#if MYFW_EDITOR
+    // Restore the previously open documents.
+    EditorDocument::RestorePreviouslyOpenDocuments( this );
 #endif
 }
 

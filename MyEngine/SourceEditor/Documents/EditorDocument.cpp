@@ -12,6 +12,7 @@
 #include "EditorDocument.h"
 
 #include "Core/EngineCore.h"
+#include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Documents/EditorDocument_Heightmap.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodeTypeManager.h"
@@ -328,6 +329,40 @@ EditorDocument* EditorDocument::LoadDocument(EngineCore* pEngineCore)
     }
 
     return nullptr;
+}
+
+// Static.
+void EditorDocument::RestorePreviouslyOpenDocuments(EngineCore* pEngineCore)
+{
+    cJSON* jEditorPrefs = pEngineCore->GetEditorPrefs()->GetEditorPrefsJSONString();
+    cJSON* jOpenDocumentsArray = cJSON_GetObjectItem( jEditorPrefs, "State_OpenDocuments" );
+    if( jOpenDocumentsArray )
+    {
+        for( int i=0; i<cJSON_GetArraySize( jOpenDocumentsArray ); i++ )
+        {
+            cJSON* jDocument = cJSON_GetArrayItem( jOpenDocumentsArray, i );
+            char* relativePath = jDocument->valuestring;
+            int len = (int)strlen( relativePath );
+
+            EditorDocument* pNewDocument = nullptr;
+
+            if( strcmp( &relativePath[len-strlen(".myvisualscript")], ".myvisualscript" ) == 0 )
+            {
+                pNewDocument = MyNew MyNodeGraph( pEngineCore, &g_VisualScriptNodeTypeManager );
+            }        
+            else if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
+            {
+                pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+            }
+
+            if( pNewDocument != nullptr )
+            {
+                pNewDocument->SetRelativePath( relativePath );
+                pNewDocument->Load();
+                pEngineCore->GetEditorState()->OpenDocument( pNewDocument );
+            }
+        }
+    }
 }
 
 bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
