@@ -28,6 +28,7 @@
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/TransformGizmo.h"
 #include "../SourceEditor/Documents/EditorDocument.h"
+#include "../SourceEditor/Documents/EditorDocumentManager.h"
 #include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/Interfaces/EditorInterface.h"
@@ -109,6 +110,7 @@ EngineCore::EngineCore(Renderer_Base* pRenderer, bool createAndOwnGlobalManagers
     m_pEditorPrefs = nullptr;
     m_pEditorState = nullptr;
     m_pEditorMainFrame = nullptr;
+    m_pEditorDocumentManager = nullptr;
 
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
@@ -193,6 +195,7 @@ void EngineCore::Cleanup()
     SAFE_DELETE( m_pEditorPrefs );
     SAFE_DELETE( m_pEditorState );
     SAFE_DELETE( m_pEditorMainFrame );
+    SAFE_DELETE( m_pEditorDocumentManager );
 
     SAFE_RELEASE( m_pSphereMeshFile );
     SAFE_RELEASE( m_pSprite_DebugQuad );
@@ -473,6 +476,9 @@ void EngineCore::OneTimeInit()
             m_pEditorMainFrame = CreateEditorMainFrame();
         }
 
+        // Create the document manager.
+        m_pEditorDocumentManager = MyNew EditorDocumentManager( this );
+
         // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
         // Tick happens before game(0) window is drawn, m_pImGuiManager's draw only happens on editor(1) window.
         //m_pImGuiManager->StartFrame();
@@ -526,7 +532,7 @@ void EngineCore::OneTimeInit()
 
 #if MYFW_EDITOR
     // Restore the previously open documents.
-    EditorDocument::RestorePreviouslyOpenDocuments( this );
+    m_pEditorDocumentManager->RestorePreviouslyOpenDocuments( this );
 #endif
 }
 

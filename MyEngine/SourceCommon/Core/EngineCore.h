@@ -13,12 +13,13 @@
 class BulletWorld;
 class ComponentSystemManager;
 class ComponentTypeManager;
-class GameObject;
 class EngineCore;
+class EditorDocumentManager;
 class EditorInterface;
 class EditorMainFrame;
 class EditorPrefs;
 class EditorState;
+class GameObject;
 class MonoGameState;
 class MyMeshText;
 
@@ -157,6 +158,7 @@ protected:
     EditorPrefs* m_pEditorPrefs;
     EditorState* m_pEditorState;
     EditorMainFrame* m_pEditorMainFrame;
+    EditorDocumentManager* m_pEditorDocumentManager;
 
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
@@ -282,8 +284,9 @@ public:
     // Editor Getters/Setters.
     EditorPrefs* GetEditorPrefs() { return m_pEditorPrefs; }
     EditorState* GetEditorState() { return m_pEditorState; }
-
     EditorMainFrame* GetEditorMainFrame() { return m_pEditorMainFrame; }
+    EditorDocumentManager* GetEditorDocumentManager() { return m_pEditorDocumentManager; }
+
 #if MYFW_USING_IMGUI
     EditorMainFrame_ImGui* GetEditorMainFrame_ImGui() { return (EditorMainFrame_ImGui*)m_pEditorMainFrame; }
 #endif

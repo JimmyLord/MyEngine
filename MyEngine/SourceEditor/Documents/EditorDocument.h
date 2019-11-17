@@ -61,10 +61,6 @@ public:
     EditorDocument(EngineCore* pEngineCore);
     virtual ~EditorDocument();
 
-    static EditorDocument* AddDocumentMenu(EngineCore* pEngineCore, EditorDocument* pDocument);
-    static EditorDocument* LoadDocument(EngineCore* pEngineCore);
-    static void RestorePreviouslyOpenDocuments(EngineCore* pEngineCore);
-
     // Input/Hotkey handling
     virtual HotkeyContext GetHotkeyContext() { return HotkeyContext::Global; }
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);

@@ -28,6 +28,7 @@
 #include "../SourceEditor/Commands/EngineCommandStack.h"
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Documents/EditorDocument.h"
+#include "../SourceEditor/Documents/EditorDocumentManager.h"
 #include "../SourceEditor/Editor_ImGui/EditorLayoutManager_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorLogWindow_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
@@ -1231,7 +1232,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         }
 
         // Add a menu for editor documents.
-        EditorDocument* pNewDocument = EditorDocument::AddDocumentMenu( m_pEngineCore, m_pLastActiveDocument );
+        EditorDocument* pNewDocument = m_pEngineCore->GetEditorDocumentManager()->AddDocumentMenu( m_pEngineCore, m_pLastActiveDocument );
         if( pNewDocument != nullptr )
         {
             m_pEngineCore->GetEditorState()->OpenDocument( pNewDocument );
