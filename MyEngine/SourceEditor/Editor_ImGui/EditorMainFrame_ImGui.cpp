@@ -107,6 +107,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui(EngineCore* pEngineCore)
     m_DocumentIndexToCloseAfterWarning = -1;
     m_ShowWarning_CloseEditor = false;
 
+    // Main Dock Node
+    m_CentralNodeDockID = 0;
+
     // Render surfaces.
     m_pGameFBO = m_pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
     m_pEditorFBO = m_pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
@@ -645,8 +648,12 @@ void EditorMainFrame_ImGui::AddEverything()
 
     AddMainMenuBar();
 
-    ImGuiID dockspace_id = ImGui::GetID( "MyDockspace" );
-    ImGui::DockSpace( dockspace_id );
+    ImGuiID dockspaceID = ImGui::GetID( "MyDockspace" );
+    ImGui::DockSpace( dockspaceID );
+
+    ImGuiDockNode* pCentralNode = ImGui::DockBuilderGetCentralNode( dockspaceID );
+    m_CentralNodeDockID = pCentralNode->ID;
+
     ImGui::End();
     ImGui::PopStyleVar();
 
@@ -729,6 +736,7 @@ void EditorMainFrame_ImGui::AddEverything()
     {
         EditorDocument* pDocument = (*pOpenDocuments)[i];
 
+        ImGui::SetNextWindowDockID( m_CentralNodeDockID, ImGuiCond_FirstUseEver );
         ImGui::SetNextWindowSize( ImVec2(400, 400), ImGuiCond_FirstUseEver );
         bool documentStillOpen = true;
         pDocument->CreateWindowAndUpdate( &documentStillOpen );

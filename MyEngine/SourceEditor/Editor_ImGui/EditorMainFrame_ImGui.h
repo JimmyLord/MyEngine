@@ -64,6 +64,9 @@ protected:
     int m_DocumentIndexToCloseAfterWarning;
     bool m_ShowWarning_CloseEditor;
 
+    // Main Dock Node
+    ImGuiID m_CentralNodeDockID;
+
     // Render surfaces.
     FBODefinition* m_pGameFBO;
     FBODefinition* m_pEditorFBO;
