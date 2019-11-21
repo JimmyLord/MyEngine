@@ -69,7 +69,7 @@ bool IsNearBezierCurve(Vector2 position, Vector2 p0, Vector2 cp0, Vector2 cp1, V
     }
 
     // More iterations based on distance, with some magic numbers.
-    int iterations = static_cast<int>( (p0 - p1).LengthSquared() / 129600 );
+    int iterations = static_cast<int>( (p0 - p1).LengthSquared() / 35000 );
     if( iterations < 4 )
         iterations = 4;
 
@@ -456,7 +456,8 @@ void MyNodeGraph::Update()
 
                 ImU32 color = COLOR_LINK_NORMAL;
 
-                if( nodeIndexHoveredInScene == -1 && nodeLinkIndexHoveredInScene == -1 &&
+                if( ImGui::IsMouseDragging( 0, 0.0f ) == false &&
+                    nodeIndexHoveredInScene == -1 && nodeLinkIndexHoveredInScene == -1 &&
                     IsNearBezierCurve( ImGui::GetIO().MousePos, p1, p1 + Vector2(+50, 0), p2 + Vector2(-50, 0), p2 ) )
                 {
                     nodeLinkIndexHoveredInScene = linkIndex;
@@ -652,6 +653,21 @@ void MyNodeGraph::Update()
                         if( nodeAABB.IsOverlapped( mouseAABB ) )
                         {
                             SelectNode( pNode->m_ID, false );
+                        }
+                    }
+
+                    for( int linkIndex = 0; linkIndex < m_Links.size(); linkIndex++ )
+                    {
+                        MyNodeLink* pLink = &m_Links[linkIndex];
+                        MyNode* pOutputNode = m_Nodes[FindNodeIndexByID( pLink->m_OutputNodeID )];
+                        MyNode* pInputNode = m_Nodes[FindNodeIndexByID( pLink->m_InputNodeID )];
+                        Vector2 p1 = pOutputNode->GetOutputSlotPos( pLink->m_OutputSlotID );
+                        Vector2 p2 = pInputNode->GetInputSlotPos( pLink->m_InputSlotID );
+
+                        // Treat the bezier curve like a line for this check.
+                        if( mouseAABB.IntersectsRaySegment( p1, p2 ) )
+                        {
+                            m_SelectedNodeLinkIndexes.push_back( linkIndex );
                         }
                     }
                 }
