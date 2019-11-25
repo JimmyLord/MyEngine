@@ -921,7 +921,7 @@ const char* MyNodeGraph::ExportAsLuaString()
 
         // Lua Variables in OnPlay().
         {
-            offset += sprintf_s( &string[offset], bufferSize - offset, "OnPlay = function()\n" );
+            offset += sprintf_s( &string[offset], bufferSize - offset, "OnPlay = function(this)\n" );
             for( uint32 nodeIndex = 0; nodeIndex < m_Nodes.size(); nodeIndex++ )
             {
                 offset += m_Nodes[nodeIndex]->ExportAsLuaVariablesString( string, offset, bufferSize );

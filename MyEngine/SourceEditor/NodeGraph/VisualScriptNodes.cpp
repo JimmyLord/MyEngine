@@ -161,7 +161,7 @@ uint32 VisualScriptNode_Event_Keyboard::ExportAsLuaString(char* string, uint32 o
 
     uint32 tabDepth = 0;
 
-    Emit( tabDepth, "OnKeys = function(action, keyCode)\n" );
+    Emit( tabDepth, "OnKeys = function(this, action, keyCode)\n" );
 
     int count = 0;
     while( VisualScriptNode* pNode = (VisualScriptNode*)m_pNodeGraph->FindNodeConnectedToOutput( m_ID, 0, count++ ) )
@@ -186,7 +186,7 @@ uint32 VisualScriptNode_Disable_GameObject::ExportAsLuaVariablesString(char* str
 
     uint32 tabDepth = 1;
 
-    Emit( tabDepth, "this.GO_%s = g_pComponentSystemManager:FindGameObjectByName( \"%s\" );\n", m_pGameObject->GetName(), m_pGameObject->GetName() );
+    Emit( tabDepth, "this.GO_%s = ComponentSystemManager:FindGameObjectByName( \"%s\" );\n", m_pGameObject->GetName(), m_pGameObject->GetName() );
 
     return offset - startOffset;
 }
