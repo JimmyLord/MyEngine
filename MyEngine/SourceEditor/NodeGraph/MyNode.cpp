@@ -34,6 +34,8 @@ MyNodeGraph::MyNode::MyNode(MyNodeGraph* pNodeGraph, int id, const char* name, c
     m_Pos = pos;
     m_InputsCount = inputsCount;
     m_OutputsCount = outputsCount;
+    m_InputTooltips = nullptr;
+    m_OutputTooltips = nullptr;
     m_Expanded = true;
 
     m_Size.Set( 0, 0 );
@@ -304,6 +306,20 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
     // Check if mouse is not over circle.
     if( diff.Length() > NODE_SLOT_COLLISION_RADIUS )
         return false;
+
+    // Display a tooltip for this link.
+    ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
+    ImGui::BeginTooltip();
+    if( slotType == SlotType_Input && m_InputTooltips != nullptr )
+    {
+        ImGui::Text( "%s", m_InputTooltips[slotID] );
+    }
+    if( slotType == SlotType_Output && m_OutputTooltips != nullptr )
+    {
+        ImGui::Text( "%s", m_OutputTooltips[slotID] );
+    }
+    ImGui::EndTooltip();
+    ImGui::PopStyleVar();
 
     // If mouse is clicked, then start a new link. // TODO: Have this take precedence over moving a node around with the mouse.
     if( ImGui::IsMouseClicked( 0 ) )

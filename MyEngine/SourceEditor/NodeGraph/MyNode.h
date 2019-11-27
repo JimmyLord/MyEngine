@@ -31,6 +31,8 @@ public:
     Vector2 m_Pos;
     uint32 m_InputsCount;
     uint32 m_OutputsCount;
+    const char** m_InputTooltips;
+    const char** m_OutputTooltips;
     bool m_Expanded;
 
     // Node properties.
