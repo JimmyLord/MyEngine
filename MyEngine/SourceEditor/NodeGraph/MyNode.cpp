@@ -301,25 +301,56 @@ void MyNodeGraph::MyNode::HandleNodeSlot(ImDrawList* pDrawList, Vector2 slotPos,
 
 bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType, MouseNodeLinkStartPoint* pMouseNodeLink)
 {
+    bool isHovering = false;
+
     Vector2 diff = ImGui::GetIO().MousePos - slotPos;
     
     // Check if mouse is not over circle.
-    if( diff.Length() > NODE_SLOT_COLLISION_RADIUS )
-        return false;
+    if( diff.Length() <= NODE_SLOT_COLLISION_RADIUS )
+        isHovering = true;
 
-    // Display a tooltip for this link.
-    ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
-    ImGui::BeginTooltip();
-    if( slotType == SlotType_Input && m_InputTooltips != nullptr )
+    // Display a tooltip for this link if we're hovering or control is held.
+    if( isHovering || ImGui::GetIO().KeyCtrl )
     {
-        ImGui::Text( "%s", m_InputTooltips[slotID] );
+        const char* strToShow = nullptr;
+
+        if( slotType == SlotType_Input && m_InputTooltips != nullptr )
+        {
+            strToShow = m_InputTooltips[slotID];
+        }
+        if( slotType == SlotType_Output && m_OutputTooltips != nullptr )
+        {
+            strToShow = m_OutputTooltips[slotID];
+        }
+
+        if( isHovering )
+        {
+            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
+            ImGui::BeginTooltip();
+            ImGui::Text( "%s", strToShow );
+            ImGui::EndTooltip();
+            ImGui::PopStyleVar();
+        }
+        else // Control key is held.
+        {
+            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
+            char windowName[32];
+            ImFormatString( windowName, sizeof(windowName), "##NodeLink_%02d_%02d_%01d", nodeID, slotID, slotType );
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoDocking;
+
+            ImGui::SetNextWindowPos( slotPos );
+            ImGui::SetNextWindowBgAlpha( 0.75f );
+            ImGui::Begin( windowName, NULL, flags );
+            ImGui::Text( "%s", strToShow );
+            ImGui::End();
+
+            ImGui::PopStyleVar();
+        }
     }
-    if( slotType == SlotType_Output && m_OutputTooltips != nullptr )
-    {
-        ImGui::Text( "%s", m_OutputTooltips[slotID] );
-    }
-    ImGui::EndTooltip();
-    ImGui::PopStyleVar();
+
+    // If we're not hovering over the link, return.
+    if( isHovering == false )
+        return false;
 
     // If mouse is clicked, then start a new link. // TODO: Have this take precedence over moving a node around with the mouse.
     if( ImGui::IsMouseClicked( 0 ) )
