@@ -309,8 +309,8 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
     if( diff.Length() <= NODE_SLOT_COLLISION_RADIUS )
         isHovering = true;
 
-    // Display a tooltip for this link if we're hovering or control is held.
-    if( isHovering || ImGui::GetIO().KeyCtrl )
+    // Display a tooltip for this link if we're hovering or alt is held.
+    if( isHovering || ImGui::GetIO().KeyAlt )
     {
         const char* strToShow = nullptr;
 
@@ -331,12 +331,12 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
             ImGui::EndTooltip();
             ImGui::PopStyleVar();
         }
-        else // Control key is held.
+        else // Alt key is held.
         {
             ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
             char windowName[32];
             ImFormatString( windowName, sizeof(windowName), "##NodeLink_%02d_%02d_%01d", nodeID, slotID, slotType );
-            ImGuiWindowFlags flags = ImGuiWindowFlags_NoInputs|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoFocusOnAppearing|ImGuiWindowFlags_NoInputs|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoDocking;
 
             ImGui::SetNextWindowPos( slotPos );
             ImGui::SetNextWindowBgAlpha( 0.75f );
