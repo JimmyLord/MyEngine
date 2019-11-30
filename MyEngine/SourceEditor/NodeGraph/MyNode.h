@@ -16,6 +16,10 @@
 class MyNodeGraph::MyNode : public ComponentVariableCallbackInterface
 {
 public:
+    friend class MyNodeGraph;
+    friend class EditorCommand_NodeGraph_DeleteNodes;
+    friend class EditorCommand_NodeGraph_MoveNodes;
+
     enum class RenameState
     {
         Idle,
@@ -23,7 +27,7 @@ public:
         BeingRenamed,
     };
 
-public:
+protected:
     MyNodeGraph* m_pNodeGraph;
 
     NodeID m_ID;
@@ -60,6 +64,8 @@ public:
     ImVec2 GetInputSlotPos(SlotID slotID) const;
     ImVec2 GetOutputSlotPos(SlotID slotID) const;
     NodeID GetID() { return m_ID; }
+
+    void SetTooltipStrings(const char** inputTooltips, const char** outputTooltips);
 
     void Draw(ImDrawList* pDrawList, Vector2 offset, bool isSelected, MouseNodeLinkStartPoint* pMouseNodeLink);
     void HandleNodeSlot(ImDrawList* pDrawList, Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType, MouseNodeLinkStartPoint* pMouseNodeLink);

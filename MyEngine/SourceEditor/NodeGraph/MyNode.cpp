@@ -83,6 +83,12 @@ ImVec2 MyNodeGraph::MyNode::GetOutputSlotPos(SlotID slotID) const
     return ImVec2( m_Pos.x + m_Size.x, m_Pos.y + m_Size.y * ((float)slotID + 1) / ((float)m_OutputsCount + 1) );
 }
 
+void MyNodeGraph::MyNode::SetTooltipStrings(const char** inputTooltips, const char** outputTooltips)
+{
+    m_InputTooltips = inputTooltips;
+    m_OutputTooltips = outputTooltips;
+}
+
 void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSelected, MouseNodeLinkStartPoint* pMouseNodeLink)
 {
     ImGui::PushID( m_ID );
@@ -323,28 +329,31 @@ bool MyNodeGraph::MyNode::HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID,
             strToShow = m_OutputTooltips[slotID];
         }
 
-        if( isHovering )
+        if( strToShow )
         {
-            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
-            ImGui::BeginTooltip();
-            ImGui::Text( "%s", strToShow );
-            ImGui::EndTooltip();
-            ImGui::PopStyleVar();
-        }
-        else // Alt key is held.
-        {
-            ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
-            char windowName[32];
-            ImFormatString( windowName, sizeof(windowName), "##NodeLink_%02d_%02d_%01d", nodeID, slotID, slotType );
-            ImGuiWindowFlags flags = ImGuiWindowFlags_NoFocusOnAppearing|ImGuiWindowFlags_NoInputs|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoDocking;
+            if( isHovering )
+            {
+                ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
+                ImGui::BeginTooltip();
+                ImGui::Text( "%s", strToShow );
+                ImGui::EndTooltip();
+                ImGui::PopStyleVar();
+            }
+            else // Alt key is held.
+            {
+                ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 7, 5 ) );
+                char windowName[32];
+                ImFormatString( windowName, sizeof(windowName), "##NodeLink_%02d_%02d_%01d", nodeID, slotID, slotType );
+                ImGuiWindowFlags flags = ImGuiWindowFlags_NoFocusOnAppearing|ImGuiWindowFlags_NoInputs|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_AlwaysAutoResize|ImGuiWindowFlags_NoDocking;
 
-            ImGui::SetNextWindowPos( slotPos );
-            ImGui::SetNextWindowBgAlpha( 0.75f );
-            ImGui::Begin( windowName, NULL, flags );
-            ImGui::Text( "%s", strToShow );
-            ImGui::End();
+                ImGui::SetNextWindowPos( slotPos );
+                ImGui::SetNextWindowBgAlpha( 0.75f );
+                ImGui::Begin( windowName, NULL, flags );
+                ImGui::Text( "%s", strToShow );
+                ImGui::End();
 
-            ImGui::PopStyleVar();
+                ImGui::PopStyleVar();
+            }
         }
     }
 

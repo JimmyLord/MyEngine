@@ -62,11 +62,10 @@ public:
     VisualScriptNode_Value_Float(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, float value)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
+        SetTooltipStrings( nullptr, m_VisualScriptNode_Value_Float_OutputLabels );
+
         m_Float = value;
         VSNAddVar( &m_VariablesList, "Float", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), true, true, "", nullptr, nullptr, nullptr );
-
-        m_InputTooltips = nullptr;
-        m_OutputTooltips = m_VisualScriptNode_Value_Float_OutputLabels;
     }
 
     const char* GetType() { return "Value_Float"; }
@@ -97,11 +96,10 @@ public:
     VisualScriptNode_Value_Color(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, const ColorByte& color)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
+        SetTooltipStrings( nullptr, m_VisualScriptNode_Value_Color_OutputLabels );
+
         m_Color = color;
         VSNAddVar( &m_VariablesList, "Color", ComponentVariableType_ColorByte, MyOffsetOf( this, &this->m_Color ), true, true, "", nullptr, nullptr, nullptr );
-
-        m_InputTooltips = nullptr;
-        m_OutputTooltips = m_VisualScriptNode_Value_Color_OutputLabels;
     }
 
     const char* GetType() { return "Value_Color"; }
@@ -136,13 +134,12 @@ public:
     VisualScriptNode_Value_GameObject(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, GameObject* pGameObject)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
+        SetTooltipStrings( nullptr, m_VisualScriptNode_Value_GameObject_OutputLabels );
+
         m_pGameObject = pGameObject;
         VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
             (CVarFunc_ValueChanged)&VisualScriptNode_Value_GameObject::OnValueChanged,
             (CVarFunc_DropTarget)&VisualScriptNode_Value_GameObject::OnDrop, nullptr );
-
-        m_InputTooltips = nullptr;
-        m_OutputTooltips = m_VisualScriptNode_Value_GameObject_OutputLabels;
     }
 
     const char* GetType() { return "Value_GameObject"; }
@@ -179,13 +176,12 @@ public:
     VisualScriptNode_Value_Component(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, ComponentBase* pComponent)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
+        SetTooltipStrings( nullptr, m_VisualScriptNode_Value_Component_OutputLabels );
+
         m_pComponent = pComponent;
         VSNAddVar( &m_VariablesList, "Component", ComponentVariableType_ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), true, true, "",
             (CVarFunc_ValueChanged)&VisualScriptNode_Value_Component::OnValueChanged,
             (CVarFunc_DropTarget)&VisualScriptNode_Value_Component::OnDrop, nullptr );
-
-        m_InputTooltips = nullptr;
-        m_OutputTooltips = m_VisualScriptNode_Value_Component_OutputLabels;
     }
 
     const char* GetType() { return "Value_Component"; }
@@ -221,8 +217,7 @@ public:
     VisualScriptNode_MathOp_Add(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
     : VisualScriptNode( pNodeGraph, id, name, pos, 2, 1 )
     {
-        m_InputTooltips = m_VisualScriptNode_MathOp_Add_InputLabels;
-        m_OutputTooltips = m_VisualScriptNode_MathOp_Add_OutputLabels;
+        SetTooltipStrings( m_VisualScriptNode_MathOp_Add_InputLabels, m_VisualScriptNode_MathOp_Add_OutputLabels );
     }
 
     const char* GetType() { return "MathOp_Add"; }
@@ -263,8 +258,7 @@ public:
     VisualScriptNode_Condition_GreaterEqual(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
     : VisualScriptNode( pNodeGraph, id, name, pos, 3, 2 )
     {
-        m_InputTooltips = m_VisualScriptNode_Condition_GreaterEqual_InputLabels;
-        m_OutputTooltips = m_VisualScriptNode_Condition_GreaterEqual_OutputLabels;
+        SetTooltipStrings( m_VisualScriptNode_Condition_GreaterEqual_InputLabels, m_VisualScriptNode_Condition_GreaterEqual_OutputLabels );
     }
 
     const char* GetType() { return "Condition_GreaterEqual"; }
@@ -325,6 +319,8 @@ public:
     VisualScriptNode_Condition_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, int buttonAction, int keyCode)
     : VisualScriptNode( pNodeGraph, id, name, pos, 1, 1 )
     {
+        SetTooltipStrings( m_VisualScriptNode_Condition_Keyboard_InputLabels, m_VisualScriptNode_Condition_Keyboard_OutputLabels );
+
         MyAssert( GCBA_Down == 0 );
         MyAssert( GCBA_Up == 1 );
         MyAssert( GCBA_Held == 2 );
@@ -334,9 +330,6 @@ public:
 
         VSNAddVarEnum( &m_VariablesList, "Action", MyOffsetOf( this, &this->m_ButtonAction ), true, true, "", 3, g_GameCoreButtonActionStrings, nullptr, nullptr, nullptr );
         VSNAddVar( &m_VariablesList, "KeyCode", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, "", nullptr, nullptr, nullptr );
-
-        m_InputTooltips = m_VisualScriptNode_Condition_Keyboard_InputLabels;
-        m_OutputTooltips = m_VisualScriptNode_Condition_Keyboard_OutputLabels;
     }
 
     const char* GetType() { return "Condition_Keyboard"; }
@@ -394,14 +387,13 @@ public:
     VisualScriptNode_Event_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, EventManager* pEventManager)
     : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
     {
+        SetTooltipStrings( nullptr, m_VisualScriptNode_Event_Keyboard_OutputLabels );
+
         m_pEventManager = pEventManager;
 
         // Don't allow node graph to be triggered directly.
         // This will now get triggered through lua script when attached to an object.
         m_pEventManager->RegisterForEvents( "Keyboard", this, &VisualScriptNode_Event_Keyboard::StaticOnEvent );
-
-        m_InputTooltips = nullptr;
-        m_OutputTooltips = m_VisualScriptNode_Event_Keyboard_OutputLabels;
     }
 
     ~VisualScriptNode_Event_Keyboard()
