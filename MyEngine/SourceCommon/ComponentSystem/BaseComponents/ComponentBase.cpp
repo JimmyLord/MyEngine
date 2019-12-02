@@ -588,6 +588,12 @@ void ComponentBase::AddAllVariablesToWatchPanel()
 // Static method.
 void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObject, EngineCore* pEngineCore, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, CommandStack* pCommandStack)
 {
+    // These statics are used by non-component variables, currently used by the node graph system.
+    // Should be okay as globals unless we have 2 inputs interacting with 2 imgui controls simultaneously.
+    static ComponentVariableValue variableValueWhenControlSelected;
+    static bool linkNextUndoCommandToPrevious = false;
+    static ImGuiID lastImGuiID = 0;
+
     if( pCommandStack == nullptr )
     {
         pCommandStack = pEngineCore->GetCommandStack();
@@ -604,6 +610,15 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
             pObjectAsComponent->m_ComponentVariableValueWhenControlSelected.GetValueFromVariable( pObject, pVar, pObjectAsComponent );
             pObjectAsComponent->m_LinkNextUndoCommandToPrevious = false;
             pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable = id;
+        }
+    }
+    else
+    {
+        if( id != lastImGuiID )
+        {
+            variableValueWhenControlSelected = ComponentVariableValue( pObject, pVar, pObjectAsComponent );
+            linkNextUndoCommandToPrevious = false;
+            lastImGuiID = id;
         }
     }
 
@@ -630,30 +645,35 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
         }
         else
         {
-            // Create a dummy oldValue.
-            ComponentVariableValue oldValue( pObject, pVar, pObjectAsComponent );
-
-            bool linkToPrevious = false;
-
-            // If the previous command is changing the same object and variable, then link to it.
-            if( pCommandStack->GetUndoStackSize() > 0 )
+            // Safety check, the previous command should use the same object as the current one if we want to link them.
+            if( linkNextUndoCommandToPrevious == true )
             {
-                EditorCommand* pPreviousCommand = pCommandStack->GetUndoCommandAtIndex( pCommandStack->GetUndoStackSize() - 1 );
-                if( strcmp( pPreviousCommand->GetName(), "EditorCommand_ImGuiPanelWatchNumberValueChanged" ) == 0 )
+                bool allowedToLinkToPrevious = false;
+
+                // If the previous command is changing the same object and variable, then link to it.
+                if( pCommandStack->GetUndoStackSize() > 0 )
                 {
-                    EditorCommand_ImGuiPanelWatchNumberValueChanged* pCommand = (EditorCommand_ImGuiPanelWatchNumberValueChanged*)pPreviousCommand;
-                    if( pCommand->UsesThisObjectAndVariable( pObject, pVar ) )
+                    EditorCommand* pPreviousCommand = pCommandStack->GetUndoCommandAtIndex( pCommandStack->GetUndoStackSize() - 1 );
+                    if( strcmp( pPreviousCommand->GetName(), "EditorCommand_ImGuiPanelWatchNumberValueChanged" ) == 0 )
                     {
-                        linkToPrevious = true;
+                        EditorCommand_ImGuiPanelWatchNumberValueChanged* pCommand = (EditorCommand_ImGuiPanelWatchNumberValueChanged*)pPreviousCommand;
+                        if( pCommand->UsesThisObjectAndVariable( pObject, pVar ) )
+                        {
+                            allowedToLinkToPrevious = true;
+                        }
                     }
                 }
+
+                MyAssert( allowedToLinkToPrevious );
             }
 
             // Add an undo action.
             pCommandStack->Do(
                 MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                    pObject, pVar, endValue, oldValue, true, nullptr ),
-                linkToPrevious );
+                                    pObject, pVar, endValue, variableValueWhenControlSelected, true, nullptr ),
+                linkNextUndoCommandToPrevious );
+
+            linkNextUndoCommandToPrevious = true;
         }
     }
 }
