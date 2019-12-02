@@ -432,7 +432,7 @@ void MyNodeGraph::MyNode::DrawContents()
     for( ComponentVariable* pVar = m_VariablesList.GetHead(); pVar; pVar = pVar->GetNext() )
     {
         ImGui::PushItemWidth( 120 );
-        ComponentBase::AddVariableToWatchPanel( g_pEngineCore, this, pVar, nullptr );
+        ComponentBase::AddVariableToWatchPanel( g_pEngineCore, this, pVar, nullptr, m_pNodeGraph->m_pCommandStack );
     }
 }
 
