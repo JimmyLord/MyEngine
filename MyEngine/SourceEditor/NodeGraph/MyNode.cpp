@@ -427,13 +427,17 @@ void MyNodeGraph::MyNode::DrawTitle()
     }
 }
 
-void MyNodeGraph::MyNode::DrawContents()
+bool MyNodeGraph::MyNode::DrawContents()
 {
+    bool modified = false;
+
     for( ComponentVariable* pVar = m_VariablesList.GetHead(); pVar; pVar = pVar->GetNext() )
     {
         ImGui::PushItemWidth( 120 );
-        ComponentBase::AddVariableToWatchPanel( g_pEngineCore, this, pVar, nullptr, m_pNodeGraph->m_pCommandStack );
+        modified = ComponentBase::AddVariableToWatchPanel( g_pEngineCore, this, pVar, nullptr, m_pNodeGraph->m_pCommandStack );
     }
+
+    return modified;
 }
 
 cJSON* MyNodeGraph::MyNode::ExportAsJSONObject()

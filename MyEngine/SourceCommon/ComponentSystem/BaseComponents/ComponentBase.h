@@ -134,7 +134,7 @@ public:
     static ComponentVariable* AddVariableFlags_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
 
     static void TestForVariableModificationAndCreateUndoCommand(void* pObject, EngineCore* pEngineCore, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, CommandStack* pCommandStack);
-    static void AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, CommandStack* pCommandStack);
+    static bool AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, CommandStack* pCommandStack);
 
 protected:
     virtual TCPPListHead<ComponentVariable*>* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: Make this pure virtual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component.

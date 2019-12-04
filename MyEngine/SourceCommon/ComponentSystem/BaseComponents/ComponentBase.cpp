@@ -679,12 +679,14 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
 }
 
 // Static method.
-void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, CommandStack* pCommandStack)
+bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, CommandStack* pCommandStack)
 {
     if( pCommandStack == nullptr )
     {
         pCommandStack = pEngineCore->GetCommandStack();
     }
+
+    bool modified = false;
 
     MyAssert( pObject != nullptr );
 
@@ -692,7 +694,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
     {
     //    // clear out the control id, for cases where variables get dynamically enabled/disabled.
     //    pVar->m_ControlID = -10; // less than -4 since vec4's add 3 in FindComponentVariableForControl()
-        return;
+        return modified;
     }
 
     if( pVar->m_pShouldVariableBeAddedCallbackFunc )
@@ -700,7 +702,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
         if( pObjectAsComponent && (pObjectAsComponent->*pVar->m_pShouldVariableBeAddedCallbackFunc)( pVar ) == false )
         {
             pVar->m_ControlID = -10; // less than -4 since vec4's add 3 in FindComponentVariableForControl()
-            return;
+            return modified;
         }
     }
 
@@ -731,8 +733,8 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
         case ComponentVariableType_Int:
             {
                 float speed = 1.0f;
-                bool modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
-                if( pObjectAsComponent )
+                modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
+                //if( pObjectAsComponent )
                 {
                     ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
                 }
@@ -855,7 +857,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
         //ComponentVariableType_UnsignedChar,
         case ComponentVariableType_Bool:
             {
-                bool modified = ImGui::Checkbox( pVar->m_WatchLabel, (bool*)((char*)pObject + pVar->m_Offset) );
+                modified = ImGui::Checkbox( pVar->m_WatchLabel, (bool*)((char*)pObject + pVar->m_Offset) );
                 if( modified )
                 {
                     // Flip the bool to store the old value, then flip is back.
@@ -881,7 +883,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 float speed = 0.1f;
                 if( pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit > 0 )
                     speed = (pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit) / 300.0f;
-                bool modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
             }
             break;
@@ -892,7 +894,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
         case ComponentVariableType_ColorByte:
             {
                 ColorFloat colorFloat = ((ColorByte*)((char*)pObject + pVar->m_Offset))->AsColorFloat();
-                bool modified = ImGui::ColorEdit4( pVar->m_WatchLabel, &colorFloat.r );
+                modified = ImGui::ColorEdit4( pVar->m_WatchLabel, &colorFloat.r );
                 if( modified )
                 {
                     *(ColorByte*)((char*)pObject + pVar->m_Offset) = colorFloat.AsColorByte();
@@ -908,7 +910,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
 
         case ComponentVariableType_Vector2:
             {
-                bool modified = ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                modified = ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 if( pObjectAsComponent )
                 {
                     ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
@@ -918,7 +920,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
 
         case ComponentVariableType_Vector3:
             {
-                bool modified = ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                modified = ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 if( pObjectAsComponent )
                 {
                     ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
@@ -928,7 +930,7 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
 
         case ComponentVariableType_Vector2Int:
             {
-                bool modified = ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
+                modified = ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
                 if( pObjectAsComponent )
                 {
                     ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
@@ -1440,6 +1442,8 @@ void ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
     {
         (pObjectAsComponent->*pVar->m_pVariableAddedToInterfaceCallbackFunc)( pVar );
     }
+
+    return modified;
 }
 #endif
 

@@ -72,7 +72,7 @@ public:
     bool HandleNodeLinkCreation(Vector2 slotPos, NodeID nodeID, SlotID slotID, SlotType slotType, MouseNodeLinkStartPoint* pMouseNodeLink);
 
     virtual void DrawTitle();
-    virtual void DrawContents();
+    virtual bool DrawContents();
 
     virtual bool Trigger(MyEvent* pEvent = nullptr) { return false; }
 

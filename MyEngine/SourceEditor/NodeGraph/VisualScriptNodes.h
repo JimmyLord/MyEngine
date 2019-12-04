@@ -223,11 +223,13 @@ public:
     const char* GetType() { return "MathOp_Add"; }
     virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
-    virtual void DrawContents() override
+    virtual bool DrawContents() override
     {
-        MyNode::DrawContents();
+        bool modified = MyNode::DrawContents();
 
         ImGui::Text( "+" );
+
+        return modified;
     }
 
     virtual float GetValueFloat() override
@@ -264,11 +266,13 @@ public:
     const char* GetType() { return "Condition_GreaterEqual"; }
     virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
-    virtual void DrawContents() override
+    virtual bool DrawContents() override
     {
-        MyNode::DrawContents();
+        bool modified = MyNode::DrawContents();
 
         ImGui::Text( ">=" );
+
+        return modified;
     }
 
     virtual bool Trigger(MyEvent* pEvent) override
@@ -343,11 +347,13 @@ public:
             ImGui::Text( "%s: %c %s", m_Name, m_KeyCode, g_GameCoreButtonActionStrings[m_ButtonAction] );
     }
 
-    virtual void DrawContents() override
+    virtual bool DrawContents() override
     {
-        MyNode::DrawContents();
+        bool modified = MyNode::DrawContents();
 
         ImGui::Text( "Key: %c", m_KeyCode );
+
+        return modified;
     }
 
     virtual bool Trigger(MyEvent* pEvent) override
@@ -409,9 +415,9 @@ public:
         MyNode::DrawTitle();
     }
 
-    virtual void DrawContents() override
+    virtual bool DrawContents() override
     {
-        MyNode::DrawContents();
+        return MyNode::DrawContents();
     }
 
     static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((VisualScriptNode_Event_Keyboard*)pObjectPtr)->OnEvent( pEvent ); }
