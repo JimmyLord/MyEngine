@@ -434,7 +434,8 @@ bool MyNodeGraph::MyNode::DrawContents()
     for( ComponentVariable* pVar = m_VariablesList.GetHead(); pVar; pVar = pVar->GetNext() )
     {
         ImGui::PushItemWidth( 120 );
-        modified = ComponentBase::AddVariableToWatchPanel( g_pEngineCore, this, pVar, nullptr, m_pNodeGraph->m_pCommandStack );
+        if( ComponentBase::AddVariableToWatchPanel( g_pEngineCore, this, pVar, nullptr, m_pNodeGraph->m_pCommandStack ) )
+            modified = true;
     }
 
     return modified;

@@ -664,7 +664,8 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
                     }
                 }
 
-                MyAssert( allowedToLinkToPrevious );
+                if( allowedToLinkToPrevious == false )
+                    linkNextUndoCommandToPrevious = false;
             }
 
             // Add an undo action.
@@ -734,10 +735,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             {
                 float speed = 1.0f;
                 modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
-                //if( pObjectAsComponent )
-                {
-                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
-                }
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
             }
             break;
 
@@ -762,12 +760,11 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                             // Store the new value.
                             ComponentVariableValue newvalue( pObject, pVar, pObjectAsComponent );
 
-                            if( pObjectAsComponent )
-                            {
-                                pCommandStack->Do(
-                                    MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pObject, pVar, newvalue, oldvalue, true, pObjectAsComponent ),
-                                    false );
-                            }
+                            pCommandStack->Do(
+                                MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pObject, pVar, newvalue, oldvalue, true, pObjectAsComponent ),
+                                false );
+
+                            modified = true;
                         }
                         if( is_selected )
                         {
