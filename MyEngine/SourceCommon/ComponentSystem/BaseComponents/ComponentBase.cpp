@@ -897,11 +897,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                     *(ColorByte*)((char*)pObject + pVar->m_Offset) = colorFloat.AsColorByte();
                 }
 
-                // TODO: Implement undo/redo for ColorByte.
-                //if( pObjectAsComponent )
-                //{
-                //    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent );
-                //}
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
             }
             break;
 

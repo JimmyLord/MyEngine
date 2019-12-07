@@ -45,6 +45,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 {
     int controlcomponent = 0;
     double previousvalue = 0;
+    ColorByte previousColorByte;
 
     switch( m_pVar->m_Type )
     {
@@ -165,7 +166,13 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     case ComponentVariableType_UnsignedInt:
     //case ComponentVariableType_Bool:
     //case ComponentVariableType_Float:
+        MyAssert( false );
+
     case ComponentVariableType_ColorByte:
+        previousColorByte = m_OldValue.GetColorByte();
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+        break;
+
     //case ComponentVariableType_Vector2:
     //case ComponentVariableType_Vector3:
     //case ComponentVariableType_Vector2Int:
@@ -193,6 +200,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
 {
     int controlcomponent = 0;
     double previousvalue = 0;
+    ColorByte previousColorByte;
 
     switch( m_pVar->m_Type )
     {
@@ -315,7 +323,13 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     case ComponentVariableType_UnsignedInt:
     //case ComponentVariableType_Bool:
     //case ComponentVariableType_Float:
+        MyAssert( false );
+
     case ComponentVariableType_ColorByte:
+        previousColorByte = m_NewValue.GetColorByte();
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+        break;
+
     //case ComponentVariableType_Vector2:
     //case ComponentVariableType_Vector3:
     //case ComponentVariableType_Vector2Int:
