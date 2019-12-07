@@ -633,10 +633,9 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
         if( pObjectAsComponent )
         {
             // Add an undo action.
-            pCommandStack->Do(
-                MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                    pObject, pVar, endValue, pObjectAsComponent->m_ComponentVariableValueWhenControlSelected, true, pObjectAsComponent ),
-                pObjectAsComponent->m_LinkNextUndoCommandToPrevious );
+            pCommandStack->Do( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                   pObject, pVar, endValue, pObjectAsComponent->m_ComponentVariableValueWhenControlSelected, true, pObjectAsComponent ),
+                               pObjectAsComponent->m_LinkNextUndoCommandToPrevious );
 
             // Link the next undo command to this one.
             // TODO: since we're passing in the starting value,
@@ -669,10 +668,101 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
             }
 
             // Add an undo action.
-            pCommandStack->Do(
-                MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                    pObject, pVar, endValue, variableValueWhenControlSelected, true, nullptr ),
-                linkNextUndoCommandToPrevious );
+            pCommandStack->Do( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                   pObject, pVar, endValue, variableValueWhenControlSelected, true, nullptr ),
+                               linkNextUndoCommandToPrevious );
+
+            linkNextUndoCommandToPrevious = true;
+        }
+    }
+}
+
+// Static method.
+void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObject, EngineCore* pEngineCore, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, ComponentVariableValue oldValue, CommandStack* pCommandStack)
+{
+    // These statics are used by non-component variables, currently used by the node graph system.
+    // Should be okay as globals unless we have 2 inputs interacting with 2 imgui controls simultaneously.
+    static ComponentVariableValue variableValueWhenControlSelected;
+    static bool linkNextUndoCommandToPrevious = false;
+    static ImGuiID lastImGuiID = 0;
+
+    if( pCommandStack == nullptr )
+    {
+        pCommandStack = pEngineCore->GetCommandStack();
+    }
+
+    // If the id passed in is different than the last known value, then assume a new control was selected.
+    if( pObjectAsComponent )
+    {
+        pEngineCore = pObjectAsComponent->m_pEngineCore;
+
+        if( id != pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable )
+        {
+            // If a new control was selected, store the starting value and start a new undo chain.
+            pObjectAsComponent->m_ComponentVariableValueWhenControlSelected.GetValueFromVariable( pObject, pVar, pObjectAsComponent );
+            pObjectAsComponent->m_LinkNextUndoCommandToPrevious = false;
+            pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable = id;
+        }
+    }
+    else
+    {
+        if( id != lastImGuiID )
+        {
+            variableValueWhenControlSelected = oldValue;
+            linkNextUndoCommandToPrevious = false;
+            lastImGuiID = id;
+        }
+    }
+
+    // If the control returned true to indicate it was modified, then create an undo command.
+    if( modified && id != 0 )
+    {
+        MyAssert( pObjectAsComponent == nullptr || id == pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable );
+
+        // Store the end value.
+        ComponentVariableValue endValue( pObject, pVar, pObjectAsComponent );
+
+        if( pObjectAsComponent )
+        {
+            // Add an undo action.
+            pCommandStack->Do( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                   pObject, pVar, endValue, pObjectAsComponent->m_ComponentVariableValueWhenControlSelected, true, pObjectAsComponent ),
+                               pObjectAsComponent->m_LinkNextUndoCommandToPrevious );
+
+            // Link the next undo command to this one.
+            // TODO: since we're passing in the starting value,
+            //       we can actually replace the old command rather than link to it.
+            pObjectAsComponent->m_LinkNextUndoCommandToPrevious = true;
+        }
+        else
+        {
+            // Safety check, the previous command should use the same object as the current one if we want to link them.
+            if( linkNextUndoCommandToPrevious == true )
+            {
+                bool allowedToLinkToPrevious = false;
+
+                // If the previous command is changing the same object and variable, then link to it.
+                if( pCommandStack->GetUndoStackSize() > 0 )
+                {
+                    EditorCommand* pPreviousCommand = pCommandStack->GetUndoCommandAtIndex( pCommandStack->GetUndoStackSize() - 1 );
+                    if( strcmp( pPreviousCommand->GetName(), "EditorCommand_ImGuiPanelWatchNumberValueChanged" ) == 0 )
+                    {
+                        EditorCommand_ImGuiPanelWatchNumberValueChanged* pCommand = (EditorCommand_ImGuiPanelWatchNumberValueChanged*)pPreviousCommand;
+                        if( pCommand->UsesThisObjectAndVariable( pObject, pVar ) )
+                        {
+                            allowedToLinkToPrevious = true;
+                        }
+                    }
+                }
+
+                if( allowedToLinkToPrevious == false )
+                    linkNextUndoCommandToPrevious = false;
+            }
+
+            // Add an undo action.
+            pCommandStack->Do( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                   pObject, pVar, endValue, variableValueWhenControlSelected, true, nullptr ),
+                               linkNextUndoCommandToPrevious );
 
             linkNextUndoCommandToPrevious = true;
         }
@@ -890,14 +980,18 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
 
         case ComponentVariableType_ColorByte:
             {
+                ComponentVariableValue oldValue = ComponentVariableValue( pObject, pVar, pObjectAsComponent );
+                
                 ColorFloat colorFloat = ((ColorByte*)((char*)pObject + pVar->m_Offset))->AsColorFloat();
                 modified = ImGui::ColorEdit4( pVar->m_WatchLabel, &colorFloat.r );
                 if( modified )
                 {
                     *(ColorByte*)((char*)pObject + pVar->m_Offset) = colorFloat.AsColorByte();
+                    ComponentVariableValue newValue = ComponentVariableValue( pObject, pVar, pObjectAsComponent );
                 }
 
-                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
+                //LOGInfo( LOGTag, "ItemID: %d", ImGuiExt::GetActiveItemId() );
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, oldValue, pCommandStack );
             }
             break;
 
