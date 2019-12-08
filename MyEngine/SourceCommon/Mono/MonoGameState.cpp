@@ -201,7 +201,10 @@ void MonoGameState::Tick()
             {
                 LOGInfo( LOGTag, "Compiling finished, DLL Loaded and Mono game state built.\n" );
                 ComponentMonoScript* pComponent = (ComponentMonoScript*)m_pEngineCore->GetComponentSystemManager()->GetFirstComponentOfType( "MonoScriptComponent" );
-                pComponent->LoadScript( true );
+                if( pComponent != nullptr )
+                {
+                    pComponent->LoadScript( true );
+                }
             }
         }
     }
@@ -211,6 +214,7 @@ void MonoGameState::CompileDLL()
 {
     std::vector<std::string> output;
 
+    CreateDirectory( "Data/Mono", nullptr );
     LaunchApplication( "C:\\Program Files (x86)\\Mono\\bin\\mcs",
         "-debug /t:library /out:Data/Mono/Game.dll -recurse:DataSource/C#/*.cs -recurse:DataSource/DataEngineSource/C#/*.cs",
         true, false, &output );
@@ -219,6 +223,14 @@ void MonoGameState::CompileDLL()
     {
         LOGInfo( LOGTag, "%s\n", str.c_str() );
     }
+
+    const char* pMonoDLLFilename = "Data/Mono/Game.dll";
+
+#if MYFW_EDITOR
+    m_pDLLFile = m_pEngineCore->GetManagers()->GetFileManager()->LoadFileNow( pMonoDLLFilename );
+#else
+    m_pDLLFile = m_pEngineCore->GetManagers()->GetFileManager()->RequestFile( pMonoDLLFilename );
+#endif
 
     m_pEngineCore->GetManagers()->GetFileManager()->ReloadFileNow( m_pDLLFile );
 }
@@ -293,6 +305,13 @@ bool MonoGameState::Rebuild()
         {
             return false;
         }
+
+        if( m_pDLLFile->GetFileLoadStatus() == FileLoadStatus_Error_FileNotFound )
+        {
+            return false;
+        }
+
+        MyAssert( m_pDLLFile->GetFileLoadStatus() == FileLoadStatus_Success );
 
         // Create a domain for the game assembly that we will load.
         m_pActiveDomain = mono_domain_create_appdomain( "TestDomain", nullptr );

@@ -13,6 +13,7 @@
 #include "ComponentVariable.h"
 #include "ComponentVariableValue.h"
 
+class CommandStack;
 class ComponentBase;
 class ComponentSystemManager;
 class GameObject;
