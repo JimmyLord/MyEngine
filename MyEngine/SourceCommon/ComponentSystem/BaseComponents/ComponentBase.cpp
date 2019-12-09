@@ -586,7 +586,7 @@ void ComponentBase::AddAllVariablesToWatchPanel()
 }
 
 // Static method.
-void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObject, EngineCore* pEngineCore, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, CommandStack* pCommandStack)
+void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObject, EngineCore* pEngineCore, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, ComponentVariableValue* pOldValue, CommandStack* pCommandStack)
 {
     // These statics are used by non-component variables, currently used by the node graph system.
     // Should be okay as globals unless we have 2 inputs interacting with 2 imgui controls simultaneously.
@@ -607,7 +607,10 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
         if( id != pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable )
         {
             // If a new control was selected, store the starting value and start a new undo chain.
-            pObjectAsComponent->m_ComponentVariableValueWhenControlSelected.GetValueFromVariable( pObject, pVar, pObjectAsComponent );
+            if( pOldValue != nullptr )
+                pObjectAsComponent->m_ComponentVariableValueWhenControlSelected = *pOldValue;
+            else
+                pObjectAsComponent->m_ComponentVariableValueWhenControlSelected.GetValueFromVariable( pObject, pVar, pObjectAsComponent );
             pObjectAsComponent->m_LinkNextUndoCommandToPrevious = false;
             pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable = id;
         }
@@ -616,99 +619,10 @@ void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObjec
     {
         if( id != lastImGuiID )
         {
-            variableValueWhenControlSelected = ComponentVariableValue( pObject, pVar, pObjectAsComponent );
-            linkNextUndoCommandToPrevious = false;
-            lastImGuiID = id;
-        }
-    }
-
-    // If the control returned true to indicate it was modified, then create an undo command.
-    if( modified && id != 0 )
-    {
-        MyAssert( pObjectAsComponent == nullptr || id == pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable );
-
-        // Store the end value.
-        ComponentVariableValue endValue( pObject, pVar, pObjectAsComponent );
-
-        if( pObjectAsComponent )
-        {
-            // Add an undo action.
-            pCommandStack->Do( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                   pObject, pVar, endValue, pObjectAsComponent->m_ComponentVariableValueWhenControlSelected, true, pObjectAsComponent ),
-                               pObjectAsComponent->m_LinkNextUndoCommandToPrevious );
-
-            // Link the next undo command to this one.
-            // TODO: since we're passing in the starting value,
-            //       we can actually replace the old command rather than link to it.
-            pObjectAsComponent->m_LinkNextUndoCommandToPrevious = true;
-        }
-        else
-        {
-            // Safety check, the previous command should use the same object as the current one if we want to link them.
-            if( linkNextUndoCommandToPrevious == true )
-            {
-                bool allowedToLinkToPrevious = false;
-
-                // If the previous command is changing the same object and variable, then link to it.
-                if( pCommandStack->GetUndoStackSize() > 0 )
-                {
-                    EditorCommand* pPreviousCommand = pCommandStack->GetUndoCommandAtIndex( pCommandStack->GetUndoStackSize() - 1 );
-                    if( strcmp( pPreviousCommand->GetName(), "EditorCommand_ImGuiPanelWatchNumberValueChanged" ) == 0 )
-                    {
-                        EditorCommand_ImGuiPanelWatchNumberValueChanged* pCommand = (EditorCommand_ImGuiPanelWatchNumberValueChanged*)pPreviousCommand;
-                        if( pCommand->UsesThisObjectAndVariable( pObject, pVar ) )
-                        {
-                            allowedToLinkToPrevious = true;
-                        }
-                    }
-                }
-
-                if( allowedToLinkToPrevious == false )
-                    linkNextUndoCommandToPrevious = false;
-            }
-
-            // Add an undo action.
-            pCommandStack->Do( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                   pObject, pVar, endValue, variableValueWhenControlSelected, true, nullptr ),
-                               linkNextUndoCommandToPrevious );
-
-            linkNextUndoCommandToPrevious = true;
-        }
-    }
-}
-
-// Static method.
-void ComponentBase::TestForVariableModificationAndCreateUndoCommand(void* pObject, EngineCore* pEngineCore, ImGuiID id, bool modified, ComponentVariable* pVar, ComponentBase* pObjectAsComponent, ComponentVariableValue oldValue, CommandStack* pCommandStack)
-{
-    // These statics are used by non-component variables, currently used by the node graph system.
-    // Should be okay as globals unless we have 2 inputs interacting with 2 imgui controls simultaneously.
-    static ComponentVariableValue variableValueWhenControlSelected;
-    static bool linkNextUndoCommandToPrevious = false;
-    static ImGuiID lastImGuiID = 0;
-
-    if( pCommandStack == nullptr )
-    {
-        pCommandStack = pEngineCore->GetCommandStack();
-    }
-
-    // If the id passed in is different than the last known value, then assume a new control was selected.
-    if( pObjectAsComponent )
-    {
-        pEngineCore = pObjectAsComponent->m_pEngineCore;
-
-        if( id != pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable )
-        {
-            // If a new control was selected, store the starting value and start a new undo chain.
-            pObjectAsComponent->m_ComponentVariableValueWhenControlSelected.GetValueFromVariable( pObject, pVar, pObjectAsComponent );
-            pObjectAsComponent->m_LinkNextUndoCommandToPrevious = false;
-            pObjectAsComponent->m_ImGuiControlIDForCurrentlySelectedVariable = id;
-        }
-    }
-    else
-    {
-        if( id != lastImGuiID )
-        {
-            variableValueWhenControlSelected = oldValue;
+            if( pOldValue != nullptr )
+                variableValueWhenControlSelected = *pOldValue;
+            else
+                variableValueWhenControlSelected = ComponentVariableValue( pObject, pVar, pObjectAsComponent );
             linkNextUndoCommandToPrevious = false;
             lastImGuiID = id;
         }
@@ -825,7 +739,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             {
                 float speed = 1.0f;
                 modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
-                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 
@@ -971,7 +885,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 if( pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit > 0 )
                     speed = (pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit) / 300.0f;
                 modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
-                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 
@@ -991,7 +905,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 }
 
                 //LOGInfo( LOGTag, "ItemID: %d", ImGuiExt::GetActiveItemId() );
-                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, oldValue, pCommandStack );
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, &oldValue, pCommandStack );
             }
             break;
 
@@ -1000,7 +914,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 modified = ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 if( pObjectAsComponent )
                 {
-                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
+                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
                 }
             }
             break;
@@ -1010,7 +924,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 modified = ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 if( pObjectAsComponent )
                 {
-                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
+                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
                 }
             }
             break;
@@ -1020,7 +934,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 modified = ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
                 if( pObjectAsComponent )
                 {
-                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, pCommandStack );
+                    ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
                 }
             }
             break;
