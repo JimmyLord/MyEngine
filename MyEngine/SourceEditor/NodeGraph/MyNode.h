@@ -80,6 +80,9 @@ public:
     virtual uint32 ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated) { return 0; }
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jNode);
+
+    // Component Variables.
+    ComponentVariable* GetVariableByLabel(const char* varLabel);
 };
 
 #endif //__MyNode_H__

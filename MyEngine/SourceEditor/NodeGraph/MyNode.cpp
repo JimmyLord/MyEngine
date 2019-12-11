@@ -469,3 +469,19 @@ void MyNodeGraph::MyNode::ImportFromJSONObject(cJSON* jNode)
 
     ComponentBase::ImportVariablesFromJSON( jNode, this, &m_VariablesList, nullptr, SCENEID_MainScene );
 }
+
+ComponentVariable* MyNodeGraph::MyNode::GetVariableByLabel(const char* varLabel)
+{
+    MyAssert( varLabel != nullptr && varLabel[0] != '\0' );
+
+    if( varLabel == 0 )
+        return nullptr;
+
+    for( ComponentVariable* pVar = m_VariablesList.GetHead(); pVar; pVar = pVar->GetNext() )
+    {
+        if( strcmp( pVar->m_Label, varLabel ) == 0 )
+            return pVar;
+    }
+
+    return nullptr;
+}
