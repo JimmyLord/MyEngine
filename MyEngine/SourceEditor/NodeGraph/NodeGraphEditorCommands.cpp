@@ -48,6 +48,7 @@ void EditorCommand_NodeGraph_AddNode::Undo()
 {
     m_pNodeGraph->RemoveExistingNode( m_pNode );
     m_DeleteNodeWhenDestroyed = true;
+    m_pNodeGraph->ClearSelections();
 }
 
 EditorCommand* EditorCommand_NodeGraph_AddNode::Repeat()
@@ -243,6 +244,7 @@ void EditorCommand_NodeGraph_CreateLink::Do()
 void EditorCommand_NodeGraph_CreateLink::Undo()
 {
     m_pNodeGraph->m_Links.erase_unsorted( m_pNodeGraph->m_Links.Data + m_NodeLinkIndex );
+    m_pNodeGraph->ClearSelections();
 }
 
 EditorCommand* EditorCommand_NodeGraph_CreateLink::Repeat()
