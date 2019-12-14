@@ -53,10 +53,15 @@ public:
 //====================================================================================================
 static const char* m_VisualScriptNode_Value_Float_OutputLabels[] = { "Value" };
 
+#define HACK_TestVariableTypes 0
+
 class VisualScriptNode_Value_Float : public VisualScriptNode
 {
 protected:
     float m_Float;
+#if HACK_TestVariableTypes
+    bool m_TestBool;
+#endif
 
 public:
     VisualScriptNode_Value_Float(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, float value)
@@ -66,6 +71,9 @@ public:
 
         m_Float = value;
         VSNAddVar( &m_VariablesList, "Float", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), true, true, "", nullptr, nullptr, nullptr );
+#if HACK_TestVariableTypes
+        VSNAddVar( &m_VariablesList, "Bool",  ComponentVariableType_Bool,  MyOffsetOf( this, &this->m_TestBool ), false, true, "", nullptr, nullptr, nullptr );
+#endif
     }
 
     const char* GetType() { return "Value_Float"; }
