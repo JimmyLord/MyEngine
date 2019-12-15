@@ -18,6 +18,7 @@
 class ComponentBase;
 
 // Visual Script node types.
+class VisualScriptNode_Debug_VariableTest;
 class VisualScriptNode_Value_Float;
 class VisualScriptNode_Value_Color;
 class VisualScriptNode_Value_GameObject;
@@ -50,10 +51,8 @@ public:
 #define VSNAddVarFlags ComponentBase::AddVariableFlags_Base
 
 //====================================================================================================
-// VisualScriptNode_Value_Float
+// VisualScriptNode_Debug_VariableTest
 //====================================================================================================
-static const char* m_VisualScriptNode_Value_Float_OutputLabels[] = { "Value" };
-
 #define HACK_TestVariableTypes 1
 
 #if HACK_TestVariableTypes
@@ -65,37 +64,78 @@ static const char* g_pTestFlags[5] =
     "Flag4",
     "Flag5",
 };
-#endif
+
+class VisualScriptNode_Debug_VariableTest : public VisualScriptNode
+{
+protected:
+    int m_TestInt = 0;        //ComponentVariableType_Int
+    int m_TestEnum = 0;       //ComponentVariableType_Enum
+    int m_TestFlags = 0;      //ComponentVariableType_Flags
+                              //ComponentVariableType_UnsignedInt,
+                              ////ComponentVariableType_Char,
+                              ////ComponentVariableType_UnsignedChar,
+    bool m_TestBool = false;  //ComponentVariableType_Bool,
+    float m_TestFloat = 0.0f; //ComponentVariableType_Float,
+                              ////ComponentVariableType_Double,
+                              ////ComponentVariableType_ColorFloat,
+                              //ComponentVariableType_ColorByte,
+                              //ComponentVariableType_Vector2,
+                              //ComponentVariableType_Vector3,
+                              //ComponentVariableType_Vector2Int,
+                              //ComponentVariableType_Vector3Int,
+                              //ComponentVariableType_FirstPointerType,
+                              //ComponentVariableType_GameObjectPtr = ComponentVariableType_FirstPointerType,
+                              //ComponentVariableType_ComponentPtr,
+                              //ComponentVariableType_FilePtr,
+                              //ComponentVariableType_MaterialPtr,
+                              //ComponentVariableType_TexturePtr,
+                              //ComponentVariableType_SoundCuePtr,
+                              //ComponentVariableType_PointerIndirect,
+
+public:
+    VisualScriptNode_Debug_VariableTest(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
+        : VisualScriptNode( pNodeGraph, id, name, pos, 0, 1 )
+    {
+        SetTooltipStrings( nullptr, nullptr );
+
+        VSNAddVar(      &m_VariablesList, "Int",   ComponentVariableType_Int,   MyOffsetOf( this, &this->m_TestInt ),   false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVarEnum(  &m_VariablesList, "Enum",                               MyOffsetOf( this, &this->m_TestEnum ),  false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
+        VSNAddVarFlags( &m_VariablesList, "Flags",                              MyOffsetOf( this, &this->m_TestFlags ), false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
+        //ComponentVariableType_UnsignedInt,
+        ////ComponentVariableType_Char,
+        ////ComponentVariableType_UnsignedChar,
+        VSNAddVar(      &m_VariablesList, "Bool",  ComponentVariableType_Bool,  MyOffsetOf( this, &this->m_TestBool ),  false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar(      &m_VariablesList, "Float", ComponentVariableType_Float, MyOffsetOf( this, &this->m_TestFloat ), false, true, "", nullptr, nullptr, nullptr );
+        ////ComponentVariableType_Double,
+        ////ComponentVariableType_ColorFloat,
+        //ComponentVariableType_ColorByte,
+        //ComponentVariableType_Vector2,
+        //ComponentVariableType_Vector3,
+        //ComponentVariableType_Vector2Int,
+        //ComponentVariableType_Vector3Int,
+        //ComponentVariableType_FirstPointerType,
+        //ComponentVariableType_GameObjectPtr = ComponentVariableType_FirstPointerType,
+        //ComponentVariableType_ComponentPtr,
+        //ComponentVariableType_FilePtr,
+        //ComponentVariableType_MaterialPtr,
+        //ComponentVariableType_TexturePtr,
+        //ComponentVariableType_SoundCuePtr,
+        //ComponentVariableType_PointerIndirect,
+    }
+
+    const char* GetType() { return "Debug_VariableTest"; }
+};
+#endif //HACK_TestVariableTypes
+
+//====================================================================================================
+// VisualScriptNode_Value_Float
+//====================================================================================================
+static const char* m_VisualScriptNode_Value_Float_OutputLabels[] = { "Value" };
 
 class VisualScriptNode_Value_Float : public VisualScriptNode
 {
 protected:
     float m_Float;
-#if HACK_TestVariableTypes
-    //int m_TestInt; //ComponentVariableType_Int
-    //ComponentVariableType_Enum
-    int m_TestFlags = 0; //ComponentVariableType_Flags
-    //ComponentVariableType_UnsignedInt,
-    ////ComponentVariableType_Char,
-    ////ComponentVariableType_UnsignedChar,
-    bool m_TestBool = false; //ComponentVariableType_Bool,
-    //ComponentVariableType_Float,
-    ////ComponentVariableType_Double,
-    ////ComponentVariableType_ColorFloat,
-    //ComponentVariableType_ColorByte,
-    //ComponentVariableType_Vector2,
-    //ComponentVariableType_Vector3,
-    //ComponentVariableType_Vector2Int,
-    //ComponentVariableType_Vector3Int,
-    //ComponentVariableType_FirstPointerType,
-    //ComponentVariableType_GameObjectPtr = ComponentVariableType_FirstPointerType,
-    //ComponentVariableType_ComponentPtr,
-    //ComponentVariableType_FilePtr,
-    //ComponentVariableType_MaterialPtr,
-    //ComponentVariableType_TexturePtr,
-    //ComponentVariableType_SoundCuePtr,
-    //ComponentVariableType_PointerIndirect,
-#endif
 
 public:
     VisualScriptNode_Value_Float(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, float value)
@@ -105,10 +145,6 @@ public:
 
         m_Float = value;
         VSNAddVar( &m_VariablesList, "Float", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), true, true, "", nullptr, nullptr, nullptr );
-#if HACK_TestVariableTypes
-        VSNAddVar( &m_VariablesList, "Bool",  ComponentVariableType_Bool,  MyOffsetOf( this, &this->m_TestBool ), false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVarFlags( &m_VariablesList, "Flags", MyOffsetOf( this, &this->m_TestFlags ), false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
-#endif
     }
 
     const char* GetType() { return "Value_Float"; }

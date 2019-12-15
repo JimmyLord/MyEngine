@@ -63,6 +63,14 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::AddCreateNodeItemsToContextMen
         ImGui::EndMenu();
     }
 
+#if HACK_TestVariableTypes
+    if( ImGui::BeginMenu( "Debug" ) )
+    {
+        if( ImGui::MenuItem( "Variable Test" ) )        { ImGui::EndMenu(); return CreateNode( "Debug_VariableTest", pos, pNodeGraph ); }
+        ImGui::EndMenu();
+    }
+#endif
+
     return nullptr;
 }
 
@@ -81,6 +89,10 @@ MyNodeGraph::MyNode* VisualScriptNodeTypeManager::CreateNode(const char* typeNam
     if( TypeIs( "Condition_Keyboard" )      return MyNew VisualScriptNode_Condition_Keyboard(       pNodeGraph, newNodeID, "If Key",            pos, GCBA_Down, 'Z' );
     if( TypeIs( "Event_Keyboard" )          return MyNew VisualScriptNode_Event_Keyboard(           pNodeGraph, newNodeID, "Event Keys",        pos, pNodeGraph->GetEngineCore()->GetManagers()->GetEventManager() );
     if( TypeIs( "Disable_GameObject" )      return MyNew VisualScriptNode_Disable_GameObject(       pNodeGraph, newNodeID, "DisableGameObject", pos, nullptr );
+
+#if HACK_TestVariableTypes
+    if( TypeIs( "Debug_VariableTest" )      return MyNew VisualScriptNode_Debug_VariableTest(       pNodeGraph, newNodeID, "VariableTest",      pos );
+#endif
 
 #undef TypeIs
 
