@@ -822,12 +822,9 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                             // Store the new value.
                             ComponentVariableValue newvalue( pObject, pVar, pObjectAsComponent );
 
-                            if( pObjectAsComponent )
-                            {
-                                pCommandStack->Do(
-                                    MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pObject, pVar, newvalue, oldvalue, true, pObjectAsComponent ),
-                                    false );
-                            }
+                            pCommandStack->Do(
+                                MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( pObject, pVar, newvalue, oldvalue, true, pObjectAsComponent ),
+                                false );
                         }
                         if( is_selected )
                         {

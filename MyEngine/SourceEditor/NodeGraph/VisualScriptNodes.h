@@ -47,20 +47,54 @@ public:
 
 #define VSNAddVar ComponentBase::AddVariable_Base
 #define VSNAddVarEnum ComponentBase::AddVariableEnum_Base
+#define VSNAddVarFlags ComponentBase::AddVariableFlags_Base
 
 //====================================================================================================
 // VisualScriptNode_Value_Float
 //====================================================================================================
 static const char* m_VisualScriptNode_Value_Float_OutputLabels[] = { "Value" };
 
-#define HACK_TestVariableTypes 0
+#define HACK_TestVariableTypes 1
+
+#if HACK_TestVariableTypes
+static const char* g_pTestFlags[5] =
+{
+    "Flag1",
+    "Flag2",
+    "Flag3",
+    "Flag4",
+    "Flag5",
+};
+#endif
 
 class VisualScriptNode_Value_Float : public VisualScriptNode
 {
 protected:
     float m_Float;
 #if HACK_TestVariableTypes
-    bool m_TestBool;
+    //int m_TestInt; //ComponentVariableType_Int
+    //ComponentVariableType_Enum
+    int m_TestFlags = 0; //ComponentVariableType_Flags
+    //ComponentVariableType_UnsignedInt,
+    ////ComponentVariableType_Char,
+    ////ComponentVariableType_UnsignedChar,
+    bool m_TestBool = false; //ComponentVariableType_Bool,
+    //ComponentVariableType_Float,
+    ////ComponentVariableType_Double,
+    ////ComponentVariableType_ColorFloat,
+    //ComponentVariableType_ColorByte,
+    //ComponentVariableType_Vector2,
+    //ComponentVariableType_Vector3,
+    //ComponentVariableType_Vector2Int,
+    //ComponentVariableType_Vector3Int,
+    //ComponentVariableType_FirstPointerType,
+    //ComponentVariableType_GameObjectPtr = ComponentVariableType_FirstPointerType,
+    //ComponentVariableType_ComponentPtr,
+    //ComponentVariableType_FilePtr,
+    //ComponentVariableType_MaterialPtr,
+    //ComponentVariableType_TexturePtr,
+    //ComponentVariableType_SoundCuePtr,
+    //ComponentVariableType_PointerIndirect,
 #endif
 
 public:
@@ -73,6 +107,7 @@ public:
         VSNAddVar( &m_VariablesList, "Float", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), true, true, "", nullptr, nullptr, nullptr );
 #if HACK_TestVariableTypes
         VSNAddVar( &m_VariablesList, "Bool",  ComponentVariableType_Bool,  MyOffsetOf( this, &this->m_TestBool ), false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVarFlags( &m_VariablesList, "Flags", MyOffsetOf( this, &this->m_TestFlags ), false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
 #endif
     }
 
