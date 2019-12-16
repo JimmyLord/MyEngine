@@ -846,8 +846,10 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 float speed = 1.0f;
                 if( ImGui::DragInt( pVar->m_WatchLabel, &valueInt, speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit ) )
                 {
+                    modified = true;
                     *pValueUInt = valueInt;
                 }
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 

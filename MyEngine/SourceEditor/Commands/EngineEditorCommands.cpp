@@ -64,17 +64,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    //case PanelWatchType_UnsignedInt:
-    //    oldvalue = *(unsigned int*)m_pVar->m_Offset;
-    //    *(unsigned int*)m_pVar->m_Offset += (unsigned int)m_Difference;
-    //    break;
+    case ComponentVariableType_UnsignedInt:
+        previousvalue = (double)m_OldValue.GetUnsignedInt();
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+        break;
 
-    //case PanelWatchType_Char:
+    //case ComponentVariableType_Char:
     //    oldvalue = *(char*)m_pVar->m_Offset;
     //    *(char*)m_pVar->m_Offset += (char)m_Difference;
     //    break;
 
-    //case PanelWatchType_UnsignedChar:
+    //case ComponentVariableType_UnsignedChar:
     //    oldvalue = *(unsigned char*)m_pVar->m_Offset;
     //    *(unsigned char*)m_pVar->m_Offset += (unsigned char)m_Difference;
     //    break;
@@ -159,13 +159,6 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     //    //ADDING_NEW_WatchVariableType
     //case PanelWatchType_Unknown:
     //case PanelWatchType_NumTypes:
-
-    //case ComponentVariableType_Int:
-    //case ComponentVariableType_Enum:
-    //case ComponentVariableType_Flags:
-    case ComponentVariableType_UnsignedInt:
-    //case ComponentVariableType_Bool:
-    //case ComponentVariableType_Float:
         MyAssert( false );
 
     case ComponentVariableType_ColorByte:
@@ -219,17 +212,17 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    //case PanelWatchType_UnsignedInt:
-    //    oldvalue = *(unsigned int*)m_Pointer;
-    //    *(unsigned int*)m_Pointer -= (unsigned int)m_Difference;
-    //    break;
+    case ComponentVariableType_UnsignedInt:
+        previousvalue = (double)m_NewValue.GetUnsignedInt();
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+        break;
 
-    //case PanelWatchType_Char:
+    //case ComponentVariableType_Char:
     //    oldvalue = *(char*)m_Pointer;
     //    *(char*)m_Pointer -= (char)m_Difference;
     //    break;
 
-    //case PanelWatchType_UnsignedChar:
+    //case ComponentVariableType_UnsignedChar:
     //    oldvalue = *(unsigned char*)m_Pointer;
     //    *(unsigned char*)m_Pointer -= (unsigned char)m_Difference;
     //    break;
@@ -316,14 +309,6 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     //    //ADDING_NEW_WatchVariableType
     //case PanelWatchType_Unknown:
     //case PanelWatchType_NumTypes:
-
-    //case ComponentVariableType_Int:
-    //case ComponentVariableType_Enum:
-    //case ComponentVariableType_Flags:
-    case ComponentVariableType_UnsignedInt:
-    //case ComponentVariableType_Bool:
-    //case ComponentVariableType_Float:
-        MyAssert( false );
 
     case ComponentVariableType_ColorByte:
         previousColorByte = m_NewValue.GetColorByte();
