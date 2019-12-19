@@ -78,7 +78,7 @@ protected:
     float m_TestFloat = 0.0f;    //ComponentVariableType_Float,
                                  ////ComponentVariableType_Double,
                                  ////ComponentVariableType_ColorFloat,
-                                 //ComponentVariableType_ColorByte,
+    ColorByte m_TestColorByte;   //ComponentVariableType_ColorByte,
                                  //ComponentVariableType_Vector2,
                                  //ComponentVariableType_Vector3,
                                  //ComponentVariableType_Vector2Int,
@@ -98,6 +98,8 @@ public:
     {
         SetTooltipStrings( nullptr, nullptr );
 
+        m_TestColorByte = ColorByte::Black();
+
         VSNAddVar(      &m_VariablesList, "Int",   ComponentVariableType_Int,         MyOffsetOf( this, &this->m_TestInt ),   false, true, "", nullptr, nullptr, nullptr );
         VSNAddVarEnum(  &m_VariablesList, "Enum",                                     MyOffsetOf( this, &this->m_TestEnum ),  false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
         VSNAddVarFlags( &m_VariablesList, "Flags",                                    MyOffsetOf( this, &this->m_TestFlags ), false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
@@ -108,7 +110,7 @@ public:
         VSNAddVar(      &m_VariablesList, "Float", ComponentVariableType_Float,       MyOffsetOf( this, &this->m_TestFloat ), false, true, "", nullptr, nullptr, nullptr );
         ////ComponentVariableType_Double,
         ////ComponentVariableType_ColorFloat,
-        //ComponentVariableType_ColorByte,
+        VSNAddVar(      &m_VariablesList, "Color", ComponentVariableType_ColorByte,   MyOffsetOf( this, &this->m_TestColorByte ), false, true, "", nullptr, nullptr, nullptr );
         //ComponentVariableType_Vector2,
         //ComponentVariableType_Vector3,
         //ComponentVariableType_Vector2Int,
