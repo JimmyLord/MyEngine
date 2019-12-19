@@ -70,13 +70,8 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         break;
 
     //case ComponentVariableType_Char:
-    //    oldvalue = *(char*)m_pVar->m_Offset;
-    //    *(char*)m_pVar->m_Offset += (char)m_Difference;
-    //    break;
-
     //case ComponentVariableType_UnsignedChar:
-    //    oldvalue = *(unsigned char*)m_pVar->m_Offset;
-    //    *(unsigned char*)m_pVar->m_Offset += (unsigned char)m_Difference;
+    //    MyAssert( false );
     //    break;
 
     case ComponentVariableType_Bool:
@@ -86,6 +81,16 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 
     case ComponentVariableType_Float:
         previousvalue = (double)m_OldValue.GetFloat();
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+        break;
+
+    //case ComponentVariableType_Double:
+    //case ComponentVariableType_ColorFloat:
+    //    MyAssert( false );
+    //    break;
+
+    case ComponentVariableType_ColorByte:
+        previousColorByte = m_OldValue.GetColorByte();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
@@ -145,31 +150,28 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         }
         break;
 
-    //case PanelWatchType_Double:
-    //    oldvalue = *(double*)m_pVar->m_Offset;
-    //    *(double*)m_pVar->m_Offset += m_Difference;
-    //    break;
-
-    //case PanelWatchType_ColorFloat:
-    //case PanelWatchType_ColorByte:
-    //case PanelWatchType_PointerWithDesc:
-    //case PanelWatchType_SpaceWithLabel:
-    //case PanelWatchType_Button:
-    //case PanelWatchType_String:
-    //    //ADDING_NEW_WatchVariableType
-    //case PanelWatchType_Unknown:
-    //case PanelWatchType_NumTypes:
-        MyAssert( false );
-
-    case ComponentVariableType_ColorByte:
-        previousColorByte = m_OldValue.GetColorByte();
+    case ComponentVariableType_Vector3Int:
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+
+        // Determine which component of the control changed, assert if more than 1 changed.
+        controlcomponent = -1;
+        if( m_OldValue.GetVector3Int().x != m_NewValue.GetVector3Int().x )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 0;
+        }
+        if( m_OldValue.GetVector3Int().y != m_NewValue.GetVector3Int().y )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
+        if( m_OldValue.GetVector3Int().z != m_NewValue.GetVector3Int().z )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 2;
+        }
         break;
 
-    //case ComponentVariableType_Vector2:
-    //case ComponentVariableType_Vector3:
-    //case ComponentVariableType_Vector2Int:
-    case ComponentVariableType_Vector3Int:
     case ComponentVariableType_GameObjectPtr:
     case ComponentVariableType_ComponentPtr:
     case ComponentVariableType_FilePtr:
@@ -237,6 +239,15 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
+    //case ComponentVariableType_Double:
+    //case ComponentVariableType_ColorFloat:
+    //    break;
+
+    case ComponentVariableType_ColorByte:
+        previousColorByte = m_NewValue.GetColorByte();
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+        break;
+
     case ComponentVariableType_Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
@@ -295,30 +306,28 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         }
         break;
 
-    //case PanelWatchType_Double:
-    //    oldvalue = *(double*)m_Pointer;
-    //    *(double*)m_Pointer -= m_Difference;
-    //    break;
-
-    //case PanelWatchType_ColorFloat:
-    //case PanelWatchType_ColorByte:
-    //case PanelWatchType_PointerWithDesc:
-    //case PanelWatchType_SpaceWithLabel:
-    //case PanelWatchType_Button:
-    //case PanelWatchType_String:
-    //    //ADDING_NEW_WatchVariableType
-    //case PanelWatchType_Unknown:
-    //case PanelWatchType_NumTypes:
-
-    case ComponentVariableType_ColorByte:
-        previousColorByte = m_NewValue.GetColorByte();
+    case ComponentVariableType_Vector3Int:
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+
+        // Determine which component of the control changed, assert if more than 1 changed.
+        controlcomponent = -1;
+        if( m_OldValue.GetVector3Int().x != m_NewValue.GetVector3Int().x )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 0;
+        }
+        if( m_OldValue.GetVector3Int().y != m_NewValue.GetVector3Int().y )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
+        if( m_OldValue.GetVector3Int().z != m_NewValue.GetVector3Int().z )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
         break;
 
-    //case ComponentVariableType_Vector2:
-    //case ComponentVariableType_Vector3:
-    //case ComponentVariableType_Vector2Int:
-    case ComponentVariableType_Vector3Int:
     case ComponentVariableType_GameObjectPtr:
     case ComponentVariableType_ComponentPtr:
     case ComponentVariableType_FilePtr:
