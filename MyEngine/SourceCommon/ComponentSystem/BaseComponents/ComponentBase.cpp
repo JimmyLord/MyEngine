@@ -973,8 +973,23 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                         }
                         else
                         {
+                            void* oldPointer = nullptr;
+
                             ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
-                            (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
+                            if( pVar->m_pOnDropCallbackFunc != nullptr )
+                            {
+                                oldPointer = (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
+                            }
+                            else
+                            {
+                                GameObject** pGameObjectPtr = (GameObject**)((char*)pObject + pVar->m_Offset);
+
+                                oldPointer = *pGameObjectPtr;
+                                *pGameObjectPtr = pGameObject;
+                            }
+
+                            //g_pGameCore->GetCommandStack()->Add(
+                            //    MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1, DragAndDropType_GameObjectPointer, pGameObject, oldPointer ) );
                         }
                     }
 
