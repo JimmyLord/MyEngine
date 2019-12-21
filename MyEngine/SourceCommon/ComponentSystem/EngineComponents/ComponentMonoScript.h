@@ -10,7 +10,9 @@
 #ifndef __ComponentMonoScript_H__
 #define __ComponentMonoScript_H__
 
-#if MYFW_USE_MONO
+#if MYFW_USE_MONO == false || MYFW_USING_MONO == false
+#error "Mono disabled for build, header shouldn't be included."
+#endif
 
 class MonoGameState;
 
@@ -151,7 +153,5 @@ public:
     virtual void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedChanging, ExposedVariableValue oldValue, void* oldPointer) override;
 #endif //MYFW_EDITOR
 };
-
-#endif //MYFW_USE_MONO
 
 #endif //__ComponentMonoScript_H__

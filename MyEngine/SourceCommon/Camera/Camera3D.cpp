@@ -46,9 +46,9 @@ void Camera3D::SetupProjection(float windowaspectratio, float desiredgameaspectr
 
     // Calculate the desired horizontal FoV based on the vertical and aspect ratio.
         // aspect_ratio = tan( HorizontalFoV/2 ) / tan( VerticalFoV/2 ) 
-    float vertunits = tan( vertfov / 360.0f * PI );
+    float vertunits = tanf( vertfov / 360.0f * PI );
     float horunits = vertunits * desiredgameaspectratio;
-    float horfov = atan( horunits ) * 360.0f / PI;
+    float horfov = atanf( horunits ) * 360.0f / PI;
     //m_DesiredHorizontalFoV = horfov;
 
     // if the window is taller than we asked for, lock in the horizontal FoV, otherwise lock to the Vertical

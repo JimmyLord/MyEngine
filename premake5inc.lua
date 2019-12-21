@@ -5,6 +5,9 @@
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
+if PremakeConfig_UseLua == nil then
+    PremakeConfig_UseLua = true
+end
 if PremakeConfig_UseMono == nil then
     PremakeConfig_UseMono = true
 end
@@ -113,6 +116,16 @@ end
             "MyEngine/SourceEditor/**.cpp",
             "MyEngine/SourceEditor/**.h",
         }
+
+if PremakeConfig_UseLua == true then
+    filter {}
+        defines         "MYFW_USE_LUA"
+else
+    filter { "files:MyEngine/SourceCommon/Libraries/Lua/**" }
+        flags           "ExcludeFromBuild"
+    filter { "files:MyEngine/SourceCommon/Libraries/LuaBridge/**" }
+        flags           "ExcludeFromBuild"
+end
 
 if PremakeConfig_UseMono == true then
     filter {}

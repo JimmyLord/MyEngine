@@ -69,3 +69,8 @@ project "SharedGameCode"
 
     filter "configurations:EditorDebug or EditorRelease"
         defines         { "MYFW_EDITOR", "MYFW_USING_IMGUI" }
+
+if PremakeConfig_UseLua == true then
+    filter {}
+        defines         "MYFW_USE_LUA"
+end

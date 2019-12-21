@@ -12,7 +12,9 @@
 
 #define MYFW_USING_MYENGINE 1 // Used by a couple of old modules in SharedGameCode.
 
+#if MYFW_USE_LUA
 #define MYFW_USING_LUA 1
+#endif
 #if MYFW_USE_MONO
 #define MYFW_USING_MONO 1
 #endif
