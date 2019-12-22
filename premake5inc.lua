@@ -5,11 +5,17 @@
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
-if PremakeConfig_UseLua == nil then
+if PremakeConfig_UseLua == false then
+    PremakeConfig_UseLua = false
+else
     PremakeConfig_UseLua = true
 end
+
 if PremakeConfig_UseMono == nil then
     PremakeConfig_UseMono = true
+end
+if PremakeConfig_UseBullet == nil then
+    PremakeConfig_UseBullet = true
 end
 if PremakeConfig_UseMemoryTracker == nil then
     PremakeConfig_UseMemoryTracker = true
@@ -121,6 +127,8 @@ if PremakeConfig_UseLua == true then
     filter {}
         defines         "MYFW_USE_LUA"
 else
+    filter {}
+        defines         "MYFW_USE_LUA=0"
     filter { "files:MyEngine/SourceCommon/Libraries/Lua/**" }
         flags           "ExcludeFromBuild"
     filter { "files:MyEngine/SourceCommon/Libraries/LuaBridge/**" }
@@ -132,6 +140,16 @@ if PremakeConfig_UseMono == true then
         defines         "MYFW_USE_MONO"
 else
     filter { "files:MyEngine/SourceCommon/Mono/**" }
+        flags           "ExcludeFromBuild"
+end
+
+if PremakeConfig_UseBullet == true then
+    filter {}
+        defines         "MYFW_USE_BULLET"
+else
+    filter { "files:MyEngine/SourceCommon/Bullet**" }
+        flags           "ExcludeFromBuild"
+    filter { "files:MyEngine/SourceCommon/FrameworkComponents/Physics3D/**" }
         flags           "ExcludeFromBuild"
 end
 

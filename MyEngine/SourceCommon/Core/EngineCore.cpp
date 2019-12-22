@@ -18,7 +18,9 @@
 #include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/LuaGameState.h"
+#if MYFW_USING_MONO
 #include "Mono/MonoGameState.h"
+#endif
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Renderer_Base.h"
 #include "../../../SharedGameCode/Core/MyMeshText.h"
 #include "../../../SharedGameCode/Core/RenderTextQuick.h"

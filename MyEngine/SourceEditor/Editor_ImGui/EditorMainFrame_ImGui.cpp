@@ -22,7 +22,9 @@
 #include "Core/EngineCore.h"
 #include "GUI/EditorIcons.h"
 #include "GUI/ImGuiExtensions.h"
+#if MYFW_USING_MONO
 #include "Mono/MonoGameState.h"
+#endif
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Commands/EditorMenuCommands.h"
 #include "../SourceEditor/Commands/EngineCommandStack.h"
