@@ -382,8 +382,8 @@ void Component3DJointSlider::OnPlay()
                 axisA.y = 1;
 
             // Convert direction vector into yaw and pitch (no roll).
-            float roty = atan2( axisA.z, axisA.x ) * -1;
-            float rotz = atan2( axisA.y, axisA.x );
+            float roty = atan2f( axisA.z, axisA.x ) * -1;
+            float rotz = atan2f( axisA.y, axisA.x );
 
             //LOGInfo( LOGTag, "Axis: (%0.2f, %0.2f, %0.2f)\n", axisA.x, axisA.y, axisA.z );
             //LOGInfo( LOGTag, "Angle:(0, %0.2f, %0.2f)\n", roty, rotz );
@@ -404,8 +404,8 @@ void Component3DJointSlider::OnPlay()
                     axisB.y = 1;
 
                 // Convert direction vector into yaw and pitch (no roll).
-                float roty = atan2( axisB.z, axisB.x ) * -1;
-                float rotz = atan2( axisB.y, axisB.x );
+                float roty = atan2f( axisB.z, axisB.x ) * -1;
+                float rotz = atan2f( axisB.y, axisB.x );
 
                 frameInB.setIdentity();
                 frameInB.getBasis().setEulerZYX( 0, roty, rotz );

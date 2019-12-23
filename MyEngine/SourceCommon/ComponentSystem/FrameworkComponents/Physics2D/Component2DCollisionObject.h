@@ -139,7 +139,9 @@ public:
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
 #endif //MYFW_USING_WX
 
+#if MYFW_USING_LUA
     void SetVertices(const luabridge::LuaRef verts, unsigned int count);
+#endif //MYFW_USING_LUA
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y);

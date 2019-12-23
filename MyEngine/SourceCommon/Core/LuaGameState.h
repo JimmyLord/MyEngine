@@ -10,6 +10,8 @@
 #ifndef __LuaGameState_H__
 #define __LuaGameState_H__
 
+#if MYFW_USING_LUA
+
 // Enable lua debugging in debug and editor builds. TODO: fix lua debugging in NaCl builds
 #if (_DEBUG || MYFW_USING_WX) && !MYFW_NACL
 #define MYFW_ENABLE_LUA_DEBUGGER 1
@@ -85,5 +87,7 @@ public:
     void AddBreakpoint(char* fullpath, int line);
 #endif
 };
+
+#endif //MYFW_USING_LUA
 
 #endif //__LuaGameState_H__

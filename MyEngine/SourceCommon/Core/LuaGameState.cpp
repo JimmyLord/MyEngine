@@ -9,6 +9,8 @@
 
 #include "MyEnginePCH.h"
 
+#if MYFW_USING_LUA
+
 #include "Core/EngineCore.h"
 #include "ComponentSystem/BaseComponents/ComponentBase.h"
 #include "ComponentSystem/BaseComponents/ComponentGameObjectProperties.h"
@@ -39,8 +41,6 @@
 #include "../../../SharedGameCode/Menus/MenuButton.h"
 #include "../../../SharedGameCode/Menus/MenuSprite.h"
 #include "../../../SharedGameCode/Menus/MenuText.h"
-
-#if MYFW_USING_LUA
 
 #define LUA_DEBUG_PORT 19542
 

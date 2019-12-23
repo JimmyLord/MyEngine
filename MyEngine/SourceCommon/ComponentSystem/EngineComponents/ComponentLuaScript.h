@@ -10,6 +10,8 @@
 #ifndef __ComponentLuaScript_H__
 #define __ComponentLuaScript_H__
 
+#if MYFW_USING_LUA
+
 #include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/EngineComponents/ComponentScriptBase.h"
@@ -325,5 +327,7 @@ public:
         return false;
     }
 };
+
+#endif //MYFW_USING_LUA
 
 #endif //__ComponentLuaScript_H__

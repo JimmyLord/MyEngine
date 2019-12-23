@@ -469,7 +469,9 @@ void EditorMenuCommand(EditorMenuCommands command)
                 strcpy_s( path, MAX_PATH, filename );
                 const char* relativepath = GetRelativePath( path );
                 
+#if MYFW_USING_LUA
                 g_pEngineCore->GetLuaGameState()->RunFile( relativepath );
+#endif
 
                 pEditorPrefs->AddRecentLuaScript( relativepath );
             }
@@ -529,6 +531,7 @@ void EditorMenuCommand(EditorMenuCommands command)
         pEditorPrefs->Set_Mode_LaunchPlatform( platformIndex );
     }
 
+#if MYFW_USING_LUA
     if( command >= EditorMenuCommand_Lua_RunRecentLuaScript && command < EditorMenuCommand_Lua_RunRecentLuaScript + EditorPrefs::MAX_RECENT_LUA_SCRIPTS )
     {
         int fileIndex = command - EditorMenuCommand_Lua_RunRecentLuaScript;
@@ -539,6 +542,7 @@ void EditorMenuCommand(EditorMenuCommands command)
 
         pEditorPrefs->AddRecentLuaScript( relativePath );
     }
+#endif
 }
 
 void EditorMenuCommand(EditorMenuCommands command, std::string value)

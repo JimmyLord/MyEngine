@@ -955,9 +955,9 @@ bool ComponentCamera::HandleInputForEditorCamera(int keyAction, int keyCode, int
         {
             // Pressure is also mouse wheel movement rate in editor configurations.
 #if MYFW_RIGHTHANDED
-            Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/fabs(pressure));
+            Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/fabsf(pressure));
 #else
-            Vector3 dir = Vector3( 0, 0, 1 ) * (pressure/fabs(pressure));
+            Vector3 dir = Vector3( 0, 0, 1 ) * (pressure/fabsf(pressure));
 #endif
             float speed = 100.0f;
             if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )

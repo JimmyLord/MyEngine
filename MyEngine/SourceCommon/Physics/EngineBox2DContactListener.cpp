@@ -58,7 +58,9 @@ void EngineBox2DContactListener::BeginContact(b2Contact* contact)
                     if( i == 0 )
                         normal *= -1;
 
+#if MYFW_USING_LUA
                     pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal, otherGameObject, otherComponent );
+#endif
                 }
                 else
                 {
@@ -66,7 +68,9 @@ void EngineBox2DContactListener::BeginContact(b2Contact* contact)
                     if( pFixture[i]->IsSensor() )
                         normal = (Vector2&)pBody[!i]->GetLinearVelocity();
 
+#if MYFW_USING_LUA
                     pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal, otherGameObject, otherComponent );
+#endif
                 }
             }
         }

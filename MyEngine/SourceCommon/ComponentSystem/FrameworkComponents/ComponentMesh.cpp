@@ -421,6 +421,7 @@ void ComponentMesh::OnPlay()
 
     m_pMesh->RegisterSetupCustomUniformsCallback( nullptr, nullptr );
 
+#if MYFW_USING_LUA
     m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
 
     if( m_pComponentLuaScript )
@@ -428,6 +429,7 @@ void ComponentMesh::OnPlay()
         m_pComponentLuaScript->RegisterOnDeleteCallback( this, StaticOnLuaScriptDeleted );
         m_pMesh->RegisterSetupCustomUniformsCallback( this, StaticSetupCustomUniformsCallback );
     }
+#endif //MYFW_USING_LUA
 }
 
 bool ComponentMesh::OnEvent(MyEvent* pEvent)
@@ -643,18 +645,22 @@ void ComponentMesh::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticS
     // This callback should only get called if there was a Lua script component.
     // TODO: Don't register the callback if the lua script object doesn't have a "SetupCustomUniforms" function.
 
+#if MYFW_USING_LUA
     MyAssert( m_pComponentLuaScript != nullptr );
 
     m_pComponentLuaScript->CallFunction( "SetupCustomUniforms", pShader->m_ProgramHandle );
+#endif //MYFW_USING_LUA
 }
 
 void ComponentMesh::OnLuaScriptDeleted(ComponentBase* pComponent) // StaticOnLuaScriptDeleted
 {
+#if MYFW_USING_LUA
     if( m_pComponentLuaScript == pComponent )
     {
         m_pComponentLuaScript = nullptr;
         m_pMesh->RegisterSetupCustomUniformsCallback( nullptr, nullptr );
     }
+#endif //MYFW_USING_LUA
 }
 
 void ComponentMesh::TickCallback(float deltaTime)

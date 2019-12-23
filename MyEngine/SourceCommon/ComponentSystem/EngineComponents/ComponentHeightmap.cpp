@@ -1144,13 +1144,13 @@ bool ComponentHeightmap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 
     Vector2 tileIncrement;
     Vector2Int lastTileCoords( -1, -1 );
 
-    if( fabs(dir.x) > fabs(dir.z) )
+    if( fabsf(dir.x) > fabsf(dir.z) )
     {
         loopVariable = &tileCoords.x;
 
         // Make vector 'tileSize' long on the x-axis.
-        dir = dir / fabs(dir.x) * tileSize.x;
-        tileIncrement.Set( dir.x >= 0 ? 1.0f : -1.0f, dir.z / fabs(dir.x) );
+        dir = dir / fabsf(dir.x) * tileSize.x;
+        tileIncrement.Set( dir.x >= 0 ? 1.0f : -1.0f, dir.z / fabsf(dir.x) );
 
         // Set the vertex that the loop will stop on.
         // If the vector is partway into a tile, take a partial step to reach the edge of that tile.
@@ -1159,7 +1159,7 @@ bool ComponentHeightmap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 
         {
             loopLimit = m_VertCount.x;
 
-            float perc = 1 - fmod( tilePos.x, 1.0f );
+            float perc = 1 - fmodf( tilePos.x, 1.0f );
             currentPosition += dir * perc;
             lastTileCoords = tileCoords;
             tilePos += tileIncrement * perc;
@@ -1168,7 +1168,7 @@ bool ComponentHeightmap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 
         {
             loopLimit = -1;
 
-            float perc = fmod( tilePos.x, 1.0f );
+            float perc = fmodf( tilePos.x, 1.0f );
             if( currentPosition.x == m_Size.x )
             {
                 perc = 1.0f;
@@ -1187,8 +1187,8 @@ bool ComponentHeightmap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 
         loopVariable = &tileCoords.y;
 
         // Make dir vector 'tileSize' long on the z-axis.
-        dir = dir / fabs(dir.z) * tileSize.y;
-        tileIncrement.Set( dir.x / fabs(dir.z), dir.z >= 0 ? 1.0f : -1.0f );
+        dir = dir / fabsf(dir.z) * tileSize.y;
+        tileIncrement.Set( dir.x / fabsf(dir.z), dir.z >= 0 ? 1.0f : -1.0f );
 
         // Set the vertex that the loop will stop on.
         // If the vector is partway into a tile, take a partial step to reach the edge of that tile.
@@ -1197,7 +1197,7 @@ bool ComponentHeightmap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 
         {
             loopLimit = m_VertCount.y;
 
-            float perc = 1 - fmod( tilePos.y, 1.0f );
+            float perc = 1 - fmodf( tilePos.y, 1.0f );
             currentPosition += dir * perc;
             lastTileCoords = tileCoords;
             tilePos += tileIncrement * perc;
@@ -1206,7 +1206,7 @@ bool ComponentHeightmap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 
         {
             loopLimit = -1;
 
-            float perc = fmod( tilePos.y, 1.0f );
+            float perc = fmodf( tilePos.y, 1.0f );
             if( currentPosition.z == m_Size.y )
             {
                 perc = 1.0f;

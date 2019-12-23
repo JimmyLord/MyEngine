@@ -1111,7 +1111,7 @@ void TransformGizmo::ScaleSelectedObjects(EngineCore* pGame, EditorState* pEdito
 
                 // negative distance is scale down, so flip and fabs the float
                 if( distance < 0 )
-                    distance = 1 / ( 1 + fabs(distance) );
+                    distance = 1 / ( 1 + fabsf(distance) );
                 else
                     distance = 1 + distance;
 
@@ -1267,13 +1267,13 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 Vector3 currentangle;
                 Vector3 lastangle;
 
-                currentangle.x = atan2( currentresult.z, currentresult.y );
-                currentangle.y = atan2( currentresult.x, currentresult.z );
-                currentangle.z = atan2( currentresult.y, currentresult.x );
+                currentangle.x = atan2f( currentresult.z, currentresult.y );
+                currentangle.y = atan2f( currentresult.x, currentresult.z );
+                currentangle.z = atan2f( currentresult.y, currentresult.x );
 
-                lastangle.x = atan2( lastresult.z, lastresult.y );
-                lastangle.y = atan2( lastresult.x, lastresult.z );
-                lastangle.z = atan2( lastresult.y, lastresult.x );
+                lastangle.x = atan2f( lastresult.z, lastresult.y );
+                lastangle.y = atan2f( lastresult.x, lastresult.z );
+                lastangle.z = atan2f( lastresult.y, lastresult.x );
 
                 // lock to one of the 3 axis.
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )

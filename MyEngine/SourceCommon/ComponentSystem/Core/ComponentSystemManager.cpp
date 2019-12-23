@@ -2097,6 +2097,7 @@ GameObject* ComponentSystemManager::GetGameObjectsInRange(Vector3 pos, float ran
     return nullptr;
 }
 
+#if MYFW_USING_LUA
 luabridge::LuaRef ComponentSystemManager::Lua_GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags)
 {
     // Build a Lua table storing all GameObjects in range.
@@ -2117,6 +2118,7 @@ luabridge::LuaRef ComponentSystemManager::Lua_GetGameObjectsInRange(Vector3 pos,
 
     return gameObjectTable;
 }
+#endif //MYFW_USING_LUA
 
 ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid)
 {

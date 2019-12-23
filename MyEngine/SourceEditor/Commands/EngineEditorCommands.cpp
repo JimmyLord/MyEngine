@@ -1451,6 +1451,7 @@ void EditorCommand_ChangeAllScriptsOnGameObject::Do()
 {
     for( unsigned int i=0; i<m_pGameObject->GetComponentCount(); i++ )
     {
+#if MYFW_USING_LUA
         ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_pGameObject->GetComponentByIndex( i ) );
 
         if( pLuaComponent )
@@ -1458,6 +1459,7 @@ void EditorCommand_ChangeAllScriptsOnGameObject::Do()
             m_ComponentsChanged.push_back( pLuaComponent );
             m_OldScriptFiles.push_back( pLuaComponent->GetScriptFile() );
         }
+#endif //MYFW_USING_LUA
     }
 
     m_pGameObject->SetScriptFile( m_pNewScriptFile );
@@ -1467,6 +1469,7 @@ void EditorCommand_ChangeAllScriptsOnGameObject::Undo()
 {
     for( unsigned int i=0; i<m_ComponentsChanged.size(); i++ )
     {
+#if MYFW_USING_LUA
         ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_ComponentsChanged[i] );
         MyAssert( pLuaComponent );
 
@@ -1474,6 +1477,7 @@ void EditorCommand_ChangeAllScriptsOnGameObject::Undo()
         {
             pLuaComponent->SetScriptFile( m_OldScriptFiles[i] );
         }
+#endif //MYFW_USING_LUA
     }
 }
 

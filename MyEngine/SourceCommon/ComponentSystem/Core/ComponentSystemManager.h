@@ -242,7 +242,9 @@ public:
     GameObject* FindGameObjectByNameFromList(GameObject* list, const char* name);
     GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultSceneID, bool requireSceneBeLoaded);
     GameObject* GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags);
+#if MYFW_USING_LUA
     luabridge::LuaRef Lua_GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags);
+#endif
     ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid);
     ComponentCamera* GetFirstCamera(bool preferEditorCam = false);
     ComponentBase* GetFirstComponentOfType(const char* type);

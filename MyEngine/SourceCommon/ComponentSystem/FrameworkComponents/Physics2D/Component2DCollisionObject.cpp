@@ -245,6 +245,7 @@ bool Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVari
 }
 #endif //MYFW_USING_WX
 
+#if MYFW_USING_LUA
 void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsigned int count)
 {
     m_PrimitiveType = Physics2DPrimitiveType_Chain; // TODO: Don't hardcode this.
@@ -258,6 +259,7 @@ void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsi
         m_Vertices[i] = b2Vec2( pVert->x, pVert->y );
     }
 }
+#endif //MYFW_USING_LUA
 
 void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {

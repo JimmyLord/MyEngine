@@ -117,8 +117,8 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
         clipTopLeft.y = clipStart.y > clipEnd.y ? clipStart.y : clipEnd.y;
         
         Vector2 clipSize;
-        clipSize.x = fabs( clipStart.x - clipEnd.x );
-        clipSize.y = fabs( clipStart.y - clipEnd.y );
+        clipSize.x = fabsf( clipStart.x - clipEnd.x );
+        clipSize.y = fabsf( clipStart.y - clipEnd.y );
 
         if( clipSize.x > 0 || clipSize.y > 0 )
         {

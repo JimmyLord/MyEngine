@@ -1236,12 +1236,12 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
             if( pItem->m_Visible == false || pItem->m_Navigable == false )
                 continue;
 
-            float distx = fabs( currentposition.x - position2nditem.x );
-            float disty = fabs( currentposition.y - position2nditem.y );
+            float distx = fabsf( currentposition.x - position2nditem.x );
+            float disty = fabsf( currentposition.y - position2nditem.y );
             if( dirtocheckx ) distx /= 2.5f;
             if( dirtochecky ) disty /= 2.5f;
 
-            float distance = sqrt( distx*distx + disty*disty );
+            float distance = sqrtf( distx*distx + disty*disty );
 
             if( distance > 0 && distance < nearestdistance )
             {
