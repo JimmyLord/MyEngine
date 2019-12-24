@@ -10,6 +10,8 @@
 #ifndef __Component3DJointSlider_H__
 #define __Component3DJointSlider_H__
 
+#if MYFW_USING_BULLET
+
 #include "ComponentSystem/BaseComponents/ComponentBase.h"
 
 class Component3DCollisionObject;
@@ -90,5 +92,7 @@ public:
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };
+
+#endif //MYFW_USING_BULLET
 
 #endif //__Component3DJointSlider_H__

@@ -126,6 +126,7 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                             cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->m_pMesh->GetFile()->GetFilenameWithoutExtension() );
                     }
 
+#if MYFW_USING_BULLET
                     if( pComponent->IsA( "3DCollisionObjectComponent" ) )
                     {
                         Component3DCollisionObject* p3DComponent = (Component3DCollisionObject*)pComponent;
@@ -136,6 +137,7 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                             cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->GetFile()->GetFilenameWithoutExtension() );
                         }
                     }
+#endif //MYFW_USING_BULLET
 
                     if( pMaterial )
                     {

@@ -22,6 +22,12 @@
 #define MYFW_USING_MONO 1
 #endif
 
+#if defined(MYFW_USE_BULLET) && MYFW_USE_BULLET == 0
+#define MYFW_USING_BULLET 0
+#else
+#define MYFW_USING_BULLET 1
+#endif
+
 const int g_NumberOfVisibilityLayers = 8;
 
 //============================================================================================================

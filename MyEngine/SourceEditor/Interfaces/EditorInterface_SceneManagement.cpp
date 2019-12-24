@@ -140,10 +140,12 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();
         }
 
+#if MYFW_USING_BULLET
         if( g_pEngineCore->GetBulletWorld() )
         {
             g_pEngineCore->GetBulletWorld()->m_pDynamicsWorld->debugDrawWorld();
         }
+#endif //MYFW_USING_BULLET
     }
 }
 
@@ -331,6 +333,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             // if we didn't select the gizmo and gameplay is running.
             if( selectedgizmo == false && g_pEngineCore->IsInEditorMode() == false )
             {
+#if MYFW_USING_BULLET
                 // check if we selected a physics object then grab it.
                 //if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
                 {
@@ -421,11 +424,13 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         mouseaction = -1;
                     }
                 }
+#endif //MYFW_USING_BULLET
             }
         }
 
         if( mouseaction == GCBA_Held && id == 0 ) //id == 1 << 0 )
         {
+#if MYFW_USING_BULLET
             // gameplay is running and we picked up a physics object in the editor view, so move it around.
             if( pEditorState->m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
             {
@@ -557,6 +562,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                 mouseaction = -1;
             }
+#endif //MYFW_USING_BULLET
         }
 
         if( mouseaction == GCBA_Up && id == 0 )

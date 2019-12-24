@@ -1352,12 +1352,14 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
 {
     for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode; pNode = pNode->GetNext() )
     {
+#if MYFW_USING_BULLET
         if( ((ComponentBase*)pNode)->GetType() == ComponentType_3DCollisionObject )
         {
             Component3DCollisionObject* pComponent = (Component3DCollisionObject*)pNode;
 
             pComponent->SyncRigidBodyToTransform();
         }
+#endif
     }
 }
 

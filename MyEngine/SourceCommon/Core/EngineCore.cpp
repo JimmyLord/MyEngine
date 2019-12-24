@@ -207,7 +207,9 @@ void EngineCore::Cleanup()
 #endif //MYFW_EDITOR
 
     SAFE_DELETE( m_pComponentSystemManager );
+#if MYFW_USING_BULLET
     SAFE_DELETE( m_pBulletWorld );
+#endif
 
     for( int i=0; i<32; i++ )
     {
@@ -493,7 +495,9 @@ void EngineCore::OneTimeInit()
     m_pBulletWorld = MyNew BulletWorld( 0, 0, 0 );
 #else
     ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+#if MYFW_USING_BULLET
     m_pBulletWorld = MyNew BulletWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView );
+#endif
 #endif
 
 #if MYFW_EDITOR
@@ -735,7 +739,9 @@ float EngineCore::Tick(float deltaTime)
         double Physics_Timing_Start = MyTime_GetSystemTime();
 #endif //MYFW_PROFILING_ENABLED && MYFW_EDITOR
 
+#if MYFW_USING_BULLET
         m_pBulletWorld->PhysicsUpdate( deltaTime );
+#endif
 
         m_TimeSinceLastPhysicsStep += deltaTime;
         while( m_TimeSinceLastPhysicsStep > 1/60.0f )

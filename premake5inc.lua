@@ -5,21 +5,24 @@
 --     include( "premake5inc.lua" )
 --     os.chdir( rootDir )
 
-if PremakeConfig_UseLua == false then
-    PremakeConfig_UseLua = false
-else
+-- To exclude Lua, set 'PremakeConfig_UseLua' to false and add 'defines "MYFW_USE_LUA=0"' to your project.
+if PremakeConfig_UseLua == nil then
     PremakeConfig_UseLua = true
 end
 
 if PremakeConfig_UseMono == nil then
     PremakeConfig_UseMono = true
 end
+
+-- To exclude Bullet, set 'PremakeConfig_UseBullet' to false and add 'defines "MYFW_USE_BULLET=0"' to your project.
 if PremakeConfig_UseBullet == nil then
     PremakeConfig_UseBullet = true
 end
+
 if PremakeConfig_UseMemoryTracker == nil then
     PremakeConfig_UseMemoryTracker = true
 end
+
 if MyEnginePremakeConfig_FrameworkFolder == nil then
     MyEnginePremakeConfig_FrameworkFolder = "$(SolutionDir)../Framework"
 end
@@ -147,9 +150,11 @@ if PremakeConfig_UseBullet == true then
     filter {}
         defines         "MYFW_USE_BULLET"
 else
-    filter { "files:MyEngine/SourceCommon/Bullet**" }
+    filter {}
+        defines         "MYFW_USE_BULLET=0"
+    filter { "files:MyEngine/SourceCommon/Physics/Bullet**" }
         flags           "ExcludeFromBuild"
-    filter { "files:MyEngine/SourceCommon/FrameworkComponents/Physics3D/**" }
+    filter { "files:MyEngine/SourceCommon/ComponentSystem/FrameworkComponents/Physics3D/**" }
         flags           "ExcludeFromBuild"
 end
 

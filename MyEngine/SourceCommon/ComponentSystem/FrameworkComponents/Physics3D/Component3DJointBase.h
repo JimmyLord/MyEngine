@@ -10,6 +10,8 @@
 #ifndef __Component3DJointBase_H__
 #define __Component3DJointBase_H__
 
+#if MYFW_USING_BULLET
+
 #include "ComponentSystem/BaseComponents/ComponentBase.h"
 
 class Component3DJointBase : public ComponentBase
@@ -20,5 +22,7 @@ public:
 
     virtual void RemoveJointFromWorld() = 0;
 };
+
+#endif //MYFW_USING_BULLET
 
 #endif //__Component3DJointBase_H__

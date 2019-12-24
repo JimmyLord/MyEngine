@@ -10,6 +10,8 @@
 #ifndef __BulletDebugDraw_H__
 #define __BulletDebugDraw_H__
 
+#if MYFW_USING_BULLET
+
 class BulletDebugDraw : public btIDebugDraw
 {
 public:
@@ -33,5 +35,7 @@ public:
     virtual void setDebugMode(int debugMode);
     virtual int getDebugMode() const;
 };
+
+#endif //MYFW_USING_BULLET
 
 #endif //__BulletDebugDraw_H__

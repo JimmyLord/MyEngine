@@ -10,6 +10,8 @@
 #ifndef __Component3DJointPoint2Point_H__
 #define __Component3DJointPoint2Point_H__
 
+#if MYFW_USING_BULLET
+
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointBase.h"
 
 class Component3DCollisionObject;
@@ -84,5 +86,7 @@ public:
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };
+
+#endif //MYFW_USING_BULLET
 
 #endif //__Component3DJointPoint2Point_H__

@@ -360,6 +360,7 @@ void EditorState::ClearModifierKeyStates(int keyAction, int keyCode, int mouseAc
 
 void EditorState::ClearConstraint()
 {
+#if MYFW_USING_BULLET
     if( m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
     {
         g_pBulletWorld->m_pDynamicsWorld->removeConstraint( m_MousePicker_PickConstraint );
@@ -372,6 +373,7 @@ void EditorState::ClearConstraint()
 
         //action = -1;
     }
+#endif //MYFW_USING_BULLET
 }
 
 void EditorState::SelectGameObject(GameObject* pObject)

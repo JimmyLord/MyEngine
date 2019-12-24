@@ -113,10 +113,17 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_Light:               pComponent = MyNew ComponentLight(              pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow(       pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect(         pEngineCore, m_pComponentSystemManager ); break;
+#if MYFW_USING_BULLET
     case ComponentType_3DCollisionObject:   pComponent = MyNew Component3DCollisionObject(  pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_3DJointPoint2Point:  pComponent = MyNew Component3DJointPoint2Point( pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_3DJointHinge:        pComponent = MyNew Component3DJointHinge(       pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_3DJointSlider:       pComponent = MyNew Component3DJointSlider(      pEngineCore, m_pComponentSystemManager ); break;
+#else
+    case ComponentType_3DCollisionObject:   pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_3DJointPoint2Point:  pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_3DJointHinge:        pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_3DJointSlider:       pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+#endif
     case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject(  pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute(    pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_2DJointPrismatic:    pComponent = MyNew Component2DJointPrismatic(   pEngineCore, m_pComponentSystemManager ); break;

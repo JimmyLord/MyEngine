@@ -10,6 +10,8 @@
 #ifndef __BulletWorld_H__
 #define __BulletWorld_H__
 
+#if MYFW_USING_BULLET
+
 class BulletWorld;
 class BulletDebugDraw;
 
@@ -39,5 +41,7 @@ public:
     void PhysicsStep();
     void Cleanup();
 };
+
+#endif //MYFW_USING_BULLET
 
 #endif //__BulletWorld_H__
