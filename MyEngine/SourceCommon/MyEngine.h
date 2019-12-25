@@ -76,7 +76,9 @@
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointSlider.h"
 
 // Physics code.
+#if MYFW_USING_BOX2D
 #include "Physics/EngineBox2DContactListener.h"
+#endif
 
 // Misc engine code.
 #include "ComponentSystem/Core/PrefabManager.h"

@@ -10,6 +10,8 @@
 #ifndef __Component2DJointRevolute_H__
 #define __Component2DJointRevolute_H__
 
+#if MYFW_USING_BOX2D
+
 #include "ComponentSystem/BaseComponents/ComponentBase.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 
@@ -91,5 +93,7 @@ public:
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };
+
+#endif //MYFW_USING_BOX2D
 
 #endif //__Component2DJointRevolute_H__

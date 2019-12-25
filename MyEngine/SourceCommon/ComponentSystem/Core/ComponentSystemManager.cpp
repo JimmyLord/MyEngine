@@ -23,11 +23,14 @@
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DCollisionObject.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
-#include "Physics/EngineBox2DContactListener.h"
 #include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Flat.h"
 #include "../../../Framework/MyFramework/SourceCommon/RenderGraphs/RenderGraph_Octree.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
+
+#if MYFW_USING_BOX2D
+#include "Physics/EngineBox2DContactListener.h"
+#endif
 
 #if MYFW_EDITOR
 #include "../SourceEditor/EditorState.h"
@@ -381,6 +384,7 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
     return savestring;
 }
 
+#if MYFW_USING_BOX2D
 char* ComponentSystemManager::ExportBox2DSceneToJSON(SceneID sceneid)
 {
 #if MYFW_EDITOR
@@ -389,6 +393,7 @@ char* ComponentSystemManager::ExportBox2DSceneToJSON(SceneID sceneid)
     return 0;
 #endif //MYFW_EDITOR
 }
+#endif //MYFW_USING_BOX2D
 
 void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid)
 {
@@ -2607,7 +2612,11 @@ void ComponentSystemManager::CreateNewScene(const char* scenename, SceneID scene
 
     // create the box2d world, pass in a material for the debug renderer.
     ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
+#if MYFW_USING_BOX2D
     m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, new EngineBox2DContactListener );
+#else
+    m_pSceneInfoMap[sceneid].m_pBox2DWorld = nullptr;
+#endif
 }
 
 unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()

@@ -14,6 +14,11 @@ if PremakeConfig_UseMono == nil then
     PremakeConfig_UseMono = true
 end
 
+-- To exclude Box2D, set 'PremakeConfig_UseBox2D' to false and add 'defines "MYFW_USE_BOX2D=0"' to your project.
+if PremakeConfig_UseBox2D == nil then
+    PremakeConfig_UseBox2D = true
+end
+
 -- To exclude Bullet, set 'PremakeConfig_UseBullet' to false and add 'defines "MYFW_USE_BULLET=0"' to your project.
 if PremakeConfig_UseBullet == nil then
     PremakeConfig_UseBullet = true
@@ -132,9 +137,7 @@ if PremakeConfig_UseLua == true then
 else
     filter {}
         defines         "MYFW_USE_LUA=0"
-    filter { "files:MyEngine/SourceCommon/Libraries/Lua/**" }
-        flags           "ExcludeFromBuild"
-    filter { "files:MyEngine/SourceCommon/Libraries/LuaBridge/**" }
+    filter { "files:Libraries/Lua/**" }
         flags           "ExcludeFromBuild"
 end
 
@@ -143,6 +146,22 @@ if PremakeConfig_UseMono == true then
         defines         "MYFW_USE_MONO"
 else
     filter { "files:MyEngine/SourceCommon/Mono/**" }
+        flags           "ExcludeFromBuild"
+end
+
+if PremakeConfig_UseBox2D == true then
+    filter {}
+        defines         "MYFW_USE_BOX2D"
+else
+    filter {}
+        defines         "MYFW_USE_BOX2D=0"
+    filter { "files:MyEngine/SourceCommon/Physics/Box2D**" }
+        flags           "ExcludeFromBuild"
+    filter { "files:MyEngine/SourceEditor/Exporters/ExportBox2DScene**" }
+        flags           "ExcludeFromBuild"
+    filter { "files:MyEngine/SourceCommon/Physics/*Box2D**" }
+        flags           "ExcludeFromBuild"
+    filter { "files:MyEngine/SourceCommon/ComponentSystem/FrameworkComponents/Physics2D/**" }
         flags           "ExcludeFromBuild"
 end
 

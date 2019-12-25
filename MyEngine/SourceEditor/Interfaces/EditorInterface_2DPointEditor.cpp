@@ -9,6 +9,8 @@
 
 #include "MyEnginePCH.h"
 
+#if MYFW_USING_BOX2D
+
 #include "EditorInterface_2DPointEditor.h"
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
@@ -29,7 +31,7 @@ EditorInterface_2DPointEditor::EditorInterface_2DPointEditor(EngineCore* pEngine
 
     m_pPoint = nullptr;
 
-    m_PositionMouseWentDown.SetZero();
+    m_PositionMouseWentDown.Set( 0, 0 );
 
     m_IndexOfPointBeingDragged = -1;
     m_NewMousePress = false;
@@ -424,3 +426,5 @@ MaterialDefinition* EditorInterface_2DPointEditor::GetMaterial(MaterialTypes typ
 
     return m_pMaterials[type];
 }
+
+#endif //MYFW_USING_BOX2D

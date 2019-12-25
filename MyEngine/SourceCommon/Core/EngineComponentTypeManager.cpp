@@ -124,10 +124,17 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_3DJointHinge:        pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_3DJointSlider:       pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
 #endif
+#if MYFW_USING_BOX2D
     case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject(  pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute(    pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_2DJointPrismatic:    pComponent = MyNew Component2DJointPrismatic(   pEngineCore, m_pComponentSystemManager ); break;
     case ComponentType_2DJointWeld:         pComponent = MyNew Component2DJointWeld(        pEngineCore, m_pComponentSystemManager ); break;
+#else
+    case ComponentType_2DCollisionObject:   pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_2DJointRevolute:     pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_2DJointPrismatic:    pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+    case ComponentType_2DJointWeld:         pComponent = MyNew ComponentData(               pEngineCore, m_pComponentSystemManager ); break;
+#endif
 #if MYFW_USING_LUA
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript(          pEngineCore, m_pComponentSystemManager ); break;
 #else

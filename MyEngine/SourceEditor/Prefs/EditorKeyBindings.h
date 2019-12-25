@@ -15,7 +15,9 @@ enum class HotkeyAction
     Global_Find,
     File_SaveScene,
     File_SaveAll,
+#if MYFW_USING_BOX2D
     File_ExportBox2D,
+#endif
     File_Preferences,
     Edit_Undo,
     Edit_Redo,

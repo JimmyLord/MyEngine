@@ -480,6 +480,8 @@ public:
 
 //====================================================================================================
 
+#if MYFW_USING_BOX2D
+
 class EditorCommand_Move2DPoint : public EditorCommand
 {
 protected:
@@ -530,6 +532,8 @@ public:
     virtual void Undo();
     virtual EditorCommand* Repeat();
 };
+
+#endif //MYFW_USING_BOX2D
 
 //====================================================================================================
 

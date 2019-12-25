@@ -276,7 +276,9 @@ public:
     void SwitchScene(const char* fullpath);
     void SaveScene(const char* fullpath, SceneID sceneid);
     void SaveAllScenes();
+#if MYFW_USING_BOX2D
     void ExportBox2DScene(const char* fullpath, SceneID sceneid);
+#endif //MYFW_USING_BOX2D
     void UnloadScene(SceneID sceneid, bool clearEditorObjects);
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playWhenFinishedLoading);
 

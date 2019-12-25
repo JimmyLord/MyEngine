@@ -136,8 +136,10 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
     {
         for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
+#if MYFW_USING_BOX2D
             if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
                 g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();
+#endif
         }
 
 #if MYFW_USING_BULLET

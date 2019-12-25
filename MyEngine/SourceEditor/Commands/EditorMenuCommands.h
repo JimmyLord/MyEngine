@@ -22,7 +22,9 @@ enum EditorMenuCommands
     EditorMenuCommand_File_SaveScene,
     EditorMenuCommand_File_SaveSceneAs,
     EditorMenuCommand_File_SaveAll,
+#if MYFW_USING_BOX2D
     EditorMenuCommand_File_Export_Box2DScene,
+#endif
     EditorMenuCommand_Edit_Undo,
     EditorMenuCommand_Edit_Redo,
     EditorMenuCommand_View_SelectedObjects_ShowWireframe,

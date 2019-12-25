@@ -24,7 +24,9 @@ enum EngineMenuIDs
     myIDEngine_File_LoadAdditionalScene,
     myIDEngine_File_SaveScene,
     myIDEngine_File_SaveSceneAs,
+#if MYFW_USING_BOX2D
     myIDEngine_File_ExportBox2DScene,
+#endif
 
     myIDEngine_View_EditorPerspectives,
     myIDEngine_View_GameplayPerspectives,
@@ -190,7 +192,9 @@ public:
 
     void SaveScene();
     void SaveSceneAs(SceneID sceneid);
+#if MYFW_USING_BOX2D
     void ExportBox2DScene(SceneID sceneid);
+#endif
     void LoadSceneDialog(bool unloadscenes);
     void LoadScene(const char* scenename, bool unloadscenes);
 

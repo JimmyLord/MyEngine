@@ -1523,6 +1523,8 @@ EditorCommand* EditorCommand_ChangeSoundCue::Repeat()
     return 0;
 }
 
+#if MYFW_USING_BOX2D
+
 //====================================================================================================
 // EditorCommand_Move2DPoint
 //====================================================================================================
@@ -1642,6 +1644,8 @@ EditorCommand* EditorCommand_Delete2DPoint::Repeat()
 
     return 0;
 }
+
+#endif //MYFW_USING_BOX2D
 
 //====================================================================================================
 // EditorCommand_ComponentVariablePointerChanged

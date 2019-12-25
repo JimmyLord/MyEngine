@@ -17,7 +17,9 @@ const char* g_KeyBindingStrings[HotkeyAction::Num] =
     "Global_Find",
     "File_SaveScene",
     "File_SaveAll",
+#if MYFW_USING_BOX2D
     "File_ExportBox2D",
+#endif
     "File_Preferences",
     "Edit_Undo",
     "Edit_Redo",
@@ -66,7 +68,9 @@ EditorKeyBindings::EditorKeyBindings()
     // File menu.
     SetDefaultKeys( 0, HotkeyAction::File_SaveScene,                C,  'S' );
     SetDefaultKeys( 0, HotkeyAction::File_SaveAll,                  CS, 'S' );
+#if MYFW_USING_BOX2D
     SetDefaultKeys( 0, HotkeyAction::File_ExportBox2D,              CS, 'E' );
+#endif
     SetDefaultKeys( 0, HotkeyAction::File_Preferences,              CS, 'P' );
     // Edit menu.
     SetDefaultKeys( 0, HotkeyAction::Edit_Undo,                     C,  'Z' );

@@ -545,7 +545,9 @@ bool EditorMainFrame_ImGui::ExecuteHotkeyAction(HotkeyAction action)
     case HotkeyAction::Global_Find:                   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
     case HotkeyAction::File_SaveScene:                { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
     case HotkeyAction::File_SaveAll:                  { EditorMenuCommand( EditorMenuCommand_File_SaveAll );                         return true; }
+#if MYFW_USING_BOX2D
     case HotkeyAction::File_ExportBox2D:              { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
+#endif
     case HotkeyAction::File_Preferences:              { pEditorPrefs->Display();                                                     return true; }
     case HotkeyAction::Edit_Undo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
     case HotkeyAction::Edit_Redo:                     { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
@@ -1226,11 +1228,13 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
             ImGui::Separator();
 
+#if MYFW_USING_BOX2D
             if( ImGui::BeginMenu( "Export" ) )
             {
                 AddMenuItemWithHotkeyCheck( "Box2D Scene...", HotkeyAction::File_ExportBox2D );
                 ImGui::EndMenu();
             }
+#endif //MYFW_USING_BOX2D
 
             ImGui::Separator();
 

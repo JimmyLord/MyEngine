@@ -127,7 +127,11 @@ EngineCore::EngineCore(Renderer_Base* pRenderer, bool createAndOwnGlobalManagers
     m_pDebugTextMesh = nullptr;
 
     m_pEditorInterfaces[(int)EditorInterfaceType::SceneManagement] = MyNew EditorInterface_SceneManagement( this );
+#if MYFW_USING_BOX2D
     m_pEditorInterfaces[(int)EditorInterfaceType::The2DPointEditor] = MyNew EditorInterface_2DPointEditor( this );
+#else
+    m_pEditorInterfaces[(int)EditorInterfaceType::The2DPointEditor] = nullptr;
+#endif
     m_pEditorInterfaces[(int)EditorInterfaceType::VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor( this );
     m_CurrentEditorInterfaceType = EditorInterfaceType::NumInterfaces;
     m_pCurrentEditorInterface = nullptr;
@@ -751,11 +755,13 @@ float EngineCore::Tick(float deltaTime)
 
             for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
             {
+#if MYFW_USING_BOX2D
                 if( m_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && m_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
                 {
                     m_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->PhysicsStep();
                     //m_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->ClearForces();
                 }
+#endif //MYFW_USING_BOX2D
             }
         }
 
@@ -1832,6 +1838,7 @@ void EngineCore::SaveAllScenes()
     }
 }
 
+#if MYFW_USING_BOX2D
 void EngineCore::ExportBox2DScene(const char* fullpath, SceneID sceneid)
 {
     char* savestring = m_pComponentSystemManager->ExportBox2DSceneToJSON( sceneid );
@@ -1850,6 +1857,7 @@ void EngineCore::ExportBox2DScene(const char* fullpath, SceneID sceneid)
 
     cJSONExt_free( savestring );
 }
+#endif //MYFW_USING_BOX2D
 
 void EngineCore::UnloadScene(SceneID sceneid, bool clearEditorObjects)
 {

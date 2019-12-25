@@ -10,6 +10,8 @@
 #ifndef __Component2DCollisionObject_H__
 #define __Component2DCollisionObject_H__
 
+#if MYFW_USING_BOX2D
+
 #include "ComponentSystem/BaseComponents/ComponentBase.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 
@@ -154,5 +156,7 @@ public:
     void OnButtonEditChain(int buttonid);
 #endif //MYFW_USING_WX
 };
+
+#endif //MYFW_USING_BOX2D
 
 #endif //__Component2DCollisionObject_H__

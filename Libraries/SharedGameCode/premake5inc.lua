@@ -74,3 +74,11 @@ if PremakeConfig_UseLua == true then
     filter {}
         defines         "MYFW_USE_LUA"
 end
+
+if PremakeConfig_UseBox2D == true then
+    filter {}
+        defines         "MYFW_USE_BOX2D"
+else
+    filter {}
+        defines         "MYFW_USE_BOX2D=0"
+end

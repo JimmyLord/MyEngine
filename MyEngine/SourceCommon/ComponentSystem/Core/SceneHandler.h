@@ -10,6 +10,7 @@
 #ifndef __SceneHandler_H__
 #define __SceneHandler_H__
 
+class Box2DWorld;
 class GameObject;
 
 class SceneInfo

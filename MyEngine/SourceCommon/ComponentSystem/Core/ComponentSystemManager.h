@@ -178,7 +178,9 @@ public:
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first);
     void AddListOfFilesUsedToJSONObject(SceneID sceneid, cJSON* filearray);
     char* SaveSceneToJSON(SceneID sceneid);
+#if MYFW_USING_BOX2D
     char* ExportBox2DSceneToJSON(SceneID sceneid);
+#endif //MYFW_USING_BOX2D
     void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
     MyFileInfo* GetFileInfoIfUsedByScene(MyFileObject* pFile, SceneID sceneid);

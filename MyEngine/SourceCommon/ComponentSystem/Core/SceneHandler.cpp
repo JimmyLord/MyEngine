@@ -37,7 +37,9 @@ void SceneInfo::Reset()
         delete pObject;
     }
 
+#if MYFW_USING_BOX2D
     SAFE_DELETE( m_pBox2DWorld );
+#endif
 
     m_FullPath[0] = 0;
 

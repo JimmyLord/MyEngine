@@ -10,6 +10,8 @@
 #ifndef __EditorInterface_2DPointEditor_H__
 #define __EditorInterface_2DPointEditor_H__
 
+#if MYFW_USING_BOX2D
+
 #include "EditorInterface.h"
 
 class Component2DCollisionObject;
@@ -30,7 +32,7 @@ protected:
 
     GameObject* m_pPoint;
     int m_IndexOfPointBeingDragged;
-    b2Vec2 m_PositionMouseWentDown;
+    Vector2 m_PositionMouseWentDown;
     bool m_NewMousePress;
     bool m_AddedVertexWhenMouseWasDragged;
 
@@ -57,5 +59,7 @@ public:
 
     MaterialDefinition* GetMaterial(MaterialTypes type);
 };
+
+#endif //MYFW_USING_BOX2D
 
 #endif //__EditorInterface_2DPointEditor_H__

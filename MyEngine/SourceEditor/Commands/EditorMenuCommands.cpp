@@ -307,6 +307,7 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+#if MYFW_USING_BOX2D
     case EditorMenuCommand_File_Export_Box2DScene:
         {
             const char* filename = FileSaveDialog( "", "Box2D Scene Files\0*.box2dscene\0All\0*.*\0" );
@@ -331,6 +332,7 @@ void EditorMenuCommand(EditorMenuCommands command)
             }
         }
         break;
+#endif //MYFW_USING_BOX2D
 
     case EditorMenuCommand_Edit_Undo:
         {
