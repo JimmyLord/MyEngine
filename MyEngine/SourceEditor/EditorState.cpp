@@ -48,9 +48,11 @@ EditorState::EditorState(EngineCore* pEngineCore)
 
     m_pTransformGizmo = MyNew TransformGizmo( m_pEngineCore );
 
+#if MYFW_USING_BULLET
     m_MousePicker_PickedBody = 0;
     m_MousePicker_PickConstraint = 0;
     m_MousePicker_OldPickingDist = 0;
+#endif //MYFW_USING_BULLET
 
     m_DistanceTranslated = Vector3( 0 );
     m_AmountScaled = Vector3( 1 );

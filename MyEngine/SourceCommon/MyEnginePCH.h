@@ -56,7 +56,9 @@ const int g_NumberOfVisibilityLayers = 8;
 #pragma warning( disable : 4640 )
 #pragma warning( disable : 4305 )
 #endif
+#if MYFW_USING_BULLET
 #include "../../Libraries/bullet3/src/btBulletDynamicsCommon.h"
+#endif
 #if MYFW_WINDOWS
 #pragma warning( pop )
 #endif

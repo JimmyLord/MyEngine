@@ -73,6 +73,9 @@ project "SharedGameCode"
 if PremakeConfig_UseLua == true then
     filter {}
         defines         "MYFW_USE_LUA"
+else
+    filter {}
+        defines         "MYFW_USE_LUA=0"
 end
 
 if PremakeConfig_UseBox2D == true then
@@ -81,4 +84,12 @@ if PremakeConfig_UseBox2D == true then
 else
     filter {}
         defines         "MYFW_USE_BOX2D=0"
+end
+
+if PremakeConfig_UseBullet == true then
+    filter {}
+        defines         "MYFW_USE_BULLET"
+else
+    filter {}
+        defines         "MYFW_USE_BULLET=0"
 end

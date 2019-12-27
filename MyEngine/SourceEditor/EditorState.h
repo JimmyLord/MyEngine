@@ -80,10 +80,12 @@ public:
     GameObject* m_p3DGridPlane;
     GameObject* m_pEditorCamera;
 
+#if MYFW_USING_BULLET
     // for physics "picker", to move physics around in editor view when gameplay is running.
     btRigidBody* m_MousePicker_PickedBody;
     btTypedConstraint* m_MousePicker_PickConstraint;
     btScalar m_MousePicker_OldPickingDist;
+#endif //MYFW_USING_BULLET
 
     // transform gizmo info, keep track of total distance translated/scaled for undo/redo
     Vector3 m_DistanceTranslated;
