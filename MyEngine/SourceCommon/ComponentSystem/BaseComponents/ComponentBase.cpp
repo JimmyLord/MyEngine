@@ -984,8 +984,15 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                             {
                                 GameObject** pGameObjectPtr = (GameObject**)((char*)pObject + pVar->m_Offset);
 
+                                ComponentVariableValue oldValue( pObject, pVar, nullptr );
+
                                 oldPointer = *pGameObjectPtr;
                                 *pGameObjectPtr = pGameObject;
+
+                                ComponentVariableValue newValue( pObject, pVar, nullptr );
+
+                                g_pGameCore->GetCommandStack()->Add(
+                                    MyNew EditorCommand_ComponentVariablePointerChanged( (ComponentVariableCallbackInterface*)pObject, pVar, &oldValue, &newValue ) );
                             }
 
                             //g_pGameCore->GetCommandStack()->Add(

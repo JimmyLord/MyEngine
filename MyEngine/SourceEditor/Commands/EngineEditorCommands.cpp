@@ -1651,17 +1651,17 @@ EditorCommand* EditorCommand_Delete2DPoint::Repeat()
 // EditorCommand_ComponentVariablePointerChanged
 //====================================================================================================
 
-EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue* pNewValue)
+EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePointerChanged(ComponentVariableCallbackInterface* pCallbackObject, ComponentVariable* pVar, ComponentVariableValue* pOldValue, ComponentVariableValue* pNewValue)
 {
     m_Name = "EditorCommand_ComponentVariablePointerChanged";
 
-    MyAssert( pComponent && pVar );
+    MyAssert( pCallbackObject && pVar );
 
-    m_pComponent = pComponent;
+    m_pCallbackObject = pCallbackObject;
     m_pVar = pVar;
 
     m_NewPointer = *pNewValue;
-    m_OldPointer.GetValueFromVariable( pComponent, pVar, pComponent );
+    m_OldPointer = *pOldValue;//.GetValueFromVariable( pCallbackObject, pVar, nullptr );
 }
 
 EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariablePointerChanged()
@@ -1674,8 +1674,16 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
     g_pPanelWatch->UpdatePanel();
 #endif
 
-    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_NewPointer );
+    if( m_pVar->m_pOnValueChangedCallbackFunc )
+    {
+        // This could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+        (m_pCallbackObject->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_NewPointer );
+    }
+    else
+    {
+        void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
+        *pPtr = m_NewPointer.GetGameObjectPtr();
+    }
 }
 
 void EditorCommand_ComponentVariablePointerChanged::Undo()
@@ -1684,8 +1692,16 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
     g_pPanelWatch->UpdatePanel();
 #endif
 
-    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_OldPointer );
+    if( m_pVar->m_pOnValueChangedCallbackFunc )
+    {
+        // This could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+        (m_pCallbackObject->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_OldPointer );
+    }
+    else
+    {
+        void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
+        *pPtr = m_OldPointer.GetGameObjectPtr();
+    }
 }
 
 EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()

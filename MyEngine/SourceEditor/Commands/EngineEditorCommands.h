@@ -540,14 +540,14 @@ public:
 class EditorCommand_ComponentVariablePointerChanged : public EditorCommand
 {
 protected:
-    ComponentBase* m_pComponent;
+    ComponentVariableCallbackInterface* m_pCallbackObject;
     ComponentVariable* m_pVar;
 
     ComponentVariableValue m_NewPointer;
     ComponentVariableValue m_OldPointer;
 
 public:
-    EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue* pNewValue);
+    EditorCommand_ComponentVariablePointerChanged(ComponentVariableCallbackInterface* pCallbackObject, ComponentVariable* pVar, ComponentVariableValue* pOldValue, ComponentVariableValue* pNewValue);
     virtual ~EditorCommand_ComponentVariablePointerChanged();
 
     virtual void Do();
