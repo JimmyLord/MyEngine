@@ -486,11 +486,11 @@ class EditorCommand_Move2DPoint : public EditorCommand
 {
 protected:
     Component2DCollisionObject* m_pCollisionObject;
-    b2Vec2 m_DistanceMoved;
+    Vector2 m_DistanceMoved;
     int m_IndexOfPointMoved;
 
 public:
-    EditorCommand_Move2DPoint(b2Vec2 distancemoved, Component2DCollisionObject* pCollisionObject, int indexmoved);
+    EditorCommand_Move2DPoint(Vector2 distancemoved, Component2DCollisionObject* pCollisionObject, int indexmoved);
     virtual ~EditorCommand_Move2DPoint();
 
     virtual void Do();
@@ -522,10 +522,10 @@ class EditorCommand_Delete2DPoint : public EditorCommand
 protected:
     Component2DCollisionObject* m_pCollisionObject;
     int m_IndexOfPointDeleted;
-    b2Vec2 m_Position;
+    Vector2 m_Position;
 
 public:
-    EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted, b2Vec2 position);
+    EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted, Vector2 position);
     virtual ~EditorCommand_Delete2DPoint();
 
     virtual void Do();

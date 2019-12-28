@@ -118,7 +118,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasID)
     // Draw a circle at each vertex position. // Lines are drawn by m_pCollisionObject's render callback.
     for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
     {
-        b2Vec2 pos2d = m_pCollisionObject->m_Vertices[i];
+        Vector2 pos2d = m_pCollisionObject->m_Vertices[i];
         Vector3 pos3d( pos2d.x, pos2d.y, 0 );
 
         ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();
@@ -192,7 +192,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyAction, int keyCode, int 
         {
             // If the mouse is still down, undo will use the position of the vertex when the mouse went down,
             //     otherwise it will use the saved position of the vertex.
-            b2Vec2 position = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
+            Vector2 position = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
             if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
                 position = m_PositionMouseWentDown;
 
@@ -239,7 +239,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyAction, int keyCode, int 
                 LOGDebug( "2DPointEditor", "Released point %d\n", m_IndexOfPointBeingDragged );
 
                 // Add command to stack for undo/redo.                    
-                b2Vec2 distMoved = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged] - m_PositionMouseWentDown;
+                Vector2 distMoved = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged] - m_PositionMouseWentDown;
                 if( distMoved.LengthSquared() != 0 )
                 {
                     g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_Move2DPoint( distMoved, m_pCollisionObject, m_IndexOfPointBeingDragged ), m_AddedVertexWhenMouseWasDragged );
@@ -348,7 +348,7 @@ void EditorInterface_2DPointEditor::Set2DCollisionObjectToEdit(Component2DCollis
 
     if( m_pCollisionObject->m_Vertices.size() == 0 )
     {
-        m_pCollisionObject->m_Vertices.push_back( b2Vec2(0,0) );
+        m_pCollisionObject->m_Vertices.push_back( Vector2(0,0) );
     }
 }
 
@@ -385,7 +385,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 
             for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
             {
-                b2Vec2 pos2d = m_pCollisionObject->m_Vertices[i];
+                Vector2 pos2d = m_pCollisionObject->m_Vertices[i];
                 Vector3 pos3d( pos2d.x, pos2d.y, 0 );
 
                 ComponentTransform* pParentTransformComponent = m_pCollisionObject->GetGameObject()->GetTransform();

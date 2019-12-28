@@ -256,7 +256,7 @@ void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsi
     for( uint32 i=0; i<count; i++ )
     {
         Vector2* pVert = verts[i+1];
-        m_Vertices[i] = b2Vec2( pVert->x, pVert->y );
+        m_Vertices[i] = Vector2( pVert->x, pVert->y );
     }
 }
 #endif //MYFW_USING_LUA
@@ -669,8 +669,8 @@ void Component2DCollisionObject::CreateBody()
 
                 if( count == 0 )
                 {
-                    m_Vertices.push_back( b2Vec2( -5, 0 ) );
-                    m_Vertices.push_back( b2Vec2(  5, 0 ) );
+                    m_Vertices.push_back( Vector2( -5, 0 ) );
+                    m_Vertices.push_back( Vector2(  5, 0 ) );
                     count = 2;
                 }
 #else
@@ -684,7 +684,7 @@ void Component2DCollisionObject::CreateBody()
 
                 if( count > 0 )
                 {
-                    chainshape.CreateChain( &m_Vertices[0], count );
+                    chainshape.CreateChain( (b2Vec2*)&m_Vertices[0], count );
 
                     fixturedef.shape = &chainshape;
 

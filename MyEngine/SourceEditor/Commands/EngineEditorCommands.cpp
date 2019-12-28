@@ -1529,7 +1529,7 @@ EditorCommand* EditorCommand_ChangeSoundCue::Repeat()
 // EditorCommand_Move2DPoint
 //====================================================================================================
 
-EditorCommand_Move2DPoint::EditorCommand_Move2DPoint(b2Vec2 distancemoved, Component2DCollisionObject* pCollisionObject, int indexmoved)
+EditorCommand_Move2DPoint::EditorCommand_Move2DPoint(Vector2 distancemoved, Component2DCollisionObject* pCollisionObject, int indexmoved)
 {
     m_Name = "EditorCommand_Move2DPoint";
 
@@ -1589,13 +1589,13 @@ EditorCommand_Insert2DPoint::~EditorCommand_Insert2DPoint()
 
 void EditorCommand_Insert2DPoint::Do()
 {
-    std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+    std::vector<Vector2>::iterator it = m_pCollisionObject->m_Vertices.begin();
     m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointInserted, m_pCollisionObject->m_Vertices[m_IndexOfPointInserted] );
 }
 
 void EditorCommand_Insert2DPoint::Undo()
 {
-    std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+    std::vector<Vector2>::iterator it = m_pCollisionObject->m_Vertices.begin();
     m_pCollisionObject->m_Vertices.erase( it + m_IndexOfPointInserted );
 }
 
@@ -1610,7 +1610,7 @@ EditorCommand* EditorCommand_Insert2DPoint::Repeat()
 // EditorCommand_Delete2DPoint
 //====================================================================================================
 
-EditorCommand_Delete2DPoint::EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted, b2Vec2 position)
+EditorCommand_Delete2DPoint::EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted, Vector2 position)
 {
     m_Name = "EditorCommand_Delete2DPoint";
 
@@ -1628,13 +1628,13 @@ EditorCommand_Delete2DPoint::~EditorCommand_Delete2DPoint()
 
 void EditorCommand_Delete2DPoint::Do()
 {
-    std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+    std::vector<Vector2>::iterator it = m_pCollisionObject->m_Vertices.begin();
     m_pCollisionObject->m_Vertices.erase( it + m_IndexOfPointDeleted );
 }
 
 void EditorCommand_Delete2DPoint::Undo()
 {
-    std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+    std::vector<Vector2>::iterator it = m_pCollisionObject->m_Vertices.begin();
     m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointDeleted, m_Position );
 }
 

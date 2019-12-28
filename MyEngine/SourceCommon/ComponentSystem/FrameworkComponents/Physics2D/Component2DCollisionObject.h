@@ -57,9 +57,9 @@ public:
     float m_Restitution;
 
 #if MYFW_EDITOR
-    std::vector<b2Vec2> m_Vertices;
+    std::vector<Vector2> m_Vertices;
 #else
-    MyList<b2Vec2> m_Vertices;
+    MyList<Vector2> m_Vertices;
 #endif
 
 public:
