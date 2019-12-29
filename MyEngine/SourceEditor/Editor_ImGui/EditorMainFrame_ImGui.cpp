@@ -2358,6 +2358,15 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
                                 ImGui::EndPopup();
                             }
+
+                            // Handle start of dragging of Components.
+                            if( ImGui::BeginDragDropSource() )
+                            {
+                                ImGui::SetDragDropPayload( "Component", &pComponent, sizeof(pComponent), ImGuiCond_Once );
+                                ImGui::Text( "%s:%s", pGameObject->GetName(), pComponent->GetClassname() );
+                                ImGui::EndDragDropSource();
+                            }
+
                             ImGui::TreePop();
                         }
 

@@ -1036,7 +1036,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
 
                 if( ImGui::BeginDragDropTarget() )
                 {
-                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject" ) )
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Component" ) )
                     {
                         GameObject* pGameObject = (GameObject*)*(void**)payload->Data;
 
@@ -1051,7 +1051,10 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                         else
                         {
                             ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
-                            (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
+                            if( pCallbackObject && pVar->m_pOnDropCallbackFunc )
+                            {
+                                (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
+                            }
                         }
                     }
 
