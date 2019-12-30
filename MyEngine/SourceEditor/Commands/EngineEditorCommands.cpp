@@ -1681,8 +1681,20 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
     }
     else
     {
-        void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
-        *pPtr = m_NewPointer.GetGameObjectPtr();
+        if( m_pVar->m_Type == ComponentVariableType_GameObjectPtr )
+        {
+            void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
+            *pPtr = m_NewPointer.GetGameObjectPtr();
+        }
+        else if( m_pVar->m_Type == ComponentVariableType_ComponentPtr )
+        {
+            void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
+            *pPtr = m_NewPointer.GetComponentPtr();
+        }
+        else
+        {
+            MyAssert( false );
+        }
     }
 }
 
@@ -1699,8 +1711,20 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
     }
     else
     {
-        void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
-        *pPtr = m_OldPointer.GetGameObjectPtr();
+        if( m_pVar->m_Type == ComponentVariableType_GameObjectPtr )
+        {
+            void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
+            *pPtr = m_OldPointer.GetGameObjectPtr();
+        }
+        else if( m_pVar->m_Type == ComponentVariableType_ComponentPtr )
+        {
+            void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
+            *pPtr = m_OldPointer.GetComponentPtr();
+        }
+        else
+        {
+            MyAssert( false );
+        }
     }
 }
 

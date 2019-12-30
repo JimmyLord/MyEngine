@@ -1038,15 +1038,17 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 {
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Component" ) )
                     {
-                        GameObject* pGameObject = (GameObject*)*(void**)payload->Data;
+                        ComponentBase* pComponent = (ComponentBase*)*(void**)payload->Data;
 
                         g_DragAndDropStruct.Clear();
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
-                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pGameObject );
+                        g_DragAndDropStruct.Add( DragAndDropType_ComponentPointer, pComponent );
+
+                        void* oldPointer = nullptr;
 
                         if( pObjectAsComponent )
                         {
-                            pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                            oldPointer = pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
                         }
                         else
                         {
@@ -1054,6 +1056,20 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                             if( pCallbackObject && pVar->m_pOnDropCallbackFunc )
                             {
                                 (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
+                            }
+                            else
+                            {
+                                ComponentBase** pComponentPtr = (ComponentBase**)((char*)pObject + pVar->m_Offset);
+
+                                ComponentVariableValue oldValue( pObject, pVar, nullptr );
+
+                                oldPointer = *pComponentPtr;
+                                *pComponentPtr = pComponent;
+
+                                ComponentVariableValue newValue( pObject, pVar, nullptr );
+
+                                g_pGameCore->GetCommandStack()->Add(
+                                    MyNew EditorCommand_ComponentVariablePointerChanged( (ComponentVariableCallbackInterface*)pObject, pVar, &oldValue, &newValue ) );
                             }
                         }
                     }
