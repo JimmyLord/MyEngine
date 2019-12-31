@@ -1102,9 +1102,15 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                     textColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                 }
 
+                float width = ImGui::GetWindowWidth() * 0.65f;
+                if( pObjectAsComponent == nullptr )
+                {
+                    width = 117.0f;
+                }
+
                 ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
                 ImGui::PushStyleColor( ImGuiCol_Text, textColor );
-                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
+                if( ImGui::Button( pDesc, ImVec2( width, 0 ) ) )
                 {
                     // TODO: pop up a lua script file picker window.
                 }
@@ -1120,9 +1126,33 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
 
+                        void* oldPointer = nullptr;
+
                         if( pObjectAsComponent )
                         {
-                            pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                            oldPointer = pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
+                        else
+                        {
+                            ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
+                            if( pCallbackObject && pVar->m_pOnDropCallbackFunc )
+                            {
+                                (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
+                            }
+                            else
+                            {
+                                MyFileObject** pFilePtr = (MyFileObject**)((char*)pObject + pVar->m_Offset);
+
+                                ComponentVariableValue oldValue( pObject, pVar, nullptr );
+
+                                oldPointer = *pFilePtr;
+                                *pFilePtr = pNewFile;
+
+                                ComponentVariableValue newValue( pObject, pVar, nullptr );
+
+                                g_pGameCore->GetCommandStack()->Add(
+                                    MyNew EditorCommand_ComponentVariablePointerChanged( (ComponentVariableCallbackInterface*)pObject, pVar, &oldValue, &newValue ) );
+                            }
                         }
                     }
 

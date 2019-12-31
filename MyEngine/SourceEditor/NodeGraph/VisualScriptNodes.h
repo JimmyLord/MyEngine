@@ -86,7 +86,7 @@ protected:
                                      ////ComponentVariableType_FirstPointerType,
     GameObject* m_pTestGameObject;   //ComponentVariableType_GameObjectPtr = ComponentVariableType_FirstPointerType,
     ComponentBase* m_pTestComponent; //ComponentVariableType_ComponentPtr,
-                                     //ComponentVariableType_FilePtr,
+    MyFileObject* m_pTestFile;       //ComponentVariableType_FilePtr,
                                      //ComponentVariableType_MaterialPtr,
                                      //ComponentVariableType_TexturePtr,
                                      //ComponentVariableType_SoundCuePtr,
@@ -112,26 +112,27 @@ public:
 
         m_pTestGameObject = nullptr;
         m_pTestComponent = nullptr;
-
-        VSNAddVar(      &m_VariablesList, "Int",   ComponentVariableType_Int,           MyOffsetOf( this, &this->m_TestInt ),   false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVarEnum(  &m_VariablesList, "Enum",                                       MyOffsetOf( this, &this->m_TestEnum ),  false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
-        VSNAddVarFlags( &m_VariablesList, "Flags",                                      MyOffsetOf( this, &this->m_TestFlags ), false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
-        VSNAddVar(      &m_VariablesList, "UInt",  ComponentVariableType_UnsignedInt,   MyOffsetOf( this, &this->m_TestUInt ),  false, true, "", nullptr, nullptr, nullptr );
+        m_pTestFile = nullptr;
+        
+        VSNAddVar( &m_VariablesList, "Int",   ComponentVariableType_Int,           MyOffsetOf( this, &this->m_TestInt ),   false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVarEnum(  &m_VariablesList, "Enum",                                  MyOffsetOf( this, &this->m_TestEnum ),  false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
+        VSNAddVarFlags( &m_VariablesList, "Flags",                                 MyOffsetOf( this, &this->m_TestFlags ), false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "UInt",  ComponentVariableType_UnsignedInt,   MyOffsetOf( this, &this->m_TestUInt ),  false, true, "", nullptr, nullptr, nullptr );
         ////ComponentVariableType_Char,
         ////ComponentVariableType_UnsignedChar,
-        VSNAddVar(      &m_VariablesList, "Bool",  ComponentVariableType_Bool,          MyOffsetOf( this, &this->m_TestBool ),  false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar(      &m_VariablesList, "Float", ComponentVariableType_Float,         MyOffsetOf( this, &this->m_TestFloat ), false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Bool",  ComponentVariableType_Bool,          MyOffsetOf( this, &this->m_TestBool ),  false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Float", ComponentVariableType_Float,         MyOffsetOf( this, &this->m_TestFloat ), false, true, "", nullptr, nullptr, nullptr );
         ////ComponentVariableType_Double,
         ////ComponentVariableType_ColorFloat,
-        VSNAddVar(      &m_VariablesList, "Color", ComponentVariableType_ColorByte,     MyOffsetOf( this, &this->m_TestColorByte ), false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar(      &m_VariablesList, "vec2",  ComponentVariableType_Vector2,       MyOffsetOf( this, &this->m_TestVec2 ),      false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar(      &m_VariablesList, "vec3",  ComponentVariableType_Vector3,       MyOffsetOf( this, &this->m_TestVec3 ),      false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar(      &m_VariablesList, "ivec2", ComponentVariableType_Vector2Int,    MyOffsetOf( this, &this->m_TestVec2Int ),   false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar(      &m_VariablesList, "ivec3", ComponentVariableType_Vector3Int,    MyOffsetOf( this, &this->m_TestVec3Int ),   false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Color", ComponentVariableType_ColorByte,     MyOffsetOf( this, &this->m_TestColorByte ), false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "vec2",  ComponentVariableType_Vector2,       MyOffsetOf( this, &this->m_TestVec2 ),      false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "vec3",  ComponentVariableType_Vector3,       MyOffsetOf( this, &this->m_TestVec3 ),      false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "ivec2", ComponentVariableType_Vector2Int,    MyOffsetOf( this, &this->m_TestVec2Int ),   false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "ivec3", ComponentVariableType_Vector3Int,    MyOffsetOf( this, &this->m_TestVec3Int ),   false, true, "", nullptr, nullptr, nullptr );
         ////ComponentVariableType_FirstPointerType,
-        VSNAddVar(      &m_VariablesList, "GO",    ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pTestGameObject ), false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar(      &m_VariablesList, "Nent",  ComponentVariableType_ComponentPtr,  MyOffsetOf( this, &this->m_pTestComponent ),  false, true, "", nullptr, nullptr, nullptr );
-        //ComponentVariableType_FilePtr,
+        VSNAddVar( &m_VariablesList, "GO",    ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pTestGameObject ), false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Nent",  ComponentVariableType_ComponentPtr,  MyOffsetOf( this, &this->m_pTestComponent ),  false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "File",  ComponentVariableType_FilePtr,       MyOffsetOf( this, &this->m_pTestFile ),       false, true, "", nullptr, nullptr, nullptr );
         //ComponentVariableType_MaterialPtr,
         //ComponentVariableType_TexturePtr,
         //ComponentVariableType_SoundCuePtr,
