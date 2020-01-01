@@ -139,6 +139,12 @@ public:
         //ComponentVariableType_PointerIndirect,
     }
 
+    ~VisualScriptNode_Debug_VariableTest()
+    {
+        if( m_pTestFile )
+            m_pTestFile->Release();
+    }
+
     const char* GetType() { return "Debug_VariableTest"; }
 };
 #endif //HACK_TestVariableTypes

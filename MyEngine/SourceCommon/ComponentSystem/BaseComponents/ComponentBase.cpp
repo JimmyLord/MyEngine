@@ -1126,11 +1126,11 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
 
-                        void* oldPointer = nullptr;
+                        MyFileObject* oldPointer = nullptr;
 
                         if( pObjectAsComponent )
                         {
-                            oldPointer = pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                            oldPointer = (MyFileObject*)pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
                         }
                         else
                         {
@@ -1147,8 +1147,13 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
 
                                 oldPointer = *pFilePtr;
                                 *pFilePtr = pNewFile;
-
+                                
                                 ComponentVariableValue newValue( pObject, pVar, nullptr );
+
+                                if( oldPointer )
+                                    oldPointer->Release();
+                                if( pNewFile )
+                                    pNewFile->AddRef();
 
                                 g_pGameCore->GetCommandStack()->Add(
                                     MyNew EditorCommand_ComponentVariablePointerChanged( (ComponentVariableCallbackInterface*)pObject, pVar, &oldValue, &newValue ) );

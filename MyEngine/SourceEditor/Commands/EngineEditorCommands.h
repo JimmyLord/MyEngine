@@ -542,9 +542,12 @@ class EditorCommand_ComponentVariablePointerChanged : public EditorCommand
 protected:
     ComponentVariableCallbackInterface* m_pCallbackObject;
     ComponentVariable* m_pVar;
+    ComponentVariableTypes m_VarType;
 
-    ComponentVariableValue m_NewPointer;
-    ComponentVariableValue m_OldPointer;
+    ComponentVariableValue m_OldValue;
+    ComponentVariableValue m_NewValue;
+
+    bool m_ReleaseObjectsWhenDestroyed;
 
 public:
     EditorCommand_ComponentVariablePointerChanged(ComponentVariableCallbackInterface* pCallbackObject, ComponentVariable* pVar, ComponentVariableValue* pOldValue, ComponentVariableValue* pNewValue);

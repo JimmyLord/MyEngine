@@ -1659,13 +1659,35 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
 
     m_pCallbackObject = pCallbackObject;
     m_pVar = pVar;
+    m_VarType = pVar->m_Type; // Stored since needed in destructor and pVar might be deleted by then. // TODO: Destroy command stack before most other things on shutdown to avoid this?
 
-    m_NewPointer = *pNewValue;
-    m_OldPointer = *pOldValue;//.GetValueFromVariable( pCallbackObject, pVar, nullptr );
+    m_OldValue = *pOldValue;
+    m_NewValue = *pNewValue;
+
+    if( m_VarType == ComponentVariableType_FilePtr )
+    {
+        // Add a ref to each of the files so they don't get free when undo/redoing.
+        if( m_OldValue.GetFilePtr() )
+            m_OldValue.GetFilePtr()->AddRef();
+        if( m_NewValue.GetFilePtr() )
+            m_NewValue.GetFilePtr()->AddRef();
+
+        m_ReleaseObjectsWhenDestroyed = true;
+    }
 }
 
 EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariablePointerChanged()
 {
+    if( m_ReleaseObjectsWhenDestroyed )
+    {
+        if( m_VarType == ComponentVariableType_FilePtr )
+        {
+            if( m_OldValue.GetFilePtr() )
+                m_OldValue.GetFilePtr()->Release();
+            if( m_NewValue.GetFilePtr() )
+                m_NewValue.GetFilePtr()->Release();
+        }
+    }
 }
 
 void EditorCommand_ComponentVariablePointerChanged::Do()
@@ -1677,23 +1699,28 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
     if( m_pVar->m_pOnValueChangedCallbackFunc )
     {
         // This could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-        (m_pCallbackObject->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_NewPointer );
+        (m_pCallbackObject->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_NewValue );
     }
     else
     {
         void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
 
-        if( m_pVar->m_Type == ComponentVariableType_GameObjectPtr )
+        if( m_VarType == ComponentVariableType_GameObjectPtr )
         {
-            *pPtr = m_NewPointer.GetGameObjectPtr();
+            *pPtr = m_NewValue.GetGameObjectPtr();
         }
-        else if( m_pVar->m_Type == ComponentVariableType_ComponentPtr )
+        else if( m_VarType == ComponentVariableType_ComponentPtr )
         {
-            *pPtr = m_NewPointer.GetComponentPtr();
+            *pPtr = m_NewValue.GetComponentPtr();
         }
-        else if( m_pVar->m_Type == ComponentVariableType_FilePtr )
+        else if( m_VarType == ComponentVariableType_FilePtr )
         {
-            *pPtr = m_NewPointer.GetFilePtr();
+            if( m_OldValue.GetFilePtr() )
+                m_OldValue.GetFilePtr()->Release();
+            if( m_NewValue.GetFilePtr() )
+                m_NewValue.GetFilePtr()->AddRef();
+
+            *pPtr = m_NewValue.GetFilePtr();
         }
         else
         {
@@ -1711,23 +1738,28 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
     if( m_pVar->m_pOnValueChangedCallbackFunc )
     {
         // This could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-        (m_pCallbackObject->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_OldPointer );
+        (m_pCallbackObject->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_OldValue );
     }
     else
     {
         void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
 
-        if( m_pVar->m_Type == ComponentVariableType_GameObjectPtr )
+        if( m_VarType == ComponentVariableType_GameObjectPtr )
         {
-            *pPtr = m_OldPointer.GetGameObjectPtr();
+            *pPtr = m_OldValue.GetGameObjectPtr();
         }
-        else if( m_pVar->m_Type == ComponentVariableType_ComponentPtr )
+        else if( m_VarType == ComponentVariableType_ComponentPtr )
         {
-            *pPtr = m_OldPointer.GetComponentPtr();
+            *pPtr = m_OldValue.GetComponentPtr();
         }
-        else if( m_pVar->m_Type == ComponentVariableType_FilePtr )
+        else if( m_VarType == ComponentVariableType_FilePtr )
         {
-            *pPtr = m_OldPointer.GetFilePtr();
+            if( m_NewValue.GetFilePtr() )
+                m_NewValue.GetFilePtr()->Release();
+            if( m_OldValue.GetFilePtr() )
+                m_OldValue.GetFilePtr()->AddRef();
+
+            *pPtr = m_OldValue.GetFilePtr();
         }
         else
         {
