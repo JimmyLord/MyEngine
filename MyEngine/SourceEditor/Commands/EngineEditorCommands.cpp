@@ -1664,15 +1664,51 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
     m_OldValue = *pOldValue;
     m_NewValue = *pNewValue;
 
+    m_ReleaseObjectsWhenDestroyed = false;
+
     if( m_VarType == ComponentVariableType_FilePtr )
     {
-        // Add a ref to each of the files so they don't get free when undo/redoing.
+        // Add a ref to each of the files so they don't get free'd when undo/redoing.
         if( m_OldValue.GetFilePtr() )
             m_OldValue.GetFilePtr()->AddRef();
         if( m_NewValue.GetFilePtr() )
             m_NewValue.GetFilePtr()->AddRef();
 
         m_ReleaseObjectsWhenDestroyed = true;
+    }
+    else if( m_VarType == ComponentVariableType_MaterialPtr )
+    {
+        // Add a ref to each of the materials so they don't get free'd when undo/redoing.
+        if( m_OldValue.GetMaterialPtr() )
+            m_OldValue.GetMaterialPtr()->AddRef();
+        if( m_NewValue.GetMaterialPtr() )
+            m_NewValue.GetMaterialPtr()->AddRef();
+
+        m_ReleaseObjectsWhenDestroyed = true;
+    }
+    else if( m_VarType == ComponentVariableType_TexturePtr )
+    {
+        // Add a ref to each of the materials so they don't get free'd when undo/redoing.
+        if( m_OldValue.GetTexturePtr() )
+            m_OldValue.GetTexturePtr()->AddRef();
+        if( m_NewValue.GetTexturePtr() )
+            m_NewValue.GetTexturePtr()->AddRef();
+
+        m_ReleaseObjectsWhenDestroyed = true;
+    }
+    else if( m_VarType == ComponentVariableType_SoundCuePtr )
+    {
+        // Add a ref to each of the materials so they don't get free'd when undo/redoing.
+        if( m_OldValue.GetSoundCuePtr() )
+            m_OldValue.GetSoundCuePtr()->AddRef();
+        if( m_NewValue.GetSoundCuePtr() )
+            m_NewValue.GetSoundCuePtr()->AddRef();
+
+        m_ReleaseObjectsWhenDestroyed = true;
+    }
+    else if( m_VarType == ComponentVariableType_PointerIndirect )
+    {
+        MyAssert( false );
     }
 }
 
@@ -1686,6 +1722,27 @@ EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariableP
                 m_OldValue.GetFilePtr()->Release();
             if( m_NewValue.GetFilePtr() )
                 m_NewValue.GetFilePtr()->Release();
+        }
+        else if( m_VarType == ComponentVariableType_MaterialPtr )
+        {
+            if( m_OldValue.GetMaterialPtr() )
+                m_OldValue.GetMaterialPtr()->Release();
+            if( m_NewValue.GetMaterialPtr() )
+                m_NewValue.GetMaterialPtr()->Release();
+        }
+        else if( m_VarType == ComponentVariableType_TexturePtr )
+        {
+            if( m_OldValue.GetTexturePtr() )
+                m_OldValue.GetTexturePtr()->Release();
+            if( m_NewValue.GetTexturePtr() )
+                m_NewValue.GetTexturePtr()->Release();
+        }
+        else if( m_VarType == ComponentVariableType_SoundCuePtr )
+        {
+            if( m_OldValue.GetSoundCuePtr() )
+                m_OldValue.GetSoundCuePtr()->Release();
+            if( m_NewValue.GetSoundCuePtr() )
+                m_NewValue.GetSoundCuePtr()->Release();
         }
     }
 }
@@ -1721,6 +1778,33 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
                 m_NewValue.GetFilePtr()->AddRef();
 
             *pPtr = m_NewValue.GetFilePtr();
+        }
+        else if( m_VarType == ComponentVariableType_MaterialPtr )
+        {
+            if( m_OldValue.GetMaterialPtr() )
+                m_OldValue.GetMaterialPtr()->Release();
+            if( m_NewValue.GetMaterialPtr() )
+                m_NewValue.GetMaterialPtr()->AddRef();
+
+            *pPtr = m_NewValue.GetMaterialPtr();
+        }
+        else if( m_VarType == ComponentVariableType_TexturePtr )
+        {
+            if( m_OldValue.GetTexturePtr() )
+                m_OldValue.GetTexturePtr()->Release();
+            if( m_NewValue.GetTexturePtr() )
+                m_NewValue.GetTexturePtr()->AddRef();
+
+            *pPtr = m_NewValue.GetTexturePtr();
+        }
+        else if( m_VarType == ComponentVariableType_SoundCuePtr )
+        {
+            if( m_OldValue.GetSoundCuePtr() )
+                m_OldValue.GetSoundCuePtr()->Release();
+            if( m_NewValue.GetSoundCuePtr() )
+                m_NewValue.GetSoundCuePtr()->AddRef();
+
+            *pPtr = m_NewValue.GetSoundCuePtr();
         }
         else
         {
@@ -1760,6 +1844,33 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
                 m_OldValue.GetFilePtr()->AddRef();
 
             *pPtr = m_OldValue.GetFilePtr();
+        }
+        else if( m_VarType == ComponentVariableType_MaterialPtr )
+        {
+            if( m_NewValue.GetMaterialPtr() )
+                m_NewValue.GetMaterialPtr()->Release();
+            if( m_OldValue.GetMaterialPtr() )
+                m_OldValue.GetMaterialPtr()->AddRef();
+
+            *pPtr = m_OldValue.GetMaterialPtr();
+        }
+        else if( m_VarType == ComponentVariableType_TexturePtr )
+        {
+            if( m_NewValue.GetTexturePtr() )
+                m_NewValue.GetTexturePtr()->Release();
+            if( m_OldValue.GetTexturePtr() )
+                m_OldValue.GetTexturePtr()->AddRef();
+
+            *pPtr = m_OldValue.GetTexturePtr();
+        }
+        else if( m_VarType == ComponentVariableType_SoundCuePtr )
+        {
+            if( m_NewValue.GetSoundCuePtr() )
+                m_NewValue.GetSoundCuePtr()->Release();
+            if( m_OldValue.GetSoundCuePtr() )
+                m_OldValue.GetSoundCuePtr()->AddRef();
+
+            *pPtr = m_OldValue.GetSoundCuePtr();
         }
         else
         {

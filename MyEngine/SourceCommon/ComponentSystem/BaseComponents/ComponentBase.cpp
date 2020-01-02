@@ -1182,7 +1182,13 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 if( pMaterial != 0 )
                     pDesc = pMaterial->GetName();
 
-                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
+                float width = ImGui::GetWindowWidth() * 0.65f;
+                if( pObjectAsComponent == nullptr )
+                {
+                    width = 117.0f;
+                }
+
+                if( ImGui::Button( pDesc, ImVec2( width, 0 ) ) )
                 {
                     // TODO: pop up a material picker window.
                 }
@@ -1197,9 +1203,38 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pNewMat );
 
+                        MaterialDefinition* oldPointer = nullptr;
+
                         if( pObjectAsComponent )
                         {
                             pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
+                        else
+                        {
+                            ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
+                            if( pCallbackObject && pVar->m_pOnDropCallbackFunc )
+                            {
+                                (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
+                            }
+                            else
+                            {
+                                MaterialDefinition** pMatPtr = (MaterialDefinition**)((char*)pObject + pVar->m_Offset);
+
+                                ComponentVariableValue oldValue( pObject, pVar, nullptr );
+
+                                oldPointer = *pMatPtr;
+                                *pMatPtr = pNewMat;
+
+                                ComponentVariableValue newValue( pObject, pVar, nullptr );
+
+                                if( oldPointer )
+                                    oldPointer->Release();
+                                if( pNewMat )
+                                    pNewMat->AddRef();
+
+                                g_pGameCore->GetCommandStack()->Add(
+                                    MyNew EditorCommand_ComponentVariablePointerChanged( (ComponentVariableCallbackInterface*)pObject, pVar, &oldValue, &newValue ) );
+                            }
                         }
                     }
 
@@ -1229,7 +1264,13 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 if( pTexture != 0 )
                     pDesc = pTexture->GetFilename();
 
-                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
+                float width = ImGui::GetWindowWidth() * 0.65f;
+                if( pObjectAsComponent == nullptr )
+                {
+                    width = 117.0f;
+                }
+
+                if( ImGui::Button( pDesc, ImVec2( width, 0 ) ) )
                 {
                     // TODO: pop up a texture picker window.
                 }
@@ -1261,9 +1302,38 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_TextureDefinitionPointer, pTextureDropped );
 
+                        TextureDefinition* oldPointer = nullptr;
+
                         if( pObjectAsComponent )
                         {
                             pObjectAsComponent->OnDropVariable( pVar, 0, -1, -1, true );
+                        }
+                        else
+                        {
+                            ComponentVariableCallbackInterface* pCallbackObject = (ComponentVariableCallbackInterface*)pObject;
+                            if( pCallbackObject && pVar->m_pOnDropCallbackFunc )
+                            {
+                                (pCallbackObject->*pVar->m_pOnDropCallbackFunc)( pVar, true, -1, -1 );
+                            }
+                            else
+                            {
+                                TextureDefinition** pTexturePtr = (TextureDefinition**)((char*)pObject + pVar->m_Offset);
+
+                                ComponentVariableValue oldValue( pObject, pVar, nullptr );
+
+                                oldPointer = *pTexturePtr;
+                                *pTexturePtr = pTextureDropped;
+
+                                ComponentVariableValue newValue( pObject, pVar, nullptr );
+
+                                if( oldPointer )
+                                    oldPointer->Release();
+                                if( pTextureDropped )
+                                    pTextureDropped->AddRef();
+
+                                g_pGameCore->GetCommandStack()->Add(
+                                    MyNew EditorCommand_ComponentVariablePointerChanged( (ComponentVariableCallbackInterface*)pObject, pVar, &oldValue, &newValue ) );
+                            }
                         }
                     }
 
