@@ -47,12 +47,12 @@ Component2DJointWeld::~Component2DJointWeld()
 
 void Component2DJointWeld::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, Component2DJointWeld* pThis) //_VARIABLE_LIST
 {
-    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
+    AddVar( pList, "SecondCollisionObject", ComponentVariableType::ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component2DJointWeld::OnValueChanged, (CVarFunc_DropTarget)&Component2DJointWeld::OnDrop, 0 );
 
-    AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointWeld::OnValueChanged, 0, 0 );
-    AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointWeld::OnValueChanged, 0, 0 );
+    AddVar( pList, "AnchorA", ComponentVariableType::Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointWeld::OnValueChanged, 0, 0 );
+    AddVar( pList, "AnchorB", ComponentVariableType::Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointWeld::OnValueChanged, 0, 0 );
 }
 
 void Component2DJointWeld::Reset()

@@ -40,7 +40,7 @@ ComponentRenderable::~ComponentRenderable()
 
 void ComponentRenderable::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentRenderable* pThis) //_VARIABLE_LIST
 {
-    AddVar( pList, "Visible", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Visible ), true, true, 0,
+    AddVar( pList, "Visible", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_Visible ), true, true, 0,
             (CVarFunc_ValueChanged)&ComponentRenderable::OnValueChanged,
             0, 0 ); //ComponentRenderable::StaticOnDrop, 0 );
 

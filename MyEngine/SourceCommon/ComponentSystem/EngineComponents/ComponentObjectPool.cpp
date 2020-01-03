@@ -39,12 +39,12 @@ void ComponentObjectPool::RegisterVariables(TCPPListHead<ComponentVariable*>* pL
 {
     ComponentVariable* pVar;
 
-    AddVar( pList, "GameObject",           ComponentVariableType_GameObjectPtr, MyOffsetOf( pThis, &pThis->m_pGameObjectInPool ),    true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
-    pVar = AddVar( pList, "PoolSize",      ComponentVariableType_UnsignedInt,   MyOffsetOf( pThis, &pThis->m_PoolSize ),             true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
+    AddVar( pList, "GameObject",           ComponentVariableType::GameObjectPtr, MyOffsetOf( pThis, &pThis->m_pGameObjectInPool ),    true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
+    pVar = AddVar( pList, "PoolSize",      ComponentVariableType::UnsignedInt,   MyOffsetOf( pThis, &pThis->m_PoolSize ),             true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
 #if MYFW_EDITOR
     pVar->SetEditorLimits( 0, 9999 );
 #endif
-    AddVar( pList, "LogWarningsWhenEmpty", ComponentVariableType_Bool,          MyOffsetOf( pThis, &pThis->m_LogWarningsWhenEmpty ), true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
+    AddVar( pList, "LogWarningsWhenEmpty", ComponentVariableType::Bool,          MyOffsetOf( pThis, &pThis->m_LogWarningsWhenEmpty ), true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
 }
 
 void ComponentObjectPool::Reset()

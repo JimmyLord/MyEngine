@@ -88,7 +88,7 @@ void ComponentLuaScript::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
 #endif
 
     // Script is not automatically saved/loaded.
-    ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, nullptr, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, nullptr );
+    ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType::FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, nullptr, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, nullptr );
 #if MYFW_USING_IMGUI
     pVar->AddCallback_OnRightClick( (CVarFunc)&ComponentLuaScript::OnRightClickCallback, nullptr );
 #endif

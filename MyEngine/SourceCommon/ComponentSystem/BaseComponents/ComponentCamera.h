@@ -20,7 +20,7 @@
 class ComponentPostEffect;
 class ComponentTransform;
 
-// 32 layers strings since ComponentBase::ExportVariablesToJSON -> case ComponentVariableType_Flags is looking for 32
+// 32 layers strings since ComponentBase::ExportVariablesToJSON -> case ComponentVariableType::Flags is looking for 32
 extern const char* g_pVisibilityLayerStrings[32]; //g_NumberOfVisibilityLayers];
 
 class ComponentCamera : public ComponentBase

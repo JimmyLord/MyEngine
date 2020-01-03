@@ -51,7 +51,7 @@ void ComponentTemplate::RegisterVariables(TCPPListHead<ComponentVariable*>* pLis
 #pragma GCC diagnostic pop
 #endif
 
-    AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, 0, 0 );
+    AddVar( pList, "SampleFloat", ComponentVariableType::Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, 0, 0 );
 }
 
 void ComponentTemplate::Reset()

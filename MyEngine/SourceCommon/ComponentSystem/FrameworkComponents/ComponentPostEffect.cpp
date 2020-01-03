@@ -40,10 +40,10 @@ ComponentPostEffect::~ComponentPostEffect()
 
 void ComponentPostEffect::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentPostEffect* pThis) //_VARIABLE_LIST
 {
-    //AddVar( pList, "Enabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, nullptr,
+    //AddVar( pList, "Enabled", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, nullptr,
     //        (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged,
     //        nullptr, nullptr );
-    AddVar( pList, "Material", ComponentVariableType_MaterialPtr,
+    AddVar( pList, "Material", ComponentVariableType::MaterialPtr,
             MyOffsetOf( pThis, &pThis->m_pMaterial ), false, true, 
             nullptr, (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged, (CVarFunc_DropTarget)&ComponentPostEffect::OnDropMaterial, nullptr );
 }

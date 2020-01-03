@@ -110,7 +110,7 @@ void ComponentMesh::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, C
     {
         // Materials are not automatically saved/loaded.
         MyAssert( MAX_SUBMESHES == 4 );
-        ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
+        ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType::MaterialPtr,
                                           MyOffsetOf( pThis, &pThis->m_pMaterials[i] ), false, true, 
                                           nullptr, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentMesh::OnDropMaterial, nullptr );
 
@@ -121,7 +121,7 @@ void ComponentMesh::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, C
     }
 
     AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, nullptr, nullptr );
-    AddVar( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "PointSize", ComponentVariableType::Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, nullptr, nullptr );
 }
 
 void ComponentMesh::Reset()

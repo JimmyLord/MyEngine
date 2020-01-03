@@ -49,52 +49,52 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 
     switch( m_pVar->m_Type )
     {
-    case ComponentVariableType_Int:
+    case ComponentVariableType::Int:
         previousvalue = (double)m_OldValue.GetInt();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_Enum:
+    case ComponentVariableType::Enum:
         previousvalue = (double)m_OldValue.GetEnum();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_Flags:
+    case ComponentVariableType::Flags:
         previousvalue = (double)m_OldValue.GetFlags();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType::UnsignedInt:
         previousvalue = (double)m_OldValue.GetUnsignedInt();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    //case ComponentVariableType_Char:
-    //case ComponentVariableType_UnsignedChar:
+    //case ComponentVariableType::Char:
+    //case ComponentVariableType::UnsignedChar:
     //    MyAssert( false );
     //    break;
 
-    case ComponentVariableType_Bool:
+    case ComponentVariableType::Bool:
         previousvalue = (double)m_OldValue.GetBool();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_Float:
+    case ComponentVariableType::Float:
         previousvalue = (double)m_OldValue.GetFloat();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    //case ComponentVariableType_Double:
-    //case ComponentVariableType_ColorFloat:
+    //case ComponentVariableType::Double:
+    //case ComponentVariableType::ColorFloat:
     //    MyAssert( false );
     //    break;
 
-    case ComponentVariableType_ColorByte:
+    case ComponentVariableType::ColorByte:
         previousColorByte = m_OldValue.GetColorByte();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_Vector2:
+    case ComponentVariableType::Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
@@ -112,7 +112,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         }
         break;
 
-    case ComponentVariableType_Vector3:
+    case ComponentVariableType::Vector3:
         //Vector3 previousvalue = m_OldValue.GetVector3();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         controlcomponent = -1;
@@ -133,7 +133,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         }
         break;
 
-    case ComponentVariableType_Vector2Int:
+    case ComponentVariableType::Vector2Int:
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
         // Determine which component of the control changed, assert if more than 1 changed.
@@ -150,7 +150,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         }
         break;
 
-    case ComponentVariableType_Vector3Int:
+    case ComponentVariableType::Vector3Int:
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
         // Determine which component of the control changed, assert if more than 1 changed.
@@ -172,14 +172,14 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         }
         break;
 
-    case ComponentVariableType_GameObjectPtr:
-    case ComponentVariableType_ComponentPtr:
-    case ComponentVariableType_FilePtr:
-    case ComponentVariableType_MaterialPtr:
-    case ComponentVariableType_TexturePtr:
-    case ComponentVariableType_SoundCuePtr:
-    case ComponentVariableType_PointerIndirect:
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::GameObjectPtr:
+    case ComponentVariableType::ComponentPtr:
+    case ComponentVariableType::FilePtr:
+    case ComponentVariableType::MaterialPtr:
+    case ComponentVariableType::TexturePtr:
+    case ComponentVariableType::SoundCuePtr:
+    case ComponentVariableType::PointerIndirect:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
     }
@@ -199,56 +199,56 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
 
     switch( m_pVar->m_Type )
     {
-    case ComponentVariableType_Int:
+    case ComponentVariableType::Int:
         previousvalue = (double)m_NewValue.GetInt();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_Enum:
+    case ComponentVariableType::Enum:
         previousvalue = (double)m_NewValue.GetEnum();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_Flags:
+    case ComponentVariableType::Flags:
         previousvalue = (double)m_NewValue.GetFlags();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType::UnsignedInt:
         previousvalue = (double)m_NewValue.GetUnsignedInt();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    //case ComponentVariableType_Char:
+    //case ComponentVariableType::Char:
     //    oldvalue = *(char*)m_Pointer;
     //    *(char*)m_Pointer -= (char)m_Difference;
     //    break;
 
-    //case ComponentVariableType_UnsignedChar:
+    //case ComponentVariableType::UnsignedChar:
     //    oldvalue = *(unsigned char*)m_Pointer;
     //    *(unsigned char*)m_Pointer -= (unsigned char)m_Difference;
     //    break;
 
-    case ComponentVariableType_Bool:
+    case ComponentVariableType::Bool:
         previousvalue = (double)m_NewValue.GetBool();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_Float:
+    case ComponentVariableType::Float:
         previousvalue = (double)m_NewValue.GetFloat();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    //case ComponentVariableType_Double:
-    //case ComponentVariableType_ColorFloat:
+    //case ComponentVariableType::Double:
+    //case ComponentVariableType::ColorFloat:
     //    break;
 
-    case ComponentVariableType_ColorByte:
+    case ComponentVariableType::ColorByte:
         previousColorByte = m_NewValue.GetColorByte();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
-    case ComponentVariableType_Vector2:
+    case ComponentVariableType::Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
@@ -266,7 +266,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         }
         break;
 
-    case ComponentVariableType_Vector3:
+    case ComponentVariableType::Vector3:
         //Vector3 previousvalue = m_OldValue.GetVector3();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
@@ -289,7 +289,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         }
         break;
 
-    case ComponentVariableType_Vector2Int:
+    case ComponentVariableType::Vector2Int:
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
         // Determine which component of the control changed, assert if more than 1 changed.
@@ -306,7 +306,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         }
         break;
 
-    case ComponentVariableType_Vector3Int:
+    case ComponentVariableType::Vector3Int:
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
 
         // Determine which component of the control changed, assert if more than 1 changed.
@@ -328,14 +328,14 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         }
         break;
 
-    case ComponentVariableType_GameObjectPtr:
-    case ComponentVariableType_ComponentPtr:
-    case ComponentVariableType_FilePtr:
-    case ComponentVariableType_MaterialPtr:
-    case ComponentVariableType_TexturePtr:
-    case ComponentVariableType_SoundCuePtr:
-    case ComponentVariableType_PointerIndirect:
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::GameObjectPtr:
+    case ComponentVariableType::ComponentPtr:
+    case ComponentVariableType::FilePtr:
+    case ComponentVariableType::MaterialPtr:
+    case ComponentVariableType::TexturePtr:
+    case ComponentVariableType::SoundCuePtr:
+    case ComponentVariableType::PointerIndirect:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
     }
@@ -1666,7 +1666,7 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
 
     m_ReleaseObjectsWhenDestroyed = false;
 
-    if( m_VarType == ComponentVariableType_FilePtr )
+    if( m_VarType == ComponentVariableType::FilePtr )
     {
         // Add a ref to each of the files so they don't get free'd when undo/redoing.
         if( m_OldValue.GetFilePtr() )
@@ -1676,7 +1676,7 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
 
         m_ReleaseObjectsWhenDestroyed = true;
     }
-    else if( m_VarType == ComponentVariableType_MaterialPtr )
+    else if( m_VarType == ComponentVariableType::MaterialPtr )
     {
         // Add a ref to each of the materials so they don't get free'd when undo/redoing.
         if( m_OldValue.GetMaterialPtr() )
@@ -1686,7 +1686,7 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
 
         m_ReleaseObjectsWhenDestroyed = true;
     }
-    else if( m_VarType == ComponentVariableType_TexturePtr )
+    else if( m_VarType == ComponentVariableType::TexturePtr )
     {
         // Add a ref to each of the materials so they don't get free'd when undo/redoing.
         if( m_OldValue.GetTexturePtr() )
@@ -1696,7 +1696,7 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
 
         m_ReleaseObjectsWhenDestroyed = true;
     }
-    else if( m_VarType == ComponentVariableType_SoundCuePtr )
+    else if( m_VarType == ComponentVariableType::SoundCuePtr )
     {
         // Add a ref to each of the materials so they don't get free'd when undo/redoing.
         if( m_OldValue.GetSoundCuePtr() )
@@ -1706,7 +1706,7 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
 
         m_ReleaseObjectsWhenDestroyed = true;
     }
-    else if( m_VarType == ComponentVariableType_PointerIndirect )
+    else if( m_VarType == ComponentVariableType::PointerIndirect )
     {
         MyAssert( false );
     }
@@ -1716,28 +1716,28 @@ EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariableP
 {
     if( m_ReleaseObjectsWhenDestroyed )
     {
-        if( m_VarType == ComponentVariableType_FilePtr )
+        if( m_VarType == ComponentVariableType::FilePtr )
         {
             if( m_OldValue.GetFilePtr() )
                 m_OldValue.GetFilePtr()->Release();
             if( m_NewValue.GetFilePtr() )
                 m_NewValue.GetFilePtr()->Release();
         }
-        else if( m_VarType == ComponentVariableType_MaterialPtr )
+        else if( m_VarType == ComponentVariableType::MaterialPtr )
         {
             if( m_OldValue.GetMaterialPtr() )
                 m_OldValue.GetMaterialPtr()->Release();
             if( m_NewValue.GetMaterialPtr() )
                 m_NewValue.GetMaterialPtr()->Release();
         }
-        else if( m_VarType == ComponentVariableType_TexturePtr )
+        else if( m_VarType == ComponentVariableType::TexturePtr )
         {
             if( m_OldValue.GetTexturePtr() )
                 m_OldValue.GetTexturePtr()->Release();
             if( m_NewValue.GetTexturePtr() )
                 m_NewValue.GetTexturePtr()->Release();
         }
-        else if( m_VarType == ComponentVariableType_SoundCuePtr )
+        else if( m_VarType == ComponentVariableType::SoundCuePtr )
         {
             if( m_OldValue.GetSoundCuePtr() )
                 m_OldValue.GetSoundCuePtr()->Release();
@@ -1762,15 +1762,15 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
     {
         void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
 
-        if( m_VarType == ComponentVariableType_GameObjectPtr )
+        if( m_VarType == ComponentVariableType::GameObjectPtr )
         {
             *pPtr = m_NewValue.GetGameObjectPtr();
         }
-        else if( m_VarType == ComponentVariableType_ComponentPtr )
+        else if( m_VarType == ComponentVariableType::ComponentPtr )
         {
             *pPtr = m_NewValue.GetComponentPtr();
         }
-        else if( m_VarType == ComponentVariableType_FilePtr )
+        else if( m_VarType == ComponentVariableType::FilePtr )
         {
             if( m_OldValue.GetFilePtr() )
                 m_OldValue.GetFilePtr()->Release();
@@ -1779,7 +1779,7 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
 
             *pPtr = m_NewValue.GetFilePtr();
         }
-        else if( m_VarType == ComponentVariableType_MaterialPtr )
+        else if( m_VarType == ComponentVariableType::MaterialPtr )
         {
             if( m_OldValue.GetMaterialPtr() )
                 m_OldValue.GetMaterialPtr()->Release();
@@ -1788,7 +1788,7 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
 
             *pPtr = m_NewValue.GetMaterialPtr();
         }
-        else if( m_VarType == ComponentVariableType_TexturePtr )
+        else if( m_VarType == ComponentVariableType::TexturePtr )
         {
             if( m_OldValue.GetTexturePtr() )
                 m_OldValue.GetTexturePtr()->Release();
@@ -1797,7 +1797,7 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
 
             *pPtr = m_NewValue.GetTexturePtr();
         }
-        else if( m_VarType == ComponentVariableType_SoundCuePtr )
+        else if( m_VarType == ComponentVariableType::SoundCuePtr )
         {
             if( m_OldValue.GetSoundCuePtr() )
                 m_OldValue.GetSoundCuePtr()->Release();
@@ -1828,15 +1828,15 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
     {
         void** pPtr = (void**)((char*)m_pCallbackObject + m_pVar->m_Offset);
 
-        if( m_VarType == ComponentVariableType_GameObjectPtr )
+        if( m_VarType == ComponentVariableType::GameObjectPtr )
         {
             *pPtr = m_OldValue.GetGameObjectPtr();
         }
-        else if( m_VarType == ComponentVariableType_ComponentPtr )
+        else if( m_VarType == ComponentVariableType::ComponentPtr )
         {
             *pPtr = m_OldValue.GetComponentPtr();
         }
-        else if( m_VarType == ComponentVariableType_FilePtr )
+        else if( m_VarType == ComponentVariableType::FilePtr )
         {
             if( m_NewValue.GetFilePtr() )
                 m_NewValue.GetFilePtr()->Release();
@@ -1845,7 +1845,7 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
 
             *pPtr = m_OldValue.GetFilePtr();
         }
-        else if( m_VarType == ComponentVariableType_MaterialPtr )
+        else if( m_VarType == ComponentVariableType::MaterialPtr )
         {
             if( m_NewValue.GetMaterialPtr() )
                 m_NewValue.GetMaterialPtr()->Release();
@@ -1854,7 +1854,7 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
 
             *pPtr = m_OldValue.GetMaterialPtr();
         }
-        else if( m_VarType == ComponentVariableType_TexturePtr )
+        else if( m_VarType == ComponentVariableType::TexturePtr )
         {
             if( m_NewValue.GetTexturePtr() )
                 m_NewValue.GetTexturePtr()->Release();
@@ -1863,7 +1863,7 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
 
             *pPtr = m_OldValue.GetTexturePtr();
         }
-        else if( m_VarType == ComponentVariableType_SoundCuePtr )
+        else if( m_VarType == ComponentVariableType::SoundCuePtr )
         {
             if( m_NewValue.GetSoundCuePtr() )
                 m_NewValue.GetSoundCuePtr()->Release();

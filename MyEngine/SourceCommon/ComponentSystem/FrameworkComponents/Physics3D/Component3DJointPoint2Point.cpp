@@ -42,12 +42,12 @@ Component3DJointPoint2Point::~Component3DJointPoint2Point()
 
 void Component3DJointPoint2Point::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, Component3DJointPoint2Point* pThis) //_VARIABLE_LIST
 {
-    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
+    AddVar( pList, "SecondCollisionObject", ComponentVariableType::ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointPoint2Point::OnDrop, 0 );
 
-    AddVar( pList, "PivotA", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_PivotA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
-    AddVar( pList, "PivotB", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_PivotB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
+    AddVar( pList, "PivotA", ComponentVariableType::Vector3, MyOffsetOf( pThis, &pThis->m_PivotA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
+    AddVar( pList, "PivotB", ComponentVariableType::Vector3, MyOffsetOf( pThis, &pThis->m_PivotB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
 }
 
 void Component3DJointPoint2Point::Reset()

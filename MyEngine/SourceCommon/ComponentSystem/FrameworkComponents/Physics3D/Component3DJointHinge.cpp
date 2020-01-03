@@ -56,22 +56,22 @@ Component3DJointHinge::~Component3DJointHinge()
 
 void Component3DJointHinge::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, Component3DJointHinge* pThis) //_VARIABLE_LIST
 {
-    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
+    AddVar( pList, "SecondCollisionObject", ComponentVariableType::ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointHinge::OnDrop, 0 );
 
-    AddVar( pList, "PivotA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_PivotA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
-    AddVar( pList, "PivotB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_PivotB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "PivotA", ComponentVariableType::Vector2, MyOffsetOf( pThis, &pThis->m_PivotA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "PivotB", ComponentVariableType::Vector2, MyOffsetOf( pThis, &pThis->m_PivotB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "MotorEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_MotorEnabled ), true, true, "Motor Enabled", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
-    AddVar( pList, "MotorSpeed", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
-    AddVar( pList, "MotorMaxTorque", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorMaxTorque ), true, true, "Motor Max Torque", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorEnabled", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_MotorEnabled ), true, true, "Motor Enabled", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorSpeed", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorMaxTorque", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_MotorMaxTorque ), true, true, "Motor Max Torque", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_AngleLimitEnabled ), true, true, "Angle Limit Enabled", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
-    AddVar( pList, "LimitMin", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMin ), true, true, "Min Angle", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
-    AddVar( pList, "LimitMax", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMax ), true, true, "Max Angle", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitEnabled", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_AngleLimitEnabled ), true, true, "Angle Limit Enabled", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitMin", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMin ), true, true, "Min Angle", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitMax", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMax ), true, true, "Max Angle", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "BreakForce", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_BreakForce ), true, true, "Break Force", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "BreakForce", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_BreakForce ), true, true, "Break Force", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
 }
 
 void Component3DJointHinge::Reset()

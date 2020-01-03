@@ -63,16 +63,16 @@ void Component3DCollisionObject::RegisterVariables(TCPPListHead<ComponentVariabl
 {
     ComponentVariable* pVar;
 
-    AddVar( pList, "Mass", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Mass ), true, true, 0, (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Mass", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Mass ), true, true, 0, (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, 0, 0 );
     
     AddVarEnum( pList, "Primitive", MyOffsetOf( pThis, &pThis->m_PrimitiveType ), true, true, "Primitive Type", PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, 0, 0 );
 
-    pVar = AddVar( pList, "Scale", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_Scale ), true, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "Scale", ComponentVariableType::Vector3, MyOffsetOf( pThis, &pThis->m_Scale ), true, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
 #if MYFW_EDITOR
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
-    pVar = AddVar( pList, "ScaleX", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ), false, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "ScaleX", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Scale ), false, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
 #if MYFW_EDITOR
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif

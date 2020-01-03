@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2017-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -14,39 +14,39 @@ class ComponentBase;
 class ComponentVariable;
 class ComponentVariableValue;
 
-enum ComponentVariableTypes
+enum class ComponentVariableType
 {
-    ComponentVariableType_Int,
-    ComponentVariableType_Enum,
-    ComponentVariableType_Flags,
-    ComponentVariableType_UnsignedInt,
-    //ComponentVariableType_Char,
-    //ComponentVariableType_UnsignedChar,
-    ComponentVariableType_Bool,
-    ComponentVariableType_Float,
-    //ComponentVariableType_Double,
-    //ComponentVariableType_ColorFloat,
-    ComponentVariableType_ColorByte,
+    Int,
+    Enum,
+    Flags,
+    UnsignedInt,
+    //Char,
+    //UnsignedChar,
+    Bool,
+    Float,
+    //Double,
+    //ColorFloat,
+    ColorByte,
 
-    ComponentVariableType_Vector2,
-    ComponentVariableType_Vector3,
+    Vector2,
+    Vector3,
     
-    ComponentVariableType_Vector2Int,
-    ComponentVariableType_Vector3Int,
+    Vector2Int,
+    Vector3Int,
 
     // NOTE: Pointer types must come after value types for ComponentVariableValue::CopyNonPointerValueIntoVariable() 
-    ComponentVariableType_FirstPointerType,
+    FirstPointerType,
 
-    ComponentVariableType_GameObjectPtr = ComponentVariableType_FirstPointerType,
-    ComponentVariableType_ComponentPtr,
-    ComponentVariableType_FilePtr,
-    ComponentVariableType_MaterialPtr,
-    ComponentVariableType_TexturePtr,
-    ComponentVariableType_SoundCuePtr,
+    GameObjectPtr = FirstPointerType,
+    ComponentPtr,
+    FilePtr,
+    MaterialPtr,
+    TexturePtr,
+    SoundCuePtr,
 
-    ComponentVariableType_PointerIndirect,
+    PointerIndirect,
 
-    ComponentVariableType_NumTypes,
+    NumTypes,
 };
 
 class ComponentVariableCallbackInterface : public CPPListNode
@@ -71,7 +71,7 @@ class ComponentVariable : public TCPPListNode<ComponentVariable*>
 {
 public:
     const char* m_Label;
-    ComponentVariableTypes m_Type;
+    ComponentVariableType m_Type;
     size_t m_Offset; // Offset into class of the variable.
     bool m_SaveLoad;
     bool m_DisplayInWatch;
@@ -102,7 +102,7 @@ public:
     int m_Index; // Convenience, used when setting divorces status.
 
 public:
-    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel,
+    ComponentVariable(const char* label, ComponentVariableType type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel,
         CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc,
         CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc,
         CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc );
@@ -133,7 +133,7 @@ public:
     static int m_ComponentVariableListRefCount_##ComponentName; \
     static void RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentName* pThis); \
     static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
-    static ComponentVariable* AddVariable(TCPPListHead<ComponentVariable*>* pList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
+    static ComponentVariable* AddVariable(TCPPListHead<ComponentVariable*>* pList, const char* label, ComponentVariableType type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariable_Base( pList, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
     static ComponentVariable* AddVariablePointer(TCPPListHead<ComponentVariable*>* pList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariablePointer_Base( pList, label, saveload, displayinwatch, watchlabel, pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \

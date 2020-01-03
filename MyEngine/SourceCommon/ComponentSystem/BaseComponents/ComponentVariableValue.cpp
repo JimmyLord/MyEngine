@@ -14,7 +14,7 @@
 
 ComponentVariableValue::ComponentVariableValue()
 {
-    m_Type = ComponentVariableType_NumTypes;
+    m_Type = ComponentVariableType::NumTypes;
 }
 
 ComponentVariableValue::ComponentVariableValue(void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent)
@@ -29,34 +29,34 @@ void ComponentVariableValue::GetValueFromVariable(void* pObject, ComponentVariab
     void* memoryAddr = ((char*)pObject + pVar->m_Offset);
 
     // If this is an indirect pointer type, make sure we have a pointer to a component.
-    MyAssert( pVar->m_Type != ComponentVariableType_PointerIndirect || pObjectAsComponent != nullptr );
+    MyAssert( pVar->m_Type != ComponentVariableType::PointerIndirect || pObjectAsComponent != nullptr );
 
     switch( pVar->m_Type )
     {
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:            m_Int = *(int*)memoryAddr;                                                  break;
-    case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Flags:           m_UInt = *(unsigned int*)memoryAddr;                                        break;
-    //ComponentVariableType_Char,
-    //ComponentVariableType_UnsignedChar,
-    case ComponentVariableType_Bool:            m_Bool = *(bool*)memoryAddr;                                                        break;
-    case ComponentVariableType_Float:           m_Float = *(float*)memoryAddr;                                                      break;
-    //ComponentVariableType_Double,
-    //ComponentVariableType_ColorFloat,
-    case ComponentVariableType_ColorByte:       m_ColorByte = *(ColorByte*)memoryAddr;                                              break;
-    case ComponentVariableType_Vector2:         m_Vector2 = *(Vector2*)memoryAddr;                                                  break;
-    case ComponentVariableType_Vector3:         m_Vector3 = *(Vector3*)memoryAddr;                                                  break;
-    case ComponentVariableType_Vector2Int:      m_Vector2Int = *(Vector2Int*)memoryAddr;                                            break;
-    case ComponentVariableType_Vector3Int:      m_Vector3Int = *(Vector3Int*)memoryAddr;                                            break;
-    case ComponentVariableType_GameObjectPtr:   m_GameObjectPtr = *(GameObject**)memoryAddr;                                        break;
-    case ComponentVariableType_FilePtr:         m_FilePtr = *(MyFileObject**)memoryAddr;                                            break;
-    case ComponentVariableType_ComponentPtr:    m_ComponentPtr = *(ComponentBase**)memoryAddr;                                      break;
-    case ComponentVariableType_MaterialPtr:     m_MaterialPtr = *(MaterialDefinition**)memoryAddr;                                  break;
-    case ComponentVariableType_TexturePtr:      m_TexturePtr = *(TextureDefinition**)memoryAddr;                                  break;
-    case ComponentVariableType_SoundCuePtr:     m_SoundCuePtr = *(SoundCue**)memoryAddr;                                            break;
-    case ComponentVariableType_PointerIndirect: m_VoidPtr = (pObjectAsComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );    break;
+    case ComponentVariableType::Int:
+    case ComponentVariableType::Enum:            m_Int = *(int*)memoryAddr;                                                  break;
+    case ComponentVariableType::UnsignedInt:
+    case ComponentVariableType::Flags:           m_UInt = *(unsigned int*)memoryAddr;                                        break;
+    //ComponentVariableType::Char,
+    //ComponentVariableType::UnsignedChar,
+    case ComponentVariableType::Bool:            m_Bool = *(bool*)memoryAddr;                                                        break;
+    case ComponentVariableType::Float:           m_Float = *(float*)memoryAddr;                                                      break;
+    //ComponentVariableType::Double,
+    //ComponentVariableType::ColorFloat,
+    case ComponentVariableType::ColorByte:       m_ColorByte = *(ColorByte*)memoryAddr;                                              break;
+    case ComponentVariableType::Vector2:         m_Vector2 = *(Vector2*)memoryAddr;                                                  break;
+    case ComponentVariableType::Vector3:         m_Vector3 = *(Vector3*)memoryAddr;                                                  break;
+    case ComponentVariableType::Vector2Int:      m_Vector2Int = *(Vector2Int*)memoryAddr;                                            break;
+    case ComponentVariableType::Vector3Int:      m_Vector3Int = *(Vector3Int*)memoryAddr;                                            break;
+    case ComponentVariableType::GameObjectPtr:   m_GameObjectPtr = *(GameObject**)memoryAddr;                                        break;
+    case ComponentVariableType::FilePtr:         m_FilePtr = *(MyFileObject**)memoryAddr;                                            break;
+    case ComponentVariableType::ComponentPtr:    m_ComponentPtr = *(ComponentBase**)memoryAddr;                                      break;
+    case ComponentVariableType::MaterialPtr:     m_MaterialPtr = *(MaterialDefinition**)memoryAddr;                                  break;
+    case ComponentVariableType::TexturePtr:      m_TexturePtr = *(TextureDefinition**)memoryAddr;                                  break;
+    case ComponentVariableType::SoundCuePtr:     m_SoundCuePtr = *(SoundCue**)memoryAddr;                                            break;
+    case ComponentVariableType::PointerIndirect: m_VoidPtr = (pObjectAsComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );    break;
 
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
         break;
@@ -71,30 +71,30 @@ void ComponentVariableValue::UpdateComponentAndChildrenWithValue(void* pObject, 
     int numberofcomponents = 1;
     switch( pVar->m_Type )
     {
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:            
-    case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Flags:           
-    //ComponentVariableType_Char,
-    //ComponentVariableType_UnsignedChar,
-    case ComponentVariableType_Bool:            
-    case ComponentVariableType_Float:           numberofcomponents = 1; break;
-    //ComponentVariableType_Double,
-    //ComponentVariableType_ColorFloat,
-    case ComponentVariableType_ColorByte:       numberofcomponents = 2; break;
-    case ComponentVariableType_Vector2:         numberofcomponents = 2; break;
-    case ComponentVariableType_Vector3:         numberofcomponents = 3; break;
-    case ComponentVariableType_Vector2Int:      numberofcomponents = 2; break;
-    case ComponentVariableType_Vector3Int:      numberofcomponents = 3; break;
-    case ComponentVariableType_GameObjectPtr:   
-    case ComponentVariableType_FilePtr:         
-    case ComponentVariableType_ComponentPtr:    
-    case ComponentVariableType_MaterialPtr:     
-    case ComponentVariableType_TexturePtr:      
-    case ComponentVariableType_SoundCuePtr:     
-    case ComponentVariableType_PointerIndirect: numberofcomponents = 1; break;
+    case ComponentVariableType::Int:
+    case ComponentVariableType::Enum:            
+    case ComponentVariableType::UnsignedInt:
+    case ComponentVariableType::Flags:           
+    //ComponentVariableType::Char,
+    //ComponentVariableType::UnsignedChar,
+    case ComponentVariableType::Bool:            
+    case ComponentVariableType::Float:           numberofcomponents = 1; break;
+    //ComponentVariableType::Double,
+    //ComponentVariableType::ColorFloat,
+    case ComponentVariableType::ColorByte:       numberofcomponents = 2; break;
+    case ComponentVariableType::Vector2:         numberofcomponents = 2; break;
+    case ComponentVariableType::Vector3:         numberofcomponents = 3; break;
+    case ComponentVariableType::Vector2Int:      numberofcomponents = 2; break;
+    case ComponentVariableType::Vector3Int:      numberofcomponents = 3; break;
+    case ComponentVariableType::GameObjectPtr:   
+    case ComponentVariableType::FilePtr:         
+    case ComponentVariableType::ComponentPtr:    
+    case ComponentVariableType::MaterialPtr:     
+    case ComponentVariableType::TexturePtr:      
+    case ComponentVariableType::SoundCuePtr:     
+    case ComponentVariableType::PointerIndirect: numberofcomponents = 1; break;
 
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
         break;
@@ -115,7 +115,7 @@ void ComponentVariableValue::UpdateComponentAndChildrenWithValue(void* pObject, 
 
 void ComponentVariableValue::CopyNonPointerValueIntoVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent)
 {
-    if( m_Type < ComponentVariableType_FirstPointerType )
+    if( m_Type < ComponentVariableType::FirstPointerType )
     {
         CopyValueIntoVariable( pObject, pVar, pObjectAsComponent );
     }
@@ -128,34 +128,34 @@ void ComponentVariableValue::CopyValueIntoVariable(void* pObject, ComponentVaria
     void* memoryAddr = ((char*)pObject + pVar->m_Offset);
 
     // If this is an indirect pointer type, make sure we have a pointer to a component.
-    MyAssert( pVar->m_Type != ComponentVariableType_PointerIndirect || pObjectAsComponent != nullptr );
+    MyAssert( pVar->m_Type != ComponentVariableType::PointerIndirect || pObjectAsComponent != nullptr );
 
     switch( pVar->m_Type )
     {
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:            *(int*)memoryAddr = m_Int;                                                  break;
-    case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Flags:           *(unsigned int*)memoryAddr = m_UInt;                                                break;
-    //ComponentVariableType_Char,
-    //ComponentVariableType_UnsignedChar,
-    case ComponentVariableType_Bool:            *(bool*)memoryAddr = m_Bool;                                                        break;
-    case ComponentVariableType_Float:           *(float*)memoryAddr = m_Float;                                                      break;
-    //ComponentVariableType_Double,
-    //ComponentVariableType_ColorFloat,
-    case ComponentVariableType_ColorByte:       *(ColorByte*)memoryAddr = m_ColorByte;                                              break;
-    case ComponentVariableType_Vector2:         *(Vector2*)memoryAddr = m_Vector2;                                                  break;
-    case ComponentVariableType_Vector3:         *(Vector3*)memoryAddr = m_Vector3;                                                  break;
-    case ComponentVariableType_Vector2Int:      *(Vector2Int*)memoryAddr = m_Vector2Int;                                            break;
-    case ComponentVariableType_Vector3Int:      *(Vector3Int*)memoryAddr = m_Vector3Int;                                            break;
-    case ComponentVariableType_GameObjectPtr:   *(GameObject**)memoryAddr = m_GameObjectPtr;                                        break;
-    case ComponentVariableType_FilePtr:         *(MyFileObject**)memoryAddr = m_FilePtr;                                            break;
-    case ComponentVariableType_ComponentPtr:    *(ComponentBase**)memoryAddr = m_ComponentPtr;                                      break;
-    case ComponentVariableType_MaterialPtr:     *(MaterialDefinition**)memoryAddr = m_MaterialPtr;                                  break;
-    case ComponentVariableType_TexturePtr:      *(TextureDefinition**)memoryAddr = m_TexturePtr;                                  break;
-    case ComponentVariableType_SoundCuePtr:     *(SoundCue**)memoryAddr = m_SoundCuePtr;                                            break;
-    case ComponentVariableType_PointerIndirect: (pObjectAsComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, m_VoidPtr );     break;
+    case ComponentVariableType::Int:
+    case ComponentVariableType::Enum:            *(int*)memoryAddr = m_Int;                                                  break;
+    case ComponentVariableType::UnsignedInt:
+    case ComponentVariableType::Flags:           *(unsigned int*)memoryAddr = m_UInt;                                                break;
+    //ComponentVariableType::Char,
+    //ComponentVariableType::UnsignedChar,
+    case ComponentVariableType::Bool:            *(bool*)memoryAddr = m_Bool;                                                        break;
+    case ComponentVariableType::Float:           *(float*)memoryAddr = m_Float;                                                      break;
+    //ComponentVariableType::Double,
+    //ComponentVariableType::ColorFloat,
+    case ComponentVariableType::ColorByte:       *(ColorByte*)memoryAddr = m_ColorByte;                                              break;
+    case ComponentVariableType::Vector2:         *(Vector2*)memoryAddr = m_Vector2;                                                  break;
+    case ComponentVariableType::Vector3:         *(Vector3*)memoryAddr = m_Vector3;                                                  break;
+    case ComponentVariableType::Vector2Int:      *(Vector2Int*)memoryAddr = m_Vector2Int;                                            break;
+    case ComponentVariableType::Vector3Int:      *(Vector3Int*)memoryAddr = m_Vector3Int;                                            break;
+    case ComponentVariableType::GameObjectPtr:   *(GameObject**)memoryAddr = m_GameObjectPtr;                                        break;
+    case ComponentVariableType::FilePtr:         *(MyFileObject**)memoryAddr = m_FilePtr;                                            break;
+    case ComponentVariableType::ComponentPtr:    *(ComponentBase**)memoryAddr = m_ComponentPtr;                                      break;
+    case ComponentVariableType::MaterialPtr:     *(MaterialDefinition**)memoryAddr = m_MaterialPtr;                                  break;
+    case ComponentVariableType::TexturePtr:      *(TextureDefinition**)memoryAddr = m_TexturePtr;                                  break;
+    case ComponentVariableType::SoundCuePtr:     *(SoundCue**)memoryAddr = m_SoundCuePtr;                                            break;
+    case ComponentVariableType::PointerIndirect: (pObjectAsComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, m_VoidPtr );     break;
 
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
         break;

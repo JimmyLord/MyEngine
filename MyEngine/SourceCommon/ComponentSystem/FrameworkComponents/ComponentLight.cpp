@@ -61,7 +61,7 @@ void ComponentLight::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, 
     // Just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     //MyAssert( offsetof( ComponentLight, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
 
-    //AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, nullptr, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, nullptr );
+    //AddVariable( pList, "Script", ComponentVariableType::FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, nullptr, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, nullptr );
 
     //cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
     //cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );

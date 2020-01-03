@@ -97,7 +97,7 @@ void ComponentMonoScript::RegisterVariables(TCPPListHead<ComponentVariable*>* pL
 #endif
 
     // Script is not automatically saved/loaded.
-    ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, nullptr, (CVarFunc_ValueChanged)&ComponentMonoScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentMonoScript::OnDrop, nullptr );
+    ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType::FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, nullptr, (CVarFunc_ValueChanged)&ComponentMonoScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentMonoScript::OnDrop, nullptr );
 #if MYFW_USING_IMGUI
     pVar->AddCallback_OnRightClick( (CVarFunc)&ComponentMonoScript::OnRightClickCallback, nullptr );
 #endif

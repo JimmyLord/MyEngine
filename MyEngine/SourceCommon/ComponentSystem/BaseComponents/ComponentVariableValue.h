@@ -22,7 +22,7 @@ class SoundCue;
 class ComponentVariableValue
 {
 protected:
-    ComponentVariableTypes m_Type; // Just for asserts/debugging.
+    ComponentVariableType m_Type; // Just for asserts/debugging.
 
     ColorByte m_ColorByte;
     Vector2 m_Vector2;
@@ -54,28 +54,28 @@ public:
     void CopyNonPointerValueIntoVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent);
     void CopyValueIntoVariable(void* pObject, ComponentVariable* pVar, ComponentBase* pObjectAsComponent);
 
-    int32               GetInt()             { MyAssert( m_Type == ComponentVariableType_Int );             return m_Int; }
-    int32               GetEnum()            { MyAssert( m_Type == ComponentVariableType_Enum );            return m_Int; }
-    uint32              GetUnsignedInt()     { MyAssert( m_Type == ComponentVariableType_UnsignedInt );     return m_UInt; }
-    uint32              GetFlags()           { MyAssert( m_Type == ComponentVariableType_Flags );           return m_UInt; }
-    //char                GetChar()            { MyAssert( m_Type == ComponentVariableType_Char );            return m_Char; }
-    //unsigned char       GetChar()            { MyAssert( m_Type == ComponentVariableType_UnsignedChar );    return m_UChar; }
-    bool                GetBool()            { MyAssert( m_Type == ComponentVariableType_Bool );            return m_Bool; }
-    float               GetFloat()           { MyAssert( m_Type == ComponentVariableType_Float );           return m_Float; }
-    //double              GetDouble()          { MyAssert( m_Type == ComponentVariableType_Double );          return m_Double; }
-    //ColorFloat          GetColorFloat()      { MyAssert( m_Type == ComponentVariableType_ColorFloat );      return m_ColorFloat; }
-    ColorByte           GetColorByte()       { MyAssert( m_Type == ComponentVariableType_ColorByte );       return m_ColorByte; }
-    Vector2             GetVector2()         { MyAssert( m_Type == ComponentVariableType_Vector2 );         return m_Vector2; }
-    Vector3             GetVector3()         { MyAssert( m_Type == ComponentVariableType_Vector3 );         return m_Vector3; }
-    Vector2Int          GetVector2Int()      { MyAssert( m_Type == ComponentVariableType_Vector2Int );      return m_Vector2Int; }
-    Vector3Int          GetVector3Int()      { MyAssert( m_Type == ComponentVariableType_Vector3Int );      return m_Vector3Int; }
-    GameObject*         GetGameObjectPtr()   { MyAssert( m_Type == ComponentVariableType_GameObjectPtr );   return m_GameObjectPtr; }
-    MyFileObject*       GetFilePtr()         { MyAssert( m_Type == ComponentVariableType_FilePtr );         return m_FilePtr; }
-    ComponentBase*      GetComponentPtr()    { MyAssert( m_Type == ComponentVariableType_ComponentPtr );    return m_ComponentPtr; }
-    MaterialDefinition* GetMaterialPtr()     { MyAssert( m_Type == ComponentVariableType_MaterialPtr );     return m_MaterialPtr; }
-    TextureDefinition*  GetTexturePtr()      { MyAssert( m_Type == ComponentVariableType_TexturePtr );      return m_TexturePtr; }
-    SoundCue*           GetSoundCuePtr()     { MyAssert( m_Type == ComponentVariableType_SoundCuePtr );     return m_SoundCuePtr; }
-    void*               GetPointerIndirect() { MyAssert( m_Type == ComponentVariableType_PointerIndirect ); return m_VoidPtr; }
+    int32               GetInt()             { MyAssert( m_Type == ComponentVariableType::Int );             return m_Int; }
+    int32               GetEnum()            { MyAssert( m_Type == ComponentVariableType::Enum );            return m_Int; }
+    uint32              GetUnsignedInt()     { MyAssert( m_Type == ComponentVariableType::UnsignedInt );     return m_UInt; }
+    uint32              GetFlags()           { MyAssert( m_Type == ComponentVariableType::Flags );           return m_UInt; }
+    //char                GetChar()            { MyAssert( m_Type == ComponentVariableType::Char );            return m_Char; }
+    //unsigned char       GetChar()            { MyAssert( m_Type == ComponentVariableType::UnsignedChar );    return m_UChar; }
+    bool                GetBool()            { MyAssert( m_Type == ComponentVariableType::Bool );            return m_Bool; }
+    float               GetFloat()           { MyAssert( m_Type == ComponentVariableType::Float );           return m_Float; }
+    //double              GetDouble()          { MyAssert( m_Type == ComponentVariableType::Double );          return m_Double; }
+    //ColorFloat          GetColorFloat()      { MyAssert( m_Type == ComponentVariableType::ColorFloat );      return m_ColorFloat; }
+    ColorByte           GetColorByte()       { MyAssert( m_Type == ComponentVariableType::ColorByte );       return m_ColorByte; }
+    Vector2             GetVector2()         { MyAssert( m_Type == ComponentVariableType::Vector2 );         return m_Vector2; }
+    Vector3             GetVector3()         { MyAssert( m_Type == ComponentVariableType::Vector3 );         return m_Vector3; }
+    Vector2Int          GetVector2Int()      { MyAssert( m_Type == ComponentVariableType::Vector2Int );      return m_Vector2Int; }
+    Vector3Int          GetVector3Int()      { MyAssert( m_Type == ComponentVariableType::Vector3Int );      return m_Vector3Int; }
+    GameObject*         GetGameObjectPtr()   { MyAssert( m_Type == ComponentVariableType::GameObjectPtr );   return m_GameObjectPtr; }
+    MyFileObject*       GetFilePtr()         { MyAssert( m_Type == ComponentVariableType::FilePtr );         return m_FilePtr; }
+    ComponentBase*      GetComponentPtr()    { MyAssert( m_Type == ComponentVariableType::ComponentPtr );    return m_ComponentPtr; }
+    MaterialDefinition* GetMaterialPtr()     { MyAssert( m_Type == ComponentVariableType::MaterialPtr );     return m_MaterialPtr; }
+    TextureDefinition*  GetTexturePtr()      { MyAssert( m_Type == ComponentVariableType::TexturePtr );      return m_TexturePtr; }
+    SoundCue*           GetSoundCuePtr()     { MyAssert( m_Type == ComponentVariableType::SoundCuePtr );     return m_SoundCuePtr; }
+    void*               GetPointerIndirect() { MyAssert( m_Type == ComponentVariableType::PointerIndirect ); return m_VoidPtr; }
 };
 
 #endif //__ComponentVariableValue_H__

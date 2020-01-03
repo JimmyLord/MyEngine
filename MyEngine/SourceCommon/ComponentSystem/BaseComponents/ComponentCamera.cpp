@@ -30,7 +30,7 @@
 bool ComponentCamera::m_PanelWatchBlockVisible = true;
 #endif
 
-// 32 layers strings since ComponentBase::ExportVariablesToJSON -> case ComponentVariableType_Flags is looking for 32
+// 32 layers strings since ComponentBase::ExportVariablesToJSON -> case ComponentVariableType::Flags is looking for 32
 const char* g_pVisibilityLayerStrings[32] = //g_NumberOfVisibilityLayers] =
 {
     "Main view",
@@ -123,50 +123,50 @@ void ComponentCamera::RegisterVariables(TCPPListHead<ComponentVariable*>* pList,
                  g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings,
                  (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 
-    pVar = AddVar( pList, "Deferred", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Deferred ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "Deferred", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_Deferred ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 
-    pVar = AddVar( pList, "Ortho", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Orthographic ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "Ortho", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_Orthographic ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 
-    pVar = AddVar( pList, "DesiredWidth", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_DesiredWidth ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "DesiredWidth", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_DesiredWidth ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
     pVar->SetEditorLimits( 640, 960 );
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
-    pVar = AddVar( pList, "DesiredHeight", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_DesiredHeight ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "DesiredHeight", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_DesiredHeight ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
     pVar->SetEditorLimits( 640, 960 );
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
-    pVar = AddVar( pList, "OrthoNearZ", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_OrthoNearZ ), true, true, "Near Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "OrthoNearZ", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_OrthoNearZ ), true, true, "Near Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
-    pVar = AddVar( pList, "OrthoFarZ", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_OrthoFarZ ), true, true, "Far Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "OrthoFarZ", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_OrthoFarZ ), true, true, "Far Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
-    pVar = AddVar( pList, "FoV", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_FieldOfView ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "FoV", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_FieldOfView ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
     pVar->SetEditorLimits( 1, 179 );
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
     
-    pVar = AddVar( pList, "PerspectiveNearZ", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_PerspectiveNearZ ), true, true, "Near Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "PerspectiveNearZ", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_PerspectiveNearZ ), true, true, "Near Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
-    pVar = AddVar( pList, "PerspectiveFarZ", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_PerspectiveFarZ ), true, true, "Far Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "PerspectiveFarZ", ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_PerspectiveFarZ ), true, true, "Far Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
-    pVar = AddVar( pList, "ColorBit", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_ClearColorBuffer ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
-    pVar = AddVar( pList, "DepthBit", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_ClearDepthBuffer ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "ColorBit", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_ClearColorBuffer ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "DepthBit", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_ClearDepthBuffer ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 }
 
 #if MYFW_USING_WX

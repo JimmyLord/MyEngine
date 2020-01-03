@@ -60,7 +60,7 @@ ComponentVoxelWorld::~ComponentVoxelWorld()
 
 void ComponentVoxelWorld::RegisterVariables(TCPPListHead<ComponentVariable*>* pList, ComponentVoxelWorld* pThis) //_VARIABLE_LIST
 {
-    //AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+    //AddVar( pList, "SampleFloat", ComponentVariableType::Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
 #if MYFW_USING_WX
     AddVarPointer( pList, "Material",  true,  true, 0,
         (CVarFunc_GetPointerValue)&ComponentVoxelWorld::GetPointerValue,
@@ -80,11 +80,11 @@ void ComponentVoxelWorld::RegisterVariables(TCPPListHead<ComponentVariable*>* pL
 #endif
 
 #if MYFW_USING_WX
-    AddVar( pList, "Bake World", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_BakeWorld ),
+    AddVar( pList, "Bake World", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_BakeWorld ),
             true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
             (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
 #else
-    AddVar( pList, "Bake World", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_BakeWorld ),
+    AddVar( pList, "Bake World", ComponentVariableType::Bool, MyOffsetOf( pThis, &pThis->m_BakeWorld ),
             true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
             0, 0 );
 #endif
@@ -92,21 +92,21 @@ void ComponentVoxelWorld::RegisterVariables(TCPPListHead<ComponentVariable*>* pL
     // These are only displayed if "Bake World" is checked.
     {
 #if MYFW_USING_WX
-        AddVar( pList, "Max World Size", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_MaxWorldSize ),
+        AddVar( pList, "Max World Size", ComponentVariableType::Vector3Int, MyOffsetOf( pThis, &pThis->m_MaxWorldSize ),
                 true, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
                 (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
 #else
-        AddVar( pList, "Max World Size", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_MaxWorldSize ),
+        AddVar( pList, "Max World Size", ComponentVariableType::Vector3Int, MyOffsetOf( pThis, &pThis->m_MaxWorldSize ),
                 true, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
                 0, 0 );
 #endif
 
 #if MYFW_USING_WX
-        AddVar( pList, "Save File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pSaveFile ),
+        AddVar( pList, "Save File", ComponentVariableType::FilePtr, MyOffsetOf( pThis, &pThis->m_pSaveFile ),
                 false, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
                 (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
 #else
-        AddVar( pList, "Save File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pSaveFile ),
+        AddVar( pList, "Save File", ComponentVariableType::FilePtr, MyOffsetOf( pThis, &pThis->m_pSaveFile ),
                 false, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
                 0, 0 );
 #endif

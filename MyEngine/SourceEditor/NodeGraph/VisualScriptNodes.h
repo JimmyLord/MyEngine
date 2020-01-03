@@ -68,29 +68,29 @@ static const char* g_pTestFlags[5] =
 class VisualScriptNode_Debug_VariableTest : public VisualScriptNode
 {
 protected:
-    int m_TestInt;                       //ComponentVariableType_Int
-    int m_TestEnum;                      //ComponentVariableType_Enum
-    int m_TestFlags;                     //ComponentVariableType_Flags
-    unsigned int m_TestUInt;             //ComponentVariableType_UnsignedInt,
-                                         ////ComponentVariableType_Char,
-                                         ////ComponentVariableType_UnsignedChar,
-    bool m_TestBool;                     //ComponentVariableType_Bool,
-    float m_TestFloat;                   //ComponentVariableType_Float,
-                                         ////ComponentVariableType_Double,
-                                         ////ComponentVariableType_ColorFloat,
-    ColorByte m_TestColorByte;           //ComponentVariableType_ColorByte,
-    Vector2 m_TestVec2;                  //ComponentVariableType_Vector2,
-    Vector3 m_TestVec3;                  //ComponentVariableType_Vector3,
-    Vector2Int m_TestVec2Int;            //ComponentVariableType_Vector2Int,
-    Vector3Int m_TestVec3Int;            //ComponentVariableType_Vector3Int,
-                                         ////ComponentVariableType_FirstPointerType,
-    GameObject* m_pTestGameObject;       //ComponentVariableType_GameObjectPtr = ComponentVariableType_FirstPointerType,
-    ComponentBase* m_pTestComponent;     //ComponentVariableType_ComponentPtr,
-    MyFileObject* m_pTestFile;           //ComponentVariableType_FilePtr,
-    MaterialDefinition* m_pTestMaterial; //ComponentVariableType_MaterialPtr,
-    TextureDefinition* m_pTestTexture;   //ComponentVariableType_TexturePtr,
-                                         //ComponentVariableType_SoundCuePtr,
-                                         //ComponentVariableType_PointerIndirect,
+    int m_TestInt;                       //ComponentVariableType::Int
+    int m_TestEnum;                      //ComponentVariableType::Enum
+    int m_TestFlags;                     //ComponentVariableType::Flags
+    unsigned int m_TestUInt;             //ComponentVariableType::UnsignedInt,
+                                         ////ComponentVariableType::Char,
+                                         ////ComponentVariableType::UnsignedChar,
+    bool m_TestBool;                     //ComponentVariableType::Bool,
+    float m_TestFloat;                   //ComponentVariableType::Float,
+                                         ////ComponentVariableType::Double,
+                                         ////ComponentVariableType::ColorFloat,
+    ColorByte m_TestColorByte;           //ComponentVariableType::ColorByte,
+    Vector2 m_TestVec2;                  //ComponentVariableType::Vector2,
+    Vector3 m_TestVec3;                  //ComponentVariableType::Vector3,
+    Vector2Int m_TestVec2Int;            //ComponentVariableType::Vector2Int,
+    Vector3Int m_TestVec3Int;            //ComponentVariableType::Vector3Int,
+                                         ////ComponentVariableType::FirstPointerType,
+    GameObject* m_pTestGameObject;       //ComponentVariableType::GameObjectPtr = ComponentVariableType::FirstPointerType,
+    ComponentBase* m_pTestComponent;     //ComponentVariableType::ComponentPtr,
+    MyFileObject* m_pTestFile;           //ComponentVariableType::FilePtr,
+    MaterialDefinition* m_pTestMaterial; //ComponentVariableType::MaterialPtr,
+    TextureDefinition* m_pTestTexture;   //ComponentVariableType::TexturePtr,
+                                         //ComponentVariableType::SoundCuePtr,
+                                         //ComponentVariableType::PointerIndirect,
 
 public:
     VisualScriptNode_Debug_VariableTest(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
@@ -116,30 +116,30 @@ public:
         m_pTestMaterial = nullptr;
         m_pTestTexture = nullptr;
         
-        VSNAddVar( &m_VariablesList, "Int",   ComponentVariableType_Int,           MyOffsetOf( this, &this->m_TestInt ),   false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Int",   ComponentVariableType::Int,           MyOffsetOf( this, &this->m_TestInt ),   false, true, "", nullptr, nullptr, nullptr );
         VSNAddVarEnum(  &m_VariablesList, "Enum",                                  MyOffsetOf( this, &this->m_TestEnum ),  false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
         VSNAddVarFlags( &m_VariablesList, "Flags",                                 MyOffsetOf( this, &this->m_TestFlags ), false, true, "", 5, g_pTestFlags, nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "UInt",  ComponentVariableType_UnsignedInt,   MyOffsetOf( this, &this->m_TestUInt ),  false, true, "", nullptr, nullptr, nullptr );
-        ////ComponentVariableType_Char,
-        ////ComponentVariableType_UnsignedChar,
-        VSNAddVar( &m_VariablesList, "Bool",  ComponentVariableType_Bool,          MyOffsetOf( this, &this->m_TestBool ),  false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "Float", ComponentVariableType_Float,         MyOffsetOf( this, &this->m_TestFloat ), false, true, "", nullptr, nullptr, nullptr );
-        ////ComponentVariableType_Double,
-        ////ComponentVariableType_ColorFloat,
-        VSNAddVar( &m_VariablesList, "Color", ComponentVariableType_ColorByte,     MyOffsetOf( this, &this->m_TestColorByte ), false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "vec2",  ComponentVariableType_Vector2,       MyOffsetOf( this, &this->m_TestVec2 ),      false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "vec3",  ComponentVariableType_Vector3,       MyOffsetOf( this, &this->m_TestVec3 ),      false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "ivec2", ComponentVariableType_Vector2Int,    MyOffsetOf( this, &this->m_TestVec2Int ),   false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "ivec3", ComponentVariableType_Vector3Int,    MyOffsetOf( this, &this->m_TestVec3Int ),   false, true, "", nullptr, nullptr, nullptr );
-        ////ComponentVariableType_FirstPointerType,
-        VSNAddVar( &m_VariablesList, "GO",    ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pTestGameObject ), false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "Nent",  ComponentVariableType_ComponentPtr,  MyOffsetOf( this, &this->m_pTestComponent ),  false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "File",  ComponentVariableType_FilePtr,       MyOffsetOf( this, &this->m_pTestFile ),       false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "Mat",   ComponentVariableType_MaterialPtr,   MyOffsetOf( this, &this->m_pTestMaterial ),   false, true, "", nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "Tex",   ComponentVariableType_TexturePtr,    MyOffsetOf( this, &this->m_pTestTexture ),    false, true, "", nullptr, nullptr, nullptr );
-        //ComponentVariableType_TexturePtr,
-        //ComponentVariableType_SoundCuePtr,
-        //ComponentVariableType_PointerIndirect,
+        VSNAddVar( &m_VariablesList, "UInt",  ComponentVariableType::UnsignedInt,   MyOffsetOf( this, &this->m_TestUInt ),  false, true, "", nullptr, nullptr, nullptr );
+        ////ComponentVariableType::Char,
+        ////ComponentVariableType::UnsignedChar,
+        VSNAddVar( &m_VariablesList, "Bool",  ComponentVariableType::Bool,          MyOffsetOf( this, &this->m_TestBool ),  false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Float", ComponentVariableType::Float,         MyOffsetOf( this, &this->m_TestFloat ), false, true, "", nullptr, nullptr, nullptr );
+        ////ComponentVariableType::Double,
+        ////ComponentVariableType::ColorFloat,
+        VSNAddVar( &m_VariablesList, "Color", ComponentVariableType::ColorByte,     MyOffsetOf( this, &this->m_TestColorByte ), false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "vec2",  ComponentVariableType::Vector2,       MyOffsetOf( this, &this->m_TestVec2 ),      false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "vec3",  ComponentVariableType::Vector3,       MyOffsetOf( this, &this->m_TestVec3 ),      false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "ivec2", ComponentVariableType::Vector2Int,    MyOffsetOf( this, &this->m_TestVec2Int ),   false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "ivec3", ComponentVariableType::Vector3Int,    MyOffsetOf( this, &this->m_TestVec3Int ),   false, true, "", nullptr, nullptr, nullptr );
+        ////ComponentVariableType::FirstPointerType,
+        VSNAddVar( &m_VariablesList, "GO",    ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pTestGameObject ), false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Nent",  ComponentVariableType::ComponentPtr,  MyOffsetOf( this, &this->m_pTestComponent ),  false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "File",  ComponentVariableType::FilePtr,       MyOffsetOf( this, &this->m_pTestFile ),       false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Mat",   ComponentVariableType::MaterialPtr,   MyOffsetOf( this, &this->m_pTestMaterial ),   false, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Tex",   ComponentVariableType::TexturePtr,    MyOffsetOf( this, &this->m_pTestTexture ),    false, true, "", nullptr, nullptr, nullptr );
+        //ComponentVariableType::TexturePtr,
+        //ComponentVariableType::SoundCuePtr,
+        //ComponentVariableType::PointerIndirect,
     }
 
     ~VisualScriptNode_Debug_VariableTest()
@@ -175,7 +175,7 @@ public:
         SetTooltipStrings( nullptr, m_VisualScriptNode_Value_Float_OutputLabels );
 
         m_Float = value;
-        VSNAddVar( &m_VariablesList, "Float", ComponentVariableType_Float, MyOffsetOf( this, &this->m_Float ), true, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Float", ComponentVariableType::Float, MyOffsetOf( this, &this->m_Float ), true, true, "", nullptr, nullptr, nullptr );
     }
 
     const char* GetType() { return "Value_Float"; }
@@ -209,7 +209,7 @@ public:
         SetTooltipStrings( nullptr, m_VisualScriptNode_Value_Color_OutputLabels );
 
         m_Color = color;
-        VSNAddVar( &m_VariablesList, "Color", ComponentVariableType_ColorByte, MyOffsetOf( this, &this->m_Color ), true, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "Color", ComponentVariableType::ColorByte, MyOffsetOf( this, &this->m_Color ), true, true, "", nullptr, nullptr, nullptr );
     }
 
     const char* GetType() { return "Value_Color"; }
@@ -247,7 +247,7 @@ public:
         SetTooltipStrings( nullptr, m_VisualScriptNode_Value_GameObject_OutputLabels );
 
         m_pGameObject = pGameObject;
-        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
+        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
             (CVarFunc_ValueChanged)&VisualScriptNode_Value_GameObject::OnValueChanged,
             (CVarFunc_DropTarget)&VisualScriptNode_Value_GameObject::OnDrop, nullptr );
     }
@@ -289,7 +289,7 @@ public:
         SetTooltipStrings( nullptr, m_VisualScriptNode_Value_Component_OutputLabels );
 
         m_pComponent = pComponent;
-        VSNAddVar( &m_VariablesList, "Component", ComponentVariableType_ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), true, true, "",
+        VSNAddVar( &m_VariablesList, "Component", ComponentVariableType::ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), true, true, "",
             (CVarFunc_ValueChanged)&VisualScriptNode_Value_Component::OnValueChanged,
             (CVarFunc_DropTarget)&VisualScriptNode_Value_Component::OnDrop, nullptr );
     }
@@ -443,7 +443,7 @@ public:
         m_KeyCode = keyCode;
 
         VSNAddVarEnum( &m_VariablesList, "Action", MyOffsetOf( this, &this->m_ButtonAction ), true, true, "", 3, g_GameCoreButtonActionStrings, nullptr, nullptr, nullptr );
-        VSNAddVar( &m_VariablesList, "KeyCode", ComponentVariableType_Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, "", nullptr, nullptr, nullptr );
+        VSNAddVar( &m_VariablesList, "KeyCode", ComponentVariableType::Int, MyOffsetOf( this, &this->m_KeyCode ), true, true, "", nullptr, nullptr, nullptr );
     }
 
     const char* GetType() { return "Condition_Keyboard"; }
@@ -561,7 +561,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 1, 0 )
     {
         m_pGameObject = pGameObject;
-        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType_GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
+        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
             (CVarFunc_ValueChanged)&VisualScriptNode_Disable_GameObject::OnValueChanged,
             (CVarFunc_DropTarget)&VisualScriptNode_Disable_GameObject::OnDrop, nullptr );
 

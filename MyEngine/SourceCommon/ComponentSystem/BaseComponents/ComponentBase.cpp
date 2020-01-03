@@ -372,7 +372,7 @@ void ComponentBase::ClearAllVariables_Base(TCPPListHead<ComponentVariable*>* pCo
 }
 
 // Static method.
-ComponentVariable* ComponentBase::AddVariable_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
+ComponentVariable* ComponentBase::AddVariable_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, ComponentVariableType type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel,
         0, 0, 0, 0, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
@@ -390,7 +390,7 @@ ComponentVariable* ComponentBase::AddVariable_Base(TCPPListHead<ComponentVariabl
 // Static method.
 ComponentVariable* ComponentBase::AddVariablePointer_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
-    ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch, watchlabel,
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType::PointerIndirect, -1, saveload, displayinwatch, watchlabel,
         pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc,
         pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
 
@@ -407,7 +407,7 @@ ComponentVariable* ComponentBase::AddVariablePointer_Base(TCPPListHead<Component
 // Static method.
 ComponentVariable* ComponentBase::AddVariableEnum_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
-    ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Enum, offset, saveload, displayinwatch,
+    ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType::Enum, offset, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
     
     pVariable->m_NumEnumStrings = numenums;
@@ -419,7 +419,7 @@ ComponentVariable* ComponentBase::AddVariableEnum_Base(TCPPListHead<ComponentVar
 // Static method.
 ComponentVariable* ComponentBase::AddVariableFlags_Base(TCPPListHead<ComponentVariable*>* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
-    ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Flags, offset, saveload, displayinwatch,
+    ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType::Flags, offset, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
     
     pVariable->m_NumEnumStrings = numenums;
@@ -450,8 +450,8 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
     {
         switch( pVar->m_Type )
         {
-        case ComponentVariableType_Int:
-        case ComponentVariableType_Enum:
+        case ComponentVariableType::Int:
+        case ComponentVariableType::Enum:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(int*)((char*)this + pVar->m_Offset) != *(int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -459,8 +459,8 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_Flags:
-        case ComponentVariableType_UnsignedInt:
+        case ComponentVariableType::Flags:
+        case ComponentVariableType::UnsignedInt:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(unsigned int*)((char*)this + pVar->m_Offset) != *(unsigned int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -468,10 +468,10 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        //ComponentVariableType_Char,
-        //ComponentVariableType_UnsignedChar,
+        //ComponentVariableType::Char,
+        //ComponentVariableType::UnsignedChar,
 
-        case ComponentVariableType_Bool:
+        case ComponentVariableType::Bool:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(bool*)((char*)this + pVar->m_Offset) != *(bool*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -479,7 +479,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_Float:
+        case ComponentVariableType::Float:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(float*)((char*)this + pVar->m_Offset) != *(float*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -487,10 +487,10 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        //ComponentVariableType_Double,
-        //ComponentVariableType_ColorFloat,
+        //ComponentVariableType::Double,
+        //ComponentVariableType::ColorFloat,
 
-        case ComponentVariableType_ColorByte:
+        case ComponentVariableType::ColorByte:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(ColorByte*)((char*)this + pVar->m_Offset) != *(ColorByte*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -498,7 +498,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_Vector2:
+        case ComponentVariableType::Vector2:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(Vector2*)((char*)this + pVar->m_Offset) != *(Vector2*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -506,7 +506,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_Vector3:
+        case ComponentVariableType::Vector3:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(Vector3*)((char*)this + pVar->m_Offset) != *(Vector3*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -514,7 +514,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_Vector2Int:
+        case ComponentVariableType::Vector2Int:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(Vector2Int*)((char*)this + pVar->m_Offset) != *(Vector2Int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -522,7 +522,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_Vector3Int:
+        case ComponentVariableType::Vector3Int:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(Vector3Int*)((char*)this + pVar->m_Offset) != *(Vector3Int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -530,7 +530,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_GameObjectPtr:
+        case ComponentVariableType::GameObjectPtr:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( (GameObject*)((char*)this + pVar->m_Offset) != (GameObject*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -538,11 +538,11 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_ComponentPtr:
-        case ComponentVariableType_FilePtr:
-        case ComponentVariableType_MaterialPtr:
-        case ComponentVariableType_TexturePtr:
-        case ComponentVariableType_SoundCuePtr:
+        case ComponentVariableType::ComponentPtr:
+        case ComponentVariableType::FilePtr:
+        case ComponentVariableType::MaterialPtr:
+        case ComponentVariableType::TexturePtr:
+        case ComponentVariableType::SoundCuePtr:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( *(void**)((char*)this + pVar->m_Offset) != *(void**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
@@ -550,7 +550,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_PointerIndirect:
+        case ComponentVariableType::PointerIndirect:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 if( (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) != (m_MultiSelectedComponents[i]->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) )
@@ -558,7 +558,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType_NumTypes:
+        case ComponentVariableType::NumTypes:
         default:
             MyAssert( false );
             break;
@@ -735,7 +735,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
 
         switch( pVar->m_Type )
         {
-        case ComponentVariableType_Int:
+        case ComponentVariableType::Int:
             {
                 float speed = 1.0f;
                 modified = ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
@@ -743,7 +743,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_Enum:
+        case ComponentVariableType::Enum:
             {
                 const char** items = pVar->m_ppEnumStrings;
                 int currentItem = *(int*)((char*)pObject + pVar->m_Offset);
@@ -781,7 +781,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_Flags:
+        case ComponentVariableType::Flags:
             {
                 const char** items = pVar->m_ppEnumStrings;
                 unsigned int flags = *(int*)((char*)pObject + pVar->m_Offset);
@@ -838,7 +838,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_UnsignedInt:
+        case ComponentVariableType::UnsignedInt:
             {
                 unsigned int* pValueUInt = (unsigned int*)((char*)pObject + pVar->m_Offset);
                 int valueInt = *pValueUInt;
@@ -853,9 +853,9 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        //ComponentVariableType_Char,
-        //ComponentVariableType_UnsignedChar,
-        case ComponentVariableType_Bool:
+        //ComponentVariableType::Char,
+        //ComponentVariableType::UnsignedChar,
+        case ComponentVariableType::Bool:
             {
                 modified = ImGui::Checkbox( pVar->m_WatchLabel, (bool*)((char*)pObject + pVar->m_Offset) );
                 if( modified )
@@ -875,7 +875,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_Float:
+        case ComponentVariableType::Float:
             {
                 float speed = 0.1f;
                 if( pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit > 0 )
@@ -885,10 +885,10 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        //ComponentVariableType_Double,
-        //ComponentVariableType_ColorFloat,
+        //ComponentVariableType::Double,
+        //ComponentVariableType::ColorFloat,
 
-        case ComponentVariableType_ColorByte:
+        case ComponentVariableType::ColorByte:
             {
                 ComponentVariableValue oldValue = ComponentVariableValue( pObject, pVar, pObjectAsComponent );
                 
@@ -905,35 +905,35 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_Vector2:
+        case ComponentVariableType::Vector2:
             {
                 modified = ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 
-        case ComponentVariableType_Vector3:
+        case ComponentVariableType::Vector3:
             {
                 modified = ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)pObject + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 
-        case ComponentVariableType_Vector2Int:
+        case ComponentVariableType::Vector2Int:
             {
                 modified = ImGui::DragInt2( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
                 ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 
-        case ComponentVariableType_Vector3Int:
+        case ComponentVariableType::Vector3Int:
             {
                 modified = ImGui::DragInt3( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
                 ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 
-        case ComponentVariableType_GameObjectPtr:
+        case ComponentVariableType::GameObjectPtr:
             {
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
@@ -1010,7 +1010,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_ComponentPtr:
+        case ComponentVariableType::ComponentPtr:
             {
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
@@ -1084,7 +1084,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_FilePtr:
+        case ComponentVariableType::FilePtr:
             {
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
@@ -1171,7 +1171,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_MaterialPtr:
+        case ComponentVariableType::MaterialPtr:
             {
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
@@ -1253,7 +1253,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_TexturePtr:
+        case ComponentVariableType::TexturePtr:
             {
                 // Group the button and the label into one "control", will make right-click context menu work on button.
                 ImGui::BeginGroup();
@@ -1347,7 +1347,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_SoundCuePtr:
+        case ComponentVariableType::SoundCuePtr:
             {
                 SoundCue* pCue = *(SoundCue**)((char*)pObject + pVar->m_Offset);
 
@@ -1360,7 +1360,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_PointerIndirect:
+        case ComponentVariableType::PointerIndirect:
             if( pObjectAsComponent )
             {
                 // Group the button and the label into one "control", will make right-click context menu work on button.
@@ -1435,7 +1435,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType_NumTypes:
+        case ComponentVariableType::NumTypes:
         //default:
             MyAssert( false );
             break;
@@ -1477,7 +1477,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 }
 
                 // Add material options.
-                if( pVar->m_Type == ComponentVariableType_MaterialPtr )
+                if( pVar->m_Type == ComponentVariableType::MaterialPtr )
                 {
                     MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)pObject + pVar->m_Offset);
 
@@ -1506,7 +1506,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 }
 
                 // Add texture options.
-                if( pVar->m_Type == ComponentVariableType_TexturePtr )
+                if( pVar->m_Type == ComponentVariableType::TexturePtr )
                 {
                     TextureDefinition* pTexture = *(TextureDefinition**)((char*)pObject + pVar->m_Offset);
 
@@ -1544,7 +1544,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 }
 
                 // Add generic "file" options last.
-                if( pVar->m_Type == ComponentVariableType_FilePtr )
+                if( pVar->m_Type == ComponentVariableType::FilePtr )
                 {
                     if( contextMenuItemCount > 0 )
                         ImGui::Separator();
@@ -1601,11 +1601,11 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
         {
             switch( pVar->m_Type )
             {
-            case ComponentVariableType_Int:
+            case ComponentVariableType::Int:
                 cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(int*)((char*)pObject + pVar->m_Offset) );
                 break;
 
-            case ComponentVariableType_Enum:
+            case ComponentVariableType::Enum:
                 {
                     int enumvalue = *(int*)((char*)pObject + pVar->m_Offset);
 
@@ -1622,7 +1622,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 }
                 break;
 
-            case ComponentVariableType_Flags:
+            case ComponentVariableType::Flags:
                 {
                     unsigned int flags = *(unsigned int*)((char*)pObject + pVar->m_Offset);
 
@@ -1647,45 +1647,45 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 }
                 break;
 
-            case ComponentVariableType_UnsignedInt:
+            case ComponentVariableType::UnsignedInt:
                 cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(unsigned int*)((char*)pObject + pVar->m_Offset) );
                 break;
 
-            //ComponentVariableType_Char,
-            //ComponentVariableType_UnsignedChar,
+            //ComponentVariableType::Char,
+            //ComponentVariableType::UnsignedChar,
 
-            case ComponentVariableType_Bool:
+            case ComponentVariableType::Bool:
                 cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(bool*)((char*)pObject + pVar->m_Offset) );
                 break;
 
-            case ComponentVariableType_Float:
+            case ComponentVariableType::Float:
                 cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(float*)((char*)pObject + pVar->m_Offset) );
                 break;
 
-            //ComponentVariableType_Double,
-            //ComponentVariableType_ColorFloat,
+            //ComponentVariableType::Double,
+            //ComponentVariableType::ColorFloat,
 
-            case ComponentVariableType_ColorByte:
+            case ComponentVariableType::ColorByte:
                 cJSONExt_AddUnsignedCharArrayToObject( jComponent, pVar->m_Label, (unsigned char*)((char*)pObject + pVar->m_Offset), 4 );
                 break;
 
-            case ComponentVariableType_Vector2:
+            case ComponentVariableType::Vector2:
                 cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset), 2 );
                 break;
 
-            case ComponentVariableType_Vector3:
+            case ComponentVariableType::Vector3:
                 cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
-            case ComponentVariableType_Vector2Int:
+            case ComponentVariableType::Vector2Int:
                 cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 2 );
                 break;
 
-            case ComponentVariableType_Vector3Int:
+            case ComponentVariableType::Vector3Int:
                 cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
-            case ComponentVariableType_GameObjectPtr:
+            case ComponentVariableType::GameObjectPtr:
                 {
                     GameObject* pGameObject = *(GameObject**)((char*)pObject + pVar->m_Offset);
                     if( pGameObject )
@@ -1695,7 +1695,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 }
                 break;
 
-            case ComponentVariableType_ComponentPtr:
+            case ComponentVariableType::ComponentPtr:
                 {
                     ComponentBase* pComponent = *(ComponentBase**)((char*)pObject + pVar->m_Offset);
                     if( pComponent )
@@ -1709,7 +1709,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 }
                 break;
 
-            case ComponentVariableType_FilePtr:
+            case ComponentVariableType::FilePtr:
                 {
                     MyFileObject* pFile = *(MyFileObject**)((char*)pObject + pVar->m_Offset);
 
@@ -1720,12 +1720,12 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 }
                 break;
 
-            case ComponentVariableType_MaterialPtr:
-            case ComponentVariableType_SoundCuePtr:
+            case ComponentVariableType::MaterialPtr:
+            case ComponentVariableType::SoundCuePtr:
                 MyAssert( false );
                 break;
 
-            case ComponentVariableType_TexturePtr:
+            case ComponentVariableType::TexturePtr:
                 {
                     TextureDefinition* pTexture = *(TextureDefinition**)((char*)pObject + pVar->m_Offset);
 
@@ -1736,7 +1736,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 }
                 break;
 
-            case ComponentVariableType_PointerIndirect:
+            case ComponentVariableType::PointerIndirect:
                 MyAssert( pVar->m_pGetPointerDescCallBackFunc );
                 if( pVar->m_pGetPointerValueCallBackFunc && pVar->m_pGetPointerDescCallBackFunc )
                 {
@@ -1745,7 +1745,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 }
                 break;
 
-            case ComponentVariableType_NumTypes:
+            case ComponentVariableType::NumTypes:
             default:
                 MyAssert( false );
                 break;
@@ -1778,11 +1778,11 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
         {
             switch( pVar->m_Type )
             {
-            case ComponentVariableType_Int:
+            case ComponentVariableType::Int:
                 cJSONExt_GetInt( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset) );
                 break;
 
-            case ComponentVariableType_Enum:
+            case ComponentVariableType::Enum:
                 {
                     cJSON* obj = cJSON_GetObjectItem( jComponent, pVar->m_Label );
 
@@ -1809,7 +1809,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 }
                 break;
 
-            case ComponentVariableType_Flags:
+            case ComponentVariableType::Flags:
                 {
                     cJSON* jFlagsArray = cJSON_GetObjectItem( jComponent, pVar->m_Label );
 
@@ -1866,45 +1866,45 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 }
                 break;
 
-            case ComponentVariableType_UnsignedInt:
+            case ComponentVariableType::UnsignedInt:
                 cJSONExt_GetUnsignedInt( jComponent, pVar->m_Label, (unsigned int*)((char*)pObject + pVar->m_Offset) );
                 break;
 
-            //ComponentVariableType_Char,
-            //ComponentVariableType_UnsignedChar,
+            //ComponentVariableType::Char,
+            //ComponentVariableType::UnsignedChar,
 
-            case ComponentVariableType_Bool:
+            case ComponentVariableType::Bool:
                 cJSONExt_GetBool( jComponent, pVar->m_Label, (bool*)((char*)pObject + pVar->m_Offset) );
                 break;
 
-            case ComponentVariableType_Float:
+            case ComponentVariableType::Float:
                 cJSONExt_GetFloat( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset) );
                 break;
 
-            //ComponentVariableType_Double,
-            //ComponentVariableType_ColorFloat,
+            //ComponentVariableType::Double,
+            //ComponentVariableType::ColorFloat,
 
-            case ComponentVariableType_ColorByte:
+            case ComponentVariableType::ColorByte:
                 cJSONExt_GetUnsignedCharArray( jComponent, pVar->m_Label, (unsigned char*)((char*)pObject + pVar->m_Offset), 4 );
                 break;
 
-            case ComponentVariableType_Vector2:
+            case ComponentVariableType::Vector2:
                 cJSONExt_GetFloatArray( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset), 2 );
                 break;
 
-            case ComponentVariableType_Vector3:
+            case ComponentVariableType::Vector3:
                 cJSONExt_GetFloatArray( jComponent, pVar->m_Label, (float*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
-            case ComponentVariableType_Vector2Int:
+            case ComponentVariableType::Vector2Int:
                 cJSONExt_GetIntArray( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 2 );
                 break;
 
-            case ComponentVariableType_Vector3Int:
+            case ComponentVariableType::Vector3Int:
                 cJSONExt_GetIntArray( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
-            case ComponentVariableType_GameObjectPtr:
+            case ComponentVariableType::GameObjectPtr:
                 {
                     unsigned int parentid = 0;
                     cJSONExt_GetUnsignedInt( jComponent, pVar->m_Label, &parentid );
@@ -1916,7 +1916,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 }
                 break;
 
-            case ComponentVariableType_ComponentPtr:
+            case ComponentVariableType::ComponentPtr:
                 {
                     cJSON* jComponentRef = cJSON_GetObjectItem( jComponent, pVar->m_Label );
                     if( jComponentRef )
@@ -1927,7 +1927,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 }
                 break;
 
-            case ComponentVariableType_FilePtr:
+            case ComponentVariableType::FilePtr:
                 {
                     cJSON* jFileName = cJSON_GetObjectItem( jComponent, pVar->m_Label );
 
@@ -1954,12 +1954,12 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 }
                 break;
 
-            case ComponentVariableType_MaterialPtr:
-            case ComponentVariableType_SoundCuePtr:
+            case ComponentVariableType::MaterialPtr:
+            case ComponentVariableType::SoundCuePtr:
                 MyAssert( false );
                 break;
 
-            case ComponentVariableType_TexturePtr:
+            case ComponentVariableType::TexturePtr:
                 {
                     cJSON* jTextureName = cJSON_GetObjectItem( jComponent, pVar->m_Label );
 
@@ -1986,7 +1986,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 }
                 break;
 
-            case ComponentVariableType_PointerIndirect:
+            case ComponentVariableType::PointerIndirect:
                 MyAssert( pVar->m_pSetPointerDescCallBackFunc );
                 if( pVar->m_pSetPointerDescCallBackFunc )
                 {
@@ -1996,7 +1996,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 }
                 break;
 
-            case ComponentVariableType_NumTypes:
+            case ComponentVariableType::NumTypes:
             default:
                 MyAssert( false );
                 break;
@@ -2063,31 +2063,31 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
 
             switch( pVar->m_Type )
             {
-            case ComponentVariableType_Int:
-            case ComponentVariableType_Enum:
+            case ComponentVariableType::Int:
+            case ComponentVariableType::Enum:
                 return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
 
-            case ComponentVariableType_UnsignedInt:
-            case ComponentVariableType_Flags:
+            case ComponentVariableType::UnsignedInt:
+            case ComponentVariableType::Flags:
                 return *(unsigned int*)((char*)this + offset) == *(unsigned int*)((char*)pOtherComponent + offset);
 
-            //ComponentVariableType_Char,
+            //ComponentVariableType::Char,
             //    return *(char*)((char*)this + offset) == *(char*)((char*)pOtherComponent + offset);
-            //ComponentVariableType_UnsignedChar,
+            //ComponentVariableType::UnsignedChar,
             //    return *(unsigned char*)((char*)this + offset) == *(unsigned char*)((char*)pOtherComponent + offset);
 
-            case ComponentVariableType_Bool:
+            case ComponentVariableType::Bool:
                 return *(bool*)((char*)this + offset) == *(bool*)((char*)pOtherComponent + offset);
 
-            case ComponentVariableType_Float:
+            case ComponentVariableType::Float:
                 return *(float*)((char*)this + offset) == *(float*)((char*)pOtherComponent + offset);
 
-            //ComponentVariableType_Double,
+            //ComponentVariableType::Double,
             //    return *(double*)((char*)this + offset) == *(double*)((char*)pOtherComponent + offset);
 
-            //ComponentVariableType_ColorFloat,
+            //ComponentVariableType::ColorFloat,
 
-            case ComponentVariableType_ColorByte:
+            case ComponentVariableType::ColorByte:
                 if( controlcomponent == 0 )
                 {
                     ColorByte* thiscolor = (ColorByte*)((char*)this + offset);
@@ -2102,32 +2102,32 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
                 }
                 break;
 
-            case ComponentVariableType_Vector2:
-            case ComponentVariableType_Vector3:
+            case ComponentVariableType::Vector2:
+            case ComponentVariableType::Vector3:
                 offset += controlcomponent*4;
                 return *(float*)((char*)this + offset) == *(float*)((char*)pOtherComponent + offset);
 
-            case ComponentVariableType_Vector2Int:
-            case ComponentVariableType_Vector3Int:
+            case ComponentVariableType::Vector2Int:
+            case ComponentVariableType::Vector3Int:
                 offset += controlcomponent*4;
                 return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
 
-            case ComponentVariableType_GameObjectPtr:
+            case ComponentVariableType::GameObjectPtr:
                 MyAssert( false );
                 break;
 
-            case ComponentVariableType_FilePtr:
-            case ComponentVariableType_ComponentPtr:
-            case ComponentVariableType_MaterialPtr:
-            case ComponentVariableType_TexturePtr:
-            case ComponentVariableType_SoundCuePtr:
+            case ComponentVariableType::FilePtr:
+            case ComponentVariableType::ComponentPtr:
+            case ComponentVariableType::MaterialPtr:
+            case ComponentVariableType::TexturePtr:
+            case ComponentVariableType::SoundCuePtr:
                 return *(void**)((char*)this + offset) == *(void**)((char*)pOtherComponent + offset);
 
-            case ComponentVariableType_PointerIndirect:
+            case ComponentVariableType::PointerIndirect:
                 return (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == (pOtherComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                 break;
 
-            case ComponentVariableType_NumTypes:
+            case ComponentVariableType::NumTypes:
             default:
                 MyAssert( false );
                 break;
@@ -2165,8 +2165,8 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
     // Compare the variable.
     switch( pVar->m_Type )
     {
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:
+    case ComponentVariableType::Int:
+    case ComponentVariableType::Enum:
         {
             size_t offset = pVar->m_Offset;
 
@@ -2184,8 +2184,8 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Flags:
+    case ComponentVariableType::UnsignedInt:
+    case ComponentVariableType::Flags:
         {
             size_t offset = pVar->m_Offset;
 
@@ -2203,10 +2203,10 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    //ComponentVariableType_Char,
-    //ComponentVariableType_UnsignedChar,
+    //ComponentVariableType::Char,
+    //ComponentVariableType::UnsignedChar,
 
-    case ComponentVariableType_Bool:
+    case ComponentVariableType::Bool:
         {
             size_t offset = pVar->m_Offset;
 
@@ -2224,7 +2224,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    case ComponentVariableType_Float:
+    case ComponentVariableType::Float:
         {
             size_t offset = pVar->m_Offset;
             
@@ -2242,10 +2242,10 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    //ComponentVariableType_Double,
-    //ComponentVariableType_ColorFloat,
+    //ComponentVariableType::Double,
+    //ComponentVariableType::ColorFloat,
 
-    case ComponentVariableType_ColorByte:
+    case ComponentVariableType::ColorByte:
         for( int component = 0; component < 4; component++ )
         {
             size_t offset = pVar->m_Offset + sizeof(unsigned char)*component;
@@ -2264,11 +2264,11 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    case ComponentVariableType_Vector2:
-    case ComponentVariableType_Vector3:
+    case ComponentVariableType::Vector2:
+    case ComponentVariableType::Vector3:
         for( int component = 0; component < 3; component++ )
         {
-            if( pVar->m_Type == ComponentVariableType_Vector2 && component >= 2 )
+            if( pVar->m_Type == ComponentVariableType::Vector2 && component >= 2 )
                 continue;
 
             size_t offset = pVar->m_Offset + component*4;
@@ -2287,11 +2287,11 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    case ComponentVariableType_Vector2Int:
-    case ComponentVariableType_Vector3Int:
+    case ComponentVariableType::Vector2Int:
+    case ComponentVariableType::Vector3Int:
         for( int component = 0; component < 3; component++ )
         {
-            if( pVar->m_Type == ComponentVariableType_Vector2 && component >= 2 )
+            if( pVar->m_Type == ComponentVariableType::Vector2 && component >= 2 )
                 continue;
 
             size_t offset = pVar->m_Offset + component*4;
@@ -2310,14 +2310,14 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    case ComponentVariableType_GameObjectPtr:
+    case ComponentVariableType::GameObjectPtr:
         MyAssert( false );
         break;
 
-    case ComponentVariableType_FilePtr:
-    case ComponentVariableType_ComponentPtr:
-    case ComponentVariableType_MaterialPtr:
-    case ComponentVariableType_SoundCuePtr:
+    case ComponentVariableType::FilePtr:
+    case ComponentVariableType::ComponentPtr:
+    case ComponentVariableType::MaterialPtr:
+    case ComponentVariableType::SoundCuePtr:
         {
             size_t offset = pVar->m_Offset;
 
@@ -2338,7 +2338,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    case ComponentVariableType_PointerIndirect:
+    case ComponentVariableType::PointerIndirect:
         {
             void* childpointer = (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
 
@@ -2364,7 +2364,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         }
         break;
 
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
         break;
@@ -2707,11 +2707,11 @@ ComponentVariable* ComponentBase::FindComponentVariableForControl(int controlid)
         MyAssert( pVar );
 
         if( pVar->m_ControlID == controlid ||
-            (pVar->m_Type == ComponentVariableType_Vector2Int && (pVar->m_ControlID+1 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_Vector3Int && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_Vector2 && (pVar->m_ControlID+1 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_ColorByte && (pVar->m_ControlID+1 == controlid) )
+            (pVar->m_Type == ComponentVariableType::Vector2Int && (pVar->m_ControlID+1 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType::Vector3Int && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType::Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType::Vector2 && (pVar->m_ControlID+1 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType::ColorByte && (pVar->m_ControlID+1 == controlid) )
           )
         {
             return pVar;
@@ -2730,30 +2730,30 @@ double ComponentBase::GetCurrentValueFromVariable(ComponentVariable* pVar, int c
 
     switch( pVar->m_Type )
     {
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:            value = *(int*)memoryaddr;                              break;
-    case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Flags:           value = *(unsigned int*)memoryaddr;                     break;
-    //ComponentVariableType_Char,
-    //ComponentVariableType_UnsignedChar,
-    case ComponentVariableType_Bool:            value = *(bool*)memoryaddr;                             break;
-    case ComponentVariableType_Float:           value = *(float*)memoryaddr;                            break;
-    //ComponentVariableType_Double,
-    //ComponentVariableType_ColorFloat,
-    case ComponentVariableType_ColorByte:                                                               break;
-    case ComponentVariableType_Vector2:         value = (*(Vector2*)memoryaddr)[controlcomponent];      break;
-    case ComponentVariableType_Vector3:         value = (*(Vector3*)memoryaddr)[controlcomponent];      break;
-    case ComponentVariableType_Vector2Int:      value = (*(Vector2Int*)memoryaddr)[controlcomponent];   break;
-    case ComponentVariableType_Vector3Int:      value = (*(Vector3Int*)memoryaddr)[controlcomponent];   break;
-    case ComponentVariableType_GameObjectPtr:
-    case ComponentVariableType_FilePtr:
-    case ComponentVariableType_ComponentPtr:
-    case ComponentVariableType_MaterialPtr:
-    case ComponentVariableType_TexturePtr:
-    case ComponentVariableType_SoundCuePtr:
-    case ComponentVariableType_PointerIndirect:                                                         break;
+    case ComponentVariableType::Int:
+    case ComponentVariableType::Enum:            value = *(int*)memoryaddr;                              break;
+    case ComponentVariableType::UnsignedInt:
+    case ComponentVariableType::Flags:           value = *(unsigned int*)memoryaddr;                     break;
+    //ComponentVariableType::Char,
+    //ComponentVariableType::UnsignedChar,
+    case ComponentVariableType::Bool:            value = *(bool*)memoryaddr;                             break;
+    case ComponentVariableType::Float:           value = *(float*)memoryaddr;                            break;
+    //ComponentVariableType::Double,
+    //ComponentVariableType::ColorFloat,
+    case ComponentVariableType::ColorByte:                                                               break;
+    case ComponentVariableType::Vector2:         value = (*(Vector2*)memoryaddr)[controlcomponent];      break;
+    case ComponentVariableType::Vector3:         value = (*(Vector3*)memoryaddr)[controlcomponent];      break;
+    case ComponentVariableType::Vector2Int:      value = (*(Vector2Int*)memoryaddr)[controlcomponent];   break;
+    case ComponentVariableType::Vector3Int:      value = (*(Vector3Int*)memoryaddr)[controlcomponent];   break;
+    case ComponentVariableType::GameObjectPtr:
+    case ComponentVariableType::FilePtr:
+    case ComponentVariableType::ComponentPtr:
+    case ComponentVariableType::MaterialPtr:
+    case ComponentVariableType::TexturePtr:
+    case ComponentVariableType::SoundCuePtr:
+    case ComponentVariableType::PointerIndirect:                                                         break;
 
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
         break;
@@ -2773,8 +2773,8 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
     switch( pVar->m_Type )
     {
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:
+    case ComponentVariableType::Int:
+    case ComponentVariableType::Enum:
         {
             int oldvalue = *(int*)((char*)this + offset);
             *(int*)((char*)this + offset) = oldvalue + (int)changetoapply;
@@ -2796,8 +2796,8 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }
         break;
 
-    case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Flags:
+    case ComponentVariableType::UnsignedInt:
+    case ComponentVariableType::Flags:
         {
             unsigned int oldvalue = *(unsigned int*)((char*)this + offset);
             *(unsigned int*)((char*)this + offset) = oldvalue + (unsigned int)changetoapply;
@@ -2814,13 +2814,13 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }
         break;
 
-    //ComponentVariableType_Char,
+    //ComponentVariableType::Char,
     //    break;
 
-    //ComponentVariableType_UnsignedChar,
+    //ComponentVariableType::UnsignedChar,
     //    break;
 
-    case ComponentVariableType_Bool:
+    case ComponentVariableType::Bool:
         {
             // This function should only be used if mouse if dragging a value, which shouldn't be possible with bools.
             MyAssert( false );
@@ -2840,7 +2840,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }
         break;
 
-    case ComponentVariableType_Float:
+    case ComponentVariableType::Float:
         {
             float oldvalue = *(float*)((char*)this + offset);
             *(float*)((char*)this + offset) = oldvalue + (float)changetoapply;
@@ -2857,13 +2857,13 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }
         break;
 
-    //ComponentVariableType_Double,
+    //ComponentVariableType::Double,
     //    break;
 
-    //ComponentVariableType_ColorFloat,
+    //ComponentVariableType::ColorFloat,
     //    break;
 
-    case ComponentVariableType_ColorByte:
+    case ComponentVariableType::ColorByte:
         {
             MyAssert( false );
             //ColorByte* thiscolor = (ColorByte*)((char*)this + offset);
@@ -2888,7 +2888,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }                
         break;
 
-    case ComponentVariableType_Vector2:
+    case ComponentVariableType::Vector2:
         {
             float oldvalue = (*(Vector2*)((char*)this + offset))[controlcomponent];
             (*(Vector2*)((char*)this + offset))[controlcomponent] = oldvalue + (float)changetoapply;
@@ -2906,7 +2906,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }
         break;
 
-    case ComponentVariableType_Vector3:
+    case ComponentVariableType::Vector3:
         {
             float oldvalue = (*(Vector3*)((char*)this + offset))[controlcomponent];
             (*(Vector3*)((char*)this + offset))[controlcomponent] = oldvalue + (float)changetoapply;
@@ -2924,7 +2924,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }
         break;
 
-    case ComponentVariableType_Vector2Int:
+    case ComponentVariableType::Vector2Int:
         {
             int oldvalue = (*(Vector2Int*)((char*)this + offset))[controlcomponent];
             (*(Vector2Int*)((char*)this + offset))[controlcomponent] = oldvalue + (int)changetoapply;
@@ -2942,7 +2942,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }
         break;
 
-    case ComponentVariableType_Vector3Int:
+    case ComponentVariableType::Vector3Int:
         {
             int oldvalue = (*(Vector3Int*)((char*)this + offset))[controlcomponent];
             (*(Vector3Int*)((char*)this + offset))[controlcomponent] = oldvalue + (int)changetoapply;
@@ -2960,13 +2960,13 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         }
         break;
 
-    case ComponentVariableType_GameObjectPtr:
-    case ComponentVariableType_FilePtr:
-    case ComponentVariableType_MaterialPtr:
-    case ComponentVariableType_SoundCuePtr:
-    case ComponentVariableType_ComponentPtr:
-    case ComponentVariableType_PointerIndirect:
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::GameObjectPtr:
+    case ComponentVariableType::FilePtr:
+    case ComponentVariableType::MaterialPtr:
+    case ComponentVariableType::SoundCuePtr:
+    case ComponentVariableType::ComponentPtr:
+    case ComponentVariableType::PointerIndirect:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
         break;
@@ -2980,8 +2980,8 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
     switch( pVar->m_Type )
     {
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:
+    case ComponentVariableType::Int:
+    case ComponentVariableType::Enum:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3005,8 +3005,8 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Flags:
+    case ComponentVariableType::UnsignedInt:
+    case ComponentVariableType::Flags:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3030,13 +3030,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    //ComponentVariableType_Char,
+    //ComponentVariableType::Char,
     //    break;
 
-    //ComponentVariableType_UnsignedChar,
+    //ComponentVariableType::UnsignedChar,
     //    break;
 
-    case ComponentVariableType_Bool:
+    case ComponentVariableType::Bool:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3060,7 +3060,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_Float:
+    case ComponentVariableType::Float:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3084,13 +3084,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    //ComponentVariableType_Double,
+    //ComponentVariableType::Double,
     //    break;
 
-    //ComponentVariableType_ColorFloat,
+    //ComponentVariableType::ColorFloat,
     //    break;
 
-    case ComponentVariableType_ColorByte:
+    case ComponentVariableType::ColorByte:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3120,7 +3120,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }                
         break;
 
-    case ComponentVariableType_Vector2:
+    case ComponentVariableType::Vector2:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3148,7 +3148,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_Vector3:
+    case ComponentVariableType::Vector3:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3173,7 +3173,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_Vector2Int:
+    case ComponentVariableType::Vector2Int:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3201,7 +3201,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_Vector3Int:
+    case ComponentVariableType::Vector3Int:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
@@ -3234,7 +3234,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         break;
 
     // Pointers types needs to add to undo manually in their OnValueChanged callbacks.
-    case ComponentVariableType_GameObjectPtr:
+    case ComponentVariableType::GameObjectPtr:
         {
             // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
             assert( addUndoCommand == true );
@@ -3246,7 +3246,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_FilePtr:
+    case ComponentVariableType::FilePtr:
         {
             // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
             assert( addUndoCommand == true );
@@ -3258,7 +3258,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType::MaterialPtr:
         {
             // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
             assert( addUndoCommand == true );
@@ -3270,7 +3270,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_TexturePtr:
+    case ComponentVariableType::TexturePtr:
         {
             // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
             assert( addUndoCommand == true );
@@ -3282,7 +3282,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_SoundCuePtr:
+    case ComponentVariableType::SoundCuePtr:
         {
             // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
             assert( addUndoCommand == true );
@@ -3296,7 +3296,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_ComponentPtr:
+    case ComponentVariableType::ComponentPtr:
         {
             // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
             assert( addUndoCommand == true );
@@ -3308,7 +3308,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_PointerIndirect:
+    case ComponentVariableType::PointerIndirect:
         {
             // Will add an undo command, so this method shouldn't be called for this ComponentVariableType.
             assert( addUndoCommand == true );
@@ -3318,7 +3318,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
         break;
@@ -3430,8 +3430,8 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
     // Found the matching component, now compare the variable.
     switch( pVar->m_Type )
     {
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:
+    case ComponentVariableType::Int:
+    case ComponentVariableType::Enum:
         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
@@ -3447,8 +3447,8 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Flags:
+    case ComponentVariableType::UnsignedInt:
+    case ComponentVariableType::Flags:
         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
@@ -3464,10 +3464,10 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    //ComponentVariableType_Char,
-    //ComponentVariableType_UnsignedChar,
+    //ComponentVariableType::Char,
+    //ComponentVariableType::UnsignedChar,
 
-    case ComponentVariableType_Bool:
+    case ComponentVariableType::Bool:
         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
@@ -3483,7 +3483,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    case ComponentVariableType_Float:
+    case ComponentVariableType::Float:
         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
@@ -3499,10 +3499,10 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    //ComponentVariableType_Double,
-    //ComponentVariableType_ColorFloat,
+    //ComponentVariableType::Double,
+    //ComponentVariableType::ColorFloat,
 
-    case ComponentVariableType_ColorByte:
+    case ComponentVariableType::ColorByte:
         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
@@ -3538,8 +3538,8 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    case ComponentVariableType_Vector2:
-    case ComponentVariableType_Vector3:
+    case ComponentVariableType::Vector2:
+    case ComponentVariableType::Vector3:
         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
@@ -3555,8 +3555,8 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    case ComponentVariableType_Vector2Int:
-    case ComponentVariableType_Vector3Int:
+    case ComponentVariableType::Vector2Int:
+    case ComponentVariableType::Vector3Int:
         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
@@ -3572,15 +3572,15 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    case ComponentVariableType_GameObjectPtr:
+    case ComponentVariableType::GameObjectPtr:
         MyAssert( false );
         break;
 
-    case ComponentVariableType_FilePtr:
-    case ComponentVariableType_ComponentPtr:
-    case ComponentVariableType_MaterialPtr:
-    case ComponentVariableType_TexturePtr:
-    case ComponentVariableType_SoundCuePtr:
+    case ComponentVariableType::FilePtr:
+    case ComponentVariableType::ComponentPtr:
+    case ComponentVariableType::MaterialPtr:
+    case ComponentVariableType::TexturePtr:
+    case ComponentVariableType::SoundCuePtr:
         {
             if( fromdraganddrop )
             {
@@ -3620,7 +3620,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    case ComponentVariableType_PointerIndirect:
+    case ComponentVariableType::PointerIndirect:
         {
             if( fromdraganddrop )
             {
@@ -3658,7 +3658,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    case ComponentVariableType_NumTypes:
+    case ComponentVariableType::NumTypes:
     default:
         MyAssert( false );
         break;
@@ -3740,27 +3740,27 @@ bool ComponentBase::IsReferencingFile(MyFileObject* pFile)
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
 
-        //if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
-        //if( pVar->m_Type == ComponentVariableType_ComponentPtr )
-        if( pVar->m_Type == ComponentVariableType_FilePtr )
+        //if( pVar->m_Type == ComponentVariableType::GameObjectPtr )
+        //if( pVar->m_Type == ComponentVariableType::ComponentPtr )
+        if( pVar->m_Type == ComponentVariableType::FilePtr )
         {
             MyFileObject* pFileFromComponent = (MyFileObject*)(*(void**)((char*)this + pVar->m_Offset));
             if( pFileFromComponent && pFileFromComponent == pFile )
                 return true;
         }
-        else if( pVar->m_Type == ComponentVariableType_MaterialPtr )
+        else if( pVar->m_Type == ComponentVariableType::MaterialPtr )
         {
             MaterialDefinition* pMaterial = (MaterialDefinition*)(*(void**)((char*)this + pVar->m_Offset));
             if( pMaterial && pMaterial->GetFile() == pFile )
                 return true;
         }
-        else if( pVar->m_Type == ComponentVariableType_SoundCuePtr )
+        else if( pVar->m_Type == ComponentVariableType::SoundCuePtr )
         {
             SoundCue* pSoundCue = (SoundCue*)(*(void**)((char*)this + pVar->m_Offset));
             if( pSoundCue && pSoundCue->GetFile() == pFile )
                 return true;
         }
-        else if( pVar->m_Type == ComponentVariableType_PointerIndirect )
+        else if( pVar->m_Type == ComponentVariableType::PointerIndirect )
         {
             void* ptr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
             if( ptr == pFile )

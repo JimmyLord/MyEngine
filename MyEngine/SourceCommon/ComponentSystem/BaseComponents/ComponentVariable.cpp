@@ -11,7 +11,7 @@
 
 #include "ComponentVariable.h"
 
-ComponentVariable::ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel,
+ComponentVariable::ComponentVariable(const char* label, ComponentVariableType type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel,
     CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc,
     CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc,
     CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc )
