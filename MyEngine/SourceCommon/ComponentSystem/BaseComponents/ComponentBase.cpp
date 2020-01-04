@@ -1018,9 +1018,11 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 ComponentBase* pComponent = *(ComponentBase**)((char*)pObject + pVar->m_Offset);
 
                 const char* pDesc = "none";
+                const char* pTooltipString = nullptr;
                 if( pComponent )
                 {
-                    pDesc = pComponent->m_pGameObject->GetName();
+                    pDesc = pComponent->GetGameObject()->GetName();
+                    pTooltipString = pComponent->GetClassname();
                 }
 
                 float width = ImGui::GetWindowWidth() * 0.65f;
@@ -1081,6 +1083,13 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 ImGui::Text( pVar->m_WatchLabel );
 
                 ImGui::EndGroup();
+
+                if( ImGui::IsItemHovered() && pTooltipString )
+                {
+                    ImGui::BeginTooltip();
+                    ImGui::Text( "%s", pTooltipString );
+                    ImGui::EndTooltip();
+                }
             }
             break;
 
@@ -1097,7 +1106,8 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
                 const char* pDesc = "none";
                 if( pFile )
                 {
-                    pDesc = pFile->GetFullPath();
+                    //pDesc = pFile->GetFullPath();
+                    pDesc = pFile->GetFilename();
                     buttonColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
                     textColor = pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                 }
