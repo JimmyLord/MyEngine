@@ -247,29 +247,10 @@ public:
         SetTooltipStrings( nullptr, m_VisualScriptNode_Value_GameObject_OutputLabels );
 
         m_pGameObject = pGameObject;
-        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
-            (CVarFunc_ValueChanged)&VisualScriptNode_Value_GameObject::OnValueChanged,
-            (CVarFunc_DropTarget)&VisualScriptNode_Value_GameObject::OnDrop, nullptr );
+        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "", nullptr, nullptr, nullptr );
     }
 
     const char* GetType() { return "Value_GameObject"; }
-
-    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
-    {
-        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-        if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
-        {
-            m_pGameObject = (GameObject*)pDropItem->m_Value;
-        }
-
-        return nullptr;
-    }
-
-    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
-    {
-        return nullptr;
-    }
 };
 
 //====================================================================================================
@@ -289,29 +270,10 @@ public:
         SetTooltipStrings( nullptr, m_VisualScriptNode_Value_Component_OutputLabels );
 
         m_pComponent = pComponent;
-        VSNAddVar( &m_VariablesList, "Component", ComponentVariableType::ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), true, true, "",
-            (CVarFunc_ValueChanged)&VisualScriptNode_Value_Component::OnValueChanged,
-            (CVarFunc_DropTarget)&VisualScriptNode_Value_Component::OnDrop, nullptr );
+        VSNAddVar( &m_VariablesList, "Component", ComponentVariableType::ComponentPtr, MyOffsetOf( this, &this->m_pComponent ), true, true, "", nullptr, nullptr, nullptr );
     }
 
     const char* GetType() { return "Value_Component"; }
-
-    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
-    {
-        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-        if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
-        {
-            m_pComponent = (ComponentBase*)pDropItem->m_Value;
-        }
-
-        return nullptr;
-    }
-
-    void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
-    {
-        return nullptr;
-    }
 };
 
 //====================================================================================================
@@ -561,9 +523,7 @@ public:
     : VisualScriptNode( pNodeGraph, id, name, pos, 1, 0 )
     {
         m_pGameObject = pGameObject;
-        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "",
-            (CVarFunc_ValueChanged)&VisualScriptNode_Disable_GameObject::OnValueChanged,
-            (CVarFunc_DropTarget)&VisualScriptNode_Disable_GameObject::OnDrop, nullptr );
+        VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "", nullptr, nullptr, nullptr );
 
         m_InputTooltips = m_VisualScriptNode_Disable_GameObject_InputLabels;
         m_OutputTooltips = nullptr;
@@ -586,18 +546,6 @@ public:
             else
                 ImGui::Text( "%s: not set" );
         }
-    }
-
-    void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
-    {
-        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-        if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
-        {
-            m_pGameObject = (GameObject*)pDropItem->m_Value;
-        }
-
-        return nullptr;
     }
 
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
