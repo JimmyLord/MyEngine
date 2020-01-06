@@ -742,12 +742,16 @@ void ComponentHeightmap::LoadFromHeightmap()
 
 bool ComponentHeightmap::GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const
 {
-    ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
-    MyAssert( pTransform );
+    Vector3 localPos = Vector3( x, 0, z );
 
-    // Get the local position.
-    MyMatrix* pWorldMat = pTransform->GetWorldTransform();
-    Vector3 localPos = pWorldMat->GetInverse() * Vector3( x, 0, z );
+    // If dealing with a gameobject, transform position into local space.
+    if( this->m_pGameObject )
+    {
+        ComponentTransform* pTransform = this->m_pGameObject->GetTransform();
+        MyAssert( pTransform );
+        MyMatrix* pWorldMat = pTransform->GetWorldTransform();
+        localPos = pWorldMat->GetInverse() * localPos;
+    }
 
     // Get the tile coordinates.
     Vector2Int tileCoords = (m_VertCount-1) * (localPos.XZ()/m_Size);
