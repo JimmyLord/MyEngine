@@ -31,6 +31,8 @@ ComponentVariable::ComponentVariable(const char* label, ComponentVariableType ty
     m_FloatLowerLimit = 0;
     m_FloatUpperLimit = 0;
 
+    m_TextLimit = 0;
+
     m_pOnDropCallbackFunc = pOnDropCallBackFunc;
     m_pOnButtonPressedCallbackFunc = pOnButtonPressedCallBackFunc;
     m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
@@ -67,9 +69,10 @@ void ComponentVariable::AddCallback_OnRightClick(CVarFunc pRightClickFunc, CVarF
     m_pOnPopupClickCallbackFunc = pPopupClickFunc;
 }
 
-void ComponentVariable::SetEditorLimits(float lowerlimit, float upperlimit)
+void ComponentVariable::SetEditorLimits(float lowerLimit, float upperLimit, int textLimit)
 {
-    m_FloatLowerLimit = lowerlimit;
-    m_FloatUpperLimit = upperlimit;
+    m_FloatLowerLimit = lowerLimit;
+    m_FloatUpperLimit = upperLimit;
+    m_TextLimit = textLimit;
 }
 #endif //MYFW_EDITOR

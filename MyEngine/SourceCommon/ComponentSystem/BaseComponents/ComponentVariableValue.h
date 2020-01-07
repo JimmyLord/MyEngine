@@ -69,6 +69,7 @@ public:
     Vector3             GetVector3()         { MyAssert( m_Type == ComponentVariableType::Vector3 );         return m_Vector3; }
     Vector2Int          GetVector2Int()      { MyAssert( m_Type == ComponentVariableType::Vector2Int );      return m_Vector2Int; }
     Vector3Int          GetVector3Int()      { MyAssert( m_Type == ComponentVariableType::Vector3Int );      return m_Vector3Int; }
+    // TODO:ComponentVariableType::String
     GameObject*         GetGameObjectPtr()   { MyAssert( m_Type == ComponentVariableType::GameObjectPtr );   return m_GameObjectPtr; }
     MyFileObject*       GetFilePtr()         { MyAssert( m_Type == ComponentVariableType::FilePtr );         return m_FilePtr; }
     ComponentBase*      GetComponentPtr()    { MyAssert( m_Type == ComponentVariableType::ComponentPtr );    return m_ComponentPtr; }

@@ -48,6 +48,9 @@ void ComponentVariableValue::GetValueFromVariable(void* pObject, ComponentVariab
     case ComponentVariableType::Vector3:         m_Vector3 = *(Vector3*)memoryAddr;                                                  break;
     case ComponentVariableType::Vector2Int:      m_Vector2Int = *(Vector2Int*)memoryAddr;                                            break;
     case ComponentVariableType::Vector3Int:      m_Vector3Int = *(Vector3Int*)memoryAddr;                                            break;
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO:ComponentVariableType::String
+        break;
     case ComponentVariableType::GameObjectPtr:   m_GameObjectPtr = *(GameObject**)memoryAddr;                                        break;
     case ComponentVariableType::FilePtr:         m_FilePtr = *(MyFileObject**)memoryAddr;                                            break;
     case ComponentVariableType::ComponentPtr:    m_ComponentPtr = *(ComponentBase**)memoryAddr;                                      break;
@@ -86,6 +89,7 @@ void ComponentVariableValue::UpdateComponentAndChildrenWithValue(void* pObject, 
     case ComponentVariableType::Vector3:         numberofcomponents = 3; break;
     case ComponentVariableType::Vector2Int:      numberofcomponents = 2; break;
     case ComponentVariableType::Vector3Int:      numberofcomponents = 3; break;
+    case ComponentVariableType::String:
     case ComponentVariableType::GameObjectPtr:   
     case ComponentVariableType::FilePtr:         
     case ComponentVariableType::ComponentPtr:    
@@ -147,6 +151,9 @@ void ComponentVariableValue::CopyValueIntoVariable(void* pObject, ComponentVaria
     case ComponentVariableType::Vector3:         *(Vector3*)memoryAddr = m_Vector3;                                                  break;
     case ComponentVariableType::Vector2Int:      *(Vector2Int*)memoryAddr = m_Vector2Int;                                            break;
     case ComponentVariableType::Vector3Int:      *(Vector3Int*)memoryAddr = m_Vector3Int;                                            break;
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO:ComponentVariableType::String
+        break;
     case ComponentVariableType::GameObjectPtr:   *(GameObject**)memoryAddr = m_GameObjectPtr;                                        break;
     case ComponentVariableType::FilePtr:         *(MyFileObject**)memoryAddr = m_FilePtr;                                            break;
     case ComponentVariableType::ComponentPtr:    *(ComponentBase**)memoryAddr = m_ComponentPtr;                                      break;

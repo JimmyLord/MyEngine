@@ -83,6 +83,7 @@ protected:
     Vector3 m_TestVec3;                  //ComponentVariableType::Vector3,
     Vector2Int m_TestVec2Int;            //ComponentVariableType::Vector2Int,
     Vector3Int m_TestVec3Int;            //ComponentVariableType::Vector3Int,
+    // TODO:ComponentVariableType::String
                                          ////ComponentVariableType::FirstPointerType,
     GameObject* m_pTestGameObject;       //ComponentVariableType::GameObjectPtr = ComponentVariableType::FirstPointerType,
     ComponentBase* m_pTestComponent;     //ComponentVariableType::ComponentPtr,

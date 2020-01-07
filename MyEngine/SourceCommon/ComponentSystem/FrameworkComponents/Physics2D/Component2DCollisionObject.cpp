@@ -98,7 +98,7 @@ void Component2DCollisionObject::RegisterVariables(TCPPListHead<ComponentVariabl
     AddVar( pList, "IsSensor",      ComponentVariableType::Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
     pVar = AddVar( pList, "Friction",      ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 #if MYFW_EDITOR
-    pVar->SetEditorLimits( 0, 1 );
+    pVar->SetEditorLimits( 0, 1, 0 );
 #endif //MYFW_EDITOR
     AddVar( pList, "Restitution",   ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 

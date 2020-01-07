@@ -42,7 +42,7 @@ void ComponentObjectPool::RegisterVariables(TCPPListHead<ComponentVariable*>* pL
     AddVar( pList, "GameObject",           ComponentVariableType::GameObjectPtr, MyOffsetOf( pThis, &pThis->m_pGameObjectInPool ),    true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
     pVar = AddVar( pList, "PoolSize",      ComponentVariableType::UnsignedInt,   MyOffsetOf( pThis, &pThis->m_PoolSize ),             true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
 #if MYFW_EDITOR
-    pVar->SetEditorLimits( 0, 9999 );
+    pVar->SetEditorLimits( 0, 9999, 0 );
 #endif
     AddVar( pList, "LogWarningsWhenEmpty", ComponentVariableType::Bool,          MyOffsetOf( pThis, &pThis->m_LogWarningsWhenEmpty ), true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
 }

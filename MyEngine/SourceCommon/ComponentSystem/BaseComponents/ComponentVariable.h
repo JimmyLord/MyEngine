@@ -34,6 +34,8 @@ enum class ComponentVariableType
     Vector2Int,
     Vector3Int,
 
+    String,
+
     // NOTE: Pointer types must come after value types for ComponentVariableValue::CopyNonPointerValueIntoVariable() 
     FirstPointerType,
 
@@ -83,6 +85,8 @@ public:
     float m_FloatLowerLimit;
     float m_FloatUpperLimit;
 
+    int m_TextLimit;
+
     CVarFunc_DropTarget m_pOnDropCallbackFunc;
     CVarFunc m_pOnButtonPressedCallbackFunc;
     CVarFunc_ValueChanged m_pOnValueChangedCallbackFunc;
@@ -112,7 +116,7 @@ public:
     void AddCallback_VariableAddedToInterface(CVarFunc_VariableAddedToInterface pFunc);
     void AddCallback_OnRightClick(CVarFunc pRightClickFunc, CVarFunc_Int pPopupClickFunc);
 
-    void SetEditorLimits(float lowerlimit, float upperlimit);
+    void SetEditorLimits(float lowerLimit, float upperLimit, int textLimit);
 #endif //MYFW_EDITOR
 };
 

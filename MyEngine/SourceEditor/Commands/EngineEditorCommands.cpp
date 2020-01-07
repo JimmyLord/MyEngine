@@ -172,6 +172,10 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         }
         break;
 
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO:ComponentVariableType::String
+        break;
+
     case ComponentVariableType::GameObjectPtr:
     case ComponentVariableType::ComponentPtr:
     case ComponentVariableType::FilePtr:
@@ -326,6 +330,10 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
             MyAssert( controlcomponent == -1 );
             controlcomponent = 1;
         }
+        break;
+
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO:ComponentVariableType::String
         break;
 
     case ComponentVariableType::GameObjectPtr:

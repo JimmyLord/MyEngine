@@ -530,6 +530,16 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
+        case ComponentVariableType::String:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                char* thisString = (char*)this + pVar->m_Offset;
+                char* otherString = (char*)m_MultiSelectedComponents[i] + pVar->m_Offset;
+                if( strcmp( thisString, otherString ) == 0 )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
         case ComponentVariableType::GameObjectPtr:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
@@ -930,6 +940,13 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             {
                 modified = ImGui::DragInt3( pVar->m_WatchLabel, (int*)((char*)pObject + pVar->m_Offset) );
                 ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
+            }
+            break;
+
+        case ComponentVariableType::String:
+            {
+                modified = ImGui::InputText( pVar->m_WatchLabel, (char*)pObject + pVar->m_Offset, pVar->m_TextLimit );
+                //ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 
@@ -1695,6 +1712,10 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
+            case ComponentVariableType::String:
+                cJSON_AddStringToObject( jComponent, pVar->m_Label, (char*)pObject + pVar->m_Offset );
+                break;
+
             case ComponentVariableType::GameObjectPtr:
                 {
                     GameObject* pGameObject = *(GameObject**)((char*)pObject + pVar->m_Offset);
@@ -1914,6 +1935,10 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 cJSONExt_GetIntArray( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
+            case ComponentVariableType::String:
+                cJSONExt_GetString( jComponent, pVar->m_Label, (char*)pObject + pVar->m_Offset, pVar->m_TextLimit );
+                break;
+
             case ComponentVariableType::GameObjectPtr:
                 {
                     unsigned int parentid = 0;
@@ -2121,6 +2146,10 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
             case ComponentVariableType::Vector3Int:
                 offset += controlcomponent*4;
                 return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
+
+            case ComponentVariableType::String:
+                MyAssert( false ); // TODO:ComponentVariableType::String
+                break;
 
             case ComponentVariableType::GameObjectPtr:
                 MyAssert( false );
@@ -2755,6 +2784,9 @@ double ComponentBase::GetCurrentValueFromVariable(ComponentVariable* pVar, int c
     case ComponentVariableType::Vector3:         value = (*(Vector3*)memoryaddr)[controlcomponent];      break;
     case ComponentVariableType::Vector2Int:      value = (*(Vector2Int*)memoryaddr)[controlcomponent];   break;
     case ComponentVariableType::Vector3Int:      value = (*(Vector3Int*)memoryaddr)[controlcomponent];   break;
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO:ComponentVariableType::String
+        break;
     case ComponentVariableType::GameObjectPtr:
     case ComponentVariableType::FilePtr:
     case ComponentVariableType::ComponentPtr:
@@ -3243,6 +3275,10 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO:ComponentVariableType::String
+        break;
+
     // Pointers types needs to add to undo manually in their OnValueChanged callbacks.
     case ComponentVariableType::GameObjectPtr:
         {
@@ -3580,6 +3616,10 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
+        break;
+
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO:ComponentVariableType::String
         break;
 
     case ComponentVariableType::GameObjectPtr:

@@ -40,7 +40,9 @@ ComponentLuaScript::ComponentLuaScript(EngineCore* pEngineCore, ComponentSystemM
     m_pCopyExternsFromThisComponentAfterLoadingScript = nullptr;
 
     m_pScriptFile = nullptr;
-#if !MYFW_EDITOR
+#if MYFW_EDITOR
+    m_pLuaInlineScript_OnPlayTest[0] = '\0';
+#else
     m_pLuaInlineScript_OnPlay = nullptr;
 #endif
 
@@ -94,10 +96,11 @@ void ComponentLuaScript::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
 #endif
 
     // m_pLuaInlineScript_OnPlay is not automatically saved/loaded.
-    pVar = AddVarPointer( pList, "OnPlay", false, true, nullptr, 
-        (CVarFunc_GetPointerValue)&ComponentLuaScript::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentLuaScript::SetPointerValue,
-        (CVarFunc_GetPointerDesc)&ComponentLuaScript::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentLuaScript::SetPointerDesc,
-        (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, nullptr, nullptr );
+    //pVar = AddVarPointer( pList, "OnPlay", false, true, nullptr, 
+    //    (CVarFunc_GetPointerValue)&ComponentLuaScript::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentLuaScript::SetPointerValue,
+    //    (CVarFunc_GetPointerDesc)&ComponentLuaScript::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentLuaScript::SetPointerDesc,
+    //    (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "OnPlay", ComponentVariableType::String, MyOffsetOf( pThis, &pThis->m_pLuaInlineScript_OnPlayTest ), true, true, nullptr, nullptr, nullptr, nullptr );
 }
 
 void ComponentLuaScript::Reset()
