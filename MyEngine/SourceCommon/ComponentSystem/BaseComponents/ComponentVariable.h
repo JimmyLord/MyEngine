@@ -12,7 +12,9 @@
 
 class ComponentBase;
 class ComponentVariable;
+#if MYFW_EDITOR
 class ComponentVariableValue;
+#endif //MYFW_EDITOR
 
 enum class ComponentVariableType
 {
@@ -58,7 +60,11 @@ class ComponentVariableCallbackInterface : public CPPListNode
 typedef void (ComponentVariableCallbackInterface::*CVarFunc)(ComponentVariable* pVar);
 typedef void (ComponentVariableCallbackInterface::*CVarFunc_Int)(ComponentVariable* pVar, int someint);
 typedef void* (ComponentVariableCallbackInterface::*CVarFunc_DropTarget)(ComponentVariable* pVar, bool changedByInterface, int x, int y);
+#if MYFW_EDITOR
 typedef void* (ComponentVariableCallbackInterface::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
+#else
+typedef void* (ComponentVariableCallbackInterface::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, void* pNewValue);
+#endif //MYFW_EDITOR
 typedef void* (ComponentVariableCallbackInterface::*CVarFunc_Pointer)(ComponentVariable* pVar);
 
 typedef void* (ComponentVariableCallbackInterface::*CVarFunc_GetPointerValue)(ComponentVariable* pVar);
@@ -81,11 +87,11 @@ public:
     int m_NumEnumStrings;
     const char** m_ppEnumStrings;
 
+    int m_TextLimit;
+
 #if MYFW_EDITOR
     float m_FloatLowerLimit;
     float m_FloatUpperLimit;
-
-    int m_TextLimit;
 
     CVarFunc_DropTarget m_pOnDropCallbackFunc;
     CVarFunc m_pOnButtonPressedCallbackFunc;

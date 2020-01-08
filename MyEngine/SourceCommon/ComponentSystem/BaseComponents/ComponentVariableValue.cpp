@@ -12,6 +12,8 @@
 #include "ComponentBase.h"
 #include "ComponentVariableValue.h"
 
+#if MYFW_EDITOR
+
 ComponentVariableValue::ComponentVariableValue()
 {
     m_Type = ComponentVariableType::NumTypes;
@@ -168,3 +170,5 @@ void ComponentVariableValue::CopyValueIntoVariable(void* pObject, ComponentVaria
         break;
     }
 }
+
+#endif //MYFW_EDITOR

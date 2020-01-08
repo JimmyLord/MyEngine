@@ -946,7 +946,7 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
         case ComponentVariableType::String:
             {
                 modified = ImGui::InputText( pVar->m_WatchLabel, (char*)pObject + pVar->m_Offset, pVar->m_TextLimit );
-                //ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
 

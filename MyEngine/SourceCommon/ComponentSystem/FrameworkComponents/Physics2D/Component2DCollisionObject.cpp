@@ -409,7 +409,7 @@ void Component2DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, SceneID sc
 #else
         m_Vertices.FreeAllInList();
         m_Vertices.AllocateObjects( arraysize / 2 );
-        b2Vec2 zerovec(0,0);
+        Vector2 zerovec(0,0);
         for( int i=0; i<arraysize/2; i++ )
             m_Vertices.Add( zerovec );
 #endif

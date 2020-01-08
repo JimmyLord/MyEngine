@@ -19,6 +19,8 @@ class MyFileObject;
 class MaterialDefinition;
 class SoundCue;
 
+#if MYFW_EDITOR
+
 class ComponentVariableValue
 {
 protected:
@@ -78,5 +80,7 @@ public:
     SoundCue*           GetSoundCuePtr()     { MyAssert( m_Type == ComponentVariableType::SoundCuePtr );     return m_SoundCuePtr; }
     void*               GetPointerIndirect() { MyAssert( m_Type == ComponentVariableType::PointerIndirect ); return m_VoidPtr; }
 };
+
+#endif //MYFW_EDITOR
 
 #endif //__ComponentVariableValue_H__

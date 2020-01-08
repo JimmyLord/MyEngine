@@ -100,7 +100,10 @@ void ComponentLuaScript::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
     //    (CVarFunc_GetPointerValue)&ComponentLuaScript::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentLuaScript::SetPointerValue,
     //    (CVarFunc_GetPointerDesc)&ComponentLuaScript::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentLuaScript::SetPointerDesc,
     //    (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, nullptr, nullptr );
-    AddVar( pList, "OnPlay", ComponentVariableType::String, MyOffsetOf( pThis, &pThis->m_pLuaInlineScript_OnPlayTest ), true, true, nullptr, nullptr, nullptr, nullptr );
+    pVar = AddVar( pList, "OnPlay", ComponentVariableType::String, MyOffsetOf( pThis, &pThis->m_pLuaInlineScript_OnPlayTest ), true, true, nullptr, nullptr, nullptr, nullptr );
+#if MYFW_EDITOR
+    pVar->SetEditorLimits( 0, 0, 30 );
+#endif
 }
 
 void ComponentLuaScript::Reset()

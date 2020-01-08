@@ -39,6 +39,7 @@ protected:
     char m_pLuaInlineScript_OnPlayTest[30];
     std::string m_pLuaInlineScript_OnPlay;
 #else
+    char m_pLuaInlineScript_OnPlayTest[30];
     char* m_pLuaInlineScript_OnPlay; // If this isn't nullptr, this string will get run instead of the OnPlay function in the lua file.
 #endif
 
