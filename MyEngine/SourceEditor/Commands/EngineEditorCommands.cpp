@@ -46,6 +46,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     int controlcomponent = 0;
     double previousvalue = 0;
     ColorByte previousColorByte;
+    std::string previousString;
 
     switch( m_pVar->m_Type )
     {
@@ -173,7 +174,8 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         break;
 
     case ComponentVariableType::String:
-        MyAssert( false ); // TODO:ComponentVariableType::String
+        previousString = m_OldValue.GetString();
+        m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType::GameObjectPtr:
@@ -200,6 +202,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     int controlcomponent = 0;
     double previousvalue = 0;
     ColorByte previousColorByte;
+    std::string previousString;
 
     switch( m_pVar->m_Type )
     {
@@ -333,7 +336,8 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         break;
 
     case ComponentVariableType::String:
-        MyAssert( false ); // TODO:ComponentVariableType::String
+        previousString = m_NewValue.GetString();
+        m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
         break;
 
     case ComponentVariableType::GameObjectPtr:

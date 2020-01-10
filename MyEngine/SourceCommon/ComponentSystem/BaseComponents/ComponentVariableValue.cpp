@@ -36,9 +36,9 @@ void ComponentVariableValue::GetValueFromVariable(void* pObject, ComponentVariab
     switch( pVar->m_Type )
     {
     case ComponentVariableType::Int:
-    case ComponentVariableType::Enum:            m_Int = *(int*)memoryAddr;                                                  break;
+    case ComponentVariableType::Enum:            m_Int = *(int*)memoryAddr;                                                          break;
     case ComponentVariableType::UnsignedInt:
-    case ComponentVariableType::Flags:           m_UInt = *(unsigned int*)memoryAddr;                                        break;
+    case ComponentVariableType::Flags:           m_UInt = *(unsigned int*)memoryAddr;                                                break;
     //ComponentVariableType::Char,
     //ComponentVariableType::UnsignedChar,
     case ComponentVariableType::Bool:            m_Bool = *(bool*)memoryAddr;                                                        break;
@@ -50,14 +50,12 @@ void ComponentVariableValue::GetValueFromVariable(void* pObject, ComponentVariab
     case ComponentVariableType::Vector3:         m_Vector3 = *(Vector3*)memoryAddr;                                                  break;
     case ComponentVariableType::Vector2Int:      m_Vector2Int = *(Vector2Int*)memoryAddr;                                            break;
     case ComponentVariableType::Vector3Int:      m_Vector3Int = *(Vector3Int*)memoryAddr;                                            break;
-    case ComponentVariableType::String:
-        MyAssert( false ); // TODO:ComponentVariableType::String
-        break;
+    case ComponentVariableType::String:          m_String = *(char*)memoryAddr;                                                      break;
     case ComponentVariableType::GameObjectPtr:   m_GameObjectPtr = *(GameObject**)memoryAddr;                                        break;
     case ComponentVariableType::FilePtr:         m_FilePtr = *(MyFileObject**)memoryAddr;                                            break;
     case ComponentVariableType::ComponentPtr:    m_ComponentPtr = *(ComponentBase**)memoryAddr;                                      break;
     case ComponentVariableType::MaterialPtr:     m_MaterialPtr = *(MaterialDefinition**)memoryAddr;                                  break;
-    case ComponentVariableType::TexturePtr:      m_TexturePtr = *(TextureDefinition**)memoryAddr;                                  break;
+    case ComponentVariableType::TexturePtr:      m_TexturePtr = *(TextureDefinition**)memoryAddr;                                    break;
     case ComponentVariableType::SoundCuePtr:     m_SoundCuePtr = *(SoundCue**)memoryAddr;                                            break;
     case ComponentVariableType::PointerIndirect: m_VoidPtr = (pObjectAsComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );    break;
 
@@ -139,7 +137,7 @@ void ComponentVariableValue::CopyValueIntoVariable(void* pObject, ComponentVaria
     switch( pVar->m_Type )
     {
     case ComponentVariableType::Int:
-    case ComponentVariableType::Enum:            *(int*)memoryAddr = m_Int;                                                  break;
+    case ComponentVariableType::Enum:            *(int*)memoryAddr = m_Int;                                                          break;
     case ComponentVariableType::UnsignedInt:
     case ComponentVariableType::Flags:           *(unsigned int*)memoryAddr = m_UInt;                                                break;
     //ComponentVariableType::Char,
@@ -153,14 +151,15 @@ void ComponentVariableValue::CopyValueIntoVariable(void* pObject, ComponentVaria
     case ComponentVariableType::Vector3:         *(Vector3*)memoryAddr = m_Vector3;                                                  break;
     case ComponentVariableType::Vector2Int:      *(Vector2Int*)memoryAddr = m_Vector2Int;                                            break;
     case ComponentVariableType::Vector3Int:      *(Vector3Int*)memoryAddr = m_Vector3Int;                                            break;
-    case ComponentVariableType::String:
-        MyAssert( false ); // TODO:ComponentVariableType::String
-        break;
+#pragma warning( push )
+#pragma warning( disable : 4996 ) // TODO: ComponentVariableType::String, fix this strcpy... it's completely unsafe.
+    case ComponentVariableType::String:          strcpy( (char*)memoryAddr, m_String.c_str() );                                      break;
+#pragma warning( pop )
     case ComponentVariableType::GameObjectPtr:   *(GameObject**)memoryAddr = m_GameObjectPtr;                                        break;
     case ComponentVariableType::FilePtr:         *(MyFileObject**)memoryAddr = m_FilePtr;                                            break;
     case ComponentVariableType::ComponentPtr:    *(ComponentBase**)memoryAddr = m_ComponentPtr;                                      break;
     case ComponentVariableType::MaterialPtr:     *(MaterialDefinition**)memoryAddr = m_MaterialPtr;                                  break;
-    case ComponentVariableType::TexturePtr:      *(TextureDefinition**)memoryAddr = m_TexturePtr;                                  break;
+    case ComponentVariableType::TexturePtr:      *(TextureDefinition**)memoryAddr = m_TexturePtr;                                    break;
     case ComponentVariableType::SoundCuePtr:     *(SoundCue**)memoryAddr = m_SoundCuePtr;                                            break;
     case ComponentVariableType::PointerIndirect: (pObjectAsComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, m_VoidPtr );     break;
 
