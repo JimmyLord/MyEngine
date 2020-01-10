@@ -50,7 +50,7 @@ void ComponentVariableValue::GetValueFromVariable(void* pObject, ComponentVariab
     case ComponentVariableType::Vector3:         m_Vector3 = *(Vector3*)memoryAddr;                                                  break;
     case ComponentVariableType::Vector2Int:      m_Vector2Int = *(Vector2Int*)memoryAddr;                                            break;
     case ComponentVariableType::Vector3Int:      m_Vector3Int = *(Vector3Int*)memoryAddr;                                            break;
-    case ComponentVariableType::String:          m_String = *(char*)memoryAddr;                                                      break;
+    case ComponentVariableType::String:          m_String = (char*)memoryAddr;                                                      break;
     case ComponentVariableType::GameObjectPtr:   m_GameObjectPtr = *(GameObject**)memoryAddr;                                        break;
     case ComponentVariableType::FilePtr:         m_FilePtr = *(MyFileObject**)memoryAddr;                                            break;
     case ComponentVariableType::ComponentPtr:    m_ComponentPtr = *(ComponentBase**)memoryAddr;                                      break;

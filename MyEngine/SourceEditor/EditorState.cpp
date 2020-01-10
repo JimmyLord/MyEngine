@@ -491,6 +491,9 @@ void EditorState::ClearSelectedObjectsAndComponentsFromScene(SceneID sceneID)
 
 void EditorState::LockCameraToGameObject(GameObject* pGameObject)
 {
+    if( pGameObject->GetTransform() == nullptr )
+        return;
+
     if( pGameObject == 0 )
     {
         m_CameraState = EditorCameraState_Default;

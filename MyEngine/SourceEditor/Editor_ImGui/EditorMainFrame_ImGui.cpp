@@ -374,6 +374,7 @@ bool EditorMainFrame_ImGui::HandleInput(int keyAction, int keyCode, int mouseAct
     }
 
     // Deal with sending input events to the editor window.
+    if( io.WantTextInput == false )
     {
         // Pass keyboard and mouse events to the editor under various conditions.
         if( ( m_EditorWindowFocused && keyAction != -1 ) ||
