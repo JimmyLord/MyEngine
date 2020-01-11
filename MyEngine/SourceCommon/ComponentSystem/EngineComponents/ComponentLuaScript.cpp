@@ -108,7 +108,7 @@ void ComponentLuaScript::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
 
 void ComponentLuaScript::Reset()
 {
-    ComponentUpdateable::Reset();
+    ComponentScriptBase::Reset();
 
     m_pLuaGameState = g_pLuaGameState;
 
@@ -550,7 +550,7 @@ void ComponentLuaScriptEventHandlerForExposedVariables::OnPopupClick(wxEvent &ev
 
 cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentUpdateable::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* jComponent = ComponentScriptBase::ExportAsJSONObject( savesceneid, saveid );
 
     if( m_pScriptFile )
         cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->GetFullPath() );
@@ -581,7 +581,7 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
 
 void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
-    //ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
+    ComponentScriptBase::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSON* scriptstringobj = cJSON_GetObjectItem( jsonobj, "Script" );
     if( scriptstringobj )
@@ -622,7 +622,7 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
 {
     MyAssert( &other != this );
 
-    ComponentUpdateable::operator=( other );
+    ComponentScriptBase::operator=( other );
 
     this->m_pScriptFile = other.m_pScriptFile;
     if( this->m_pScriptFile )
@@ -1057,7 +1057,7 @@ void ComponentLuaScript::HandleLuaError(const char* functionname, const char* er
 
 void ComponentLuaScript::OnLoad()
 {
-    ComponentUpdateable::OnLoad();
+    ComponentScriptBase::OnLoad();
 
     m_ScriptLoaded = false;
     m_ErrorInScript = false;
@@ -1065,7 +1065,7 @@ void ComponentLuaScript::OnLoad()
 
 void ComponentLuaScript::OnPlay()
 {
-    ComponentUpdateable::OnPlay();
+    ComponentScriptBase::OnPlay();
 
     if( m_ErrorInScript )
         return;
@@ -1107,7 +1107,7 @@ void ComponentLuaScript::OnPlay()
 
 void ComponentLuaScript::OnStop()
 {
-    ComponentUpdateable::OnStop();
+    ComponentScriptBase::OnStop();
 
     if( m_Playing && m_ErrorInScript == false )
     {
@@ -1134,7 +1134,7 @@ void ComponentLuaScript::OnGameObjectDisabled()
 void ComponentLuaScript::TickCallback(float deltaTime)
 {
     //ComponentBase::TickCallback( deltaTime );
-    //ComponentUpdateable::Tick( deltaTime );
+    //ComponentScriptBase::Tick( deltaTime );
 
     if( m_ErrorInScript )
         return;
