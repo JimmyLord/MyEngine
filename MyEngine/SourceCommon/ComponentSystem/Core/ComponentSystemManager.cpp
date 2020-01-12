@@ -1897,8 +1897,10 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
 
     if( pObject->IsFolder() == false )
     {
-        MyAssert( pObject->GetTransform() != 0 );
-        *pNewObject->GetTransform() = *pObject->GetTransform();
+        if( pObject->GetTransform() != nullptr )
+        {
+            *pNewObject->GetTransform() = *pObject->GetTransform();
+        }
     }
 
     // Recursively copy children.

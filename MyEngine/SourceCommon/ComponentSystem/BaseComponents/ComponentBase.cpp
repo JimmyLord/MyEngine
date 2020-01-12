@@ -2148,7 +2148,13 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
                 return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
 
             case ComponentVariableType::String:
-                MyAssert( false ); // TODO:ComponentVariableType::String
+                if( ((char*)this + offset) == nullptr && ((char*)pOtherComponent + offset) != nullptr )
+                    return false;
+                if( ((char*)this + offset) != nullptr && ((char*)pOtherComponent + offset) == nullptr )
+                    return false;
+                if( strcmp( ((char*)this + offset), ((char*)pOtherComponent + offset) ) != 0 )
+                    return false;
+                return true;
                 break;
 
             case ComponentVariableType::GameObjectPtr:
@@ -2785,8 +2791,6 @@ double ComponentBase::GetCurrentValueFromVariable(ComponentVariable* pVar, int c
     case ComponentVariableType::Vector2Int:      value = (*(Vector2Int*)memoryaddr)[controlcomponent];   break;
     case ComponentVariableType::Vector3Int:      value = (*(Vector3Int*)memoryaddr)[controlcomponent];   break;
     case ComponentVariableType::String:
-        MyAssert( false ); // TODO:ComponentVariableType::String
-        break;
     case ComponentVariableType::GameObjectPtr:
     case ComponentVariableType::FilePtr:
     case ComponentVariableType::ComponentPtr:
@@ -3276,7 +3280,27 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         break;
 
     case ComponentVariableType::String:
-        MyAssert( false ); // TODO:ComponentVariableType::String
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
+
+            char* oldValue = (char*)this + offset;
+            char* newValue = (char*)pOtherComponent + offset;
+#pragma warning( push )
+#pragma warning( disable : 4996 ) // TODO: ComponentVariableType::String, fix this strcpy... it's completely unsafe.
+            strcpy( oldValue, newValue );
+#pragma warning( pop )
+
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
+
+            // Notify component and it's children that the value changed.
+            //OnValueChangedVariable( pVar, 0, false, true, oldValue, false, 0 );
+
+            if( addUndoCommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false, this ) );
+            }
+        }
         break;
 
     // Pointers types needs to add to undo manually in their OnValueChanged callbacks.
@@ -3619,7 +3643,19 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         break;
 
     case ComponentVariableType::String:
-        MyAssert( false ); // TODO:ComponentVariableType::String
+        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            size_t offset = pVar->m_Offset;
+
+            // copy the value, call the callback function and update children.
+            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+            if( pVar->m_pOnValueChangedCallbackFunc )
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
         break;
 
     case ComponentVariableType::GameObjectPtr:

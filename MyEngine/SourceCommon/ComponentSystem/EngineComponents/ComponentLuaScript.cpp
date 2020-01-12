@@ -632,6 +632,17 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
         m_pCopyExternsFromThisComponentAfterLoadingScript = &other;
     }
 
+#if MYFW_EDITOR
+    strcpy_s( m_pLuaInlineScript_OnPlayTest, 30, other.m_pLuaInlineScript_OnPlayTest );
+    m_pLuaInlineScript_OnPlay = other.m_pLuaInlineScript_OnPlay;
+#else
+    strcpy_s( m_pLuaInlineScript_OnPlayTest, 30, other.m_pLuaInlineScript_OnPlayTest );
+
+    int len = (int)strlen( other.m_pLuaInlineScript_OnPlay );
+    m_pLuaInlineScript_OnPlay = MyNew char[len+1];
+    strcpy_s( m_pLuaInlineScript_OnPlay, len+1, other.m_pLuaInlineScript_OnPlay );
+#endif
+
     return *this;
 }
 
