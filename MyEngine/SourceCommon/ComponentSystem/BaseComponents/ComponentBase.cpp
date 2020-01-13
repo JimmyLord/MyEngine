@@ -535,7 +535,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             {
                 char* thisString = (char*)this + pVar->m_Offset;
                 char* otherString = (char*)m_MultiSelectedComponents[i] + pVar->m_Offset;
-                if( strcmp( thisString, otherString ) == 0 )
+                if( strcmp( thisString, otherString ) != 0 )
                     allComponentsHaveSameValue = false;
             }
             break;
