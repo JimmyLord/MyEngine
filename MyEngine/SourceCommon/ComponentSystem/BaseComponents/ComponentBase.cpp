@@ -574,7 +574,13 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             break;
 
         case ComponentVariableType::String:
-            MyAssert( false ); // TODO: ComponentVariableType::String
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                std::string* thisString = (std::string*)((char*)this + pVar->m_Offset);
+                std::string* otherString = (std::string*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset);
+                if( *thisString != *otherString )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType::GameObjectPtr:
@@ -1761,7 +1767,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 break;
 
             case ComponentVariableType::String:
-                MyAssert( false ); // TODO: ComponentVariableType::String
+                cJSON_AddStringToObject( jComponent, pVar->m_Label, ((std::string*)((char*)pObject + pVar->m_Offset))->c_str() );
                 break;
 
             case ComponentVariableType::GameObjectPtr:
@@ -2217,7 +2223,13 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
                 break;
 
             case ComponentVariableType::String:
-                MyAssert( false ); // TODO: ComponentVariableType::String
+                if( (std::string*)((char*)this + offset) == nullptr && (std::string*)((char*)pOtherComponent + offset) != nullptr )
+                    return false;
+                if( (std::string*)((char*)this + offset) != nullptr && (std::string*)((char*)pOtherComponent + offset) == nullptr )
+                    return false;
+                if( *(std::string*)((char*)this + offset) != *(std::string*)((char*)pOtherComponent + offset) )
+                    return false;
+                return true;
                 break;
 
             case ComponentVariableType::GameObjectPtr:
@@ -3368,7 +3380,24 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         break;
 
     case ComponentVariableType::String:
-        MyAssert( false ); // TODO: ComponentVariableType::String
+        {   
+            ComponentVariableValue oldComponentVarValue( this, pVar, this );
+
+            std::string* oldValue = (std::string*)((char*)this + offset);
+            std::string* newValue = (std::string*)((char*)pOtherComponent + offset);
+            *oldValue = *newValue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar, this );
+
+            // Notify component and it's children that the value changed.
+            //OnValueChangedVariable( pVar, 0, false, true, oldValue, false, 0 );
+
+            if( addUndoCommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false, this ) );
+            }
+        }
         break;
 
     // Pointers types needs to add to undo manually in their OnValueChanged callbacks.
@@ -3711,14 +3740,19 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         break;
 
     case ComponentVariableType::CharArray:
-        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+        MyAssert( fromdraganddrop == false ); // Not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
         {
             size_t offset = pVar->m_Offset;
 
-            // copy the value, call the callback function and update children.
-            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+            // Copy the value, call the callback function and update children.
+            char* childChars = (char*)pChildComponent + offset;
+            char* ourChars = (char*)this + offset;
+#pragma warning( push )
+#pragma warning( disable : 4996 ) // TODO: ComponentVariableType::CharArray, fix this strcpy... it's completely unsafe.
+            strcpy( childChars, ourChars );
+#pragma warning( pop )
             if( pVar->m_pOnValueChangedCallbackFunc )
                 (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
 
@@ -3727,7 +3761,17 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         break;
 
     case ComponentVariableType::String:
-        MyAssert( false ); // TODO: ComponentVariableType::String
+        MyAssert( fromdraganddrop == false ); // Not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            // Copy the value, call the callback function and update children.
+            *(std::string*)((char*)pChildComponent + pVar->m_Offset) = *(std::string*)((char*)this + pVar->m_Offset);
+            if( pVar->m_pOnValueChangedCallbackFunc )
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
         break;
 
     case ComponentVariableType::GameObjectPtr:

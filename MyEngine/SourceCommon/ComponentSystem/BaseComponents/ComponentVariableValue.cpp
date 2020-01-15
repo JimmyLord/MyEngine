@@ -51,9 +51,7 @@ void ComponentVariableValue::GetValueFromVariable(void* pObject, ComponentVariab
     case ComponentVariableType::Vector2Int:      m_Vector2Int = *(Vector2Int*)memoryAddr;                                            break;
     case ComponentVariableType::Vector3Int:      m_Vector3Int = *(Vector3Int*)memoryAddr;                                            break;
     case ComponentVariableType::CharArray:       m_String = (char*)memoryAddr;                                                       break;
-    case ComponentVariableType::String:
-        MyAssert( false ); // TODO: ComponentVariableType::String
-        break;
+    case ComponentVariableType::String:          m_String = *(std::string*)memoryAddr;                                               break;
     case ComponentVariableType::GameObjectPtr:   m_GameObjectPtr = *(GameObject**)memoryAddr;                                        break;
     case ComponentVariableType::FilePtr:         m_FilePtr = *(MyFileObject**)memoryAddr;                                            break;
     case ComponentVariableType::ComponentPtr:    m_ComponentPtr = *(ComponentBase**)memoryAddr;                                      break;
@@ -159,9 +157,7 @@ void ComponentVariableValue::CopyValueIntoVariable(void* pObject, ComponentVaria
 #pragma warning( disable : 4996 ) // TODO: ComponentVariableType::CharArray, fix this strcpy... it's completely unsafe.
     case ComponentVariableType::CharArray:       strcpy( (char*)memoryAddr, m_String.c_str() );                                      break;
 #pragma warning( pop )
-    case ComponentVariableType::String:
-        MyAssert( false ); // TODO: ComponentVariableType::String
-        break;
+    case ComponentVariableType::String:          *(std::string*)memoryAddr = m_String;                                               break;
     case ComponentVariableType::GameObjectPtr:   *(GameObject**)memoryAddr = m_GameObjectPtr;                                        break;
     case ComponentVariableType::FilePtr:         *(MyFileObject**)memoryAddr = m_FilePtr;                                            break;
     case ComponentVariableType::ComponentPtr:    *(ComponentBase**)memoryAddr = m_ComponentPtr;                                      break;
