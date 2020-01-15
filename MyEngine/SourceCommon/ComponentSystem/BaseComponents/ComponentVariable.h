@@ -36,6 +36,7 @@ enum class ComponentVariableType
     Vector2Int,
     Vector3Int,
 
+    CharArray,
     String,
 
     // NOTE: Pointer types must come after value types for ComponentVariableValue::CopyNonPointerValueIntoVariable() 

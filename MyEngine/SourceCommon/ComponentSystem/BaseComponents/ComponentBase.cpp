@@ -19,12 +19,45 @@
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #include "../SourceEditor/Prefs/EditorPrefs.h"
+#include "../../Libraries/imgui/misc/cpp/imgui_stdlib.h"
 #endif
 
 #if MYFW_USING_IMGUI
 #include "GUI/ImGuiExtensions.h"
 #include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
+#endif
+
+#if MYFW_EDITOR
+// Used by ImGui::InputText for std::strings
+// Copy of code from imgui/misc/cpp/imgui_stdlib.cpp
+struct InputTextCallback_UserData
+{
+    std::string*            Str;
+    ImGuiInputTextCallback  ChainCallback;
+    void*                   ChainCallbackUserData;
+};
+
+static int InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+    InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+    {
+        // Resize string callback
+        // If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+        std::string* str = user_data->Str;
+        IM_ASSERT(data->Buf == str->c_str());
+        str->resize(data->BufTextLen);
+        data->Buf = (char*)str->c_str();
+    }
+    else if (user_data->ChainCallback)
+    {
+        // Forward to user callback, if any
+        data->UserData = user_data->ChainCallbackUserData;
+        return user_data->ChainCallback(data);
+    }
+    return 0;
+}
 #endif
 
 ComponentBase::ComponentBase(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager)
@@ -530,7 +563,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             }
             break;
 
-        case ComponentVariableType::String:
+        case ComponentVariableType::CharArray:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 char* thisString = (char*)this + pVar->m_Offset;
@@ -538,6 +571,10 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
                 if( strcmp( thisString, otherString ) != 0 )
                     allComponentsHaveSameValue = false;
             }
+            break;
+
+        case ComponentVariableType::String:
+            MyAssert( false ); // TODO: ComponentVariableType::String
             break;
 
         case ComponentVariableType::GameObjectPtr:
@@ -943,9 +980,16 @@ bool ComponentBase::AddVariableToWatchPanel(EngineCore* pEngineCore, void* pObje
             }
             break;
 
-        case ComponentVariableType::String:
+        case ComponentVariableType::CharArray:
             {
                 modified = ImGui::InputText( pVar->m_WatchLabel, (char*)pObject + pVar->m_Offset, pVar->m_TextLimit );
+                ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
+            }
+            break;
+
+        case ComponentVariableType::String:
+            {
+                modified = ImGui::InputText( pVar->m_WatchLabel, (std::string*)((char*)pObject + pVar->m_Offset), 0, InputTextCallback, nullptr );
                 ComponentBase::TestForVariableModificationAndCreateUndoCommand( pObject, pEngineCore, ImGuiExt::GetActiveItemId(), modified, pVar, pObjectAsComponent, nullptr, pCommandStack );
             }
             break;
@@ -1712,8 +1756,12 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPP
                 cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
-            case ComponentVariableType::String:
+            case ComponentVariableType::CharArray:
                 cJSON_AddStringToObject( jComponent, pVar->m_Label, (char*)pObject + pVar->m_Offset );
+                break;
+
+            case ComponentVariableType::String:
+                MyAssert( false ); // TODO: ComponentVariableType::String
                 break;
 
             case ComponentVariableType::GameObjectPtr:
@@ -1935,8 +1983,19 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jComponent, void* pObject, TC
                 cJSONExt_GetIntArray( jComponent, pVar->m_Label, (int*)((char*)pObject + pVar->m_Offset), 3 );
                 break;
 
-            case ComponentVariableType::String:
+            case ComponentVariableType::CharArray:
                 cJSONExt_GetString( jComponent, pVar->m_Label, (char*)pObject + pVar->m_Offset, pVar->m_TextLimit );
+                break;
+
+            case ComponentVariableType::String:
+                {
+                    cJSON* obj = cJSON_GetObjectItem( jComponent, pVar->m_Label );
+                    if( obj )
+                    {
+                        std::string* str = (std::string*)((char*)pObject + pVar->m_Offset);
+                        *str = obj->valuestring;
+                    }
+                }
                 break;
 
             case ComponentVariableType::GameObjectPtr:
@@ -2147,7 +2206,7 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
                 offset += controlcomponent*4;
                 return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
 
-            case ComponentVariableType::String:
+            case ComponentVariableType::CharArray:
                 if( ((char*)this + offset) == nullptr && ((char*)pOtherComponent + offset) != nullptr )
                     return false;
                 if( ((char*)this + offset) != nullptr && ((char*)pOtherComponent + offset) == nullptr )
@@ -2155,6 +2214,10 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
                 if( strcmp( ((char*)this + offset), ((char*)pOtherComponent + offset) ) != 0 )
                     return false;
                 return true;
+                break;
+
+            case ComponentVariableType::String:
+                MyAssert( false ); // TODO: ComponentVariableType::String
                 break;
 
             case ComponentVariableType::GameObjectPtr:
@@ -2790,6 +2853,7 @@ double ComponentBase::GetCurrentValueFromVariable(ComponentVariable* pVar, int c
     case ComponentVariableType::Vector3:         value = (*(Vector3*)memoryaddr)[controlcomponent];      break;
     case ComponentVariableType::Vector2Int:      value = (*(Vector2Int*)memoryaddr)[controlcomponent];   break;
     case ComponentVariableType::Vector3Int:      value = (*(Vector3Int*)memoryaddr)[controlcomponent];   break;
+    case ComponentVariableType::CharArray:
     case ComponentVariableType::String:
     case ComponentVariableType::GameObjectPtr:
     case ComponentVariableType::FilePtr:
@@ -3279,14 +3343,14 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         }
         break;
 
-    case ComponentVariableType::String:
+    case ComponentVariableType::CharArray:
         {
             ComponentVariableValue oldComponentVarValue( this, pVar, this );
 
             char* oldValue = (char*)this + offset;
             char* newValue = (char*)pOtherComponent + offset;
 #pragma warning( push )
-#pragma warning( disable : 4996 ) // TODO: ComponentVariableType::String, fix this strcpy... it's completely unsafe.
+#pragma warning( disable : 4996 ) // TODO: ComponentVariableType::CharArray, fix this strcpy... it's completely unsafe.
             strcpy( oldValue, newValue );
 #pragma warning( pop )
 
@@ -3301,6 +3365,10 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
                     this, pVar, newComponentVarValue, oldComponentVarValue, false, this ) );
             }
         }
+        break;
+
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO: ComponentVariableType::String
         break;
 
     // Pointers types needs to add to undo manually in their OnValueChanged callbacks.
@@ -3642,7 +3710,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         }
         break;
 
-    case ComponentVariableType::String:
+    case ComponentVariableType::CharArray:
         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
         if( fromdraganddrop == false )
@@ -3656,6 +3724,10 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
+        break;
+
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO: ComponentVariableType::String
         break;
 
     case ComponentVariableType::GameObjectPtr:

@@ -83,7 +83,8 @@ protected:
     Vector3 m_TestVec3;                  //ComponentVariableType::Vector3,
     Vector2Int m_TestVec2Int;            //ComponentVariableType::Vector2Int,
     Vector3Int m_TestVec3Int;            //ComponentVariableType::Vector3Int,
-    char m_TextCharArray[30];            //ComponentVariableType::String
+    char m_TestCharArray[30];            //ComponentVariableType::CharArray,
+    std::string m_TestString;            //ComponentVariableType::String,
                                          ////ComponentVariableType::FirstPointerType,
     GameObject* m_pTestGameObject;       //ComponentVariableType::GameObjectPtr = ComponentVariableType::FirstPointerType,
     ComponentBase* m_pTestComponent;     //ComponentVariableType::ComponentPtr,
@@ -110,7 +111,7 @@ public:
         m_TestVec3.Set( 0, 0, 0 );
         m_TestVec2Int.Set( 0, 0 );
         m_TestVec3Int.Set( 0, 0, 0 );
-        m_TextCharArray[0] = '\0';
+        m_TestCharArray[0] = '\0';
 
         m_pTestGameObject = nullptr;
         m_pTestComponent = nullptr;
@@ -135,8 +136,9 @@ public:
         VSNAddVar( &m_VariablesList, "vec3",  ComponentVariableType::Vector3,       MyOffsetOf( this, &this->m_TestVec3 ),      false, true, nullptr, nullptr, nullptr, nullptr );
         VSNAddVar( &m_VariablesList, "ivec2", ComponentVariableType::Vector2Int,    MyOffsetOf( this, &this->m_TestVec2Int ),   false, true, nullptr, nullptr, nullptr, nullptr );
         VSNAddVar( &m_VariablesList, "ivec3", ComponentVariableType::Vector3Int,    MyOffsetOf( this, &this->m_TestVec3Int ),   false, true, nullptr, nullptr, nullptr, nullptr );
-        pVar = VSNAddVar( &m_VariablesList, "chars", ComponentVariableType::String,        MyOffsetOf( this, &this->m_TextCharArray ), false, true, nullptr, nullptr, nullptr, nullptr );
+        pVar = VSNAddVar( &m_VariablesList, "Chars", ComponentVariableType::CharArray,     MyOffsetOf( this, &this->m_TestCharArray ), false, true, nullptr, nullptr, nullptr, nullptr );
         pVar->SetEditorLimits( 0, 0, 30 );
+        VSNAddVar( &m_VariablesList, "String",ComponentVariableType::String,        MyOffsetOf( this, &this->m_TestString ),    false, true, nullptr, nullptr, nullptr, nullptr );
         ////ComponentVariableType::FirstPointerType,
         VSNAddVar( &m_VariablesList, "GO",    ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pTestGameObject ), false, true, nullptr, nullptr, nullptr, nullptr );
         VSNAddVar( &m_VariablesList, "Nent",  ComponentVariableType::ComponentPtr,  MyOffsetOf( this, &this->m_pTestComponent ),  false, true, nullptr, nullptr, nullptr, nullptr );

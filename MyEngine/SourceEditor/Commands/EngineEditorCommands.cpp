@@ -173,9 +173,13 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         }
         break;
 
-    case ComponentVariableType::String:
-        previousString = m_OldValue.GetString();
+    case ComponentVariableType::CharArray:
+        previousString = m_OldValue.GetCharArray();
         m_NewValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+        break;
+
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO: ComponentVariableType::String
         break;
 
     case ComponentVariableType::GameObjectPtr:
@@ -335,9 +339,13 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         }
         break;
 
-    case ComponentVariableType::String:
-        previousString = m_NewValue.GetString();
+    case ComponentVariableType::CharArray:
+        previousString = m_NewValue.GetCharArray();
         m_OldValue.CopyValueIntoVariable( m_pObject, m_pVar, m_pComponent );
+        break;
+
+    case ComponentVariableType::String:
+        MyAssert( false ); // TODO: ComponentVariableType::String
         break;
 
     case ComponentVariableType::GameObjectPtr:

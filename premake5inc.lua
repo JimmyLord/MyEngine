@@ -52,6 +52,7 @@ project "MyEngine"
         MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/b2Settings",
         MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/Box2D",
         monoInstallationPath .. "/include/mono-2.0",
+        "Libraries/imgui",
     }
 
     files {
@@ -129,6 +130,8 @@ end
         files {
             "MyEngine/SourceEditor/**.cpp",
             "MyEngine/SourceEditor/**.h",
+            "Libraries/imgui/misc/cpp/im*.cpp",
+            "Libraries/imgui/misc/cpp/im*.h",
         }
 
 if PremakeConfig_UseLua == true then
