@@ -620,6 +620,17 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
 
     return allComponentsHaveSameValue;
 }
+
+bool ComponentBase::IsGameObjectWeInheritFromInMultiSelectionList()
+{
+    for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+    {
+        if( m_MultiSelectedComponents[i]->m_pGameObject == m_pGameObject->GetGameObjectThisInheritsFrom() )
+            return true;
+    }
+
+    return false;
+}
 #endif //MYFW_EDITOR
 
 #if MYFW_USING_IMGUI
@@ -2607,10 +2618,11 @@ void ComponentBase::OnValueChangedVariable(ComponentVariable* pVar, int controlc
             oldpointer = (this->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, pNewValue );
         }
 
-        if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
+        if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() &&
+            IsGameObjectWeInheritFromInMultiSelectionList() == false ) // Don't divorce if parent is also selected since changes will apply to both.
         {
-            // divorce the child value from it's parent, if it no longer matches.
-            if( DoesVariableMatchParent( pVar, controlcomponent ) == false ) // returns true if no parent was found.
+            // Divorce the child value from it's parent, if it no longer matches.
+            if( DoesVariableMatchParent( pVar, controlcomponent ) == false ) // Returns true if no parent was found.
             {
                 // if the variable no longer matches the parent, then divorce it.
                 if( directlychanged )

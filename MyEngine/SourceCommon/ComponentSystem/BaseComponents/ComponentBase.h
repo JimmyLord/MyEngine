@@ -142,6 +142,7 @@ public:
 protected:
     virtual TCPPListHead<ComponentVariable*>* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: Make this pure virtual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component.
     bool DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariable* pVar);
+    bool IsGameObjectWeInheritFromInMultiSelectionList();
 
 public:
     static void ExportVariablesToJSON(cJSON* jComponent, void* pObject, TCPPListHead<ComponentVariable*>* pList, ComponentBase* pObjectAsComponent);
