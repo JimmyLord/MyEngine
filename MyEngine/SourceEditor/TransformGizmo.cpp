@@ -88,7 +88,7 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
 
     float selectedOpacity = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMax ).w;
     float overallOpacity = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMax ).w;
-    if( currentaction != EDITORACTIONSTATE_None )
+    if( currentaction != EditorActionState::None )
     {
         selectedOpacity = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaInUse ).w;
         overallOpacity = pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMin ).w;
@@ -96,7 +96,7 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
 #else
     float selectedOpacity = 1.0f;
     float overallOpacity = 1.0f;
-    if( currentaction != EDITORACTIONSTATE_None )
+    if( currentaction != EditorActionState::None )
     {
         selectedOpacity = 0.2f;
         overallOpacity = 0.05f;
@@ -168,8 +168,8 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
     MyMatrix InverseWorldTransform;
 
     // if we're dealing with a local space transform, then fix the rotation matrices to match
-    if( (currentaction != EDITORACTIONSTATE_None && pEditorState->m_TransformedInLocalSpace == true ) ||
-        (currentaction == EDITORACTIONSTATE_None && (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == false) )
+    if( (currentaction != EditorActionState::None && pEditorState->m_TransformedInLocalSpace == true ) ||
+        (currentaction == EditorActionState::None && (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == false) )
     {
         // We're transforming in object space, so set up a rotation matrix
         ObjectRotation.CreateRotation( ObjectTransform.GetEulerAngles() * 180.0f/PI );
@@ -215,8 +215,8 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallOpacity) );
 
-                if( ( m_pTranslate1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
-                    currentaction == EDITORACTIONSTATE_TranslateX + i )
+                if( ( m_pTranslate1Axis[i] == m_pSelectedPart && currentaction == EditorActionState::None ) ||
+                    (int)currentaction == (int)EditorActionState::TranslateX + i )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*selectedOpacity) );
                 }
@@ -273,8 +273,8 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 255, 255, (unsigned char)(180*overallOpacity) ); // YZ
 
-                if( ( m_pTranslate2Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
-                    currentaction == EDITORACTIONSTATE_TranslateXY + i )
+                if( ( m_pTranslate2Axis[i] == m_pSelectedPart && currentaction == EditorActionState::None ) ||
+                    (int)currentaction == (int)EditorActionState::TranslateXY + i )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*selectedOpacity) );
                 }
@@ -350,8 +350,8 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallOpacity) );
 
-                if( ( m_pScale1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
-                    currentaction == EDITORACTIONSTATE_ScaleX + i )
+                if( ( m_pScale1Axis[i] == m_pSelectedPart && currentaction == EditorActionState::None ) ||
+                    (int)currentaction == (int)EditorActionState::ScaleX + i )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*selectedOpacity) );
                 }
@@ -449,8 +449,8 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallOpacity) );
 
-                if( ( m_pRotate1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
-                    currentaction == EDITORACTIONSTATE_RotateX + i )
+                if( ( m_pRotate1Axis[i] == m_pSelectedPart && currentaction == EditorActionState::None ) ||
+                    (int)currentaction == (int)EditorActionState::RotateX + i )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*selectedOpacity) );
                 }
@@ -855,27 +855,27 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
 
 void TransformGizmo::CancelCurrentOperation(EditorState* pEditorState)
 {
-    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
+    if( pEditorState->m_EditorActionState == EditorActionState::TranslateX ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateY ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateZ ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateXY ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateXZ ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateYZ )
     {
         CancelLastTranslation( pEditorState );
     }
 
-    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
+    if( pEditorState->m_EditorActionState == EditorActionState::RotateX ||
+        pEditorState->m_EditorActionState == EditorActionState::RotateY ||
+        pEditorState->m_EditorActionState == EditorActionState::RotateZ )
     {
         CancelLastRotation( pEditorState );
     }
 
-    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleXYZ )
+    if( pEditorState->m_EditorActionState == EditorActionState::ScaleX ||
+        pEditorState->m_EditorActionState == EditorActionState::ScaleY ||
+        pEditorState->m_EditorActionState == EditorActionState::ScaleZ ||
+        pEditorState->m_EditorActionState == EditorActionState::ScaleXYZ )
     {
         CancelLastScale( pEditorState );
     }
@@ -887,12 +887,12 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
         return;
 
     // move the selected objects along a plane or axis
-    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
+    if( pEditorState->m_EditorActionState == EditorActionState::TranslateX ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateY ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateZ ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateXY ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateXZ ||
+        pEditorState->m_EditorActionState == EditorActionState::TranslateYZ )
     {
         // move all selected objects by the same amount, use object 0 to create a plane.
         {
@@ -911,7 +911,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 ObjectRotation.CreateRotation( m_GizmoWorldRotation );
 
                 Vector3 normal;
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                if( pEditorState->m_EditorActionState == EditorActionState::TranslateX )
                 {
                     normal = Vector3(0,0,1); // xy plane
                     if( fabs(camInvAt.Dot( normal )) < 0.7071f ) // if cam dot normal is under 45degrees
@@ -919,7 +919,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
 
                     axisvector = Vector3(1,0,0);
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+                else if( pEditorState->m_EditorActionState == EditorActionState::TranslateY )
                 {
                     normal = Vector3(1,0,0); // yz plane
                     if( fabs(camInvAt.Dot( normal )) < 0.7071f ) // if cam dot normal is under 45degrees
@@ -927,7 +927,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
 
                     axisvector = Vector3(0,1,0);
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                else if( pEditorState->m_EditorActionState == EditorActionState::TranslateZ )
                 {
                     normal = Vector3(0,1,0); // xz plane
                     if( fabs(camInvAt.Dot( normal )) < 0.7071f ) // if cam dot normal is under 45degrees
@@ -935,17 +935,17 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
 
                     axisvector = Vector3(0,0,1);
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY )
+                else if( pEditorState->m_EditorActionState == EditorActionState::TranslateXY )
                 {
                     normal = Vector3(0,0,1);
                     axisvector = Vector3(1,1,0);
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ )
+                else if( pEditorState->m_EditorActionState == EditorActionState::TranslateXZ )
                 {
                     normal = Vector3(0,1,0);
                     axisvector = Vector3(1,0,1);
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
+                else if( pEditorState->m_EditorActionState == EditorActionState::TranslateYZ )
                 {
                     normal = Vector3(1,0,0);
                     axisvector = Vector3(0,1,1);
@@ -1029,15 +1029,15 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 }
 
                 // For single axis translations, apply the correct amount of diff on that axis
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                if( pEditorState->m_EditorActionState == EditorActionState::TranslateX )
                 {
                     diff = AxisX * diff.Dot( AxisX );
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY)
+                else if( pEditorState->m_EditorActionState == EditorActionState::TranslateY)
                 {
                     diff = AxisY * diff.Dot( AxisY );
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                else if( pEditorState->m_EditorActionState == EditorActionState::TranslateZ )
                 {
                     diff = AxisZ * diff.Dot( AxisZ );
                 }
@@ -1085,10 +1085,10 @@ void TransformGizmo::ScaleSelectedObjects(EngineCore* pGame, EditorState* pEdito
         return;
 
     // move the selected objects along a plane or axis
-    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleXYZ )
+    if( pEditorState->m_EditorActionState == EditorActionState::ScaleX ||
+        pEditorState->m_EditorActionState == EditorActionState::ScaleY ||
+        pEditorState->m_EditorActionState == EditorActionState::ScaleZ ||
+        pEditorState->m_EditorActionState == EditorActionState::ScaleXYZ )
     {
         // move all selected objects by the same amount, use object 0 to create a plane.
         {
@@ -1117,11 +1117,11 @@ void TransformGizmo::ScaleSelectedObjects(EngineCore* pGame, EditorState* pEdito
 
                 Vector3 diff( distance );
 
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX )
+                if( pEditorState->m_EditorActionState == EditorActionState::ScaleX )
                     diff.y = diff.z = 1;
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY )
+                if( pEditorState->m_EditorActionState == EditorActionState::ScaleY )
                     diff.x = diff.z = 1;
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ )
+                if( pEditorState->m_EditorActionState == EditorActionState::ScaleZ )
                     diff.x = diff.y = 1;
 
                 // GIZMOSCALE: scale all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
@@ -1173,9 +1173,9 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
         return;
 
     // rotate the selected objects along a plane or axis
-    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY ||
-        pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
+    if( pEditorState->m_EditorActionState == EditorActionState::RotateX ||
+        pEditorState->m_EditorActionState == EditorActionState::RotateY ||
+        pEditorState->m_EditorActionState == EditorActionState::RotateZ )
     {
         // rotate all selected objects by the same amount, use object 0 to create a plane.
         {
@@ -1190,15 +1190,15 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 Vector3 camInvAt = pCamera->GetGameObject()->GetTransform()->GetLocalTransform()->GetAt() * -1;
 
                 Vector3 normal;
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )
+                if( pEditorState->m_EditorActionState == EditorActionState::RotateX )
                 {
                     normal = Vector3(1,0,0); // yz plane
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY )
+                else if( pEditorState->m_EditorActionState == EditorActionState::RotateY )
                 {
                     normal = Vector3(0,1,0); // xz plane
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
+                else if( pEditorState->m_EditorActionState == EditorActionState::RotateZ )
                 {
                     normal = Vector3(0,0,1); // xy plane
                 }
@@ -1276,18 +1276,18 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 lastangle.z = atan2f( lastresult.y, lastresult.x );
 
                 // lock to one of the 3 axis.
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )
+                if( pEditorState->m_EditorActionState == EditorActionState::RotateX )
                 {
                     currentangle.y = currentangle.z = 0;
                     lastangle.y = lastangle.z = 0;
                     //LOGInfo( LOGTag, "angles( %f -> %f );", currentangle.x * 180 / PI, lastangle.x * 180 / PI );
                 }
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY )
+                if( pEditorState->m_EditorActionState == EditorActionState::RotateY )
                 {
                     currentangle.x = currentangle.z = 0;
                     lastangle.x = lastangle.z = 0;
                 }
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
+                if( pEditorState->m_EditorActionState == EditorActionState::RotateZ )
                 {
                     currentangle.x = currentangle.y = 0;
                     lastangle.x = lastangle.y = 0;

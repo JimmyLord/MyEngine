@@ -106,7 +106,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
     }
 
     // Draw group select rectangle.
-    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
+    if( pEditorState->m_EditorActionState == EditorActionState::GroupSelectingObjects )
     {
         Vector2 windowSize( (float)pEditorState->m_EditorWindowRect.w, (float)pEditorState->m_EditorWindowRect.h );
         Vector2 clipStart = pEditorState->m_MouseDownLocation[0] / windowSize * 2 - 1;
@@ -156,17 +156,17 @@ bool EditorInterface_SceneManagement::CancelCurrentOperation(bool allowClearOfSe
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     // Cancel the current action and return true to prevent click from starting a camera rotation (or other op).
-    if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_TranslateX &&
-        pEditorState->m_EditorActionState <= EDITORACTIONSTATE_RotateZ )
+    if( pEditorState->m_EditorActionState >= EditorActionState::TranslateX &&
+        pEditorState->m_EditorActionState <= EditorActionState::RotateZ )
     {
         pEditorState->m_pTransformGizmo->CancelCurrentOperation( pEditorState );
-        pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+        pEditorState->m_EditorActionState = EditorActionState::None;
         return true;
     }
-    else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
+    else if( pEditorState->m_EditorActionState == EditorActionState::GroupSelectingObjects )
     {
         pEditorState->m_pTransformGizmo->CancelCurrentOperation( pEditorState );
-        pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+        pEditorState->m_EditorActionState = EditorActionState::None;
         return true;
     }
 
@@ -209,80 +209,80 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             // translate on one axis.
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateX;
+                pEditorState->m_EditorActionState = EditorActionState::TranslateX;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate1Axis[1] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateY;
+                pEditorState->m_EditorActionState = EditorActionState::TranslateY;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate1Axis[2] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateZ;
+                pEditorState->m_EditorActionState = EditorActionState::TranslateZ;
                 selectedgizmo = true;
             }
 
             // translate on two axes.
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateXY;
+                pEditorState->m_EditorActionState = EditorActionState::TranslateXY;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[1] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateXZ;
+                pEditorState->m_EditorActionState = EditorActionState::TranslateXZ;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[2] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
+                pEditorState->m_EditorActionState = EditorActionState::TranslateYZ;
                 selectedgizmo = true;
             }
 
             // scale.
             if( pObject == pEditorState->m_pTransformGizmo->m_pScale1Axis[0] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleX;
+                pEditorState->m_EditorActionState = EditorActionState::ScaleX;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pScale1Axis[1] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleY;
+                pEditorState->m_EditorActionState = EditorActionState::ScaleY;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pScale1Axis[2] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleZ;
+                pEditorState->m_EditorActionState = EditorActionState::ScaleZ;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pScale3Axis )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleXYZ;
+                pEditorState->m_EditorActionState = EditorActionState::ScaleXYZ;
                 selectedgizmo = true;
             }
 
             // rotate.
             if( pObject == pEditorState->m_pTransformGizmo->m_pRotate1Axis[0] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotateX;
+                pEditorState->m_EditorActionState = EditorActionState::RotateX;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pRotate1Axis[1] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotateY;
+                pEditorState->m_EditorActionState = EditorActionState::RotateY;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pRotate1Axis[2] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotateZ;
+                pEditorState->m_EditorActionState = EditorActionState::RotateZ;
                 selectedgizmo = true;
             }
 
             if( selectedgizmo == false )
             {
                 // If we didn't select the transform gizmo, we're likely selecting objects.
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_GroupSelectingObjects;
+                pEditorState->m_EditorActionState = EditorActionState::GroupSelectingObjects;
 
                 // If neither shift nor control are held, clear the selected objects.
                 if( (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift) == 0 &&
@@ -436,9 +436,9 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             // gameplay is running and we picked up a physics object in the editor view, so move it around.
             if( pEditorState->m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
             {
-                // if we clicked and moved while on a 3d physics body, cancel the EDITORACTIONSTATE_GroupSelectingObjects state
+                // if we clicked and moved while on a 3d physics body, cancel the EditorActionState::GroupSelectingObjects state
                 if( pEditorState->HasMouseMovedSinceButtonPressed( 0 ) )
-                    pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+                    pEditorState->m_EditorActionState = EditorActionState::None;
 
                 // move the constraint pivot
                 if( pEditorState->m_MousePicker_PickConstraint->getConstraintType() == D6_CONSTRAINT_TYPE )
@@ -603,7 +603,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
         // Lock to current object, 
         if( keycode == 'L' )
         {
-            if( pEditorState->m_CameraState == EditorCameraState_Default && pEditorState->m_pSelectedObjects.size() > 0 )
+            if( pEditorState->m_CameraState == EditorCameraState::Default && pEditorState->m_pSelectedObjects.size() > 0 )
             {
                 GameObject* pSelectedObject = pEditorState->m_pSelectedObjects[0];
                 pEditorState->LockCameraToGameObject( pSelectedObject );
@@ -628,10 +628,10 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
     {
         if( mouseaction == GCBA_Up )
         {
-            if( id == 0 && pEditorState->m_EditorActionState != EDITORACTIONSTATE_None ) // left button up
+            if( id == 0 && pEditorState->m_EditorActionState != EditorActionState::None ) // left button up
             {
                 // when mouse up, select all object in the box.
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
+                if( pEditorState->m_EditorActionState == EditorActionState::GroupSelectingObjects )
                 {
                     SelectObjectsInRectangle(
                         (unsigned int)pEditorState->m_MouseDownLocation[0].x, (unsigned int)pEditorState->m_MouseDownLocation[0].y,
@@ -639,8 +639,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 }
 
                 // GIZMOTRANSLATE: add translation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
-                if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_TranslateX &&
-                    pEditorState->m_EditorActionState <= EDITORACTIONSTATE_TranslateYZ )
+                if( pEditorState->m_EditorActionState >= EditorActionState::TranslateX &&
+                    pEditorState->m_EditorActionState <= EditorActionState::TranslateYZ )
                 {
                     if( pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
                     {
@@ -667,8 +667,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 }
 
                 // GIZMOSCALE: add scale to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
-                if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_ScaleX &&
-                    pEditorState->m_EditorActionState <= EDITORACTIONSTATE_ScaleXYZ )
+                if( pEditorState->m_EditorActionState >= EditorActionState::ScaleX &&
+                    pEditorState->m_EditorActionState <= EditorActionState::ScaleXYZ )
                 {
                     if( pEditorState->m_pSelectedObjects.size() > 0 &&
                         ( pEditorState->m_AmountScaled.x != 1.0f ||
@@ -698,8 +698,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 }
 
                 // GIZMOROTATE: add rotation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
-                if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_RotateX &&
-                    pEditorState->m_EditorActionState <= EDITORACTIONSTATE_RotateZ )
+                if( pEditorState->m_EditorActionState >= EditorActionState::RotateX &&
+                    pEditorState->m_EditorActionState <= EditorActionState::RotateZ )
                 {
                     if( pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_DistanceRotated.LengthSquared() != 0 )
                     {
@@ -731,11 +731,11 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 pEditorState->m_AmountScaled.Set( 1, 1, 1 );
                 pEditorState->m_DistanceRotated.Set( 0, 0, 0 );
 
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+                pEditorState->m_EditorActionState = EditorActionState::None;
             }
 
             // Check for rightmouse up (MODIFIERKEY_RightMouse)
-            if( mouseaction == GCBA_Up && id == 1 && pEditorState->m_EditorActionState == EDITORACTIONSTATE_None )
+            if( mouseaction == GCBA_Up && id == 1 && pEditorState->m_EditorActionState == EditorActionState::None )
             {
                 m_ShowRightClickMenu = true;
 

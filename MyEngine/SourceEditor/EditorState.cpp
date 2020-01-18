@@ -20,7 +20,7 @@
 
 #if MYFW_EDITOR
 
-const char* EditorIconFilenames[EditorIcon_NumIcons] =
+const char* EditorIconFilenames[EditorIcon::NumIcons] =
 {
     "Data/DataEngine/Textures/IconLight.png",
     "Data/DataEngine/Textures/IconCamera.png"
@@ -31,7 +31,7 @@ EditorState::EditorState(EngineCore* pEngineCore)
     m_pEngineCore = pEngineCore;
 
     m_ModifierKeyStates = 0;
-    m_EditorActionState = EDITORACTIONSTATE_None;
+    m_EditorActionState = EditorActionState::None;
     for( int i=0; i<3; i++ )
     {
         m_MouseDownLocation[i].Set( -1, -1 );
@@ -59,11 +59,11 @@ EditorState::EditorState(EngineCore* pEngineCore)
     m_DistanceRotated = Vector3( 0 );
     m_TransformedInLocalSpace = true;
 
-    m_CameraState = EditorCameraState_Default;
+    m_CameraState = EditorCameraState::Default;
     m_pGameObjectCameraIsFollowing = 0;
     m_OffsetFromObject.SetIdentity();
 
-    for( int i=0; i<EditorIcon_NumIcons; i++ )
+    for( int i=0; i<(int)EditorIcon::NumIcons; i++ )
     {
         m_pEditorIcons[i] = nullptr;
     }
@@ -78,7 +78,7 @@ EditorState::~EditorState()
     SAFE_DELETE( m_p3DGridPlane );
     SAFE_DELETE( m_pEditorCamera );
 
-    for( int i=0; i<EditorIcon_NumIcons; i++ )
+    for( int i=0; i<(int)EditorIcon::NumIcons; i++ )
     {
         SAFE_RELEASE( m_pEditorIcons[i] );
     }
@@ -94,7 +94,7 @@ void EditorState::Init()
     ShaderGroup* pShader = m_pEngineCore->GetManagers()->GetShaderGroupManager()->FindShaderGroupByName( "Shader_TintColor" );
 
     // Load all the editor icons (Lights/Cameras/Etc)
-    for( int i=0; i<EditorIcon_NumIcons; i++ )
+    for( int i=0; i<(int)EditorIcon::NumIcons; i++ )
     {
         MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
         BufferManager* pBufferManager = m_pEngineCore->GetManagers()->GetBufferManager();
@@ -207,16 +207,16 @@ ComponentCamera* EditorState::GetEditorCamera()
 
 void EditorState::ClearEditorState(bool clearselectedobjectandcomponents)
 {
-    if( m_CameraState != EditorCameraState_LockedToObject )
+    if( m_CameraState != EditorCameraState::LockedToObject )
     {
         m_pGameObjectCameraIsFollowing = 0;
     }
 
     // If the object we're locked on to isn't from a loaded scene, then clear it.
-    if( m_CameraState == EditorCameraState_LockedToObject &&
+    if( m_CameraState == EditorCameraState::LockedToObject &&
         m_pGameObjectCameraIsFollowing->GetSceneID() >= MAX_SCENES_LOADED )
     {
-        m_CameraState = EditorCameraState_Default;
+        m_CameraState = EditorCameraState::Default;
         m_pGameObjectCameraIsFollowing = 0;
     }
 
@@ -233,7 +233,7 @@ void EditorState::OnFocusLost()
 {
     // Cancel whatever operation the transform gizmo was doing.
     m_pTransformGizmo->CancelCurrentOperation( this );
-    m_EditorActionState = EDITORACTIONSTATE_None;
+    m_EditorActionState = EditorActionState::None;
 }
 
 void EditorState::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height)
@@ -452,7 +452,7 @@ bool EditorState::IsComponentSelected(ComponentBase* pComponent)
 void EditorState::ClearKeyAndActionStates()
 {
     m_ModifierKeyStates = 0;
-    m_EditorActionState = EDITORACTIONSTATE_None;
+    m_EditorActionState = EditorActionState::None;
 }
 
 void EditorState::ClearSelectedObjectsAndComponents()
@@ -496,13 +496,13 @@ void EditorState::LockCameraToGameObject(GameObject* pGameObject)
 
     if( pGameObject == 0 )
     {
-        m_CameraState = EditorCameraState_Default;
+        m_CameraState = EditorCameraState::Default;
 
         LOGInfo( LOGTag, "Unlocked camera\n" );
     }
     else
     {
-        m_CameraState = EditorCameraState_LockedToObject;
+        m_CameraState = EditorCameraState::LockedToObject;
         m_pGameObjectCameraIsFollowing = pGameObject;
 
         MyMatrix GOTransform = *m_pGameObjectCameraIsFollowing->GetTransform()->GetWorldTransform();
@@ -524,7 +524,7 @@ void EditorState::LockCameraToGameObject(GameObject* pGameObject)
 
 void EditorState::UpdateCamera(float deltaTime)
 {
-    if( m_CameraState == EditorCameraState_LockedToObject )
+    if( m_CameraState == EditorCameraState::LockedToObject )
     {
         MyAssert( m_pGameObjectCameraIsFollowing );
 

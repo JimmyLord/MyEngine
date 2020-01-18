@@ -20,8 +20,8 @@
 #define EditorIconData_First    0xE800
 #define EditorIconData_Last     0xE802
 
-#define EditorIcon_GameObject   "\xEE\xA0\x80" // 0xe800 gameobject
-#define EditorIcon_Folder       "\xEE\xA0\x81" // 0xe801 folder
-#define EditorIcon_Prefab       "\xEE\xA0\x82" // 0xe802 prefab
+#define EditorIconString_GameObject   "\xEE\xA0\x80" // 0xe800 gameobject
+#define EditorIconString_Folder       "\xEE\xA0\x81" // 0xe801 folder
+#define EditorIconString_Prefab       "\xEE\xA0\x82" // 0xe802 prefab
 
 #endif //__EditorIcons_H__

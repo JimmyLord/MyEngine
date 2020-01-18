@@ -299,7 +299,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
     if( g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() == false )
         return;
 
-    MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[EditorIcon_Light];
+    MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[(int)EditorIcon::Light];
     if( pSprite == nullptr )
         return;
 

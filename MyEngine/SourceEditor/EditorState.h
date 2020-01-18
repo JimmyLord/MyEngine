@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -17,42 +17,42 @@ class GameObject;
 class TransformGizmo;
 
 #if MYFW_EDITOR
-enum EditorActionState
+enum class EditorActionState
 {
-    EDITORACTIONSTATE_None,
-    EDITORACTIONSTATE_TranslateX,
-    EDITORACTIONSTATE_TranslateY,
-    EDITORACTIONSTATE_TranslateZ,
-    EDITORACTIONSTATE_TranslateXY,
-    EDITORACTIONSTATE_TranslateXZ,
-    EDITORACTIONSTATE_TranslateYZ,
-    EDITORACTIONSTATE_ScaleX,
-    EDITORACTIONSTATE_ScaleY,
-    EDITORACTIONSTATE_ScaleZ,
-    EDITORACTIONSTATE_ScaleXYZ,
-    EDITORACTIONSTATE_RotateX,
-    EDITORACTIONSTATE_RotateY,
-    EDITORACTIONSTATE_RotateZ,
-    EDITORACTIONSTATE_GroupSelectingObjects,
-    EDITORACTIONSTATE_RotatingEditorCamera,
-    EDITORACTIONSTATE_NumStates,
+    None,
+    TranslateX,
+    TranslateY,
+    TranslateZ,
+    TranslateXY,
+    TranslateXZ,
+    TranslateYZ,
+    ScaleX,
+    ScaleY,
+    ScaleZ,
+    ScaleXYZ,
+    RotateX,
+    RotateY,
+    RotateZ,
+    GroupSelectingObjects,
+    RotatingEditorCamera,
+    NumStates,
 };
 
-enum EditorCameraState
+enum class EditorCameraState
 {
-    EditorCameraState_Default,
-    EditorCameraState_LockedToObject,
-    EditorCameraState_NumStates,
+    Default,
+    LockedToObject,
+    NumStates,
 };
 
-enum EditorIcons
+enum class EditorIcon
 {
-    EditorIcon_Light,
-    EditorIcon_Camera,
-    EditorIcon_NumIcons,
+    Light,
+    Camera,
+    NumIcons,
 };
 
-extern const char* EditorIconFilenames[EditorIcon_NumIcons];
+extern const char* EditorIconFilenames[EditorIcon::NumIcons];
 
 class EditorState
 {
@@ -100,7 +100,7 @@ public:
     MyMatrix m_OffsetFromObject;
 
     // icons for various editor objects.  lights, cameras, etc...
-    MySprite* m_pEditorIcons[EditorIcon_NumIcons];
+    MySprite* m_pEditorIcons[EditorIcon::NumIcons];
 
 public:
     EditorState(EngineCore* pEngineCore);

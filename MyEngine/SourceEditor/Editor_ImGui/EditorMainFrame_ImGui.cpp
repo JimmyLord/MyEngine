@@ -2017,11 +2017,11 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         }
 
         // Add the GameObject itself to the tree.
-        char* icon = EditorIcon_GameObject;
+        char* icon = EditorIconString_GameObject;
         if( pGameObject->IsFolder() )
-            icon = EditorIcon_Folder;
+            icon = EditorIconString_Folder;
         if( pGameObject->IsPrefabInstance() )
-            icon = EditorIcon_Prefab;
+            icon = EditorIconString_Prefab;
 
         bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, nodeFlags, "%s %s", icon, pGameObject->GetName() );
 

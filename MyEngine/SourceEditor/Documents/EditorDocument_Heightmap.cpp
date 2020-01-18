@@ -541,17 +541,17 @@ void EditorDocument_Heightmap::Update()
         // TODO: Make new icons.
         ImVec2 normalSize = ImVec2( 20, 20 );
         ImVec2 selectedSize = ImVec2( 30, 30 );
-        if( ImGuiExt::ButtonWithTooltip( EditorIcon_Prefab, m_CurrentTool == Tool::Raise ? selectedSize : normalSize, "Raise" ) )
+        if( ImGuiExt::ButtonWithTooltip( EditorIconString_Prefab, m_CurrentTool == Tool::Raise ? selectedSize : normalSize, "Raise" ) )
         {
             m_CurrentTool = Tool::Raise;
         }
         ImGui::SameLine();
-        if( ImGuiExt::ButtonWithTooltip( EditorIcon_Folder, m_CurrentTool == Tool::Lower ? selectedSize : normalSize, "Lower" ) )
+        if( ImGuiExt::ButtonWithTooltip( EditorIconString_Folder, m_CurrentTool == Tool::Lower ? selectedSize : normalSize, "Lower" ) )
         {
             m_CurrentTool = Tool::Lower;
         }
         ImGui::SameLine();
-        if( ImGuiExt::ButtonWithTooltip( EditorIcon_GameObject, m_CurrentTool == Tool::Level ? selectedSize : normalSize, "Level" ) )
+        if( ImGuiExt::ButtonWithTooltip( EditorIconString_GameObject, m_CurrentTool == Tool::Level ? selectedSize : normalSize, "Level" ) )
         {
             m_CurrentTool = Tool::Level;
         }

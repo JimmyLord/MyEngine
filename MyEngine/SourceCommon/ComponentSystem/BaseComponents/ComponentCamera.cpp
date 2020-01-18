@@ -910,7 +910,7 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj,
     if( m_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() == false )
         return;
 
-    MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[EditorIcon_Camera];
+    MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[(int)EditorIcon::Camera];
     if( pSprite == 0 )
         return;
 
@@ -978,14 +978,14 @@ bool ComponentCamera::HandleInputForEditorCamera(int keyAction, int keyCode, int
             // If the right mouse button was clicked, switch to rotating editor camera state.
             if( mouseAction == GCBA_Down && id == 1 )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotatingEditorCamera;
+                pEditorState->m_EditorActionState = EditorActionState::RotatingEditorCamera;
             }
 
-            // If we're in EDITORACTIONSTATE_RotatingEditorCamera and the right mouse goes up.
-            if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotatingEditorCamera &&
+            // If we're in EditorActionState::RotatingEditorCamera and the right mouse goes up.
+            if( pEditorState->m_EditorActionState == EditorActionState::RotatingEditorCamera &&
                 mouseAction == GCBA_Up && id == 1 )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+                pEditorState->m_EditorActionState = EditorActionState::None;
             }
         }
 
@@ -1017,12 +1017,12 @@ bool ComponentCamera::HandleInputForEditorCamera(int keyAction, int keyCode, int
                 if( dir.LengthSquared() > 0 )
                     matCamera->TranslatePreRotScale( dir * 0.05f );
             }
-            else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects &&
+            else if( pEditorState->m_EditorActionState == EditorActionState::GroupSelectingObjects &&
                 (mods & MODIFIERKEY_LeftMouse) )
             {
             }
             // If right mouse is down, rotate the camera around selected object or around it's current position.
-            else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotatingEditorCamera &&
+            else if( pEditorState->m_EditorActionState == EditorActionState::RotatingEditorCamera &&
                 (mods & MODIFIERKEY_RightMouse) )
             {
     #if MYFW_OSX
@@ -1155,7 +1155,7 @@ bool ComponentCamera::HandleInputForEditorCamera(int keyAction, int keyCode, int
 
     // If the camera is locked to an object,
     //     apply any changes we made to the editor camera to the offset from the locked object.
-    if( pEditorState->m_CameraState == EditorCameraState_LockedToObject )
+    if( pEditorState->m_CameraState == EditorCameraState::LockedToObject )
     {
         MyMatrix endCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
         MyMatrix startCamInverseTransform = startCamTransform.GetInverse();
