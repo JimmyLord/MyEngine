@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2019 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -41,7 +41,6 @@ ComponentLuaScript::ComponentLuaScript(EngineCore* pEngineCore, ComponentSystemM
 
     m_pScriptFile = nullptr;
 #if MYFW_EDITOR
-    m_pLuaInlineScript_OnPlayTest[0] = '\0';
 #else
     m_pLuaInlineScript_OnPlay = nullptr;
 #endif
@@ -100,11 +99,6 @@ void ComponentLuaScript::RegisterVariables(TCPPListHead<ComponentVariable*>* pLi
     //    (CVarFunc_GetPointerValue)&ComponentLuaScript::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentLuaScript::SetPointerValue,
     //    (CVarFunc_GetPointerDesc)&ComponentLuaScript::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentLuaScript::SetPointerDesc,
     //    (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, nullptr, nullptr );
-    pVar = AddVar( pList, "OnPlayTest", ComponentVariableType::CharArray, MyOffsetOf( pThis, &pThis->m_pLuaInlineScript_OnPlayTest ), true, true, nullptr, nullptr, nullptr, nullptr );
-#if MYFW_EDITOR
-    pVar->SetEditorLimits( 0, 0, 30 );
-#endif
-
     pVar = AddVar( pList, "OnPlay", ComponentVariableType::String, MyOffsetOf( pThis, &pThis->m_pLuaInlineScript_OnPlay ), true, true, nullptr, nullptr, nullptr, nullptr );
 }
 
@@ -635,11 +629,8 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
     }
 
 #if MYFW_EDITOR
-    strcpy_s( m_pLuaInlineScript_OnPlayTest, 30, other.m_pLuaInlineScript_OnPlayTest );
     m_pLuaInlineScript_OnPlay = other.m_pLuaInlineScript_OnPlay;
 #else
-    strcpy_s( m_pLuaInlineScript_OnPlayTest, 30, other.m_pLuaInlineScript_OnPlayTest );
-
     int len = (int)strlen( other.m_pLuaInlineScript_OnPlay );
     m_pLuaInlineScript_OnPlay = MyNew char[len+1];
     strcpy_s( m_pLuaInlineScript_OnPlay, len+1, other.m_pLuaInlineScript_OnPlay );
