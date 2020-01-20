@@ -229,9 +229,15 @@ void EditorState::ClearEditorState(bool clearselectedobjectandcomponents)
     ClearConstraint();
 }
 
+void EditorState::ClearEditorKeyStates()
+{
+    m_ModifierKeyStates = 0;
+}
+
 void EditorState::OnFocusLost()
 {
     // Cancel whatever operation the transform gizmo was doing.
+    ClearEditorKeyStates();
     m_pTransformGizmo->CancelCurrentOperation( this );
     m_EditorActionState = EditorActionState::None;
 }

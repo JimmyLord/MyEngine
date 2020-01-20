@@ -118,6 +118,7 @@ public:
     ComponentCamera* GetEditorCamera();
 
     void ClearEditorState(bool clearselectedobjectandcomponents = true);
+    void ClearEditorKeyStates();
 
     void OnFocusLost();
     void OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height);

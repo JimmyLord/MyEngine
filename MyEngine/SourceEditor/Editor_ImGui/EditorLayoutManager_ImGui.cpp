@@ -13,6 +13,7 @@
 #include "EditorLogWindow_ImGui.h"
 #include "ImGuiStylePrefs.h"
 #include "../../SourceCommon/Core/EngineCore.h"
+#include "../../SourceEditor/EditorState.h"
 #include "../../SourceEditor/Prefs/EditorPrefs.h"
 
 const char* g_DefaultEditorLayoutImGuiIniStrings[EditorLayout_NumLayouts] =
@@ -261,12 +262,18 @@ void EditorLayoutManager_ImGui::FinishFocusChangeIfNeeded()
 
     if( m_SwitchingToEditorLayout )
     {
+        // Focus changed, fake engine core focus loss and clear all key states.
+        m_pEditorMainFrame_ImGui->GetEngineCore()->OnFocusLost();
+
         m_SwitchingToEditorLayout = false;
         ImGui::SetWindowFocus( "Editor" );
     }
 
     if( m_SwitchingToGameLayout )
     {
+        // Focus changed, fake engine core focus loss and clear all key states.
+        m_pEditorMainFrame_ImGui->GetEngineCore()->OnFocusLost();
+
         m_SwitchingToGameLayout = false;
         ImGui::SetWindowFocus( "Game" );
     }
