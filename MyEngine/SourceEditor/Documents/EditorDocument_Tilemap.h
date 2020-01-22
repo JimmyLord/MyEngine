@@ -13,6 +13,7 @@
 #include "../SourceEditor/Documents/EditorDocument.h"
 #include "../SourceEditor/Prefs/EditorKeyBindings.h"
 
+class ComponentTilemap;
 class GameObject;
 
 class EditorDocument_Tilemap : public EditorDocument
@@ -40,8 +41,8 @@ public:
     };
 
 protected:
-    //ComponentHeightmap* m_pHeightmap;
-    //bool m_HeightmapOwnedByUs;
+    ComponentTilemap* m_pTilemap;
+    bool m_TilemapOwnedByUs;
 
     Tool m_CurrentTool;
     ToolState m_CurrentToolState;
@@ -69,7 +70,7 @@ protected:
     virtual const char* GetDefaultFileSaveFilter() { return "MyTilemap Files=*.mytilemap"; };
 
 public:
-    EditorDocument_Tilemap(EngineCore* pEngineCore);//, ComponentHeightmap* pHeightmap);
+    EditorDocument_Tilemap(EngineCore* pEngineCore, ComponentTilemap* pTilemap);
     virtual ~EditorDocument_Tilemap();
 
     virtual void Initialize();
@@ -90,8 +91,8 @@ public:
 
     void CancelCurrentOperation();
 
-    //ComponentHeightmap* GetHeightmapBeingEdited() { return m_pHeightmap; }
-    //void SetHeightmap(ComponentHeightmap* pHeightmap);
+    ComponentTilemap* GetTilemapBeingEdited() { return m_pTilemap; }
+    void SetTilemap(ComponentTilemap* pTilemap);
 
     //MaterialDefinition* GetMaterial(MaterialTypes type);
 

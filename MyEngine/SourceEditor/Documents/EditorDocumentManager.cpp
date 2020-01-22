@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2019-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -15,6 +15,7 @@
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/Documents/EditorDocument_Heightmap.h"
+#include "../SourceEditor/Documents/EditorDocument_Tilemap.h"
 #include "../SourceEditor/NodeGraph/MyNodeGraph.h"
 //#include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodeTypeManager.h"
@@ -47,6 +48,10 @@ EditorDocument* EditorDocumentManager::AddDocumentMenu(EngineCore* pEngineCore, 
             if( ImGui::MenuItem( "Heightmap" ) )
             {
                 pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+            }
+            if( ImGui::MenuItem( "Tilemap" ) )
+            {
+                pNewDocument = MyNew EditorDocument_Tilemap( pEngineCore, nullptr );
             }
             ImGui::EndMenu(); // "New Document"
         }
@@ -82,6 +87,11 @@ EditorDocument* EditorDocumentManager::AddDocumentMenu(EngineCore* pEngineCore, 
                     if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
                     {
                         pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+                    }
+
+                    if( strcmp( &relativePath[len-strlen(".mytilemap")], ".mytilemap" ) == 0 )
+                    {
+                        pNewDocument = MyNew EditorDocument_Tilemap( pEngineCore, nullptr );
                     }
 
                     if( pNewDocument )
@@ -166,10 +176,11 @@ EditorDocument* EditorDocumentManager::LoadDocument(EngineCore* pEngineCore)
 {
     char tempFilter[256];
     //sprintf_s( tempFilter, 256, "%s\0All\0*.*\0", GetDefaultFileSaveFilter() );
-    sprintf_s( tempFilter, 256, "%s=%s=%s=",
+    sprintf_s( tempFilter, 256, "%s=%s=%s=%s=",
         "All=*.*",
         "VisualScript Files=*.myvisualscript",
-        "MyHeightmap Files=*.myheightmap"
+        "MyHeightmap Files=*.myheightmap",
+        "MyTilemap Files=*.mytilemap"
     );
     uint32 tempFilterLen = (uint32)strlen( tempFilter );
     for( uint32 i=0; i<tempFilterLen; i++ )
@@ -197,6 +208,10 @@ EditorDocument* EditorDocumentManager::LoadDocument(EngineCore* pEngineCore)
         else if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
         {
             pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+        }
+        else if( strcmp( &relativePath[len-strlen(".mytilemap")], ".mytilemap" ) == 0 )
+        {
+            pNewDocument = MyNew EditorDocument_Tilemap( pEngineCore, nullptr );
         }
 
         if( pNewDocument == nullptr )
@@ -237,6 +252,10 @@ void EditorDocumentManager::RestorePreviouslyOpenDocuments(EngineCore* pEngineCo
             else if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
             {
                 pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+            }
+            else if( strcmp( &relativePath[len-strlen(".mytilemap")], ".mytilemap" ) == 0 )
+            {
+                pNewDocument = MyNew EditorDocument_Tilemap( pEngineCore, nullptr );
             }
 
             if( pNewDocument != nullptr )

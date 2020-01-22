@@ -15,7 +15,7 @@
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/GameObject.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMesh.h"
-//#include "ComponentSystem/EngineComponents/ComponentHeightmap.h"
+#include "ComponentSystem/EngineComponents/ComponentTilemap.h"
 #include "Core/EngineComponentTypeManager.h"
 #include "Core/EngineCore.h"
 #include "GUI/EditorIcons.h"
@@ -28,7 +28,7 @@
 //#include "../SourceEditor/Prefs/EditorPrefs.h"
 //#include "../../../Framework/MyFramework/SourceCommon/Renderers/BaseClasses/Shader_Base.h"
 
-EditorDocument_Tilemap::EditorDocument_Tilemap(EngineCore* pEngineCore)//, ComponentHeightmap* pHeightmap)
+EditorDocument_Tilemap::EditorDocument_Tilemap(EngineCore* pEngineCore, ComponentTilemap* pTilemap)
 : EditorDocument( pEngineCore )
 {
     m_pCamera = MyNew ComponentCamera( pEngineCore, nullptr );
@@ -47,25 +47,25 @@ EditorDocument_Tilemap::EditorDocument_Tilemap(EngineCore* pEngineCore)//, Compo
     m_WindowFocused = false;
     m_WindowVisible = false;
 
-    //if( pHeightmap )
-    //{
-    //    m_HeightmapOwnedByUs = false;
+    if( pTilemap )
+    {
+        m_TilemapOwnedByUs = false;
 
-    //    m_pHeightmap = pHeightmap;
-    //}
-    //else
-    //{
-    //    m_HeightmapOwnedByUs = true;
+        m_pTilemap = pTilemap;
+    }
+    else
+    {
+        m_TilemapOwnedByUs = true;
 
-    //    m_pHeightmap = MyNew ComponentHeightmap( pEngineCore, nullptr );
-    //    m_pHeightmap->Reset();
-    //    m_pHeightmap->m_Size.Set( 5, 5 );
-    //    m_pHeightmap->m_VertCount.Set( 128, 128 );
-    //    MaterialDefinition* pMaterial = pEngineCore->GetManagers()->GetMaterialManager()->GetFirstMaterial();
-    //    m_pHeightmap->SetMaterial( pMaterial, 0 );
-    //    m_pHeightmap->CreateHeightmap();
-    //    m_pHeightmap->RegisterCallbacks();
-    //}
+        m_pTilemap = MyNew ComponentTilemap( pEngineCore, nullptr );
+        m_pTilemap->Reset();
+        m_pTilemap->m_Size.Set( 5, 5 );
+        m_pTilemap->m_VertCount.Set( 128, 128 );
+        MaterialDefinition* pMaterial = pEngineCore->GetManagers()->GetMaterialManager()->GetFirstMaterial();
+        m_pTilemap->SetMaterial( pMaterial, 0 );
+        m_pTilemap->CreateTilemap();
+        m_pTilemap->RegisterCallbacks();
+    }
 
     m_CurrentTool = Tool::Raise;
     m_CurrentToolState = ToolState::Idle;
@@ -96,11 +96,11 @@ EditorDocument_Tilemap::EditorDocument_Tilemap(EngineCore* pEngineCore)//, Compo
 
 EditorDocument_Tilemap::~EditorDocument_Tilemap()
 {
-    //if( m_HeightmapOwnedByUs )
-    //{
-    //    m_pHeightmap->SetEnabled( false );
-    //    delete m_pHeightmap;
-    //}
+    if( m_TilemapOwnedByUs )
+    {
+        m_pTilemap->SetEnabled( false );
+        delete m_pTilemap;
+    }
 
     SAFE_DELETE( m_pPoint );
 
@@ -134,7 +134,7 @@ void EditorDocument_Tilemap::Initialize()
         ComponentMesh* pComponentMesh;
 
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // Not managed.
-        pGameObject->SetName( "Heightmap editor - point" );
+        pGameObject->SetName( "Tilemap editor - point" );
         pGameObject->GetTransform()->SetLocalRotation( Vector3( -90, 0, 0 ) );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects, g_pComponentSystemManager );
@@ -208,7 +208,7 @@ bool EditorDocument_Tilemap::HandleInput(int keyAction, int keyCode, int mouseAc
     // Deal with keys.
     if( keyAction != -1 )
     {
-        // Escape to cancel current tool or exit heightmap editor.
+        // Escape to cancel current tool or exit tilemap editor.
         if( keyAction == GCBA_Up && keyCode == MYKEYCODE_ESC )
         {
             if( m_CurrentToolState == ToolState::Active )
@@ -273,7 +273,7 @@ void EditorDocument_Tilemap::Update()
     m_pCamera->m_Camera3D.SetupProjection( w/h, w/h, 45, 0.01f, 100.0f );
     m_pCamera->m_Camera3D.UpdateMatrices();
 
-    //ImGui::Text( "Testing Heightmap EditorDocument." );
+    //ImGui::Text( "Testing Tilemap EditorDocument." );
 
     if( m_pFBO )
     {
@@ -287,10 +287,10 @@ void EditorDocument_Tilemap::Update()
         }
     }
 
-    // Show some heightmap editor controls.
+    // Show some tilemap editor controls.
     ImGui::SetNextWindowSize( ImVec2(150,200), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowBgAlpha( 1.0f );
-    ImGui::Begin( "Heightmap Editor", nullptr, ImGuiWindowFlags_NoFocusOnAppearing );
+    ImGui::Begin( "Tilemap Editor", nullptr, ImGuiWindowFlags_NoFocusOnAppearing );
 
     // Icon bar to select tools.
     {
@@ -342,7 +342,7 @@ void EditorDocument_Tilemap::Update()
 
     if( ImGui::Button( "Export as MyMesh" ) )
     {
-        //m_pHeightmap->SaveAsMyMesh( "Data/Meshes/TestHeightmap.mymesh" );
+        m_pTilemap->SaveAsMyMesh( "Data/Meshes/TestTilemap.mymesh" );
     }
 
     if( ImGui::Button( "Save" ) )
@@ -355,9 +355,9 @@ void EditorDocument_Tilemap::Update()
     if( m_ShowWarning_CloseEditor )
     {
         m_ShowWarning_CloseEditor = false;
-        ImGui::OpenPopup( "Close Heightmap Editor Warning" );
+        ImGui::OpenPopup( "Close Tilemap Editor Warning" );
     }
-    if( ImGui::BeginPopupModal( "Close Heightmap Editor Warning" ) )
+    if( ImGui::BeginPopupModal( "Close Tilemap Editor Warning" ) )
     {
         ImGui::Text( "Some changes aren't saved." );
         ImGui::Dummy( ImVec2( 0, 10 ) );
@@ -387,15 +387,15 @@ void EditorDocument_Tilemap::Update()
     AddImGuiOverlayItems();
 }
 
-//void EditorDocument_Tilemap::SetHeightmap(ComponentHeightmap* pHeightmap)
-//{
-//    m_pHeightmap = pHeightmap;
-//
-//    if( m_pHeightmap )
-//    {
-//        // TODO: If no heightmap is created, then make a default flat one.
-//    }
-//}
+void EditorDocument_Tilemap::SetTilemap(ComponentTilemap* pTilemap)
+{
+    m_pTilemap = pTilemap;
+
+    if( m_pTilemap )
+    {
+        // TODO: If no tilemap is created, then make a default one.
+    }
+}
 
 //MaterialDefinition* EditorDocument_Tilemap::GetMaterial(MaterialTypes type)
 //{
@@ -450,9 +450,9 @@ void EditorDocument_Tilemap::Save()
             return;
         }
 
-        //m_pHeightmap->SaveAsHeightmap( filename );
-        //MyFileInfo* pFileInfo = m_pEngineCore->GetComponentSystemManager()->LoadDataFile( filename, SceneID::SCENEID_MainScene, nullptr, false );
-        //m_pHeightmap->SetHeightmapFile( pFileInfo->GetFile() );
+        m_pTilemap->SaveAsTilemap( filename );
+        MyFileInfo* pFileInfo = m_pEngineCore->GetComponentSystemManager()->LoadDataFile( filename, SceneID::SCENEID_MainScene, nullptr, false );
+        m_pTilemap->SetTilemapFile( pFileInfo->GetFile() );
     }
 }
 
@@ -466,6 +466,6 @@ void EditorDocument_Tilemap::Load()
         return;
     }
 
-    //m_pHeightmap->LoadFromHeightmap( filename );
-    //m_pHeightmap->GenerateHeightmapMesh( false, true, true );
+    m_pTilemap->LoadFromTilemap( filename );
+    m_pTilemap->GenerateTilemapMesh( false, true, true );
 }

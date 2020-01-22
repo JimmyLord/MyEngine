@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2019-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -13,7 +13,6 @@
 
 #include "Core/EngineCore.h"
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/Documents/EditorDocument_Heightmap.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodes.h"
 #include "../SourceEditor/NodeGraph/VisualScriptNodeTypeManager.h"
 #include "../SourceEditor/PlatformSpecific/FileOpenDialog.h"
