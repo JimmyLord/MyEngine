@@ -19,6 +19,8 @@ class ComponentTilemap : public ComponentMesh
     //friend class EditorCommand_Tilemap_FullBackup;
     //friend class Job_CalculateNormals;
 
+    typedef unsigned int TileIndex;
+
 private:
     // Component Variable List.
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentTilemap );
@@ -26,7 +28,7 @@ private:
 protected:
     Vector2 m_Size;
     Vector2Int m_VertCount;
-    float* m_Heights;
+    TileIndex* m_Tiles;
 
     MyFileObject* m_pTilemapFile;
     Vector2Int m_TilemapFileSize;
@@ -100,12 +102,8 @@ protected:
 #endif
     void LoadFromTilemap();
 
-    bool SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const;
-    bool FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const;
-
 public:
     bool GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const;
-    bool GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const;
     bool RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 end, Vector3* pResult) const;
     bool RayCastAtLocalHeight(bool rayIsInWorldSpace, Vector3 start, Vector3 end, float height, Vector3* pResultAtDesiredHeight, Vector3* pResultOnGround) const;
 

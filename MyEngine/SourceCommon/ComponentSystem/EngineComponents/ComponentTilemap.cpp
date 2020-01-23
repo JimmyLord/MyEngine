@@ -36,7 +36,7 @@ ComponentTilemap::ComponentTilemap(EngineCore* pEngineCore, ComponentSystemManag
 
     m_BaseType = BaseComponentType_Renderable;
 
-    m_Heights = nullptr;
+    m_Tiles = nullptr;
 
     m_pTilemapFile = nullptr;
     m_WaitingForTilemapFileToFinishLoading = false;
@@ -50,7 +50,7 @@ ComponentTilemap::~ComponentTilemap()
     SAFE_RELEASE( m_pTilemapFile );
     SAFE_RELEASE( m_pTilemapTexture );
 
-    SAFE_DELETE_ARRAY( m_Heights );
+    SAFE_DELETE_ARRAY( m_Tiles );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
@@ -78,7 +78,7 @@ void ComponentTilemap::Reset()
     ComponentMesh::Reset();
 
     m_Size.Set( 10.0f, 10.0f );
-    m_VertCount.Set( 128, 128 );
+    m_VertCount.Set( 32, 32 );
 
     UnregisterTilemapFileLoadingCallbacks( true );
     SAFE_RELEASE( m_pTilemapFile );
@@ -88,7 +88,7 @@ void ComponentTilemap::Reset()
     SAFE_RELEASE( m_pTilemapTexture );
     m_TilemapTextureSize.Set( 0, 0 );
 
-    SAFE_DELETE_ARRAY( m_Heights );
+    SAFE_DELETE_ARRAY( m_Tiles );
 }
 
 #if MYFW_USING_LUA
@@ -271,7 +271,7 @@ void ComponentTilemap::SetTilemapFile(MyFileObject* pFile)
 
     UnregisterTilemapFileLoadingCallbacks( true );
     m_TilemapFileSize.Set( 0, 0 );
-    SAFE_DELETE_ARRAY( m_Heights );
+    SAFE_DELETE_ARRAY( m_Tiles );
 
     if( pFile )
         pFile->AddRef();
@@ -301,7 +301,7 @@ void ComponentTilemap::SetTilemapTexture(TextureDefinition* pTexture)
 {
     UnregisterTilemapTextureLoadingCallbacks( true );
     m_TilemapTextureSize.Set( 0, 0 );
-    SAFE_DELETE_ARRAY( m_Heights );
+    SAFE_DELETE_ARRAY( m_Tiles );
 
     if( pTexture )
         pTexture->AddRef();
@@ -345,10 +345,10 @@ void ComponentTilemap::CreateTilemap()
     bool createFromTexture = true;
     if( m_pTilemapTexture == nullptr )
     {
-        if( m_pTilemapFile && m_Heights == nullptr )
+        if( m_pTilemapFile && m_Tiles == nullptr )
         {
             createFromTexture = false;
-            MyAssert( m_Heights == nullptr );
+            MyAssert( m_Tiles == nullptr );
             if( m_pTilemapFile->IsFinishedLoading() )
             {
                 LoadFromTilemap();
@@ -363,9 +363,9 @@ void ComponentTilemap::CreateTilemap()
         else
         {
             createFromTexture = false;
-            SAFE_DELETE_ARRAY( m_Heights );
-            m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
-            memset( m_Heights, 0, sizeof(float) * m_VertCount.x * m_VertCount.y );
+            SAFE_DELETE_ARRAY( m_Tiles );
+            m_Tiles = MyNew TileIndex[m_VertCount.x * m_VertCount.y];
+            memset( m_Tiles, 0, sizeof(TileIndex) * m_VertCount.x * m_VertCount.y );
         }
     }
 
@@ -473,8 +473,8 @@ bool ComponentTilemap::GenerateTilemapMesh(bool createFromTexture, bool sizeChan
             m_TilemapTextureSize.Set( (int)texWidth, (int)texHeight );
         
             // Allocate a buffer to store the vertex heights.
-            SAFE_DELETE_ARRAY( m_Heights );
-            m_Heights = MyNew float[vertCount.x * vertCount.y];
+            SAFE_DELETE_ARRAY( m_Tiles );
+            m_Tiles = MyNew TileIndex[vertCount.x * vertCount.y];
 
             for( int y = 0; y < vertCount.y; y++ )
             {
@@ -486,7 +486,7 @@ bool ComponentTilemap::GenerateTilemapMesh(bool createFromTexture, bool sizeChan
                     int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
                     float height = pixelBuffer[texIndex*4] / 255.0f;
 
-                    m_Heights[index] = height;
+                    m_Tiles[index] = (TileIndex)height;
                 }
             }
 
@@ -502,7 +502,7 @@ bool ComponentTilemap::GenerateTilemapMesh(bool createFromTexture, bool sizeChan
                 unsigned int index = (unsigned int)(y * vertCount.x + x);
 
                 pVerts[index].pos.x = bottomLeftPos.x + size.x / (vertCount.x - 1) * x;
-                pVerts[index].pos.y = bottomLeftPos.y + m_Heights[index];
+                pVerts[index].pos.y = bottomLeftPos.y + m_Tiles[index];
                 pVerts[index].pos.z = bottomLeftPos.z + size.y / (vertCount.y - 1) * y;
 
                 pVerts[index].uv.x = uvStart.x + x * uvRange.x / (vertCount.x - 1);
@@ -627,7 +627,7 @@ void ComponentTilemap::SaveAsTilemap(const char* filename)
     fwrite( &versionCode, sizeof(int), 1, file );
     fwrite( &m_VertCount.x, sizeof(int), 1, file );
     fwrite( &m_VertCount.y, sizeof(int), 1, file );
-    fwrite( m_Heights, sizeof(float), m_VertCount.x * m_VertCount.y, file );
+    fwrite( m_Tiles, sizeof(int), m_VertCount.x * m_VertCount.y, file );
 
     fclose( file );
 }
@@ -690,7 +690,7 @@ void ComponentTilemap::AddAllVariablesToWatchPanel()
         }
     }
 
-    if( m_Heights != nullptr )
+    if( m_Tiles != nullptr )
     {
         if( ImGui::Button( "Edit Tilemap" ) )
         {
@@ -714,9 +714,9 @@ void ComponentTilemap::LoadFromTilemap(const char* filename)
 
     fread( &m_VertCount.x, 4, 2, file );
 
-    SAFE_DELETE_ARRAY( m_Heights );
-    m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
-    fread( m_Heights, 4, m_VertCount.x * m_VertCount.y, file );
+    SAFE_DELETE_ARRAY( m_Tiles );
+    m_Tiles = MyNew TileIndex[m_VertCount.x * m_VertCount.y];
+    fread( m_Tiles, 4, m_VertCount.x * m_VertCount.y, file );
 
     fclose( file );
 }
@@ -735,9 +735,9 @@ void ComponentTilemap::LoadFromTilemap()
     m_VertCount.x = *(int*)&pBuffer[offset]; offset += sizeof(int);
     m_VertCount.y = *(int*)&pBuffer[offset]; offset += sizeof(int);
 
-    SAFE_DELETE_ARRAY( m_Heights );
-    m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
-    memcpy( m_Heights, &pBuffer[offset], sizeof(float) * m_VertCount.x * m_VertCount.y );
+    SAFE_DELETE_ARRAY( m_Tiles );
+    m_Tiles = MyNew TileIndex[m_VertCount.x * m_VertCount.y];
+    memcpy( m_Tiles, &pBuffer[offset], sizeof(TileIndex) * m_VertCount.x * m_VertCount.y );
 }
 
 bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const
@@ -778,327 +778,9 @@ bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vect
     return true;
 }
 
-bool ComponentTilemap::GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const
-{
-    float height = 0.0f;
-
-    Vector2Int tileCoords;
-    Vector2 percIntoTile;
-    if( GetTileCoordsAtWorldXZ( x, z, &tileCoords, &percIntoTile ) )
-    {
-        // Found here: https://codeplea.com/triangular-interpolation
-        //   and here: https://www.youtube.com/watch?v=6E2zjfzMs7c
-        // ----
-        // | /|  Left triangle X < Y
-        // |/ |  Right triangle X > Y
-        // ----
-        Vector3 p1, p2, p3;
-        if( percIntoTile.x <= percIntoTile.y ) // Left triangle X < Y
-        {
-            p1 = Vector3( 0, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x    ], 0 ); // BL
-            p2 = Vector3( 0, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x    ], 1 ); // TL
-            p3 = Vector3( 1, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x + 1], 1 ); // TR
-        }
-        else //if( percIntoTile.x > percIntoTile.y ) // Right triangle X > Y
-        {
-            p1 = Vector3( 0, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x    ], 0 ); // BL
-            p2 = Vector3( 1, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x + 1], 1 ); // TR
-            p3 = Vector3( 1, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x + 1], 0 ); // BR
-        }
-
-        // Barycentric interpolation.
-        float divisor = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
-        float w1 = ( (p2.z - p3.z) * (percIntoTile.x - p3.x) + (p3.x - p2.x) * (percIntoTile.y - p3.z) ) / divisor;
-        float w2 = ( (p3.z - p1.z) * (percIntoTile.x - p3.x) + (p1.x - p3.x) * (percIntoTile.y - p3.z) ) / divisor;
-        float w3 = 1.0f - w1 - w2;
-        float height = (w1 * p1.y) + (w2 * p2.y) + (w3 * p3.y);
-
-        if( pFloat )
-            *pFloat = height;
-
-        //LOGInfo( LOGTag, "ComponentTilemap::GetHeightAtWorldXZ: (%d,%d) %f", tileCoords.x, tileCoords.y, m_Heights[index] );
-
-        return true;
-    }
-
-    return false;
-}
-
-bool ComponentTilemap::SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const
-{
-    // Terrain bounds.
-    float minX = 0;
-    float maxX = m_Size.x;
-    float minZ = 0;
-    float maxZ = m_Size.y;
-
-    // If starting outside the bounds, kick out early.
-    if( start.x > maxX && dir.x > 0 ) return false;
-    if( start.z > maxZ && dir.z > 0 ) return false;
-    if( start.x < minX && dir.x < 0 ) return false;
-    if( start.z < minZ && dir.z < 0 ) return false;
-
-    if( start.x < 0 && dir.x > 0 ) // Left of bounds moving right.
-    {
-        float steps = (minX - start.x) / dir.x;
-        start += steps * dir;
-    }
-    else if( start.x > maxX && dir.x < 0 ) // Right of bounds moving left.
-    {
-        float steps = (maxX - start.x) / dir.x;
-        start += steps * dir;
-    }
-    if( start.z > maxZ && dir.z > 0 ) return false;
-    if( start.z < minZ && dir.z < 0 ) return false;
-
-    if( start.z < 0 && dir.z > 0 ) // Below bounds moving up.
-    {
-        float steps = (minZ - start.z) / dir.z;
-        start += steps * dir;
-    }
-    else if( start.z > maxZ && dir.z < 0 ) // Above bounds moving down.
-    {
-        float steps = (maxZ - start.z) / dir.z;
-        start += steps * dir;
-    }
-    if( start.x > maxX && dir.x > 0 ) return false;
-    if( start.x < minX && dir.x < 0 ) return false;
-
-    *pResult = start;
-    return true;
-}
-
-bool ComponentTilemap::FindCollisionPoint(const Vector3& currentPosition, const Vector3& start, const Vector3& dir, Vector2Int tile1, Vector2Int tile2, Vector3* pResult) const
-{
-    // Tile 1 and tile 2 are passed in.
-    // There are 16 cases based on the general direction of the vector and whether it crosses a row/column.
-    // There are 6 cases handled explicitly (2 more are duplicates) and the other 8 are the vectors in reverse.
-
-    // -----2B----  d = dir vector.
-    // |  / |  / |
-    // | / dd /  |  1A = tile1.
-    // 1Bdd-2A----  2A = tile2.
-    // dd / |  / |
-    // | /  | /  |  1B = 1 tile higher or to the right of tile1.
-    // 1A---------  1Z = 1 tile lower or to the left of tile1.
-
-    // Cast ray against the triangles between these 4 points.
-    {
-        Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
-
-        struct tri
-        {
-            Vector2Int tiles[3];
-            int indices[3];
-        };
-
-        int numTris = 0;
-        tri tris[4];
-
-        // 4 cases (1 duplicate) for x>z with x direction being positive.
-        //      positive z                negative z
-        // 2 tris        2 tris      4 tris        2 tris
-        //     2B                    1B--2C     (repeat case)
-        //    / |                    |  / |
-        //   / dd>                  >dd/  |
-        // 1Bdd2A   or   1B--2B      1Add2B   or   1B--2B
-        //>dd /          |  /dd>     |  /dd>      >ddd/ |
-        // | /          >dd/  |      | /  |        | /ddd>
-        // 1A            1A--2A      1Z--2A        1A--2A
-        if( fabs(dir.x) > fabs(dir.z) )
-        {
-            // Code below relies on tile1 being to the left of tile2.
-            if( dir.x < 0 )
-            {
-                MySwap( tile1, tile2 );
-            }
-
-            // Add all possible triangles to a list.
-            // Triangles in even entries of list must be "upper left" triangles.
-            // Triangles in odd entries of list must be "lower right" triangles.
-            //  ------
-            //  |UL/ |
-            //  | /LR|
-            //  ------
-            if( tile1.y == tile2.y ) // Case 2 & 4.
-            {
-                numTris = 2;
-                tris[0].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //  2 tris
-                tris[0].tiles[1].Set( tile1.x, tile1.y+1 ); // 1B   //
-                tris[0].tiles[2].Set( tile2.x, tile2.y+1 ); // 2B   //  1B--2B
-                                                                    // >ddd/ |
-                tris[1].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //  | /ddd>
-                tris[1].tiles[1].Set( tile2.x, tile2.y+1 ); // 2B   //  1A--2A
-                tris[1].tiles[2].Set( tile2.x, tile2.y   ); // 2A
-            }
-            else if( (dir.x > 0 && dir.z > 0) || (dir.x < 0 && dir.z < 0) ) // Case 1.
-            {
-                numTris = 2;                                        //  2 tris 
-                tris[0].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //      2B 
-                tris[0].tiles[1].Set( tile1.x, tile1.y+1 ); // 1B   //     / | 
-                tris[0].tiles[2].Set( tile2.x, tile2.y   ); // 2A   //    / dd>
-                                                                    //  1Bdd2A 
-                tris[1].tiles[0].Set( tile1.x, tile1.y+1 ); // 1B   // >dd /   
-                tris[1].tiles[1].Set( tile2.x, tile2.y+1 ); // 2B   //  | /    
-                tris[1].tiles[2].Set( tile2.x, tile2.y   ); // 2A   //  1A     
-            }                                                      
-            else //if( dir.z < 0 ) // Case 3.
-            {
-                numTris = 4;
-                tris[0].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //  4 tris
-                tris[0].tiles[1].Set( tile1.x, tile1.y+1 ); // 1B   //  1B--2C
-                tris[0].tiles[2].Set( tile2.x, tile2.y+2 ); // 2C   //  |  / |
-                                                                    // >dd/  |
-                tris[1].tiles[0].Set( tile1.x, tile1.y   ); // 1A   //  1Add2B
-                tris[1].tiles[1].Set( tile2.x, tile2.y+2 ); // 2C   //  |  /dd>
-                tris[1].tiles[2].Set( tile2.x, tile2.y+1 ); // 2B   //  | /  |
-                                                                    //  1Z--2A
-                tris[2].tiles[0].Set( tile1.x, tile1.y-1 ); // 1Z
-                tris[2].tiles[1].Set( tile1.x, tile1.y   ); // 1A
-                tris[2].tiles[2].Set( tile2.x, tile2.y+1 ); // 2B
-
-                tris[3].tiles[0].Set( tile1.x, tile1.y-1 ); // 1Z
-                tris[3].tiles[1].Set( tile2.x, tile2.y+1 ); // 2B
-                tris[3].tiles[2].Set( tile2.x, tile2.y   ); // 2A
-            }
-        }
-        // 4 cases (1 duplicate) for z>x with z direction being positive.
-        //        positive x                    negative x
-        //    2 tris        2 tris          4 tris        2 tris
-        //                                             (repeat case)
-        //       ^             ^            ^               ^
-        //     2Ad--2B      2A-d2B       2A-d2B---2C      2Ad-2B
-        //    / d  /        |  d |       |  /dd  / |      | d/ |
-        //   / d| /         | d  |       | /  |d/  |      | /d |
-        // 1A-d1B       or  1Ad-1B       1Z--1A-d-1B  or  1A-d1B
-        //    ^               ^                 ^            ^
-        else //if( fabs(dir.z) > fabs(dir.x) )
-        {
-            // Code below relies on tile1 being to the below of tile2.
-            if( dir.z < 0 )
-            {
-                MySwap( tile1, tile2 );
-            }
-
-            // Add all possible triangles to a list.
-            // Triangles in even entries of list must be "lower right" triangles.
-            // Triangles in odd entries of list must be "upper left" triangles.
-            //  ------
-            //  |UL/ |
-            //  | /LR|
-            //  ------
-            if( tile1.x == tile2.x ) // Case 2 & 4.
-            {
-                numTris = 2;                                        // 2 tris
-                tris[0].tiles[0].Set( tile1.x  , tile1.y ); // 1A   //    ^
-                tris[0].tiles[1].Set( tile2.x  , tile2.y ); // 2A   // 2A-d2B
-                tris[0].tiles[2].Set( tile2.x+1, tile2.y ); // 2B   // |  d |
-                                                                    // | d  |
-                tris[1].tiles[0].Set( tile1.x  , tile1.y ); // 1A   // 1Ad-1B
-                tris[1].tiles[1].Set( tile2.x+1, tile2.y ); // 2B   //   ^
-                tris[1].tiles[2].Set( tile1.x+1, tile1.y ); // 1B
-            }
-            //else if( dir.x > 0 ) // Case 1.
-            else if( (dir.z > 0 && dir.x > 0) || (dir.z < 0 && dir.x < 0) ) // Case 1.
-            {
-                numTris = 2;                                        //   2 tris
-                tris[0].tiles[0].Set( tile1.x  , tile1.y ); // 1A   //       ^    
-                tris[0].tiles[1].Set( tile2.x  , tile2.y ); // 2A   //     2Ad--2B
-                tris[0].tiles[2].Set( tile1.x+1, tile1.y ); // 1B   //    / d  /  
-                                                                    //   / d| /   
-                tris[1].tiles[0].Set( tile1.x+1, tile1.y ); // 1B   // 1A-d1B     
-                tris[1].tiles[1].Set( tile2.x  , tile2.y ); // 2A   //    ^       
-                tris[1].tiles[2].Set( tile2.x+1, tile2.y ); // 2B
-            }                                                      
-            else //if( dir.x < 0 ) // Case 3.
-            {
-                numTris = 4;                                        //   4 tris           
-                tris[0].tiles[0].Set( tile1.x  , tile1.y ); // 1A   //    ^       
-                tris[0].tiles[1].Set( tile2.x+2, tile2.y ); // 2C   // 2A-d2B---2C
-                tris[0].tiles[2].Set( tile1.x+1, tile1.y ); // 1B   // |  /dd  / |
-                                                                    // | /  |d/  |
-                tris[1].tiles[0].Set( tile1.x  , tile1.y ); // 1A   // 1Z--1A-d-1B
-                tris[1].tiles[1].Set( tile2.x+1, tile2.y ); // 2B   //        ^   
-                tris[1].tiles[2].Set( tile2.x+2, tile2.y ); // 2C
-
-                tris[2].tiles[0].Set( tile1.x-1, tile1.y ); // 1Z
-                tris[2].tiles[1].Set( tile2.x+1, tile2.y ); // 2B
-                tris[2].tiles[2].Set( tile1.x  , tile1.y ); // 1A
-
-                tris[3].tiles[0].Set( tile1.x-1, tile1.y ); // 1Z
-                tris[3].tiles[1].Set( tile2.x  , tile2.y ); // 2A
-                tris[3].tiles[2].Set( tile2.x+1, tile2.y ); // 2B
-            }
-        }
-
-        for( int t=0; t<numTris; t++ )
-        {
-            tri* pTri;
-
-            // If direction is going in the negative x direction, loop over the triangle list in reverse.
-            if( dir.x > 0 )
-                pTri = &tris[t];
-            else
-                pTri = &tris[numTris-t-1];
-
-            // If all heights are below our position, then don't check triangles. Also checking bounds.
-            bool checkTriangles = false;
-            for( int i=0; i<3; i++ )
-            {
-                // If out of bounds, then skip this triangle.
-                if( pTri->tiles[i].x < 0 || pTri->tiles[i].x >= m_VertCount.x || pTri->tiles[i].y < 0 || pTri->tiles[i].y >= m_VertCount.y )
-                {
-                    checkTriangles = false;
-                    break;
-                }
-
-                pTri->indices[i] = pTri->tiles[i].y * m_VertCount.x + pTri->tiles[i].x;
-                if( currentPosition.y < m_Heights[pTri->indices[i]] )
-                    checkTriangles = true;
-            }
-            
-            if( checkTriangles == false )
-                continue; // Go next next triangle if there is one.
-
-            // Intersect against the single triangle.
-            // Assumes it's a right-angle triangle with matching width/height with diagonal going from lower-left to upper-right.
-            Vector3 pos0( pTri->tiles[0].x * tileSize.x, m_Heights[pTri->indices[0]], pTri->tiles[0].y * tileSize.y );
-            Vector3 pos1( pTri->tiles[1].x * tileSize.x, m_Heights[pTri->indices[1]], pTri->tiles[1].y * tileSize.y );
-            Vector3 pos2( pTri->tiles[2].x * tileSize.x, m_Heights[pTri->indices[2]], pTri->tiles[2].y * tileSize.y );
-
-            Plane plane;
-            Vector3 result;
-
-            Vector3 normal = (pos1 - pos0).Cross( pos2 - pos0 );
-            plane.Set( normal, pos0 );
-            if( plane.IntersectRay( currentPosition, dir, &result ) )
-            {
-                // Determine if the tri is at upper left of the quad (i.e. x's < z's )
-                //                     or at lower right of the quad (i.e. x's > z's )
-                bool lowerRightTriangle = fabs(dir.x) > fabs(dir.z) ?
-                                            // x > z, if dir is +x, even entries are upper left, odds are lower right.
-                                            dir.x > 0 ? (t%2 == 1) : (t%2 == 0) : 
-                                            // z > x, if dir is +z, odd entries are upper left, even are lower right.
-                                            dir.z > 0 ? (t%2 == 0) : (t%2 == 1);
-                if( result.x >= pos0.x && result.x < pos2.x &&
-                    result.z >= pos0.z && result.z < pos1.z &&
-                    ( result.x - pTri->tiles[0].x * tileSize.x < result.z - pTri->tiles[0].y * tileSize.y ||
-                      lowerRightTriangle ) )
-                {
-                    if( pResult )
-                        *pResult = result;
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
-
 bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 end, Vector3* pResult) const
 {
-    if( m_Heights == nullptr )
+    if( m_Tiles == nullptr )
         return false;
 
     // Move ray into terrain space.
@@ -1116,10 +798,10 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
 
     Vector3 currentPosition = start;
 
-    // Snap start to the edge of the first tile it hits.
-    // If the vector doesn't collide with the tilemap at all, kick out.
-    if( SnapToBounds( start, dir, &currentPosition ) == false )
-        return false;
+    //// Snap start to the edge of the first tile it hits.
+    //// If the vector doesn't collide with the tilemap at all, kick out.
+    //if( SnapToBounds( start, dir, &currentPosition ) == false )
+    //    return false;
 
     // Get the tile coords.
     Vector2Int tileCoords = (m_VertCount-1) * (currentPosition.XZ()/m_Size);
@@ -1127,7 +809,7 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
     int tileIndex = tileCoords.y * m_VertCount.x + tileCoords.x;
 
     // If our currentPosition tile is below the tilemap, kick out.
-    if( currentPosition.y < m_Heights[tileIndex] )
+    if( currentPosition.y < m_Tiles[tileIndex] )
     {
         return false;
     }
@@ -1234,13 +916,13 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
         if( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y )
         {
             Vector3 result;
-            if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, &result ) )
-            {
-                if( pResult )
-                    *pResult = result;
+            //if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, &result ) )
+            //{
+            //    if( pResult )
+            //        *pResult = result;
 
-                return true;
-            }
+            //    return true;
+            //}
         }
 
         currentPosition += dir;
@@ -1275,7 +957,7 @@ bool ComponentTilemap::RayCastAtLocalHeight(bool rayIsInWorldSpace, Vector3 star
         *pResultAtDesiredHeight = result;
 
         pResultOnGround->x = result.x;
-        GetHeightAtWorldXZ( result.x, result.z, &pResultOnGround->y );
+        //GetHeightAtWorldXZ( result.x, result.z, &pResultOnGround->y );
         pResultOnGround->z = result.z;
 
         return true;
@@ -1288,94 +970,11 @@ bool ComponentTilemap::RayCastAtLocalHeight(bool rayIsInWorldSpace, Vector3 star
 bool ComponentTilemap::Tool_Raise(Vector3 position, float amount, float radius, float softness, bool rebuild)
 {
     bool meshChanged = false;
-
-    Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
-    Vector2Int center = (m_VertCount-1) * (position.XZ()/m_Size) + Vector2( 0.5f, 0.5f );
-
-    Vector2Int start( center.x - (int)(radius/tileSize.x), center.y - (int)(radius/tileSize.x) );
-    Vector2Int end( center.x + (int)(radius/tileSize.x), center.y + (int)(radius/tileSize.x) );
-
-    if( start.x < 0 ) start.x = 0;
-    if( start.y < 0 ) start.y = 0;
-    if( end.x >= m_VertCount.x ) end.x = m_VertCount.x-1;
-    if( end.y >= m_VertCount.y ) end.y = m_VertCount.x-1;
-
-    for( int y=start.y; y<=end.y; y++ )
-    {
-        float diffY = y*tileSize.y - position.z;
-
-        for( int x=start.x; x<=end.x; x++ )
-        {
-            float diffX = x*tileSize.x - position.x;
-
-            float diff2 = diffX*diffX + diffY*diffY;
-            float radius2 = radius*radius;
-
-            if( diff2 < radius2 )
-            {
-                float expDist = diff2 / radius2; // 0 at center, 1 at edge.
-
-                float perc = min( 1.0f, 1 - expDist + softness ); // 1 at center, 0 at edge.
-
-                m_Heights[y * m_VertCount.x + x] += amount * perc;
-                meshChanged = true;
-            }
-        }
-    }
-
-    if( rebuild && meshChanged )
-    {
-        GenerateTilemapMesh( false, false, false );
-    }
-
     return meshChanged;
 }
 
 bool ComponentTilemap::Tool_Level(Vector3 position, float desiredHeight, float radius, float softness, bool rebuild)
 {
     bool meshChanged = false;
-
-    Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
-    Vector2Int center = (m_VertCount-1) * (position.XZ()/m_Size) + Vector2( 0.5f, 0.5f );
-
-    Vector2Int start( center.x - (int)(radius/tileSize.x), center.y - (int)(radius/tileSize.x) );
-    Vector2Int end( center.x + (int)(radius/tileSize.x), center.y + (int)(radius/tileSize.x) );
-
-    if( start.x < 0 ) start.x = 0;
-    if( start.y < 0 ) start.y = 0;
-    if( end.x >= m_VertCount.x ) end.x = m_VertCount.x-1;
-    if( end.y >= m_VertCount.y ) end.y = m_VertCount.x-1;
-
-    for( int y=start.y; y<=end.y; y++ )
-    {
-        float diffY = y*tileSize.y - position.z;
-
-        for( int x=start.x; x<=end.x; x++ )
-        {
-            float diffX = x*tileSize.x - position.x;
-
-            float diff2 = diffX*diffX + diffY*diffY;
-            float radius2 = radius*radius;
-
-            if( diff2 < radius2 )
-            {
-                float expDist = diff2 / radius2; // 0 at center, 1 at edge.
-
-                float perc = min( 1.0f, 1 - expDist + softness ); // 1 at center, 0 at edge.
-
-                float currentHeight = m_Heights[y * m_VertCount.x + x];
-                float amount = desiredHeight - currentHeight;
-
-                m_Heights[y * m_VertCount.x + x] += amount * perc * 0.1f;
-                meshChanged = true;
-            }
-        }
-    }
-
-    if( rebuild && meshChanged )
-    {
-        GenerateTilemapMesh( false, false, false );
-    }
-
     return meshChanged;
 }

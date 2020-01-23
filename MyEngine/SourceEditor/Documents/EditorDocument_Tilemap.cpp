@@ -161,6 +161,105 @@ bool EditorDocument_Tilemap::IsBusy()
 
 void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
 {
+    EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
+
+    MyAssert( m_pTilemap != nullptr );
+    if( m_pTilemap == nullptr )
+        return;
+
+    MyAssert( m_pPoint != nullptr );
+    if( m_pPoint == nullptr )
+        return;
+
+    ComponentRenderable* pRenderable;
+
+    if( m_WindowVisible && m_WindowSize.LengthSquared() != 0 )
+    {
+        if( m_pFBO == nullptr )
+        {
+            m_pFBO = pEngineCore->GetManagers()->GetTextureManager()->CreateFBO( 1024, 1024, MyRE::MinFilter_Nearest, MyRE::MagFilter_Nearest, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+            m_pFBO->MemoryPanel_Hide();
+        }
+
+        m_pCamera->Tick( 0.0f );
+
+        if( m_pFBO->GetColorTexture( 0 ) )
+        {
+            uint32 previousFBO = g_GLStats.m_CurrentFramebuffer;
+
+            m_pFBO->Bind( false );
+            MyViewport viewport( 0, 0, (uint32)m_WindowSize.x, (uint32)m_WindowSize.y );
+            pEngineCore->GetRenderer()->EnableViewport( &viewport, true );
+
+            pEngineCore->GetRenderer()->SetClearColor( ColorFloat( 0.0f,0.1f,0.1f,1.0f ) );
+            pEngineCore->GetRenderer()->ClearBuffers( true, true, true );
+
+            //MyMatrix* pWorldMat = m_pTilemap->GetGameObject()->GetTransform()->GetWorldTransform();
+            //Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
+            Vector3 localSpacePoint = m_WorldSpaceMousePosition;
+            MyMatrix originalWorldMat;
+            if( m_pTilemap->GetGameObject() )
+                originalWorldMat = *m_pTilemap->GetGameObject()->GetTransform()->GetWorldTransform();
+            else
+                originalWorldMat.SetIdentity();
+            MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
+            MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
+
+            bool wasVisible = m_pTilemap->IsVisible();
+            m_pTilemap->SetVisible( true );
+
+            if( m_pTilemap->GetGameObject() )
+                m_pTilemap->GetGameObject()->GetTransform()->SetWorldTransform( &MyMatrix::Identity() );
+
+            // Draw the tilemap.
+            {
+                g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pTilemap, nullptr, 0 );
+            }
+
+            // Draw the brush circle projected on the tilemap.
+            {
+                //MaterialDefinition* pMaterial = m_pMaterials[Mat_BrushOverlay];
+                //if( pMaterial->IsFullyLoaded() )
+                //{
+                //    Vector2 size = m_pTilemap->m_Size;
+                //    Vector2 scale = Vector2( m_BrushRadius, m_BrushRadius ) * 2;
+                //    pMaterial->SetUVScale( 1.0f/scale );
+                //    pMaterial->SetUVOffset( Vector2( -localSpacePoint.x + scale.x/2.0f, -localSpacePoint.z + scale.y/2.0f ) );
+                //    pEngineCore->GetRenderer()->SetTextureWrapModes( pMaterial->GetTextureColor(), MyRE::WrapMode_Clamp, MyRE::WrapMode_Clamp );
+                //    g_pComponentSystemManager->DrawSingleComponent( pEditorMatProj, pEditorMatView, m_pTilemap, &pMaterial, 1 );
+                //}
+            }
+
+            if( m_pTilemap->GetGameObject() )
+                m_pTilemap->GetGameObject()->GetTransform()->SetWorldTransform( &originalWorldMat );
+
+            m_pTilemap->SetVisible( wasVisible );
+
+            //// Draw a circle at the mouse position for the height desired by the level tool.
+            //pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+            //if( m_CurrentTool == Tool::Level && m_LevelUseBrushHeight == false )
+            //{
+            //    pRenderable->SetVisible( true );
+
+            //    Vector3 worldPos = m_WorldSpaceMousePositionAtDesiredHeight;
+
+            //    m_pPoint->GetTransform()->SetLocalPosition( worldPos );
+
+            //    MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
+            //    MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
+
+            //    pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
+            //    g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
+            //    pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
+            //}
+            //else
+            //{
+            //    pRenderable->SetVisible( false );
+            //}
+
+            g_pRenderer->BindFramebuffer( previousFBO );
+        }
+    }
 }
 
 void EditorDocument_Tilemap::AddImGuiOverlayItems()
