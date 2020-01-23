@@ -419,8 +419,11 @@ bool EditorState::IsGameObjectAParentOfASelectedObjectOrComponent(GameObject* pO
     for( unsigned i=0; i < m_pSelectedComponents.size(); i++ )
     {
         GameObject* pSelectedGameObject = m_pSelectedComponents[i]->GetGameObject();
-        if( pSelectedGameObject == pObject || pSelectedGameObject->IsParentedTo( pObject, false ) )
-            return true;
+        if( pSelectedGameObject != nullptr )
+        {
+            if( pSelectedGameObject == pObject || pSelectedGameObject->IsParentedTo( pObject, false ) )
+                return true;
+        }
     }
 
     return false;

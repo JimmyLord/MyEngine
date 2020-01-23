@@ -20,7 +20,7 @@
 #include "Core/EngineCore.h"
 #include "GUI/EditorIcons.h"
 #include "GUI/ImGuiExtensions.h"
-//#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/EditorState.h"
 //#include "../SourceEditor/Commands/EngineEditorCommands.h"
 //#include "../SourceEditor/Commands/HeightmapEditorCommands.h"
 //#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
@@ -171,7 +171,7 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
     if( m_pPoint == nullptr )
         return;
 
-    ComponentRenderable* pRenderable;
+    //ComponentRenderable* pRenderable;
 
     if( m_WindowVisible && m_WindowSize.LengthSquared() != 0 )
     {
@@ -438,6 +438,11 @@ void EditorDocument_Tilemap::Update()
 
     // Other.
     ImGui::Separator();
+
+    if( ImGui::Button( "Change Component Properties" ) )
+    {
+        m_pEngineCore->GetEditorState()->SelectComponent( m_pTilemap );
+    }
 
     if( ImGui::Button( "Export as MyMesh" ) )
     {

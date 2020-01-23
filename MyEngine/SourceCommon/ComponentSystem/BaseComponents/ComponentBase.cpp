@@ -2680,7 +2680,7 @@ void ComponentBase::OnValueChangedVariable(ComponentVariable* pVar, int controlc
     }
 
     // If this is a prefab, rebuild it.
-    if( m_pGameObject->GetPrefabRef()->IsMasterPrefabGameObject() )
+    if( m_pGameObject && m_pGameObject->GetPrefabRef()->IsMasterPrefabGameObject() )
     {
         m_pGameObject->GetPrefabRef()->GetPrefab()->RebuildPrefabJSONObjectFromMasterGameObject();
     }
@@ -3531,10 +3531,12 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
 
 void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* pFirstGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer)
 {
-    // find children of this gameobject and change their values as well, if their value matches the old value.
+    if( this->m_pGameObject == nullptr )
+        return;
+
+    // Find children of this gameobject and change their values as well, if their value matches the old value.
     for( GameObject* pGameObject = pFirstGameObject; pGameObject; pGameObject = pGameObject->GetNext() )
     {
-        MyAssert( this->m_pGameObject != 0 );
         if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {
             UpdateGameObjectWithNewValue( pGameObject, fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
