@@ -150,7 +150,7 @@ public:
 
 #if MYFW_USING_IMGUI
 public:
-    virtual void AddAllVariablesToWatchPanel();
+    virtual void AddAllVariablesToWatchPanel(CommandStack* pCommandStack);
 
 protected:
     ComponentVariableValue m_ComponentVariableValueWhenControlSelected;

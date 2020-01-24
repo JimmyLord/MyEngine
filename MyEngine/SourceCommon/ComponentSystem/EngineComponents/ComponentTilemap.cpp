@@ -434,7 +434,7 @@ bool ComponentTilemap::GenerateTilemapMesh(bool createFromTexture, bool sizeChan
     Vector2Int vertCount = m_VertCount;
     Vector3 bottomLeftPos( 0, 0, 0 ); // Collision methods will fail if this changes.
     Vector2 uvStart( 0, 0 );
-    Vector2 uvRange( vertCount.x, vertCount.y );
+    Vector2 uvRange( (float)vertCount.x, (float)vertCount.y );
     bool createTriangles = (m_GLPrimitiveType == MyRE::PrimitiveType_Points) ? false : true;
 
     // Calculate the number of triangles, vertices and indices.
@@ -638,7 +638,7 @@ void ComponentTilemap::SaveAsMyMesh(const char* filename)
     m_pMesh->ExportToFile( filename );
 }
 
-void ComponentTilemap::AddAllVariablesToWatchPanel()
+void ComponentTilemap::AddAllVariablesToWatchPanel(CommandStack* pCommandStack)
 {
     if( m_WaitingForTilemapFileToFinishLoading )
     {
@@ -666,7 +666,7 @@ void ComponentTilemap::AddAllVariablesToWatchPanel()
     //    }
     //}
 
-    ComponentBase::AddAllVariablesToWatchPanel();
+    ComponentBase::AddAllVariablesToWatchPanel( pCommandStack );
 
     if( m_VertCount != m_TilemapFileSize && m_TilemapFileSize.x != 0 )
     {

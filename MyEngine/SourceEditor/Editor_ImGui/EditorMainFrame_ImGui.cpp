@@ -2642,7 +2642,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             // Add contents of component if collapsingHeader is open.
                             if( componentBlockIsOpen )
                             {
-                                pComponentToLookFor->AddAllVariablesToWatchPanel();
+                                pComponentToLookFor->AddAllVariablesToWatchPanel( m_pCommandStack );
                             }
 
                             ImGui::PopID();
@@ -2670,7 +2670,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                 {
                     //ImGui::Text( "TODO: Component Info." );
                     ImGui::PushID( pComponent );
-                    pComponent->AddAllVariablesToWatchPanel();
+                    pComponent->AddAllVariablesToWatchPanel( m_pCommandStack );
                     ImGui::PopID();
                 }
                 //ImGui::PopStyleColor( 3 );
@@ -2720,7 +2720,7 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                         if( ImGui::CollapsingHeader( pInitialComponent->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                         {
                             ImGui::PushID( pInitialComponent );
-                            pInitialComponent->AddAllVariablesToWatchPanel();
+                            pInitialComponent->AddAllVariablesToWatchPanel( m_pCommandStack );
                             ImGui::PopID();
                         }
                         //ImGui::PopStyleColor( 3 );

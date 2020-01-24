@@ -634,7 +634,7 @@ bool ComponentBase::IsGameObjectWeInheritFromInMultiSelectionList()
 #endif //MYFW_EDITOR
 
 #if MYFW_USING_IMGUI
-void ComponentBase::AddAllVariablesToWatchPanel()
+void ComponentBase::AddAllVariablesToWatchPanel(CommandStack* pCommandStack)
 {
     TCPPListHead<ComponentVariable*>* pComponentVariableList = GetComponentVariableList();
     if( pComponentVariableList == 0 )
@@ -645,7 +645,7 @@ void ComponentBase::AddAllVariablesToWatchPanel()
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
 
-        AddVariableToWatchPanel( m_pEngineCore, this, pVar, this, nullptr );
+        AddVariableToWatchPanel( m_pEngineCore, this, pVar, this, pCommandStack );
     }
 }
 

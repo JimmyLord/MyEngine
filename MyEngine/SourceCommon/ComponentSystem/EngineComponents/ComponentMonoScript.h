@@ -135,7 +135,7 @@ public:
     void CreateNewScriptFile();
 
 #if MYFW_USING_IMGUI
-    virtual void AddAllVariablesToWatchPanel();
+    virtual void AddAllVariablesToWatchPanel(CommandStack* pCommandStack) override;
 #endif
 
     static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentMonoScript*)pObjectPtr)->OnFileUpdated( pFile ); }

@@ -291,9 +291,9 @@ void ComponentLuaScript::CreateNewScriptFile()
 }
 
 #if MYFW_USING_IMGUI
-void ComponentLuaScript::AddAllVariablesToWatchPanel()
+void ComponentLuaScript::AddAllVariablesToWatchPanel(CommandStack* pCommandStack)
 {
-    ComponentBase::AddAllVariablesToWatchPanel();
+    ComponentBase::AddAllVariablesToWatchPanel( pCommandStack );
 
     if( ImGui::GetIO().MouseDown[0] == false )
     {

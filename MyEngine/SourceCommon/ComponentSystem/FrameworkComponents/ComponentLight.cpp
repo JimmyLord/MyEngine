@@ -90,9 +90,9 @@ void ComponentLight::Reset()
 
 #if MYFW_EDITOR
 #if MYFW_USING_IMGUI
-void ComponentLight::AddAllVariablesToWatchPanel()
+void ComponentLight::AddAllVariablesToWatchPanel(CommandStack* pCommandStack)
 {
-    ComponentBase::AddAllVariablesToWatchPanel();
+    ComponentBase::AddAllVariablesToWatchPanel( pCommandStack );
 
     if( m_pLight )
     {

@@ -95,7 +95,7 @@ protected:
     void SaveAsHeightmap(const char* filename);
 #if MYFW_EDITOR
     void SaveAsMyMesh(const char* filename);
-    virtual void AddAllVariablesToWatchPanel() override;
+    virtual void AddAllVariablesToWatchPanel(CommandStack* pCommandStack) override;
     void LoadFromHeightmap(const char* filename);
 #endif
     void LoadFromHeightmap();

@@ -291,14 +291,14 @@ void ComponentMonoScript::CreateNewScriptFile()
 }
 
 #if MYFW_USING_IMGUI
-void ComponentMonoScript::AddAllVariablesToWatchPanel()
+void ComponentMonoScript::AddAllVariablesToWatchPanel(CommandStack* pCommandStack)
 {
 #if !MYFW_USING_MONO
     ImGui::Text( "Mono is disabled in this build." );
     return;
 #endif //!MYFW_USING_MONO
 
-    ComponentBase::AddAllVariablesToWatchPanel();
+    ComponentBase::AddAllVariablesToWatchPanel( pCommandStack );
 
     // Show list of available Mono classes.
     {

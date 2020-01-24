@@ -179,9 +179,9 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
 #if MYFW_EDITOR
 
 #if MYFW_USING_IMGUI
-void Component2DCollisionObject::AddAllVariablesToWatchPanel()
+void Component2DCollisionObject::AddAllVariablesToWatchPanel(CommandStack* pCommandStack)
 {
-    ComponentBase::AddAllVariablesToWatchPanel();
+    ComponentBase::AddAllVariablesToWatchPanel( pCommandStack );
 
     if( m_PrimitiveType == Physics2DPrimitiveType_Chain )
     {

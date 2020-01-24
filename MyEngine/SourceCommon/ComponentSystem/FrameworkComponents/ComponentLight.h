@@ -69,7 +69,7 @@ public:
     float m_LightSphereRenderTimeRemaining;
 
 #if MYFW_USING_IMGUI
-    virtual void AddAllVariablesToWatchPanel() override;
+    virtual void AddAllVariablesToWatchPanel(CommandStack* pCommandStack) override;
 #endif
 
     // Component variable callbacks.

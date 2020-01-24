@@ -97,7 +97,7 @@ protected:
     void SaveAsTilemap(const char* filename);
 #if MYFW_EDITOR
     void SaveAsMyMesh(const char* filename);
-    virtual void AddAllVariablesToWatchPanel() override;
+    virtual void AddAllVariablesToWatchPanel(CommandStack* pCommandStack) override;
     void LoadFromTilemap(const char* filename);
 #endif
     void LoadFromTilemap();

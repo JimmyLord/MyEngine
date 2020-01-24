@@ -638,7 +638,7 @@ void ComponentHeightmap::SaveAsMyMesh(const char* filename)
     m_pMesh->ExportToFile( filename );
 }
 
-void ComponentHeightmap::AddAllVariablesToWatchPanel()
+void ComponentHeightmap::AddAllVariablesToWatchPanel(CommandStack* pCommandStack)
 {
     if( m_WaitingForHeightmapFileToFinishLoading )
     {
@@ -666,7 +666,7 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel()
     //    }
     //}
 
-    ComponentBase::AddAllVariablesToWatchPanel();
+    ComponentBase::AddAllVariablesToWatchPanel( pCommandStack );
 
     if( m_VertCount != m_HeightmapFileSize && m_HeightmapFileSize.x != 0 )
     {
