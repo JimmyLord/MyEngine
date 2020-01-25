@@ -27,7 +27,7 @@ private:
 
 protected:
     Vector2 m_Size;
-    Vector2Int m_VertCount;
+    Vector2Int m_TileCount;
     TileIndex* m_Tiles;
 
     MyFileObject* m_pTilemapFile;
@@ -91,8 +91,6 @@ protected:
 
     void CreateTilemap();
     bool GenerateTilemapMesh(bool createFromTexture, bool sizeChanged, bool rebuildNormals);
-    void RecalculateNormals();
-    void RecalculateNormals(Vertex_XYZUVNorm* pVerts);
 
     void SaveAsTilemap(const char* filename);
 #if MYFW_EDITOR

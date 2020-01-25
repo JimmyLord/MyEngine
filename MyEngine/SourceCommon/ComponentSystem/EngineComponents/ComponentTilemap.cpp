@@ -68,7 +68,7 @@ void ComponentTilemap::RegisterVariables(TCPPListHead<ComponentVariable*>* pList
     ComponentMesh::RegisterVariables( pList, pThis );
 
     AddVar( pList, "Size", ComponentVariableType::Vector2, MyOffsetOf( pThis, &pThis->m_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentTilemap::OnValueChanged, nullptr, nullptr );
-    AddVar( pList, "VertCount", ComponentVariableType::Vector2Int, MyOffsetOf( pThis, &pThis->m_VertCount ), true, true, "VertCount", (CVarFunc_ValueChanged)&ComponentTilemap::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "TileCount", ComponentVariableType::Vector2Int, MyOffsetOf( pThis, &pThis->m_TileCount ), true, true, "TileCount", (CVarFunc_ValueChanged)&ComponentTilemap::OnValueChanged, nullptr, nullptr );
     AddVar( pList, "TilemapFile", ComponentVariableType::FilePtr, MyOffsetOf( pThis, &pThis->m_pTilemapFile ), true, true, "File Tilemap", (CVarFunc_ValueChanged)&ComponentTilemap::OnValueChanged, (CVarFunc_DropTarget)&ComponentTilemap::OnDrop, nullptr );
     AddVar( pList, "TilemapTexture", ComponentVariableType::TexturePtr, MyOffsetOf( pThis, &pThis->m_pTilemapTexture ), true, true, "Texture", (CVarFunc_ValueChanged)&ComponentTilemap::OnValueChanged, (CVarFunc_DropTarget)&ComponentTilemap::OnDrop, nullptr );
 }
@@ -78,7 +78,7 @@ void ComponentTilemap::Reset()
     ComponentMesh::Reset();
 
     m_Size.Set( 10.0f, 10.0f );
-    m_VertCount.Set( 32, 32 );
+    m_TileCount.Set( 8, 8 );
 
     UnregisterTilemapFileLoadingCallbacks( true );
     SAFE_RELEASE( m_pTilemapFile );
@@ -156,7 +156,7 @@ void* ComponentTilemap::OnValueChanged(ComponentVariable* pVar, bool changedByIn
         CreateTilemap();
     }
 
-    if( pVar->m_Offset == MyOffsetOf( this, &m_VertCount ) )
+    if( pVar->m_Offset == MyOffsetOf( this, &m_TileCount ) )
     {
         CreateTilemap();
     }
@@ -207,7 +207,7 @@ ComponentTilemap& ComponentTilemap::operator=(const ComponentTilemap& other)
 
     // TODO: Replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_Size = other.m_Size;
-    m_VertCount = other.m_VertCount;
+    m_TileCount = other.m_TileCount;
     SetTilemapFile( other.m_pTilemapFile );
     SetTilemapTexture( other.m_pTilemapTexture );
 
@@ -364,8 +364,8 @@ void ComponentTilemap::CreateTilemap()
         {
             createFromTexture = false;
             SAFE_DELETE_ARRAY( m_Tiles );
-            m_Tiles = MyNew TileIndex[m_VertCount.x * m_VertCount.y];
-            memset( m_Tiles, 0, sizeof(TileIndex) * m_VertCount.x * m_VertCount.y );
+            m_Tiles = MyNew TileIndex[m_TileCount.x * m_TileCount.y];
+            memset( m_Tiles, 0, sizeof(TileIndex) * m_TileCount.x * m_TileCount.y );
         }
     }
 
@@ -393,9 +393,9 @@ bool ComponentTilemap::GenerateTilemapMesh(bool createFromTexture, bool sizeChan
     //LOGInfo( LOGTag, "ComponentTilemap::GenerateTilemapMesh\n" );
 
     // Sanity check on vertex count.
-    if( m_VertCount.x <= 0 || m_VertCount.y <= 0 || (uint64)m_VertCount.x * (uint64)m_VertCount.y > UINT_MAX )
+    if( m_TileCount.x <= 0 || m_TileCount.y <= 0 || (uint64)m_TileCount.x * (uint64)m_TileCount.y > UINT_MAX )
     {
-        LOGError( LOGTag, "vertCount can't be negative.\n" );
+        LOGError( LOGTag, "TileCount can't be negative.\n" );
         return false;
     }
 
@@ -431,17 +431,14 @@ bool ComponentTilemap::GenerateTilemapMesh(bool createFromTexture, bool sizeChan
 
     // Set the parameters. // TODO: Make some of these members.
     Vector2 size = m_Size;
-    Vector2Int vertCount = m_VertCount;
     Vector3 bottomLeftPos( 0, 0, 0 ); // Collision methods will fail if this changes.
-    Vector2 uvStart( 0, 0 );
-    Vector2 uvRange( (float)vertCount.x, (float)vertCount.y );
-    bool createTriangles = (m_GLPrimitiveType == MyRE::PrimitiveType_Points) ? false : true;
 
     // Calculate the number of triangles, vertices and indices.
     // TODO: Rewrite this to use triangle strips.
-    unsigned int numTris = (vertCount.x - 1) * (vertCount.y - 1) * 2;
-    unsigned int numVerts = vertCount.x * vertCount.y;
-    unsigned int numIndices = createTriangles ? numTris * 3 : numVerts; // 3 per triangle or 1 per point.
+    Vector2Int tileCount = m_TileCount;
+    unsigned int numTiles = tileCount.x * tileCount.y;
+    unsigned int numVerts = numTiles * 4;
+    unsigned int numIndices = numTiles * 6;
 
     // Reinitialize the submesh properties along with the vertex and index buffers.
     if( sizeChanged )
@@ -451,98 +448,71 @@ bool ComponentTilemap::GenerateTilemapMesh(bool createFromTexture, bool sizeChan
     Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer->GetData( true );
     unsigned int* pIndices = (unsigned int*)m_pMesh->GetSubmesh( 0 )->m_pIndexBuffer->GetData( true );
 
-    // Generate the vertex positions
+    float stepX = size.x / (tileCount.x);
+    float stepY = size.y / (tileCount.y);
+
+    // Set the vertices by looping through the tiles
+    for( int y = 0; y < tileCount.y; y++ )
     {
-        if( createFromTexture )
+        for( int x = 0; x < tileCount.x; x++ )
         {
-            unsigned char* pixelBuffer = nullptr;
-            unsigned int texWidth, texHeight;
+            unsigned int tileIndex = (unsigned int)(y * tileCount.x + x);
+            unsigned int vertexIndex = tileIndex * 4;
 
-            // Decode the file into a raw buffer.
-            {
-                unsigned char* buffer = (unsigned char*)m_pTilemapTexture->GetFile()->GetBuffer();
-                MyAssert( buffer != nullptr );
+            // Bottom Left
+            pVerts[vertexIndex + 0].pos.x = bottomLeftPos.x + stepX * x;
+            pVerts[vertexIndex + 0].pos.y = bottomLeftPos.y;
+            pVerts[vertexIndex + 0].pos.z = bottomLeftPos.z + stepX * y;
+            pVerts[vertexIndex + 0].uv.x = 0;
+            pVerts[vertexIndex + 0].uv.y = 0;
+            pVerts[vertexIndex + 0].normal.Set( 0, 1, 0 );
 
-                int length = m_pTilemapTexture->GetFile()->GetFileLength();
+            // Bottom Right
+            pVerts[vertexIndex + 1].pos.x = bottomLeftPos.x + stepX * (x+1);
+            pVerts[vertexIndex + 1].pos.y = bottomLeftPos.y;
+            pVerts[vertexIndex + 1].pos.z = bottomLeftPos.z + stepX * y;
+            pVerts[vertexIndex + 1].uv.x = 1;
+            pVerts[vertexIndex + 1].uv.y = 0;
+            pVerts[vertexIndex + 1].normal.Set( 0, 1, 0 );
 
-                unsigned int error = lodepng_decode32( &pixelBuffer, &texWidth, &texHeight, buffer, length );
-                MyAssert( error == 0 );
-            }
+            // Top Left
+            pVerts[vertexIndex + 2].pos.x = bottomLeftPos.x + stepX * x;
+            pVerts[vertexIndex + 2].pos.y = bottomLeftPos.y;
+            pVerts[vertexIndex + 2].pos.z = bottomLeftPos.z + stepX * (y+1);
+            pVerts[vertexIndex + 2].uv.x = 0;
+            pVerts[vertexIndex + 2].uv.y = 1;
+            pVerts[vertexIndex + 2].normal.Set( 0, 1, 0 );
 
-            // Store the tilemap texture size, so we can show a warning if there's a mismatch.
-            m_TilemapTextureSize.Set( (int)texWidth, (int)texHeight );
-        
-            // Allocate a buffer to store the vertex heights.
-            SAFE_DELETE_ARRAY( m_Tiles );
-            m_Tiles = MyNew TileIndex[vertCount.x * vertCount.y];
-
-            for( int y = 0; y < vertCount.y; y++ )
-            {
-                for( int x = 0; x < vertCount.x; x++ )
-                {
-                    unsigned int index = (unsigned int)(y * vertCount.x + x);
-
-                    Vector2 texCoord( (float)x/vertCount.x * texWidth, (float)y/vertCount.y * texHeight );
-                    int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
-                    float height = pixelBuffer[texIndex*4] / 255.0f;
-
-                    m_Tiles[index] = (TileIndex)height;
-                }
-            }
-
-            // Free the memory allocated by lodepng_decode32.
-            free( pixelBuffer );
+            // Top Right
+            pVerts[vertexIndex + 3].pos.x = bottomLeftPos.x + stepX * (x+1);
+            pVerts[vertexIndex + 3].pos.y = bottomLeftPos.y;
+            pVerts[vertexIndex + 3].pos.z = bottomLeftPos.z + stepX * (y+1);
+            pVerts[vertexIndex + 3].uv.x = 1;
+            pVerts[vertexIndex + 3].uv.y = 1;
+            pVerts[vertexIndex + 3].normal.Set( 0, 1, 0 );
         }
-
-        // Set the vertices.
-        for( int y = 0; y < vertCount.y; y++ )
-        {
-            for( int x = 0; x < vertCount.x; x++ )
-            {
-                unsigned int index = (unsigned int)(y * vertCount.x + x);
-
-                pVerts[index].pos.x = bottomLeftPos.x + size.x / (vertCount.x - 1) * x;
-                pVerts[index].pos.y = bottomLeftPos.y + m_Tiles[index];
-                pVerts[index].pos.z = bottomLeftPos.z + size.y / (vertCount.y - 1) * y;
-
-                pVerts[index].uv.x = uvStart.x + x * uvRange.x / (vertCount.x - 1);
-                pVerts[index].uv.y = uvStart.y + y * uvRange.y / (vertCount.y - 1);
-
-                if( createTriangles == false )
-                {
-                    pIndices[index] = index;
-                }
-            }
-        }
-    }
-
-    if( rebuildNormals )
-    {
-        RecalculateNormals( pVerts );
     }
 
     if( sizeChanged )
     {
         // Setup indices.
-        if( createTriangles )
+        for( int y = 0; y < tileCount.y; y++ )
         {
-            for( int y = 0; y < vertCount.y - 1; y++ )
+            for( int x = 0; x < tileCount.x; x++ )
             {
-                for( int x = 0; x < vertCount.x - 1; x++ )
-                {
-                    int elementIndex = (y * (vertCount.x-1) + x) * 6;
-                    unsigned int vertexIndex = (unsigned int)(y * vertCount.x + x);
+                unsigned int tileIndex = (unsigned int)(y * tileCount.x + x);
+                unsigned int elementIndex = tileIndex * 6;
+                unsigned int vertexIndex = tileIndex * 4;
 
-                    // BL - TL - TR.
-                    pIndices[ elementIndex + 0 ] = vertexIndex;
-                    pIndices[ elementIndex + 1 ] = vertexIndex + (unsigned int)vertCount.x;
-                    pIndices[ elementIndex + 2 ] = vertexIndex + (unsigned int)vertCount.x + 1;
+                // BL - TL - BR.
+                pIndices[ elementIndex + 0 ] = vertexIndex + 0;
+                pIndices[ elementIndex + 1 ] = vertexIndex + 2;
+                pIndices[ elementIndex + 2 ] = vertexIndex + 1;
 
-                    // BL - TR - BR.
-                    pIndices[ elementIndex + 3 ] = vertexIndex;
-                    pIndices[ elementIndex + 4 ] = vertexIndex + (unsigned int)vertCount.x + 1;
-                    pIndices[ elementIndex + 5 ] = vertexIndex + 1;
-                }
+                // BR - TL - TR.
+                pIndices[ elementIndex + 3 ] = vertexIndex + 1;
+                pIndices[ elementIndex + 4 ] = vertexIndex + 2;
+                pIndices[ elementIndex + 5 ] = vertexIndex + 3;
             }
         }
 
@@ -554,57 +524,6 @@ bool ComponentTilemap::GenerateTilemapMesh(bool createFromTexture, bool sizeChan
     m_pMesh->SetReady();
 
     return true;
-}
-
-void ComponentTilemap::RecalculateNormals()
-{
-    BufferDefinition* pVertexBuffer = m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer;
-    Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)pVertexBuffer->GetData( true );
-
-    RecalculateNormals( pVerts );
-
-    // Mark the vertex data dirty again after changing the data, since this gets called on a thread.
-    pVertexBuffer->MarkDirty();
-    m_pMesh->SetReady();
-}
-
-void ComponentTilemap::RecalculateNormals(Vertex_XYZUVNorm* pVerts)
-{
-    Vector2Int vertCount = m_VertCount;
-
-    // Calculate normals.
-    int mx = vertCount.x-1;
-    int my = vertCount.y-1;
-    for( int y = 0; y < vertCount.y; y++ )
-    {
-        for( int x = 0; x < vertCount.x; x++ )
-        {
-            //   TL--TC---TR
-            //     \  |  /  
-            //      \ | /   
-            //        C     
-            //      / | \   
-            //     /  |  \  
-            //   BL--BC---BR
-
-            unsigned int indexC = (unsigned int)(y * vertCount.x + x);
-            unsigned int indexTL = y < my && x > 0  ? (unsigned int)((y+1) * vertCount.x + x-1) : indexC;
-            unsigned int indexTC = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexC;
-            unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexC;
-            unsigned int indexBL = y > 0  && x > 0  ? (unsigned int)((y-1) * vertCount.x + x-1) : indexC;
-            unsigned int indexBC = y > 0            ? (unsigned int)((y-1) * vertCount.x + x  ) : indexC;
-            unsigned int indexBR = y > 0  && x < mx ? (unsigned int)((y-1) * vertCount.x + x+1) : indexC;
-
-            Vector3 posC = pVerts[indexC].pos;
-            Vector3 normalTL = (pVerts[indexTL].pos - posC).Cross( pVerts[indexTC].pos - posC );
-            Vector3 normalTR = (pVerts[indexTC].pos - posC).Cross( pVerts[indexTR].pos - posC );
-            Vector3 normalBL = (pVerts[indexBR].pos - posC).Cross( pVerts[indexBC].pos - posC );
-            Vector3 normalBR = (pVerts[indexBC].pos - posC).Cross( pVerts[indexBL].pos - posC );
-
-            pVerts[indexC].normal = (normalTL + normalTR + normalBL + normalBR) / 4.0f;
-            pVerts[indexC].normal.Normalize();
-        }
-    }
 }
 
 void ComponentTilemap::SaveAsTilemap(const char* filename)
@@ -623,11 +542,13 @@ void ComponentTilemap::SaveAsTilemap(const char* filename)
     file = fopen( outputFilename, "wb" );
 #endif
 
+    MyAssert( file != nullptr );
+
     unsigned int versionCode = 1;
     fwrite( &versionCode, sizeof(int), 1, file );
-    fwrite( &m_VertCount.x, sizeof(int), 1, file );
-    fwrite( &m_VertCount.y, sizeof(int), 1, file );
-    fwrite( m_Tiles, sizeof(int), m_VertCount.x * m_VertCount.y, file );
+    fwrite( &m_TileCount.x, sizeof(int), 1, file );
+    fwrite( &m_TileCount.y, sizeof(int), 1, file );
+    fwrite( m_Tiles, sizeof(int), m_TileCount.x * m_TileCount.y, file );
 
     fclose( file );
 }
@@ -668,24 +589,24 @@ void ComponentTilemap::AddAllVariablesToWatchPanel(CommandStack* pCommandStack)
 
     ComponentBase::AddAllVariablesToWatchPanel( pCommandStack );
 
-    if( m_VertCount != m_TilemapFileSize && m_TilemapFileSize.x != 0 )
+    if( m_TileCount != m_TilemapFileSize && m_TilemapFileSize.x != 0 )
     {
         ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_TilemapFileSize.x, m_TilemapFileSize.y );
         if( ImGui::Button( "Change vertCount" ) )
         {
             // TODO: Undo.
-            m_VertCount = m_TilemapFileSize;
+            m_TileCount = m_TilemapFileSize;
             GenerateTilemapMesh( true, true, true );
         }
     }
 
-    if( m_VertCount != m_TilemapTextureSize && m_TilemapTextureSize.x != 0 )
+    if( m_TileCount != m_TilemapTextureSize && m_TilemapTextureSize.x != 0 )
     {
         ImGui::Text( "TextureSize (%dx%d) doesn't match.", m_TilemapTextureSize.x, m_TilemapTextureSize.y );
         if( ImGui::Button( "Change vertCount" ) )
         {
             // TODO: Undo.
-            m_VertCount = m_TilemapTextureSize;
+            m_TileCount = m_TilemapTextureSize;
             GenerateTilemapMesh( true, true, true );
         }
     }
@@ -712,11 +633,11 @@ void ComponentTilemap::LoadFromTilemap(const char* filename)
     fread( &versionCode, 4, 1, file );
     MyAssert( versionCode == 1 );
 
-    fread( &m_VertCount.x, 4, 2, file );
+    fread( &m_TileCount.x, 4, 2, file );
 
     SAFE_DELETE_ARRAY( m_Tiles );
-    m_Tiles = MyNew TileIndex[m_VertCount.x * m_VertCount.y];
-    fread( m_Tiles, 4, m_VertCount.x * m_VertCount.y, file );
+    m_Tiles = MyNew TileIndex[m_TileCount.x * m_TileCount.y];
+    fread( m_Tiles, 4, m_TileCount.x * m_TileCount.y, file );
 
     fclose( file );
 }
@@ -732,12 +653,12 @@ void ComponentTilemap::LoadFromTilemap()
     unsigned int versionCode = *(unsigned int*)&pBuffer[offset]; offset += sizeof(unsigned int);
     MyAssert( versionCode == 1 );
 
-    m_VertCount.x = *(int*)&pBuffer[offset]; offset += sizeof(int);
-    m_VertCount.y = *(int*)&pBuffer[offset]; offset += sizeof(int);
+    m_TileCount.x = *(int*)&pBuffer[offset]; offset += sizeof(int);
+    m_TileCount.y = *(int*)&pBuffer[offset]; offset += sizeof(int);
 
     SAFE_DELETE_ARRAY( m_Tiles );
-    m_Tiles = MyNew TileIndex[m_VertCount.x * m_VertCount.y];
-    memcpy( m_Tiles, &pBuffer[offset], sizeof(TileIndex) * m_VertCount.x * m_VertCount.y );
+    m_Tiles = MyNew TileIndex[m_TileCount.x * m_TileCount.y];
+    memcpy( m_Tiles, &pBuffer[offset], sizeof(TileIndex) * m_TileCount.x * m_TileCount.y );
 }
 
 bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const
@@ -754,13 +675,13 @@ bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vect
     }
 
     // Get the tile coordinates.
-    Vector2Int tileCoords = (m_VertCount-1) * (localPos.XZ()/m_Size);
+    Vector2Int tileCoords = m_TileCount * (localPos.XZ()/m_Size);
 
     if( pLocalTile )
         pLocalTile->Set( tileCoords.x, tileCoords.y );
 
-    if( tileCoords.x < 0 || tileCoords.x >= m_VertCount.x ||
-        tileCoords.y < 0 || tileCoords.y >= m_VertCount.y )
+    if( tileCoords.x < 0 || tileCoords.x >= m_TileCount.x ||
+        tileCoords.y < 0 || tileCoords.y >= m_TileCount.y )
     {
         //LOGInfo( LOGTag, "ComponentTilemap::GetHeightAtWorldXZ: Out of bounds" );
         return false;
@@ -768,7 +689,7 @@ bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vect
 
     if( pPercIntoTile )
     {
-        Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
+        Vector2 tileSize( m_Size.x / (m_TileCount.x-1), m_Size.y / (m_TileCount.y-1) );
         pPercIntoTile->x = (localPos.x - tileCoords.x * tileSize.x) / tileSize.x;
         pPercIntoTile->y = (localPos.z - tileCoords.y * tileSize.y) / tileSize.y;
     }
@@ -804,9 +725,9 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
     //    return false;
 
     // Get the tile coords.
-    Vector2Int tileCoords = (m_VertCount-1) * (currentPosition.XZ()/m_Size);
-    MyAssert( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y );
-    int tileIndex = tileCoords.y * m_VertCount.x + tileCoords.x;
+    Vector2Int tileCoords = (m_TileCount-1) * (currentPosition.XZ()/m_Size);
+    MyAssert( tileCoords.x >= 0 && tileCoords.x < m_TileCount.x && tileCoords.y >= 0 && tileCoords.y < m_TileCount.y );
+    int tileIndex = tileCoords.y * m_TileCount.x + tileCoords.x;
 
     // If our currentPosition tile is below the tilemap, kick out.
     if( currentPosition.y < m_Tiles[tileIndex] )
@@ -815,7 +736,7 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
     }
 
     // Calculate the tile size. TODO: Make this a member?
-    Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
+    Vector2 tileSize( m_Size.x / (m_TileCount.x-1), m_Size.y / (m_TileCount.y-1) );
 
     // -----2-----  d = dir vector.
     // |  / |  / |
@@ -826,7 +747,7 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
     // 1----------  1,2 = heights from tilemap to check against.
     int* loopVariable; // We either loop over the edges on the x-axis or the y-axis.
     int loopLimit; // Which tile to stop looping on, either -1 if moving left over the tiles, or vertCount if moving right.
-    Vector2 tilePos = currentPosition.XZ() / m_Size * Vector2( m_VertCount.x-1.0f, m_VertCount.y-1.0f );
+    Vector2 tilePos = currentPosition.XZ() / m_Size * Vector2( m_TileCount.x-1.0f, m_TileCount.y-1.0f );
     Vector2 tileIncrement;
     Vector2Int lastTileCoords( -1, -1 );
 
@@ -843,7 +764,7 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
         // If the vector is sitting on the starting edge of a tile, take a full step to the next tile.
         if( dir.x > 0 )
         {
-            loopLimit = m_VertCount.x;
+            loopLimit = m_TileCount.x;
 
             float perc = 1 - fmodf( tilePos.x, 1.0f );
             currentPosition += dir * perc;
@@ -881,7 +802,7 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
         // If the vector is sitting on the starting edge of a tile, take a full step to the next tile.
         if( dir.z > 0 )
         {
-            loopLimit = m_VertCount.y;
+            loopLimit = m_TileCount.y;
 
             float perc = 1 - fmodf( tilePos.y, 1.0f );
             currentPosition += dir * perc;
@@ -913,7 +834,7 @@ bool ComponentTilemap::RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 en
     {
         tileCoords.Set( (int)tilePos.x, (int)tilePos.y );
 
-        if( tileCoords.x >= 0 && tileCoords.x < m_VertCount.x && tileCoords.y >= 0 && tileCoords.y < m_VertCount.y )
+        if( tileCoords.x >= 0 && tileCoords.x < m_TileCount.x && tileCoords.y >= 0 && tileCoords.y < m_TileCount.y )
         {
             Vector3 result;
             //if( FindCollisionPoint( currentPosition, start, dir, lastTileCoords, tileCoords, &result ) )

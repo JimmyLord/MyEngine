@@ -60,7 +60,7 @@ EditorDocument_Tilemap::EditorDocument_Tilemap(EngineCore* pEngineCore, Componen
         m_pTilemap = MyNew ComponentTilemap( pEngineCore, nullptr );
         m_pTilemap->Reset();
         m_pTilemap->m_Size.Set( 5, 5 );
-        m_pTilemap->m_VertCount.Set( 32, 32 );
+        m_pTilemap->m_TileCount.Set( 8, 8 );
         MaterialDefinition* pMaterial = pEngineCore->GetManagers()->GetMaterialManager()->GetFirstMaterial();
         m_pTilemap->SetMaterial( pMaterial, 0 );
         m_pTilemap->CreateTilemap();
