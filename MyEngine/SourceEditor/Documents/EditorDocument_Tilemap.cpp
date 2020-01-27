@@ -37,8 +37,17 @@ EditorDocument_Tilemap::EditorDocument_Tilemap(EngineCore* pEngineCore, Componen
     m_pCameraTransform->Reset();
     m_pCamera->m_pComponentTransform = m_pCameraTransform;
 
-    m_pCameraTransform->SetWorldPosition( Vector3( -1, 5, -5 ) );
-    m_pCameraTransform->SetWorldRotation( Vector3( -30, -30, 0 ) );
+    //m_pCameraTransform->SetWorldPosition( Vector3( -1, 5, -5 ) );
+    //m_pCameraTransform->SetWorldRotation( Vector3( -30, -30, 0 ) );
+
+    m_pCameraTransform->SetWorldPosition( Vector3( 0, 5, 0 ) );
+    m_pCameraTransform->SetWorldRotation( Vector3( -90, 0, 0 ) );
+
+    m_pCamera->m_Orthographic = true;
+    m_pCamera->m_DesiredWidth = 5;
+    m_pCamera->m_DesiredHeight = 5;
+    m_pCamera->m_OrthoNearZ = 0;
+    m_pCamera->m_OrthoFarZ = 1000;
 
     m_pFBO = nullptr;
     m_WindowPos.Set( -1, -1 );
@@ -181,6 +190,21 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
             m_pFBO->MemoryPanel_Hide();
         }
 
+        // Setup an ortho camera. TODO: Camera is a mess, fix it.
+        {
+            float aspect = m_WindowSize.x/m_WindowSize.y;
+
+            m_pCamera->m_Orthographic = true;
+            m_pCamera->m_DesiredWidth = 5.0f * aspect;
+            m_pCamera->m_DesiredHeight = 5.0f;
+            m_pCamera->m_OrthoNearZ = 0;
+            m_pCamera->m_OrthoFarZ = 1000;
+            m_pCamera->ComputeProjectionMatrices();
+
+            // Force top down.
+            m_pCameraTransform->SetWorldRotation( Vector3( -90, 0, 0 ) );
+        }
+
         m_pCamera->Tick( 0.0f );
 
         if( m_pFBO->GetColorTexture( 0 ) )
@@ -202,8 +226,8 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
                 originalWorldMat = *m_pTilemap->GetGameObject()->GetTransform()->GetWorldTransform();
             else
                 originalWorldMat.SetIdentity();
-            MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
-            MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
+            MyMatrix* pEditorMatProj = &m_pCamera->m_Camera2D.m_matProj;
+            MyMatrix* pEditorMatView = &m_pCamera->m_Camera2D.m_matView;
 
             bool wasVisible = m_pTilemap->IsVisible();
             m_pTilemap->SetVisible( true );
