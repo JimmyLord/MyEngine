@@ -192,11 +192,11 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
 
         // Setup an ortho camera. TODO: Camera is a mess, fix it.
         {
-            float aspect = m_WindowSize.x/m_WindowSize.y;
+            float aspect = m_WindowSize.y/m_WindowSize.x;
 
             m_pCamera->m_Orthographic = true;
-            m_pCamera->m_DesiredWidth = 5.0f * aspect;
-            m_pCamera->m_DesiredHeight = 5.0f;
+            //m_pCamera->m_DesiredWidth = 5.0f;
+            m_pCamera->m_DesiredHeight = m_pCamera->m_DesiredWidth * aspect;
             m_pCamera->m_OrthoNearZ = 0;
             m_pCamera->m_OrthoFarZ = 1000;
             m_pCamera->ComputeProjectionMatrices();
@@ -349,7 +349,7 @@ bool EditorDocument_Tilemap::HandleInput(int keyAction, int keyCode, int mouseAc
     // Handle camera movement, with both mouse and keyboard.
     if( inputHandled == false )
     {
-        if( m_pCamera->HandleInputForEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure ) )
+        if( m_pCamera->HandleInputFor2DTopDownEditorCamera( keyAction, keyCode, mouseAction, id, x, y, pressure ) )
         {
             return true;
         }

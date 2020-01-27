@@ -150,6 +150,7 @@ public:
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 
     bool HandleInputForEditorCamera(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
+    bool HandleInputFor2DTopDownEditorCamera(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure);
 #endif //MYFW_EDITOR
 };
 
