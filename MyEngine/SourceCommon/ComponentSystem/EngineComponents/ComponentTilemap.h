@@ -103,7 +103,6 @@ protected:
 public:
     bool GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const;
     bool RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 end, Vector3* pResult) const;
-    bool RayCastAtLocalHeight(bool rayIsInWorldSpace, Vector3 start, Vector3 end, float height, Vector3* pResultAtDesiredHeight, Vector3* pResultOnGround) const;
 
     // Editor tools, will all return true if they affect the vertices.
     bool Tool_Raise(Vector3 position, float amount, float radius, float softness, bool rebuild);

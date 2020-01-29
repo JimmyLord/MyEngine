@@ -53,7 +53,6 @@ protected:
     bool m_NewMousePress;
     Vector3 m_WorldSpaceMousePosition;
     Vector3 m_WorldSpaceMousePositionWhenToolStarted;
-    Vector3 m_WorldSpaceMousePositionAtDesiredHeight; // Used by "level" tool.
 
     MaterialDefinition* m_pMaterials[Mat_NumMaterials];
 
@@ -80,7 +79,7 @@ public:
     virtual void OnDrawFrame() override;
     virtual void AddImGuiOverlayItems();
 
-    void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
+    Vector3 GetWorldSpaceMousePosition(Vector2 mousepos);
 
     // Input/Hotkey handling
     virtual HotkeyContext GetHotkeyContext() override { return HotkeyContext::TilemapEditor; }

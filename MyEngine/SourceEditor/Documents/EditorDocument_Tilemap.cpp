@@ -180,7 +180,7 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
     if( m_pPoint == nullptr )
         return;
 
-    //ComponentRenderable* pRenderable;
+    ComponentRenderable* pRenderable;
 
     if( m_WindowVisible && m_WindowSize.LengthSquared() != 0 )
     {
@@ -259,23 +259,23 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
 
             m_pTilemap->SetVisible( wasVisible );
 
-            //// Draw a circle at the mouse position for the height desired by the level tool.
-            //pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+            // Draw a circle at the mouse position for the height desired by the level tool.
+            pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
             //if( m_CurrentTool == Tool::Level && m_LevelUseBrushHeight == false )
-            //{
-            //    pRenderable->SetVisible( true );
+            {
+                pRenderable->SetVisible( true );
 
-            //    Vector3 worldPos = m_WorldSpaceMousePositionAtDesiredHeight;
+                Vector3 worldPos = m_WorldSpaceMousePosition;
 
-            //    m_pPoint->GetTransform()->SetLocalPosition( worldPos );
+                m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
-            //    MyMatrix* pEditorMatProj = &m_pCamera->m_Camera3D.m_matProj;
-            //    MyMatrix* pEditorMatView = &m_pCamera->m_Camera3D.m_matView;
+                MyMatrix* pEditorMatProj = &m_pCamera->m_Camera2D.m_matProj;
+                MyMatrix* pEditorMatView = &m_pCamera->m_Camera2D.m_matView;
 
-            //    pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
-            //    g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
-            //    pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
-            //}
+                pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_Always );
+                g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, nullptr );
+                pEngineCore->GetRenderer()->SetDepthFunction( MyRE::DepthFunc_LEqual );
+            }
             //else
             //{
             //    pRenderable->SetVisible( false );
@@ -296,7 +296,7 @@ void EditorDocument_Tilemap::CancelCurrentOperation()
     m_pCommandStack->Undo( 1 );
 }
 
-void EditorDocument_Tilemap::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
+Vector3 EditorDocument_Tilemap::GetWorldSpaceMousePosition(Vector2 mousepos)
 {
     // Convert mouse coord into clip space.
     Vector2 mouseClip;
@@ -304,18 +304,14 @@ void EditorDocument_Tilemap::GetMouseRay(Vector2 mousepos, Vector3* start, Vecto
     mouseClip.y = (mousepos.y / m_WindowSize.y) * 2.0f - 1.0f;
 
     // Compute the inverse view projection matrix.
-    MyMatrix invVP = ( m_pCamera->m_Camera3D.m_matProj * m_pCamera->m_Camera3D.m_matView ).GetInverse();
+    MyMatrix invVP = ( m_pCamera->m_Camera2D.m_matProj * m_pCamera->m_Camera2D.m_matView ).GetInverse();
 
     // Store the camera position as the near world point.
-    Vector3 nearWorldPoint = m_pCameraTransform->GetWorldPosition();
+    Vector4 clipPoint4 = Vector4( mouseClip, 0, 1 );
+    Vector4 worldPoint4 = invVP * clipPoint4;
+    Vector3 worldPoint = Vector3( worldPoint4.x, 0, worldPoint4.z );
 
-    // Calculate the world position of the far clip plane where the mouse is pointing.
-    Vector4 farClipPoint4 = Vector4( mouseClip, 1, 1 );
-    Vector4 farWorldPoint4 = invVP * farClipPoint4;
-    Vector3 farWorldPoint = farWorldPoint4.XYZ() / farWorldPoint4.w;
-
-    *start = nearWorldPoint;
-    *end = farWorldPoint;
+    return worldPoint;
 }
 
 bool EditorDocument_Tilemap::HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure)
@@ -344,6 +340,11 @@ bool EditorDocument_Tilemap::HandleInput(int keyAction, int keyCode, int mouseAc
     // Deal with mouse.
     if( mouseAction != -1 )
     {
+        // Find the mouse intersection point on the tilemap.
+        Vector3 mouse = GetWorldSpaceMousePosition( Vector2( x, y ) );
+
+        // Show the brush at that point.
+        m_WorldSpaceMousePosition = mouse;
     }
 
     // Handle camera movement, with both mouse and keyboard.
@@ -393,8 +394,8 @@ void EditorDocument_Tilemap::Update()
     m_WindowPos.Set( pos.x + min.x, pos.y + min.y );
     m_WindowSize.Set( w, h );
 
-    m_pCamera->m_Camera3D.SetupProjection( w/h, w/h, 45, 0.01f, 100.0f );
-    m_pCamera->m_Camera3D.UpdateMatrices();
+    //m_pCamera->m_Camera3D.SetupProjection( w/h, w/h, 45, 0.01f, 100.0f );
+    //m_pCamera->m_Camera3D.UpdateMatrices();
 
     //ImGui::Text( "Testing Tilemap EditorDocument." );
 
