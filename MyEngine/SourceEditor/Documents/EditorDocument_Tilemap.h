@@ -51,6 +51,7 @@ protected:
     int m_IndexOfPointBeingDragged;
     Vector2 m_PositionMouseWentDown;
     bool m_NewMousePress;
+    Vector2Int m_MouseTilePos;
     Vector3 m_WorldSpaceMousePosition;
     Vector3 m_WorldSpaceMousePositionWhenToolStarted;
 

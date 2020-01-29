@@ -689,7 +689,7 @@ bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vect
 
     if( pPercIntoTile )
     {
-        Vector2 tileSize( m_Size.x / (m_TileCount.x-1), m_Size.y / (m_TileCount.y-1) );
+        Vector2 tileSize( m_Size.x / m_TileCount.x, m_Size.y / m_TileCount.y );
         pPercIntoTile->x = (localPos.x - tileCoords.x * tileSize.x) / tileSize.x;
         pPercIntoTile->y = (localPos.z - tileCoords.y * tileSize.y) / tileSize.y;
     }
@@ -697,6 +697,16 @@ bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vect
     //LOGInfo( LOGTag, "ComponentTilemap::GetTileCoordsAtWorldXZ: (%d,%d)", posIndex.x, posIndex.y );
 
     return true;
+}
+
+Vector3 ComponentTilemap::GetWorldPosAtTileCoords(Vector2Int tileCoords, bool centerOfTile) const
+{
+    Vector2 tileSize( m_Size.x / m_TileCount.x, m_Size.y / m_TileCount.y );
+
+    if( centerOfTile )
+        return Vector3( (tileCoords.x + 0.5f) * tileSize.x, 0, (tileCoords.y + 0.5f) * tileSize.y );
+
+    return Vector3( tileCoords.x * tileSize.x, 0, tileCoords.y * tileSize.y );
 }
 
 // Editor tools.

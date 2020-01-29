@@ -220,7 +220,8 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
 
             //MyMatrix* pWorldMat = m_pTilemap->GetGameObject()->GetTransform()->GetWorldTransform();
             //Vector3 localSpacePoint = pWorldMat->GetInverse() * m_WorldSpaceMousePosition;
-            Vector3 localSpacePoint = m_WorldSpaceMousePosition;
+            //Vector3 localSpacePoint = m_WorldSpaceMousePosition;
+            Vector3 localSpacePoint = m_pTilemap->GetWorldPosAtTileCoords( m_MouseTilePos, true );
             MyMatrix originalWorldMat;
             if( m_pTilemap->GetGameObject() )
                 originalWorldMat = *m_pTilemap->GetGameObject()->GetTransform()->GetWorldTransform();
@@ -262,10 +263,13 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
             // Draw a circle at the mouse position for the height desired by the level tool.
             pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
             //if( m_CurrentTool == Tool::Level && m_LevelUseBrushHeight == false )
+
+            if( m_MouseTilePos.x != -1 )
             {
                 pRenderable->SetVisible( true );
 
-                Vector3 worldPos = m_WorldSpaceMousePosition;
+                //Vector3 worldPos = m_WorldSpaceMousePosition;
+                Vector3 worldPos = m_pTilemap->GetWorldPosAtTileCoords( m_MouseTilePos, true );
 
                 m_pPoint->GetTransform()->SetLocalPosition( worldPos );
 
@@ -343,8 +347,10 @@ bool EditorDocument_Tilemap::HandleInput(int keyAction, int keyCode, int mouseAc
         // Find the mouse intersection point on the tilemap.
         Vector3 mouse = GetWorldSpaceMousePosition( Vector2( x, y ) );
 
-        // Show the brush at that point.
         m_WorldSpaceMousePosition = mouse;
+
+        m_MouseTilePos.Set( -1, -1 );
+        m_pTilemap->GetTileCoordsAtWorldXZ( mouse.x, mouse.z, &m_MouseTilePos, nullptr );
     }
 
     // Handle camera movement, with both mouse and keyboard.
