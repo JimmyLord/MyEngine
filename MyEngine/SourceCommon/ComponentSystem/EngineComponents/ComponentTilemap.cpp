@@ -674,6 +674,9 @@ bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vect
         localPos = pWorldMat->GetInverse() * localPos;
     }
 
+    if( localPos.x < 0 || localPos.z < 0 )
+        return false;
+
     // Get the tile coordinates.
     Vector2Int tileCoords = m_TileCount * (localPos.XZ()/m_Size);
 
@@ -695,6 +698,17 @@ bool ComponentTilemap::GetTileCoordsAtWorldXZ(const float x, const float z, Vect
     }
 
     //LOGInfo( LOGTag, "ComponentTilemap::GetTileCoordsAtWorldXZ: (%d,%d)", posIndex.x, posIndex.y );
+
+    return true;
+}
+
+bool ComponentTilemap::AreTileCoordsInBounds(Vector2Int tileCoords)
+{
+    if( tileCoords.x < 0 || tileCoords.x >= m_TileCount.x ||
+        tileCoords.y < 0 || tileCoords.y >= m_TileCount.y )
+    {
+        return false;
+    }
 
     return true;
 }

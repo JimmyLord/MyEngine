@@ -102,6 +102,7 @@ protected:
 
 public:
     bool GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const;
+    bool AreTileCoordsInBounds(Vector2Int tileCoords);
     Vector3 GetWorldPosAtTileCoords(Vector2Int tileCoords, bool centerOfTile) const;
     bool RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 end, Vector3* pResult) const;
 
