@@ -198,7 +198,7 @@ void EditorDocument_Tilemap::OnDrawFrame() //unsigned int canvasID)
             //m_pCamera->m_DesiredWidth = 5.0f;
             m_pCamera->m_DesiredHeight = m_pCamera->m_DesiredWidth * aspect;
             m_pCamera->m_OrthoNearZ = 0;
-            m_pCamera->m_OrthoFarZ = 1000;
+            m_pCamera->m_OrthoFarZ = 10; // value of 1000 causes issues with inverse in GetWorldSpaceMousePosition, not sure why.
             m_pCamera->ComputeProjectionMatrices();
 
             // Force top down.
