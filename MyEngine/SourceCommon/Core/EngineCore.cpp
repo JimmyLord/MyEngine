@@ -152,6 +152,8 @@ EngineCore::EngineCore(Renderer_Base* pRenderer, bool createAndOwnGlobalManagers
     {
         m_GameObjectFlagStrings[i] = nullptr;
     }
+
+    m_pFileChangeDetector = nullptr;
 }
 
 EngineCore::~EngineCore()
@@ -222,6 +224,8 @@ void EngineCore::Cleanup()
     }
 
     m_SingleFrameMemoryStack.Cleanup();
+
+    delete m_pFileChangeDetector;
 }
 
 void EngineCore::SaveEditorPrefs()
@@ -544,6 +548,8 @@ void EngineCore::OneTimeInit()
     // Restore the previously open documents.
     m_pEditorDocumentManager->RestorePreviouslyOpenDocuments( this );
 #endif
+
+    m_pFileChangeDetector = MyNew FileChangeDetectorWindows( nullptr );
 }
 
 void EngineCore::OnPrepareToDie()
@@ -588,6 +594,8 @@ float EngineCore::Tick(float deltaTime)
     {
         StartFrame();
     }
+
+    m_pFileChangeDetector->CheckForChanges();
 
     //ImGui::Begin( "Editor Debug" );
     //ImGui::Text( "IsAnyWindowHovered: %d", ImGui::IsAnyWindowHovered() );

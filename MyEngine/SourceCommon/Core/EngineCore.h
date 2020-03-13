@@ -142,6 +142,8 @@ protected:
     float m_GameWidth;
     float m_GameHeight;
 
+    FileChangeDetector* m_pFileChangeDetector;
+
 protected:
     bool m_UnloadAllScenesNextTick;
     bool m_SceneReloadRequested;

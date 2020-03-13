@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -46,11 +46,11 @@ Component2DCollisionObject::Component2DCollisionObject(EngineCore* pEngineCore, 
 
     //m_Type = ComponentType_2DCollisionObject;
 
-    m_pComponentLuaScript = 0;
+    m_pComponentLuaScript = nullptr;
 
-    m_pBox2DWorld = 0;
-    m_pBody = 0;
-    m_pFixture = 0;
+    m_pBox2DWorld = nullptr;
+    m_pBody = nullptr;
+    m_pFixture = nullptr;
 
     m_PrimitiveType = Physics2DPrimitiveType_Box;
 
@@ -65,7 +65,7 @@ Component2DCollisionObject::Component2DCollisionObject(EngineCore* pEngineCore, 
     m_Density = 1.0f;
     m_IsSensor = false;
     m_Friction = 0.2f;
-    m_Restitution = 0;
+    m_Restitution = 0.0f;
 }
 
 Component2DCollisionObject::~Component2DCollisionObject()
@@ -87,22 +87,22 @@ void Component2DCollisionObject::RegisterVariables(TCPPListHead<ComponentVariabl
 {
     ComponentVariable* pVar;
 
-    pVar = AddVar( pList, "Offset", ComponentVariableType::Vector2, MyOffsetOf( pThis, &pThis->m_Offset ), true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "Offset", ComponentVariableType::Vector2, MyOffsetOf( pThis, &pThis->m_Offset ), true, true, nullptr, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
     //pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 
-    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
 
-    AddVar( pList, "Static",        ComponentVariableType::Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    AddVar( pList, "FixedRotation", ComponentVariableType::Bool,  MyOffsetOf( pThis, &pThis->m_FixedRotation ),   true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    AddVar( pList, "Density",       ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    AddVar( pList, "IsSensor",      ComponentVariableType::Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    pVar = AddVar( pList, "Friction",      ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Static",        ComponentVariableType::Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, nullptr, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "FixedRotation", ComponentVariableType::Bool,  MyOffsetOf( pThis, &pThis->m_FixedRotation ),   true, true, nullptr, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "Density",       ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, nullptr, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
+    AddVar( pList, "IsSensor",      ComponentVariableType::Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, nullptr, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
+    pVar = AddVar( pList, "Friction",      ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, nullptr, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
 #if MYFW_EDITOR
     pVar->SetEditorLimits( 0, 1, 0 );
 #endif //MYFW_EDITOR
-    AddVar( pList, "Restitution",   ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Restitution",   ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, nullptr, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
 
-    //AddVar( pList, "Scale",         ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    //AddVar( pList, "Scale",         ComponentVariableType::Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, nullptr, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, nullptr, nullptr );
 #if MYFW_EDITOR
     //for( int i=0; i<6; i++ )
     //    pVars[i]->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
@@ -126,21 +126,21 @@ void Component2DCollisionObject::Reset()
         MyAssert( m_pBox2DWorld );
         m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
     }
-    m_pBody = 0;
-    m_pFixture = 0;
-    m_pBox2DWorld = 0;
+    m_pBody = nullptr;
+    m_pFixture = nullptr;
+    m_pBox2DWorld = nullptr;
 
-    m_pComponentLuaScript = 0;
+    m_pComponentLuaScript = nullptr;
 
     m_Scale.Set( 1,1,1 );
 
     m_Static = false;
     m_FixedRotation = false;
 
-    m_Density = 0;
+    m_Density = 1.0f;
     m_IsSensor = false;
     m_Friction = 0.2f;
-    m_Restitution = 0;
+    m_Restitution = 0.0f;
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -263,7 +263,7 @@ void Component2DCollisionObject::SetVertices(const luabridge::LuaRef verts, unsi
 
 void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y)
 {
-    void* oldPointer = 0;
+    void* oldPointer = nullptr;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -284,7 +284,7 @@ void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, bool changedBy
 
 void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue)
 {
-    void* oldpointer = 0;
+    void* oldpointer = nullptr;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_PrimitiveType ) )
     {
@@ -366,22 +366,22 @@ void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool c
     return oldpointer;
 }
 
-void Component2DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+void Component2DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedByUserInEditor)
 {
-    if( changedbyuserineditor )
+    if( changedByUserInEditor )
         SyncRigidBodyToTransform();
 }
 
-void Component2DCollisionObject::OnButtonEditChain(int buttonid)
+void Component2DCollisionObject::OnButtonEditChain(int buttonID)
 {
     g_pEngineCore->SetEditorInterface( EditorInterfaceType::The2DPointEditor );
     ((EditorInterface_2DPointEditor*)g_pEngineCore->GetCurrentEditorInterface())->Set2DCollisionObjectToEdit( this );
 }
 #endif //MYFW_EDITOR
 
-cJSON* Component2DCollisionObject::ExportAsJSONObject(bool savesceneid, bool saveid)
+cJSON* Component2DCollisionObject::ExportAsJSONObject(bool saveSceneID, bool saveID)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( saveSceneID, saveID );
 
 #if MYFW_EDITOR
     int count = (int)m_Vertices.size();
@@ -395,11 +395,11 @@ cJSON* Component2DCollisionObject::ExportAsJSONObject(bool savesceneid, bool sav
     return jComponent;
 }
 
-void Component2DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
+void Component2DCollisionObject::ImportFromJSONObject(cJSON* jObject, SceneID sceneID)
 {
-    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
+    ComponentBase::ImportFromJSONObject( jObject, sceneID );
 
-    cJSON* jVertexArray = cJSON_GetObjectItem( jsonobj, "Vertices" );
+    cJSON* jVertexArray = cJSON_GetObjectItem( jObject, "Vertices" );
     if( jVertexArray )
     {
         int arraysize = cJSON_GetArraySize( jVertexArray );
@@ -414,7 +414,7 @@ void Component2DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, SceneID sc
             m_Vertices.Add( zerovec );
 #endif
 
-        cJSONExt_GetFloatArray( jsonobj, "Vertices", &m_Vertices[0].x, arraysize );
+        cJSONExt_GetFloatArray( jObject, "Vertices", &m_Vertices[0].x, arraysize );
     }
 }
 
@@ -440,7 +440,7 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
     m_Friction = other.m_Friction;
     m_Restitution = other.m_Restitution;
 
-    // copy vertices
+    // Copy vertices.
 #if MYFW_EDITOR
     m_Vertices = other.m_Vertices;
 #else
@@ -498,7 +498,7 @@ void Component2DCollisionObject::OnPlay()
 {
     ComponentBase::OnPlay();
 
-    if( m_pComponentLuaScript == 0 )
+    if( m_pComponentLuaScript == nullptr )
     {
         m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
     }
@@ -511,17 +511,17 @@ void Component2DCollisionObject::OnPlay()
         MyAssert( m_pBox2DWorld );
     }
 
-    MyAssert( m_pBody == 0 );
-    if( m_pBody != 0 )
+    MyAssert( m_pBody == nullptr );
+    if( m_pBody != nullptr )
     {
         if( m_pBox2DWorld )
         {
             m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
-            m_pBody = 0;
+            m_pBody = nullptr;
         }
     }
-    MyAssert( m_pFixture == 0 );
-    m_pFixture = 0;
+    MyAssert( m_pFixture == nullptr );
+    m_pFixture = nullptr;
 
     CreateBody();
 }
@@ -533,10 +533,10 @@ void Component2DCollisionObject::OnStop()
     if( m_pBody )
     {
         m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
-        m_pBody = 0;
+        m_pBody = nullptr;
     }
-    m_pFixture = 0;
-    m_pBox2DWorld = 0;
+    m_pFixture = nullptr;
+    m_pBox2DWorld = nullptr;
 }
 
 bool Component2DCollisionObject::SetEnabled(bool enableComponent)
@@ -544,7 +544,7 @@ bool Component2DCollisionObject::SetEnabled(bool enableComponent)
     if( ComponentBase::SetEnabled( enableComponent ) == false )
         return false;
 
-    if( m_pBody == 0 )
+    if( m_pBody == nullptr )
         return true;
 
     m_pBody->SetActive( enableComponent );
@@ -554,19 +554,19 @@ bool Component2DCollisionObject::SetEnabled(bool enableComponent)
 
 void Component2DCollisionObject::CreateBody()
 {
-    MyAssert( m_pBody == 0 );
+    MyAssert( m_pBody == nullptr );
     MyAssert( m_pBox2DWorld );
 
-    if( m_pBody != 0 )
+    if( m_pBody != nullptr )
         return;
 
-    if( m_pBox2DWorld == 0 )
+    if( m_pBox2DWorld == nullptr )
         return;
 
-    b2Body* pBody = 0;
+    b2Body* pBody = nullptr;
 
     // create a body on start
-    if( m_pBody == 0 )
+    if( m_pBody == nullptr )
     {
         Component2DCollisionObject* pComponentWithBody = (Component2DCollisionObject*)m_pGameObject->GetFirstComponentOfType( "2DCollisionObjectComponent" );
         
@@ -576,17 +576,17 @@ void Component2DCollisionObject::CreateBody()
             Vector3 pos = m_pGameObject->GetTransform()->GetWorldPosition();
             Vector3 rot = m_pGameObject->GetTransform()->GetWorldRotation();
 
-            b2BodyDef bodydef;
+            b2BodyDef bodyDef;
         
-            bodydef.position = b2Vec2( pos.x, pos.y );
-            bodydef.angle = -rot.z / 180 * PI;
+            bodyDef.position = b2Vec2( pos.x, pos.y );
+            bodyDef.angle = -rot.z / 180 * PI;
             if( m_Static )
-                bodydef.type = b2_staticBody;
+                bodyDef.type = b2_staticBody;
             else
-                bodydef.type = b2_dynamicBody;
-            bodydef.fixedRotation = m_FixedRotation;
+                bodyDef.type = b2_dynamicBody;
+            bodyDef.fixedRotation = m_FixedRotation;
 
-            m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
+            m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodyDef );
             m_pBody->SetUserData( this );
 
             m_Scale = m_pGameObject->GetTransform()->GetWorldScale();
@@ -599,24 +599,24 @@ void Component2DCollisionObject::CreateBody()
         }
     }
 
-    if( pBody != 0 )
+    if( pBody != nullptr )
     {
         // Set up the fixture
-        b2FixtureDef fixturedef;
-        fixturedef.density = m_Density;
-        fixturedef.isSensor = m_IsSensor;
-        fixturedef.friction = m_Friction;
-        fixturedef.restitution = m_Restitution;
-        fixturedef.filter.categoryBits = 0x0001;
-        fixturedef.filter.maskBits = 0xFFFF;
-        fixturedef.filter.groupIndex = 0;
+        b2FixtureDef fixtureDef;
+        fixtureDef.density = m_Density;
+        fixtureDef.isSensor = m_IsSensor;
+        fixtureDef.friction = m_Friction;
+        fixtureDef.restitution = m_Restitution;
+        fixtureDef.filter.categoryBits = 0x0001;
+        fixtureDef.filter.maskBits = 0xFFFF;
+        fixtureDef.filter.groupIndex = 0;
 
         // Create the right shape and add it to the fixture def
         switch( m_PrimitiveType )
         {
         case Physics2DPrimitiveType_Box:
             {
-                b2PolygonShape boxshape;
+                b2PolygonShape boxShape;
 
                 b2Vec2 verts[4];
                 verts[0].Set( -0.5f * m_Scale.x + m_Offset.x, -0.5f * m_Scale.y + m_Offset.y );
@@ -624,45 +624,45 @@ void Component2DCollisionObject::CreateBody()
                 verts[2].Set(  0.5f * m_Scale.x + m_Offset.x,  0.5f * m_Scale.y + m_Offset.y );
                 verts[3].Set( -0.5f * m_Scale.x + m_Offset.x,  0.5f * m_Scale.y + m_Offset.y );
 
-                boxshape.Set( verts, 4 );
+                boxShape.Set( verts, 4 );
 
-                fixturedef.shape = &boxshape;
+                fixtureDef.shape = &boxShape;
 
-                m_pFixture = pBody->CreateFixture( &fixturedef );
+                m_pFixture = pBody->CreateFixture( &fixtureDef );
             }
             break;
 
         case Physics2DPrimitiveType_Circle:
             {
-                b2CircleShape circleshape;
-                circleshape.m_p.Set( m_Offset.x, m_Offset.y );
-                circleshape.m_radius = m_Scale.x;
+                b2CircleShape circleShape;
+                circleShape.m_p.Set( m_Offset.x, m_Offset.y );
+                circleShape.m_radius = m_Scale.x;
 
-                fixturedef.shape = &circleshape;
+                fixtureDef.shape = &circleShape;
 
-                m_pFixture = pBody->CreateFixture( &fixturedef );
+                m_pFixture = pBody->CreateFixture( &fixtureDef );
             }
             break;
 
         case Physics2DPrimitiveType_Edge:
             {
-                b2EdgeShape edgeshape;
+                b2EdgeShape edgeShape;
 
                 // TODO: define edges so they're not limited to x/y axes.
                 if( m_Scale.x > m_Scale.y )
-                    edgeshape.Set( b2Vec2( m_Offset.x + -0.5f * m_Scale.x, m_Offset.y + 0 ), b2Vec2( m_Offset.x + 0.5f * m_Scale.x, m_Offset.y + 0 ) );
+                    edgeShape.Set( b2Vec2( m_Offset.x + -0.5f * m_Scale.x, m_Offset.y + 0 ), b2Vec2( m_Offset.x + 0.5f * m_Scale.x, m_Offset.y + 0 ) );
                 else
-                    edgeshape.Set( b2Vec2( m_Offset.x + 0, m_Offset.y + -0.5f * m_Scale.y ), b2Vec2( m_Offset.x + 0, m_Offset.y + 0.5f * m_Scale.y ) );
+                    edgeShape.Set( b2Vec2( m_Offset.x + 0, m_Offset.y + -0.5f * m_Scale.y ), b2Vec2( m_Offset.x + 0, m_Offset.y + 0.5f * m_Scale.y ) );
 
-                fixturedef.shape = &edgeshape;
+                fixtureDef.shape = &edgeShape;
 
-                m_pFixture = pBody->CreateFixture( &fixturedef );
+                m_pFixture = pBody->CreateFixture( &fixtureDef );
             }
             break;
 
         case Physics2DPrimitiveType_Chain:
             {
-                b2ChainShape chainshape;
+                b2ChainShape chainShape;
 
 #if MYFW_EDITOR
                 int count = (int)m_Vertices.size();
@@ -684,11 +684,11 @@ void Component2DCollisionObject::CreateBody()
 
                 if( count > 0 )
                 {
-                    chainshape.CreateChain( (b2Vec2*)&m_Vertices[0], count );
+                    chainShape.CreateChain( (b2Vec2*)&m_Vertices[0], count );
 
-                    fixturedef.shape = &chainshape;
+                    fixtureDef.shape = &chainShape;
 
-                    m_pFixture = pBody->CreateFixture( &fixturedef );
+                    m_pFixture = pBody->CreateFixture( &fixtureDef );
                 }
             }
         }
@@ -704,7 +704,7 @@ void Component2DCollisionObject::TickCallback(float deltaTime)
     if( deltaTime == 0 )
         return;
 
-    if( m_pBody == 0 )
+    if( m_pBody == nullptr )
         return;
 
     b2Vec2 pos = m_pBody->GetPosition();
@@ -712,10 +712,10 @@ void Component2DCollisionObject::TickCallback(float deltaTime)
 
     MyMatrix matWorld;
 
-    Vector3 oldpos = m_pGameObject->GetTransform()->GetWorldPosition();
-    //Vector3 oldrot = m_pGameObject->GetTransform()->GetWorldRotation();
+    Vector3 oldPos = m_pGameObject->GetTransform()->GetWorldPosition();
+    //Vector3 oldRot = m_pGameObject->GetTransform()->GetWorldRotation();
 
-    matWorld.CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldpos.z ) );
+    matWorld.CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldPos.z ) );
     m_pGameObject->GetTransform()->SetWorldTransform( &matWorld );
 }
 
@@ -729,8 +729,8 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         return;
 
     // Kick out early if we don't want to draw the lines for the vertices.
-    EditorInterfaceType interfacetype = g_pEngineCore->GetCurrentEditorInterfaceType();
-    if( interfacetype == EditorInterfaceType::The2DPointEditor )
+    EditorInterfaceType interfaceType = g_pEngineCore->GetCurrentEditorInterfaceType();
+    if( interfaceType == EditorInterfaceType::The2DPointEditor )
     {
         // if we're not the chain being edited, don't draw the lines.
         EditorInterface_2DPointEditor* pInterface = (EditorInterface_2DPointEditor*)g_pEngineCore->GetCurrentEditorInterface();
@@ -767,13 +767,13 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         pShader->InitializeAttributeArray( Shader_Base::Attribute_Position, 2, MyRE::AttributeType_Float, false, sizeof(float)*2, (void*)&m_Vertices[0] );
 
         ComponentTransform* pParentTransformComponent = m_pGameObject->GetTransform();
-        MyMatrix worldmat;
-        worldmat.SetIdentity();
-        worldmat.SetTranslation( pParentTransformComponent->GetWorldPosition() );
+        MyMatrix worldMat;
+        worldMat.SetIdentity();
+        worldMat.SetTranslation( pParentTransformComponent->GetWorldPosition() );
 
         // Setup uniforms.
-        pShader->ProgramMaterialProperties( 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
-        pShader->ProgramTransforms( pEditorMatProj, pEditorMatView, &worldmat );
+        pShader->ProgramMaterialProperties( nullptr, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
+        pShader->ProgramTransforms( pEditorMatProj, pEditorMatView, &worldMat );
 
         g_pRenderer->SetLineWidth( 3.0f );
 
@@ -798,7 +798,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
 
 void Component2DCollisionObject::SyncRigidBodyToTransform()
 {
-    if( m_pBody == 0 )
+    if( m_pBody == nullptr )
         return;
 }
 
@@ -815,7 +815,7 @@ float Component2DCollisionObject::GetMass()
     if( m_pBody )
         return m_pBody->GetMass();
 
-    return 0;
+    return 0.0f;
 }
 
 const char* Component2DCollisionObject::GetPrimitiveTypeName()
@@ -859,9 +859,9 @@ float Component2DCollisionObject::GetRestitution()
 // Exposed to Lua, change elsewhere if function signature changes.
 void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
 {
-    b2Vec2 b2position = b2Vec2( newPosition.x, newPosition.y );
+    b2Vec2 b2Position = b2Vec2( newPosition.x, newPosition.y );
 
-    m_pBody->SetTransform( b2position, angle ); 
+    m_pBody->SetTransform( b2Position, angle ); 
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
@@ -881,32 +881,32 @@ void Component2DCollisionObject::ClearVelocity()
     if( m_pBody )
     {
         m_pBody->SetLinearVelocity( b2Vec2(0,0) );
-        m_pBody->SetAngularVelocity( 0 );
+        m_pBody->SetAngularVelocity( 0.0f );
     }
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
+void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localPoint)
 {
     b2Vec2 b2force = b2Vec2( force.x, force.y );
 
     // apply force to center of mass + offset
     b2MassData massData;
     m_pBody->GetMassData( &massData );
-    b2Vec2 worldpoint = m_pBody->GetWorldPoint( massData.center + *(b2Vec2*)&localpoint );
+    b2Vec2 worldPoint = m_pBody->GetWorldPoint( massData.center + *(b2Vec2*)&localPoint );
 
-    m_pBody->ApplyForce( b2force, worldpoint, true );
+    m_pBody->ApplyForce( b2force, worldPoint, true );
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
+void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localPoint)
 {
     b2Vec2 b2impulse = b2Vec2( impulse.x, impulse.y );
     
     // apply force to center of mass + offset
     b2MassData massData;
     m_pBody->GetMassData( &massData );
-    b2Vec2 worldpoint = m_pBody->GetWorldPoint( massData.center + *(b2Vec2*)&localpoint );
+    b2Vec2 worldpoint = m_pBody->GetWorldPoint( massData.center + *(b2Vec2*)&localPoint );
     
     m_pBody->ApplyLinearImpulse( b2impulse, worldpoint, true );
 }

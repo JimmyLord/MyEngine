@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -71,8 +71,8 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid);
+    virtual cJSON* ExportAsJSONObject(bool saveSceneID, bool saveID);
+    virtual void ImportFromJSONObject(cJSON* jObject, SceneID sceneID);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component2DCollisionObject&)*pObject; }
@@ -108,8 +108,8 @@ public:
 
     // Forces.
     void ClearVelocity();
-    void ApplyForce(Vector2 force, Vector2 localpoint);
-    void ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint);
+    void ApplyForce(Vector2 force, Vector2 localPoint);
+    void ApplyLinearImpulse(Vector2 impulse, Vector2 localPoint);
 
 protected:
     // Callback functions for various events.
@@ -149,11 +149,11 @@ public:
     void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
-    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedByUserInEditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedByUserInEditor ); }
+    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedByUserInEditor);
 
-    static void StaticOnButtonEditChain(void* pObjectPtr, int buttonid) { ((Component2DCollisionObject*)pObjectPtr)->OnButtonEditChain( buttonid ); }
-    void OnButtonEditChain(int buttonid);
+    static void StaticOnButtonEditChain(void* pObjectPtr, int buttonID) { ((Component2DCollisionObject*)pObjectPtr)->OnButtonEditChain( buttonID ); }
+    void OnButtonEditChain(int buttonID);
 #endif //MYFW_USING_WX
 };
 
