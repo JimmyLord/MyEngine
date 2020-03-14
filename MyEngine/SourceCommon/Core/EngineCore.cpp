@@ -1704,6 +1704,7 @@ void EngineCore::CreateDefaultSceneObjects()
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = false;
         pComponentCamera->m_LayersToRender = Layer_MainScene;
+        pComponentCamera->OnLoad();
     }
 
     // Create a 2D camera, renders after 3d, for hud.
@@ -1718,6 +1719,7 @@ void EngineCore::CreateDefaultSceneObjects()
         pComponentCamera->m_LayersToRender = Layer_HUD;
         pComponentCamera->m_ClearColorBuffer = false;
         pComponentCamera->m_ClearDepthBuffer = false;
+        pComponentCamera->OnLoad();
     }
 }
 
