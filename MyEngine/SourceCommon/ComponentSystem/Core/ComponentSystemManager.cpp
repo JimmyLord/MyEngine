@@ -2662,11 +2662,12 @@ void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vecto
     }
 }
 
-void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
+// Returns number of references.
+int ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
 {
     LOGInfo( LOGTag, "Finding references to %s in all scenes:\n", pFile->GetFullPath() );
 
-    int numrefs = 0;
+    int numRefs = 0;
 
     // Check all gameobjects/components in all scenes for a reference to the file.
     //   ATM: This only checks variables registered as "component vars".
@@ -2677,7 +2678,7 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
 
         for( GameObject* pGameObject = m_pSceneInfoMap[sceneindex].m_GameObjects.GetHead(); pGameObject; pGameObject = pGameObject->GetNext() )
         {
-            numrefs += LogAllReferencesForFileInGameObject( pFile, pGameObject );
+            numRefs += LogAllReferencesForFileInGameObject( pFile, pGameObject );
         }
     }
 
@@ -2693,19 +2694,21 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
             else
                 LOGInfo( LOGTag, "    (Unsaved Material) %s (0x%x)\n", pMaterial->GetName(), pMaterial );
 
-            numrefs++;
+            numRefs++;
         }
 
         pMaterial = (MaterialDefinition*)pMaterial->GetNext();
     }
 
-    LOGInfo( LOGTag, "Done: %d references found\n", numrefs );
+    LOGInfo( LOGTag, "Done: %d references found\n", numRefs );
+
+    return numRefs;
 }
 
 // Returns number of references
 int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pFile, GameObject* pGameObject)
 {
-    int numrefs = 0;
+    int numRefs = 0;
 
     for( unsigned int componentindex=0; componentindex<pGameObject->GetComponentCountIncludingCore(); componentindex++ )
     {
@@ -2728,7 +2731,7 @@ int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pF
                 {
                     LOGInfo( LOGTag, "    (GameObject) %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
                 }
-                numrefs++;
+                numRefs++;
             }
         }
     }
@@ -2737,12 +2740,12 @@ int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pF
     GameObject* pChild = pGameObject->GetFirstChild();
     while( pChild )
     {
-        numrefs += LogAllReferencesForFileInGameObject( pFile, pChild );
+        numRefs += LogAllReferencesForFileInGameObject( pFile, pChild );
 
         pChild = pChild->GetNext();
     }
 
-    return numrefs;
+    return numRefs;
 }
 
 GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
@@ -3363,16 +3366,42 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
                 || (pFileInfo->GetPrefabFile()    && pFileInfo->GetPrefabFile()->GetFile()      == pFile)
               )
             {
-                LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
+                int objectRefCount = 0;
+                if( pFileInfo->GetMaterial() ) objectRefCount = pFileInfo->GetMaterial()->GetRefCount();
 
-                FreeDataFile( pFileInfo );
+                bool unloadFile = true;
+
+                if( objectRefCount > 1 )
+                {
+                    LOGInfo( LOGTag, "File can't be unloaded while referenced: %s\n", pFile->GetFullPath() );
+
+                    FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
+                    int numRefs = pFileManager->Editor_FindAllReferences( pFile );
+
+                    if( numRefs == 0 )
+                    {
+                        LOGInfo( LOGTag, "File is still referenced by an undo command. Can't unload." );
+                    }
+                    
+                    //if( numRefs > 0 )
+                    {
+                        unloadFile = false;
+                    }
+                }
+                
+                if( unloadFile )
+                {
+                    LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
+
+                    FreeDataFile( pFileInfo );
+                }
             }
         }
     }
 }
 
-void ComponentSystemManager::OnFindAllReferences(MyFileObject* pFile) // StaticOnFindAllReferences
+int ComponentSystemManager::OnFindAllReferences(MyFileObject* pFile) // StaticOnFindAllReferences
 {
-    LogAllReferencesForFile( pFile );
+    return LogAllReferencesForFile( pFile );
 }
 #endif //MYFW_EDITOR

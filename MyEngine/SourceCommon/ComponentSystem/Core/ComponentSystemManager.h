@@ -308,7 +308,7 @@ public:
 
     GameObjectTemplateManager* m_pGameObjectTemplateManager;
     void Editor_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, PrefabObject* pPrefabToFind);
-    void LogAllReferencesForFile(MyFileObject* pFile);
+    int LogAllReferencesForFile(MyFileObject* pFile);
     int LogAllReferencesForFileInGameObject(MyFileObject* pFile, GameObject* pGameObject);
     GameObject* ParseLog_GameObject(const char* line);
     MaterialDefinition* ParseLog_Material(const char* line);
@@ -344,8 +344,8 @@ public:
     static void StaticOnFileUnloaded(void* pObjectPtr, MyFileObject* pFile) { ((ComponentSystemManager*)pObjectPtr)->OnFileUnloaded( pFile ); }
     void OnFileUnloaded(MyFileObject* pFile);
 
-    static void StaticOnFindAllReferences(void* pObjectPtr, MyFileObject* pFile) { ((ComponentSystemManager*)pObjectPtr)->OnFindAllReferences( pFile ); }
-    void OnFindAllReferences(MyFileObject* pFile);
+    static int StaticOnFindAllReferences(void* pObjectPtr, MyFileObject* pFile) { return ((ComponentSystemManager*)pObjectPtr)->OnFindAllReferences( pFile ); }
+    int OnFindAllReferences(MyFileObject* pFile);
 #endif //MYFW_EDITOR
 };
 
