@@ -138,7 +138,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
         {
 #if MYFW_USING_BOX2D
             if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
-                g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();
+                g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DebugDraw();
 #endif
         }
 

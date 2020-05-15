@@ -29,7 +29,8 @@ project "SharedGameCode"
         SharedGameCodePremakeConfig_EngineFolder .. "Libraries/bullet3/src/",
         SharedGameCodePremakeConfig_EngineFolder .. "Libraries/SharedGameCode",
         SharedGameCodePremakeConfig_FrameworkFolder .. "/Libraries/b2Settings",
-        SharedGameCodePremakeConfig_FrameworkFolder .. "/Libraries/Box2D",
+        SharedGameCodePremakeConfig_FrameworkFolder .. "/Libraries/Box2D/include",
+        SharedGameCodePremakeConfig_FrameworkFolder .. "/Libraries/Box2D/src",
         SharedGameCodePremakeConfig_SharedGameCodeFolder,
     }
 

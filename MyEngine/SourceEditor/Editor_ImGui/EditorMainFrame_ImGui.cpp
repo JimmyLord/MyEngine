@@ -717,7 +717,9 @@ void EditorMainFrame_ImGui::AddEverything()
 
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] )
     {
-        if( ImGui::Begin( "Grid Settings", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings], ImVec2(308, 60), 1 ) )
+        ImGui::SetNextWindowSize( ImVec2(308, 60), ImGuiCond_FirstUseEver );
+        ImGui::SetNextWindowBgAlpha( 1.0f );
+        if( ImGui::Begin( "Grid Settings", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_GridSettings] ) )
         {
             // Create a context menu only available from the title bar.
             if( ImGui::BeginPopupContextItem() )
@@ -1599,8 +1601,8 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Game] )
     {
         ImGui::SetNextWindowPos( ImVec2(9, 302), ImGuiCond_FirstUseEver );
-
-        if( ImGui::Begin( "Game", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Game], ImVec2(256, 171) ) )
+        ImGui::SetNextWindowSize( ImVec2(256, 171), ImGuiCond_FirstUseEver );
+        if( ImGui::Begin( "Game", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Game] ) )
         {
             m_GameWindowFocused = ImGui::IsWindowFocused();
             m_GameWindowVisible = true;
@@ -1646,7 +1648,6 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
     {
         ImGui::SetNextWindowPos( ImVec2(269, 24), ImGuiCond_FirstUseEver );
         ImGui::SetNextWindowSize( ImVec2(579, 397), ImGuiCond_FirstUseEver );
-
         if( ImGui::Begin( "Editor", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Editor] ) )
         {
             m_EditorWindowFocused = ImGui::IsWindowFocused();
@@ -1716,9 +1717,9 @@ void EditorMainFrame_ImGui::AddObjectList()
 
     ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-    ImGui::SetNextWindowPos( ImVec2(4, 28), ImGuiCond_FirstUseEver );
-  
-    if( ImGui::Begin( "Objects", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_ObjectList], ImVec2(258, 266) ) )
+    ImGui::SetNextWindowPos( ImVec2(4, 28), ImGuiCond_FirstUseEver );  
+    ImGui::SetNextWindowSize( ImVec2(258, 266), ImGuiCond_FirstUseEver );
+    if( ImGui::Begin( "Objects", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_ObjectList] ) )
     {
         // Add an input box for object list filter.
         // For now, it will always auto-select the text when given focus.
@@ -2033,7 +2034,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
         // Since 'enter' is a rename key, make sure the object wasn't already being renamed.
         if( pEditorState->m_pSelectedObjects.size() > 0 )
         {
-            if( ImGui::IsRootWindowOrAnyChildFocused() && m_RenamePressedThisFrame &&
+            if( ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && m_RenamePressedThisFrame &&
                 pEditorState->m_pSelectedObjects[0] != m_pGameObjectWhoseNameIsBeingEdited )
             {
                 StartRenameOp( pEditorState->m_pSelectedObjects[0], nullptr, pEditorState->m_pSelectedObjects[0]->GetName() );
@@ -2475,8 +2476,8 @@ void EditorMainFrame_ImGui::AddWatchPanel()
         return;
 
     ImGui::SetNextWindowPos( ImVec2(852, 25), ImGuiCond_FirstUseEver );
-
-    if( ImGui::Begin( "Watch", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Watch], ImVec2(333, 395) ) )
+    ImGui::SetNextWindowSize( ImVec2(333, 395), ImGuiCond_FirstUseEver );
+    if( ImGui::Begin( "Watch", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Watch] ) )
     {
         EditorState* pEditorState = m_pEngineCore->GetEditorState();
 
@@ -2809,10 +2810,9 @@ void EditorMainFrame_ImGui::AddCommandStacksWindow()
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_CommandStacks] == false )
         return;
 
-    ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowPos( ImVec2(6, 476), ImGuiCond_FirstUseEver );
-
-    if( ImGui::Begin( "Undo/Redo", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Resources], ImVec2(334, 220) ) )
+    ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
+    if( ImGui::Begin( "Undo/Redo", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Resources] ) )
     {
         CommandStack* pCommandStack = m_pEngineCore->GetCommandStack();
         if( pCommandStack )
@@ -2847,8 +2847,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
         return;
 
     ImGui::SetNextWindowPos( ImVec2(853, 424), ImGuiCond_FirstUseEver );
-
-    if( ImGui::Begin( "Resources", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Resources], ImVec2(334, 220) ) )
+    ImGui::SetNextWindowSize( ImVec2(334, 220), ImGuiCond_FirstUseEver );
+    if( ImGui::Begin( "Resources", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Resources] ) )
     {
         // Add an input box for memory panel filter.
         // For now, it will always auto-select the text when given focus.
@@ -3835,7 +3835,6 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
     ImGui::SetNextWindowPos( ImVec2(856, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
-    
     if( ImGui::Begin( "Material Editor", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_MaterialEditor] ) )
     {
         if( m_pMaterialBeingEdited == nullptr )
@@ -4221,7 +4220,6 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
     ImGui::SetNextWindowPos( ImVec2(556, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
-    
     if( ImGui::Begin( "2D Animation Editor", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_2DAnimationEditor] ) )
     {
         // Create a context menu only available from the title bar.
@@ -4435,7 +4433,13 @@ void EditorMainFrame_ImGui::AddMaterialPreview(MaterialDefinition* pMaterial, bo
 {
     m_pMaterialToPreview = pMaterial;
 
-    if( createWindow == false || ImGui::Begin( "Material", nullptr, ImVec2(requestedSize.x+50, requestedSize.y+50), 1 ) )
+    if( createWindow == true )
+    {
+        ImGui::SetNextWindowSize( ImVec2(requestedSize.x+50, requestedSize.y+50), ImGuiCond_FirstUseEver );
+        ImGui::SetNextWindowBgAlpha( 1.0f );
+    }
+
+    if( createWindow == false || ImGui::Begin( "Material", nullptr ) )
     {
         if( m_pMaterialToPreview->GetPreviewType() == MaterialDefinition::PreviewType_Sphere )
         {
@@ -4486,7 +4490,13 @@ void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(MaterialDefinition* p
 
 void EditorMainFrame_ImGui::AddTexturePreview(TextureDefinition* pTexture, bool createWindow, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
 {
-    if( createWindow == false || ImGui::Begin( "Texture", nullptr, ImVec2(150, 150), 1 ) )
+    if( createWindow == true )
+    {
+        ImGui::SetNextWindowSize( ImVec2(150, 150), ImGuiCond_FirstUseEver );
+        ImGui::SetNextWindowBgAlpha( 1.0f );
+    }
+
+    if( createWindow == false || ImGui::Begin( "Texture", nullptr ) )
     {
         ImVec2 size = requestedSize;
         if( size.x == 0 )
@@ -4515,7 +4525,9 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
     if( m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MousePicker] == false )
         return;
 
-    if( ImGui::Begin( "Mouse Picker", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MousePicker], ImVec2(150, 150), 1 ) )
+    ImGui::SetNextWindowSize( ImVec2(150, 150), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowBgAlpha( 1.0f );
+    if( ImGui::Begin( "Mouse Picker", &m_pCurrentLayout->m_IsWindowOpen[EditorWindow_Debug_MousePicker] ) )
     {
         TextureDefinition* pTexture = m_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetColorTexture( 0 );
         int texw = m_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureWidth();

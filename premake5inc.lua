@@ -50,7 +50,8 @@ project "MyEngine"
         "MyEngine/SourceCommon",
         "Libraries/bullet3/src",
         MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/b2Settings",
-        MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/Box2D",
+        MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/Box2D/include",
+        MyEnginePremakeConfig_FrameworkFolder .. "/Libraries/Box2D/src",
         monoInstallationPath .. "/include/mono-2.0",
         "Libraries/imgui",
     }
@@ -69,6 +70,7 @@ project "MyEngine"
         "VSCode-MyEngineLua/source/**",
         "README.md",
         "premake5inc.lua",
+        "Libraries/premake5inc-bullet.lua",
     }
 
     vpaths {

@@ -209,7 +209,7 @@ void MyNodeGraph::MyNode::Draw(ImDrawList* pDrawList, Vector2 offset, bool isSel
     if( titleOfNodeIsHovered || bodyOfNodeIsHovered )
     {
         // Setup for undo/redo of node movement.
-        if( ImGui::IsMouseDown( 0 ) && !ImGui::IsMouseDragging() )
+        if( ImGui::IsMouseDown( 0 ) && !ImGui::IsMouseDragging( 0 ) )
         {
             // Store mouse down position.
             m_MouseDownPosition = ImGui::GetIO().MousePos;

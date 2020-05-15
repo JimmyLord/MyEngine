@@ -547,7 +547,7 @@ bool Component2DCollisionObject::SetEnabled(bool enableComponent)
     if( m_pBody == nullptr )
         return true;
 
-    m_pBody->SetActive( enableComponent );
+    m_pBody->SetEnabled( enableComponent );
 
     return true;
 }
@@ -693,7 +693,7 @@ void Component2DCollisionObject::CreateBody()
             }
         }
 
-        pBody->SetActive( m_EnabledState == EnabledState_Enabled );
+        pBody->SetEnabled( m_EnabledState == EnabledState_Enabled );
     }
 }
 
@@ -708,7 +708,7 @@ void Component2DCollisionObject::TickCallback(float deltaTime)
         return;
 
     b2Vec2 pos = m_pBody->GetPosition();
-    float32 angle = -m_pBody->GetAngle() / PI * 180.0f;
+    float angle = -m_pBody->GetAngle() / PI * 180.0f;
 
     MyMatrix matWorld;
 

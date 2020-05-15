@@ -403,7 +403,7 @@ void MyNodeGraph::Update()
     {
         ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 1, 1 ) );
         ImGui::PushStyleVar( ImGuiStyleVar_WindowPadding, ImVec2( 0, 0 ) );
-        ImGui::PushStyleColor( ImGuiCol_ChildWindowBg, COLOR_BG );
+        ImGui::PushStyleColor( ImGuiCol_ChildBg, COLOR_BG );
         ImGui::BeginChild( "scrolling region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove );
         ImGui::PushItemWidth( 120.0f );
 
@@ -704,7 +704,7 @@ void MyNodeGraph::Update()
         // End of child canvas.
         ImGui::PopItemWidth();
         ImGui::EndChild(); // "scrolling region"
-        ImGui::PopStyleColor(); // ImGuiCol_ChildWindowBg
+        ImGui::PopStyleColor(); // ImGuiCol_ChildBg
         ImGui::PopStyleVar(2); // ImGuiStyleVar_FramePadding and ImGuiStyleVar_WindowPadding
     }
 

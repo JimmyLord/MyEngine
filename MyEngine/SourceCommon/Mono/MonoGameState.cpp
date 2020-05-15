@@ -234,7 +234,10 @@ void MonoGameState::CompileDLL()
     m_pDLLFile = m_pEngineCore->GetManagers()->GetFileManager()->RequestFile( pMonoDLLFilename );
 #endif
 
-    m_pEngineCore->GetManagers()->GetFileManager()->ReloadFileNow( m_pDLLFile );
+	if( m_pDLLFile )
+    {
+        m_pEngineCore->GetManagers()->GetFileManager()->ReloadFileNow( m_pDLLFile );
+    }
 }
 
 bool MonoGameState::IsRebuilding()
