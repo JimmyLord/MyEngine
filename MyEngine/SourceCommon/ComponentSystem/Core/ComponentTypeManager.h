@@ -14,8 +14,6 @@ class ComponentBase;
 class ComponentSystemManager;
 class ComponentTypeManager;
 
-extern ComponentTypeManager* g_pComponentTypeManager;
-
 struct ComponentTypeInfo
 {
     const char* category;

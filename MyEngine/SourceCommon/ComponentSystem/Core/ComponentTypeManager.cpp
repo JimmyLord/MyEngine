@@ -12,11 +12,8 @@
 #include "ComponentSystemManager.h"
 #include "ComponentTypeManager.h"
 
-ComponentTypeManager* g_pComponentTypeManager = 0;
-
 ComponentTypeManager::ComponentTypeManager()
 {
-    g_pComponentTypeManager = this;
     m_pComponentSystemManager = nullptr;
 }
 

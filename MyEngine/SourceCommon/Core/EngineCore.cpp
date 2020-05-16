@@ -459,7 +459,10 @@ void EngineCore::OneTimeInit()
     // Initialize mono state and register any variables needed.
 #if MYFW_USING_MONO
     m_pMonoGameState = CreateMonoGameState();
-    m_pMonoGameState->Rebuild();
+    if( m_pMonoGameState )
+    {
+        m_pMonoGameState->Rebuild();
+    }
 #endif //MYFW_USING_MONO
 
 #if MYFW_EDITOR
@@ -533,8 +536,11 @@ void EngineCore::OneTimeInit()
     }
 
 #if MYFW_USING_MONO
-    // Check for mono script updates.
-    m_pMonoGameState->CheckForUpdatedScripts();
+    if( m_pMonoGameState )
+    {
+        // Check for mono script updates.
+        m_pMonoGameState->CheckForUpdatedScripts();
+    }
 #endif //MYFW_USING_MONO
 
     m_pEditorPrefs->LoadLastSceneLoaded();
@@ -590,9 +596,12 @@ void EngineCore::StartFrame()
 
 float EngineCore::Tick(float deltaTime)
 {
-    if( m_pImGuiManager->GetFrameStarted() == false )
+    if( m_pImGuiManager )
     {
-        StartFrame();
+        if( m_pImGuiManager->GetFrameStarted() == false )
+        {
+            StartFrame();
+        }
     }
 
     m_pFileChangeDetector->CheckForChanges();
@@ -618,8 +627,11 @@ float EngineCore::Tick(float deltaTime)
 #endif
 
 #if MYFW_USING_MONO && MYFW_EDITOR
-    m_pMonoGameState->SetAsGlobalState();
-    m_pMonoGameState->Tick();
+    if( m_pMonoGameState )
+    {
+        m_pMonoGameState->SetAsGlobalState();
+        m_pMonoGameState->Tick();
+    }
 #endif
 
     if( m_pImGuiManager )
@@ -868,8 +880,11 @@ void EngineCore::OnFocusGained()
 
 #if MYFW_EDITOR
 #if MYFW_USING_MONO
-    // Check if any C# scripts were changed and rebuild the mono game state.
-    m_pMonoGameState->CheckForUpdatedScripts();
+    if( m_pMonoGameState )
+    {
+        // Check if any C# scripts were changed and rebuild the mono game state.
+        m_pMonoGameState->CheckForUpdatedScripts();
+    }
 #endif //MYFW_USING_MONO
 #endif
 
@@ -1880,7 +1895,10 @@ void EngineCore::UnloadScene(SceneID sceneid, bool clearEditorObjects)
         m_pLuaGameState->Rebuild(); // Reset the lua state.
 #endif
 #if MYFW_USING_MONO
-        m_pMonoGameState->Rebuild(); // Reset the mono state.
+        if( m_pMonoGameState )
+        {
+            m_pMonoGameState->Rebuild(); // Reset the mono state.
+        }
 #endif
     }
 

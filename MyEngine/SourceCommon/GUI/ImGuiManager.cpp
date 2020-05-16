@@ -238,9 +238,9 @@ void ImGuiManager::StartTick(float deltaTime)
     ImGuiIO& io = ImGui::GetIO();
     io.DeltaTime = deltaTime;
 
-    io.KeyCtrl = io.KeysDown[MYKEYCODE_LCTRL] || io.KeysDown[MYKEYCODE_RCTRL];
-    io.KeyShift = io.KeysDown[MYKEYCODE_LSHIFT] || io.KeysDown[MYKEYCODE_RSHIFT];
-    io.KeyAlt = io.KeysDown[MYKEYCODE_LALT] || io.KeysDown[MYKEYCODE_RALT];
+    //io.KeyCtrl = io.KeysDown[MYKEYCODE_LCTRL] || io.KeysDown[MYKEYCODE_RCTRL];
+    //io.KeyShift = io.KeysDown[MYKEYCODE_LSHIFT] || io.KeysDown[MYKEYCODE_RSHIFT];
+    //io.KeyAlt = io.KeysDown[MYKEYCODE_LALT] || io.KeysDown[MYKEYCODE_RALT];
     //io.KeySuper = io.KeysDown[VK_LWIN] || io.KeysDown[VK_RWIN];
 }
 

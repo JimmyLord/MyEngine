@@ -1103,6 +1103,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
             }
 
             pGameObject->ImportFromJSONObject( jGameObject, sceneID );
+            MyAssert( pGameObject->m_pEngineCore == GetEngineCore() );
         
             unsigned int gameObjectID = pGameObject->GetID();
             if( gameObjectID > m_pSceneInfoMap[sceneID].m_NextGameObjectID )
@@ -1224,6 +1225,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
 
             if( pComponent )
             {
+                MyAssert( pComponent->GetComponentSystemManager() == this );
                 if( pComponent->GetGameObject()->IsEnabled() == false )
                 {
                     pComponent->OnGameObjectDisabled();
@@ -1269,49 +1271,55 @@ ComponentBase* ComponentSystemManager::CreateComponentFromJSONObject(GameObject*
     MyAssert( typeobj );
     int type = -1;
     if( typeobj )
-        type = g_pComponentTypeManager->GetTypeByName( typeobj->valuestring );
-
-    if( type == -1 )
     {
-        LOGError( LOGTag, "Unknown component in scene file: %s\n", typeobj->valuestring );
-        MyAssert( false );
-    }
-    else
-    {
-        ComponentBase* pComponent = 0;
+        type = m_pComponentTypeManager->GetTypeByName( typeobj->valuestring );
 
-        // if the JSON block has a component id, check if that component already exists
-        unsigned int id = 0;
+        if( type == -1 )
         {
-            cJSONExt_GetUnsignedInt( jComponent, "ID", &id );
+            LOGError( LOGTag, "Unknown component in scene file: %s\n", typeobj->valuestring );
+            MyAssert( false );
+        }
+        else
+        {
+            ComponentBase* pComponent = 0;
 
-            if( id != 0 )
+            // if the JSON block has a component id, check if that component already exists
+            unsigned int id = 0;
             {
-                pComponent = FindComponentByID( id, sceneid );
-                if( pComponent )
+                cJSONExt_GetUnsignedInt( jComponent, "ID", &id );
+
+                if( id != 0 )
                 {
-                    MyAssert( pComponent->GetSceneID() == sceneid );
+                    pComponent = FindComponentByID( id, sceneid );
+                    if( pComponent )
+                    {
+                        MyAssert( pComponent->GetSceneID() == sceneid );
 
-                    if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
-                        m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
+                        if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
+                            m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
 
-                    return pComponent;
+                        MyAssert( pGameObject->m_pEngineCore == GetEngineCore() );
+                        MyAssert( pComponent->GetComponentSystemManager() == this );
+
+                        return pComponent;
+                    }
                 }
             }
+
+            // Create a new component of this type on the game object.
+            MyAssert( g_pComponentSystemManager == this );
+            pComponent = pGameObject->AddNewComponent( type, sceneid, g_pComponentSystemManager );
+
+            // If this component had an id set in the scene file, then use it.
+            if( id != 0 )
+            {
+                pComponent->SetID( id );
+                if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
+                    m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
+            }
+
+            return pComponent;
         }
-
-        // Create a new component of this type on the game object.
-        pComponent = pGameObject->AddNewComponent( type, sceneid, g_pComponentSystemManager );
-
-        // If this component had an id set in the scene file, then use it.
-        if( id != 0 )
-        {
-            pComponent->SetID( id );
-            if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
-                m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
-        }
-
-        return pComponent;
     }
 
     return 0;
@@ -2212,6 +2220,7 @@ ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 {
     MyAssert( pComponent->GetBaseType() >= 0 && pComponent->GetBaseType() < BaseComponentType_NumTypes ); // shouldn't happen.
     MyAssert( pComponent->Prev == 0 && pComponent->Next == 0 );
+    MyAssert( pComponent->GetComponentSystemManager() == this );
 
     m_Components[pComponent->GetBaseType()].AddTail( pComponent );
 

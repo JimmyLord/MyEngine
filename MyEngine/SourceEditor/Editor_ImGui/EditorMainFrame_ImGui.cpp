@@ -1694,9 +1694,12 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                     m_pEngineCore->GetCurrentEditorInterface()->AddImGuiOverlayItems();
 
 #if MYFW_USING_MONO
-                    if( m_pEngineCore->GetMonoGameState()->IsRebuilding() )
+                    if( m_pEngineCore->GetMonoGameState() )
                     {
-                        ImGui::Text( "Recompiling C# files..." );
+                        if( m_pEngineCore->GetMonoGameState()->IsRebuilding() )
+                        {
+                            ImGui::Text( "Recompiling C# files..." );
+                        }
                     }
 #endif //MYFW_USING_MONO
                 }
@@ -2963,13 +2966,13 @@ void EditorMainFrame_ImGui::AddContextMenuOptionsForAddingComponents(GameObject*
     const char* lastcategory = nullptr;
     bool menuopen = false;
 
-    unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+    unsigned int numtypes = g_pComponentSystemManager->GetComponentTypeManager()->GetNumberOfComponentTypes();
     for( unsigned int i=first; i<numtypes; i++ )
     {
-        const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
+        const char* currentcategory = g_pComponentSystemManager->GetComponentTypeManager()->GetTypeCategory( i );
         const char* nextcategory = nullptr;
         if( i < numtypes-1 )
-            nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
+            nextcategory = g_pComponentSystemManager->GetComponentTypeManager()->GetTypeCategory( i+1 );
 
         if( lastcategory != currentcategory )
         {
@@ -2985,7 +2988,7 @@ void EditorMainFrame_ImGui::AddContextMenuOptionsForAddingComponents(GameObject*
             }
             else
             {
-                if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) )
+                if( ImGui::MenuItem( g_pComponentSystemManager->GetComponentTypeManager()->GetTypeName( i ) ) )
                 {
                     ComponentBase* pComponent = nullptr;
                     if( m_pEngineCore->IsInEditorMode() )

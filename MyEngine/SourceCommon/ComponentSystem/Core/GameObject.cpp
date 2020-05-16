@@ -880,7 +880,7 @@ ComponentBase* GameObject::GetComponentByIndexIncludingCore(unsigned int index)
 
 ComponentBase* GameObject::AddNewComponent(const char* componentType)
 {
-    int type = g_pComponentTypeManager->GetTypeByName( componentType );
+    int type = m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeByName( componentType );
     if( type == -1 )
     {
         LOGError( LOGTag, "AddNewComponent: Type not found: %s\n", componentType );
@@ -897,7 +897,7 @@ ComponentBase* GameObject::AddNewComponent(int componentType, SceneID sceneID, C
     if( m_Components.Count() >= m_Components.Length() )
         return 0;
 
-    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( componentType );
+    ComponentBase* pComponent = pComponentSystemManager->GetComponentTypeManager()->CreateComponent( componentType );
     //pComponent->SetComponentSystemManager( pComponentSystemManager );
 
     if( componentType == ComponentType_Transform )
@@ -1408,7 +1408,7 @@ void GameObject::RemovePrefabComponentIDFromListOfDeletedPrefabComponentIDs(uint
 
 void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
 {
-    if( id < g_pComponentTypeManager->GetNumberOfComponentTypes() )
+    if( id < m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetNumberOfComponentTypes() )
     {
         if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
             return;
@@ -1599,7 +1599,7 @@ void GameObject::OnRightClick() // StaticOnRightClick
     const char* lastcategory = 0;
 
     // if there are ever more than 1000 component types?!? increase the RightClick_* initial value in header.
-    MyAssert( g_pComponentTypeManager->GetNumberOfComponentTypes() < RightClick_DuplicateGameObject );
+    MyAssert( m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetNumberOfComponentTypes() < RightClick_DuplicateGameObject );
 
     if( m_IsFolder == false )
     {
@@ -1615,13 +1615,13 @@ void GameObject::OnRightClick() // StaticOnRightClick
         if( m_pComponentTransform != 0 )
             first = 1;
 
-        unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+        unsigned int numtypes = m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetNumberOfComponentTypes();
         for( unsigned int i=first; i<numtypes; i++ )
         {
-            if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
+            if( lastcategory != m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeCategory( i ) )
             {
                 categorymenu = MyNew wxMenu;
-                menu.AppendSubMenu( categorymenu, g_pComponentTypeManager->GetTypeCategory( i ) );
+                menu.AppendSubMenu( categorymenu, m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeCategory( i ) );
 
 #if MYFW_OSX
                 // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
@@ -1637,10 +1637,10 @@ void GameObject::OnRightClick() // StaticOnRightClick
             }
             else
             {
-                categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
+                categorymenu->Append( i, m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeName( i ) );
             }
 
-            lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
+            lastcategory = m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeCategory( i );
         }
 
         // Create prefab menu and submenus.
