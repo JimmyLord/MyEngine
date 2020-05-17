@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -39,7 +39,7 @@
 #include "../SourceEditor/Exporters/ExportBox2DScene.h"
 #endif //MYFW_EDITOR
 
-ComponentSystemManager* g_pComponentSystemManager = 0;
+ComponentSystemManager* g_pComponentSystemManager = nullptr;
 
 ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* pTypeManager, EngineCore* pEngineCore)
 {
@@ -68,8 +68,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* pTypeManage
     m_pEngineCore->GetSoundManager()->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
     m_pEngineCore->GetSoundManager()->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 
-    // This class adds to SoundCue's refcount when storing cue in m_Files
-    //    so increment this number to prevent editor from allowing it to be unloaded if ref'ed by game code
+    // This class adds to SoundCue's refcount when storing cue in m_Files,
+    //    so increment this number to prevent editor from allowing it to be unloaded if ref'ed by game code.
     m_pEngineCore->GetSoundManager()->Editor_AddToNumRefsPlacedOnSoundCueBySystem();
 #endif
 
@@ -106,7 +106,7 @@ ComponentSystemManager::~ComponentSystemManager()
     // Unload all runtime created objects.
     UnloadScene( SCENEID_Unmanaged, false );
 
-    // Reset all scenes, i.e. Delete all GameObjects from each scene
+    // Reset all scenes, i.e. Delete all GameObjects from each scene.
     for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
@@ -131,23 +131,23 @@ ComponentSystemManager::~ComponentSystemManager()
     
     SAFE_DELETE( m_pRenderGraph );
 
-    // if a component didn't unregister its callbacks, assert.
-    MyAssert( m_pComponentCallbackList_Tick.GetHead() == 0 );
-    MyAssert( m_pComponentCallbackList_OnSurfaceChanged.GetHead() == 0 );
-    MyAssert( m_pComponentCallbackList_Draw.GetHead() == 0 );
-    MyAssert( m_pComponentCallbackList_OnTouch.GetHead() == 0 );
-    MyAssert( m_pComponentCallbackList_OnButtons.GetHead() == 0 );
-    MyAssert( m_pComponentCallbackList_OnKeys.GetHead() == 0 );
-    MyAssert( m_pComponentCallbackList_OnFileRenamed.GetHead() == 0 );
+    // If a component didn't unregister its callbacks, assert.
+    MyAssert( m_pComponentCallbackList_Tick.GetHead() == nullptr );
+    MyAssert( m_pComponentCallbackList_OnSurfaceChanged.GetHead() == nullptr );
+    MyAssert( m_pComponentCallbackList_Draw.GetHead() == nullptr );
+    MyAssert( m_pComponentCallbackList_OnTouch.GetHead() == nullptr );
+    MyAssert( m_pComponentCallbackList_OnButtons.GetHead() == nullptr );
+    MyAssert( m_pComponentCallbackList_OnKeys.GetHead() == nullptr );
+    MyAssert( m_pComponentCallbackList_OnFileRenamed.GetHead() == nullptr );
     
-    g_pComponentSystemManager = 0;
+    g_pComponentSystemManager = nullptr;
 }
 
-// TODO: put in some sort of priority/sorting system for callbacks.
+// TODO: Put in some sort of priority/sorting system for callbacks.
 #define MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS(CallbackType) \
     void ComponentSystemManager::RegisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
     { \
-        MyAssert( pCallbackStruct->pFunc != 0 && pCallbackStruct->pObj != 0 && pCallbackStruct->Prev == 0 && pCallbackStruct->Next == 0 ); \
+        MyAssert( pCallbackStruct->pFunc != nullptr && pCallbackStruct->pObj != nullptr && pCallbackStruct->Prev == nullptr && pCallbackStruct->Next == nullptr ); \
         m_pComponentCallbackList_##CallbackType.AddTail( pCallbackStruct ); \
     } \
     void ComponentSystemManager::UnregisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
@@ -155,8 +155,8 @@ ComponentSystemManager::~ComponentSystemManager()
         if( pCallbackStruct->Prev ) \
         { \
             pCallbackStruct->Remove(); \
-            pCallbackStruct->Next = 0; \
-            pCallbackStruct->Prev = 0; \
+            pCallbackStruct->Next = nullptr; \
+            pCallbackStruct->Prev = nullptr; \
         } \
     }
 
@@ -170,7 +170,7 @@ MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnFileRenamed
 
 void ComponentSystemManager::RegisterComponentCallback_Draw(ComponentCallbackStruct_Draw* pCallbackStruct)
 {
-    MyAssert( pCallbackStruct->pFunc != 0 && pCallbackStruct->pObj != 0 );
+    MyAssert( pCallbackStruct->pFunc != nullptr && pCallbackStruct->pObj != nullptr );
     m_pComponentCallbackList_Draw.AddTail( pCallbackStruct );
 }
 
@@ -192,12 +192,12 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
             .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
-            .addFunction( "Editor_CreateGameObject", &ComponentSystemManager::EditorLua_CreateGameObject ) // GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, uint32 sceneid, bool isfolder, bool hastransform)
-            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
-            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
+            .addFunction( "Editor_CreateGameObject", &ComponentSystemManager::EditorLua_CreateGameObject ) // GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, uint32 sceneID, bool isfolder, bool hastransform)
+            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteComponents)
+            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newName)
             .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
             .addFunction( "GetGameObjectsInRange", &ComponentSystemManager::Lua_GetGameObjectsInRange ) // luabridge::LuaRef ComponentSystemManager::Lua_GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags)
-            .addFunction( "Editor_LoadDataFile", &ComponentSystemManager::EditorLua_LoadDataFile ) // MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
+            .addFunction( "Editor_LoadDataFile", &ComponentSystemManager::EditorLua_LoadDataFile ) // MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativePath, uint32 sceneID, const char* fullSourceFilePath, bool convertifrequired)
             .addFunction( "Editor_GetFirstGameObjectFromScene", &ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene ) // GameObject* ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene(uint32 sceneID)
         .endClass();
 }
@@ -205,8 +205,8 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
 
 void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first)
 {
-    MyAssert( first != 0 );
-    if( first == 0 )
+    MyAssert( first != nullptr );
+    if( first == nullptr )
         return;
 
     for( GameObject* pGameObject = first; pGameObject; pGameObject = pGameObject->GetNext() )
@@ -250,17 +250,17 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
     }
 }
 
-void ComponentSystemManager::AddListOfFilesUsedToJSONObject(SceneID sceneid, cJSON* filearray)
+void ComponentSystemManager::AddListOfFilesUsedToJSONObject(SceneID sceneID, cJSON* jFileArray)
 {
-    // TODO: there are currently many ways a file can be loaded into a secondary scene without being in this list.
-    //       need to adjust code in various components to account for this.
+    // TODO: There are currently many ways a file can be loaded into a secondary scene without being in this list.
+    //       Need to adjust code in various components to account for this.
 
     // loop through both lists of files
-    for( int filelist=0; filelist<2; filelist++ )
+    for( int fileList=0; fileList<2; fileList++ )
     {
-        CPPListNode* pFirstNode = 0;
+        CPPListNode* pFirstNode = nullptr;
 
-        if( filelist == 0 )
+        if( fileList == 0 )
             pFirstNode = m_Files.GetHead();
         else
             pFirstNode = m_FilesStillLoading.GetHead();
@@ -270,32 +270,32 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(SceneID sceneid, cJS
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
         
             MyAssert( pFileInfo );
-            if( pFileInfo == 0 )
+            if( pFileInfo == nullptr )
                 continue;
 
-            if( pFileInfo->GetSceneID() != sceneid )
+            if( pFileInfo->GetSceneID() != sceneID )
                 continue;
         
             MyFileObject* pFile = pFileInfo->GetFile();
-            if( pFile != 0 )
+            if( pFile != nullptr )
             {
-                // skip over shader include files.
+                // Skip over shader include files.
                 if( pFile->IsA( "MyFileShader" ) )
                 {
                     MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
                     if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
                     {
-                        MyAssert( false ); // shader include files shouldn't be in the file list.
+                        MyAssert( false ); // Shader include files shouldn't be in the file list.
                         continue;
                     }
                 }
 
                 cJSON* jFile = cJSON_CreateObject();
                 cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->GetFullPath() ) );
-                cJSON_AddItemToArray( filearray, jFile );
+                cJSON_AddItemToArray( jFileArray, jFile );
 
                 // Save the source path if there is one.
-                if( pFileInfo->GetSourceFileFullPath()[0] != 0 )
+                if( pFileInfo->GetSourceFileFullPath()[0] != '\0' )
                 {
                     cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->GetSourceFileFullPath() ) );
                 }
@@ -304,28 +304,28 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(SceneID sceneid, cJS
             {
                 cJSON* jFile = cJSON_CreateObject();
                 cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFileInfo->GetSourceFileFullPath() ) );
-                cJSON_AddItemToArray( filearray, jFile );
+                cJSON_AddItemToArray( jFileArray, jFile );
             }
         }
     }
 }
 
-char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
+char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneID)
 {
-    cJSON* root = cJSON_CreateObject();
-    cJSON* filearray = cJSON_CreateArray();
-    cJSON* gameobjectarray = cJSON_CreateArray();
-    cJSON* transformarray = cJSON_CreateArray();
-    cJSON* componentarray = cJSON_CreateArray();
+    cJSON* jRoot = cJSON_CreateObject();
+    cJSON* jFileArray = cJSON_CreateArray();
+    cJSON* jGameObjectArray = cJSON_CreateArray();
+    cJSON* jTransformArray = cJSON_CreateArray();
+    cJSON* jComponentArray = cJSON_CreateArray();
 
-    cJSON_AddItemToObject( root, "Files", filearray );
-    cJSON_AddItemToObject( root, "GameObjects", gameobjectarray );
-    cJSON_AddItemToObject( root, "Transforms", transformarray );
-    cJSON_AddItemToObject( root, "Components", componentarray );
+    cJSON_AddItemToObject( jRoot, "Files", jFileArray );
+    cJSON_AddItemToObject( jRoot, "GameObjects", jGameObjectArray );
+    cJSON_AddItemToObject( jRoot, "Transforms", jTransformArray );
+    cJSON_AddItemToObject( jRoot, "Components", jComponentArray );
 
-    bool savingallscenes = (sceneid == SCENEID_TempPlayStop);
+    bool savingallscenes = (sceneID == SCENEID_TempPlayStop);
 
-    // move files used by gameobjects that start with "Load" to front of file list.
+    // Move files used by gameobjects that start with "Load" to front of file list.
     {
         for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
@@ -341,10 +341,10 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
         }
     }
 
-    // add the files used.
-    AddListOfFilesUsedToJSONObject( sceneid, filearray );
+    // Add the files used.
+    AddListOfFilesUsedToJSONObject( sceneID, jFileArray );
 
-    // add the game objects and their transform components.
+    // Add the game objects and their transform components.
     {
         for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
@@ -354,14 +354,14 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
             SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 
             GameObject* first = pSceneInfo->m_GameObjects.GetHead();
-            if( first && ( first->GetSceneID() == sceneid || savingallscenes ) )
+            if( first && ( first->GetSceneID() == sceneID || savingallscenes ) )
             {
-                SaveGameObjectListToJSONArray( gameobjectarray, transformarray, first, savingallscenes );
+                SaveGameObjectListToJSONArray( jGameObjectArray, jTransformArray, first, savingallscenes );
             }
         }
     }
 
-    // Add each of the component types, don't save components of unmanaged objects
+    // Add each of the component types, don't save components of unmanaged objects.
     {
         for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
         {
@@ -369,62 +369,62 @@ char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
             {
                 ComponentBase* pComponent = (ComponentBase*)pNode;
                 if( pComponent->GetGameObject()->IsManaged() &&
-                    ( pComponent->GetGameObject()->GetSceneID() == sceneid || savingallscenes )
+                    ( pComponent->GetGameObject()->GetSceneID() == sceneID || savingallscenes )
                   )
                 {
-                    cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject( savingallscenes, true ) );
+                    cJSON_AddItemToArray( jComponentArray, pComponent->ExportAsJSONObject( savingallscenes, true ) );
                 }
             }
         }
     }
 
-    char* savestring = cJSON_Print( root );
-    cJSON_Delete(root);
+    char* saveString = cJSON_Print( jRoot );
+    cJSON_Delete( jRoot );
 
-    return savestring;
+    return saveString;
 }
 
 #if MYFW_USING_BOX2D
-char* ComponentSystemManager::ExportBox2DSceneToJSON(SceneID sceneid)
+char* ComponentSystemManager::ExportBox2DSceneToJSON(SceneID sceneID)
 {
 #if MYFW_EDITOR
-    return ::ExportBox2DSceneToJSON( this, sceneid );
+    return ::ExportBox2DSceneToJSON( this, sceneID );
 #else
-    return 0;
+    return nullptr;
 #endif //MYFW_EDITOR
 }
 #endif //MYFW_USING_BOX2D
 
-void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid)
+void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* jGameObjectArray, cJSON* jTransformArray, GameObject* first, bool savesceneid)
 {
     for( GameObject* pGameObject = first; pGameObject; pGameObject = pGameObject->GetNext() )
     {
         // Only save managed GameObjects, they will be marked as unmanaged if deleted and still in undo list.
         if( pGameObject->IsManaged() )
         {
-            cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject( savesceneid ) );
+            cJSON_AddItemToArray( jGameObjectArray, pGameObject->ExportAsJSONObject( savesceneid ) );
 
             ComponentBase* pComponent = pGameObject->GetTransform();
             if( pComponent )
-                cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savesceneid, true ) );
+                cJSON_AddItemToArray( jTransformArray, pComponent->ExportAsJSONObject( savesceneid, true ) );
 
             GameObject* pFirstChild = pGameObject->GetFirstChild();
             if( pFirstChild )
             {
-                SaveGameObjectListToJSONArray( gameobjectarray, transformarray, pFirstChild, savesceneid );
+                SaveGameObjectListToJSONArray( jGameObjectArray, jTransformArray, pFirstChild, savesceneid );
             }
         }
     }
 }
 
-MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(MyFileObject* pFile, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(MyFileObject* pFile, SceneID sceneID)
 {
     // Loop through both lists of files.
-    for( int filelist=0; filelist<2; filelist++ )
+    for( int fileList=0; fileList<2; fileList++ )
     {
-        CPPListNode* pFirstNode = 0;
+        CPPListNode* pFirstNode = nullptr;
 
-        if( filelist == 0 )
+        if( fileList == 0 )
             pFirstNode = m_Files.GetHead();
         else
             pFirstNode = m_FilesStillLoading.GetHead();
@@ -433,7 +433,7 @@ MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(MyFileObject* pFile
         {
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
-            if( sceneid == SCENEID_AllScenes || sceneid == SCENEID_Any || pFileInfo->GetSceneID() == sceneid )
+            if( sceneID == SCENEID_AllScenes || sceneID == SCENEID_Any || pFileInfo->GetSceneID() == sceneID )
             {
                 if( pFileInfo->GetFile() == pFile )
                     return pFileInfo;
@@ -441,17 +441,17 @@ MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(MyFileObject* pFile
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
-MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpath, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullPath, SceneID sceneID)
 {
     // Loop through both lists of files.
-    for( int filelist=0; filelist<2; filelist++ )
+    for( int fileList=0; fileList<2; fileList++ )
     {
-        CPPListNode* pFirstNode = 0;
+        CPPListNode* pFirstNode = nullptr;
 
-        if( filelist == 0 )
+        if( fileList == 0 )
             pFirstNode = m_Files.GetHead();
         else
             pFirstNode = m_FilesStillLoading.GetHead();
@@ -460,69 +460,69 @@ MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpat
         {
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
-            if( sceneid == SCENEID_AllScenes || sceneid == SCENEID_Any || pFileInfo->GetSceneID() == sceneid )
+            if( sceneID == SCENEID_AllScenes || sceneID == SCENEID_Any || pFileInfo->GetSceneID() == sceneID )
             {
-                if( pFileInfo->GetFile() == 0 )
+                if( pFileInfo->GetFile() == nullptr )
                 {
-                    if( strcmp( pFileInfo->GetSourceFileFullPath(), fullpath ) == 0 )
+                    if( strcmp( pFileInfo->GetSourceFileFullPath(), fullPath ) == 0 )
                         return pFileInfo;
                 }
                 else
                 {
-                    if( strcmp( pFileInfo->GetFile()->GetFullPath(), fullpath ) == 0 )
+                    if( strcmp( pFileInfo->GetFile()->GetFullPath(), fullPath ) == 0 )
                         return pFileInfo;
                 }
             }
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
-MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* fullpath, SceneID sceneid)
+MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* fullPath, SceneID sceneID)
 {
-    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( fullpath, sceneid );
+    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( fullPath, sceneID );
 
     if( pFileInfo )
         return pFileInfo->GetFile();
 
-    return 0;
+    return nullptr;
 }
 
-MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, SceneID sceneID)
 {
-    return AddToFileList( pFile, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneid);
+    return AddToFileList( pFile, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneID);
 }
-MyFileInfo* ComponentSystemManager::AddToFileList(MyMesh* pMesh, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(MyMesh* pMesh, SceneID sceneID)
 {
-    return AddToFileList( nullptr, pMesh, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneid);
+    return AddToFileList( nullptr, pMesh, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, sceneID);
 }
-MyFileInfo* ComponentSystemManager::AddToFileList(ShaderGroup* pShaderGroup, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(ShaderGroup* pShaderGroup, SceneID sceneID)
 {
-    return AddToFileList( nullptr, nullptr, pShaderGroup, nullptr, nullptr, nullptr, nullptr, nullptr, sceneid);
+    return AddToFileList( nullptr, nullptr, pShaderGroup, nullptr, nullptr, nullptr, nullptr, nullptr, sceneID);
 }
-MyFileInfo* ComponentSystemManager::AddToFileList(TextureDefinition* pTexture, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(TextureDefinition* pTexture, SceneID sceneID)
 {
-    return AddToFileList( nullptr, nullptr, nullptr, pTexture, nullptr, nullptr, nullptr, nullptr, sceneid);
+    return AddToFileList( nullptr, nullptr, nullptr, pTexture, nullptr, nullptr, nullptr, nullptr, sceneID);
 }
-MyFileInfo* ComponentSystemManager::AddToFileList(MaterialDefinition* pMaterial, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(MaterialDefinition* pMaterial, SceneID sceneID)
 {
-    return AddToFileList( nullptr, nullptr, nullptr, nullptr, pMaterial, nullptr, nullptr, nullptr, sceneid);
+    return AddToFileList( nullptr, nullptr, nullptr, nullptr, pMaterial, nullptr, nullptr, nullptr, sceneID);
 }
-MyFileInfo* ComponentSystemManager::AddToFileList(SoundCue* pSoundCue, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(SoundCue* pSoundCue, SceneID sceneID)
 {
-    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, pSoundCue, nullptr, nullptr, sceneid);
+    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, pSoundCue, nullptr, nullptr, sceneID);
 }
-MyFileInfo* ComponentSystemManager::AddToFileList(SpriteSheet* pSpriteSheet, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(SpriteSheet* pSpriteSheet, SceneID sceneID)
 {
-    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, pSpriteSheet, nullptr, sceneid);
+    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, pSpriteSheet, nullptr, sceneID);
 }
-MyFileInfo* ComponentSystemManager::AddToFileList(My2DAnimInfo* p2DAnimInfo, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(My2DAnimInfo* p2DAnimInfo, SceneID sceneID)
 {
-    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, p2DAnimInfo, sceneid);
+    return AddToFileList( nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, p2DAnimInfo, sceneID);
 }
 
-MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneID)
 {
     MyFileInfo* pFileInfo = MyNew MyFileInfo();
 
@@ -535,45 +535,45 @@ MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* p
     pFileInfo->SetMaterial( pMaterial );
     pFileInfo->SetSoundCue( pSoundCue );
     pFileInfo->SetSpriteSheet( pSpriteSheet );
-    pFileInfo->SetPrefabFile( 0 );
+    pFileInfo->SetPrefabFile( nullptr );
     pFileInfo->Set2DAnimInfo( p2DAnimInfo );
 
-    pFileInfo->SetSceneID( sceneid );
+    pFileInfo->SetSceneID( sceneID );
 
     m_Files.AddTail( pFileInfo );
 
     return pFileInfo;
 }
 
-MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
+MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativePath, uint32 sceneID, const char* fullSourceFilePath, bool convertifrequired)
 {
-    return LoadDataFile( relativepath, (SceneID)sceneid, fullsourcefilepath, convertifrequired );
+    return LoadDataFile( relativePath, (SceneID)sceneID, fullSourceFilePath, convertifrequired );
 }
 
 MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, SceneID sceneID, const char* fullSourceFilePath, bool convertIfRequired)
 {
     MyAssert( relativePath );
 
-    // each scene loaded will add ref's to the file.
+    // Each scene loaded will add ref's to the file.
     MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( relativePath, sceneID );
 
-    // if the file is already tagged as being used by this scene, don't request/addref it.
-    if( pFileInfo != 0 )
+    // If the file is already tagged as being used by this scene, don't request/addref it.
+    if( pFileInfo != nullptr )
     {
         return pFileInfo;
-        //LOGInfo( LOGTag, "%s already in scene, reloading\n", relativepath );
+        //LOGInfo( LOGTag, "%s already in scene, reloading\n", relativePath );
         //FileManager* pFileManager = m_pEngineCore->GetManagers()->GetFileManager();
         //pFileManager->ReloadFile( pFile );
         //OnFileUpdated_CallbackFunction( pFile );
     }
     else
     {
-        MyFileObject* pFile = 0;
+        MyFileObject* pFile = nullptr;
 
-        size_t fulllen = 0;
+        size_t fullLen = 0;
         if( fullSourceFilePath )
-            fulllen = strlen( fullSourceFilePath );
-        size_t rellen = strlen( relativePath );
+            fullLen = strlen( fullSourceFilePath );
+        size_t relLen = strlen( relativePath );
 
 #if MYFW_EDITOR
 #if MYFW_WINDOWS
@@ -610,16 +610,16 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         {
             struct stat datafiledata;
             memset( &datafiledata, 0, sizeof( datafiledata ) );
-            stat( relativepath, &datafiledata );
+            stat( relativePath, &datafiledata );
 
             struct stat sourcefiledata;
             memset( &sourcefiledata, 0, sizeof( sourcefiledata ) );
-            stat( fullsourcefilepath, &sourcefiledata );
+            stat( fullSourceFilePath, &sourcefiledata );
 
             // If the source file is newer than the data file (or data file doesn't exist), reimport it.
             if( sourcefiledata.st_mtime >= datafiledata.st_mtime )
             {
-                MyFileObject* pFile = ImportDataFile( sceneid, fullSourceFilePath );
+                MyFileObject* pFile = ImportDataFile( sceneID, fullSourceFilePath );
 
                 if( pFile )
                 {
@@ -637,7 +637,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
         TextureDefinition* pTexture = nullptr;
 
         // Load textures differently than other files.
-        if( rellen > 4 && strcmp( &relativePath[rellen-4], ".png" ) == 0 )
+        if( relLen > 4 && strcmp( &relativePath[relLen-4], ".png" ) == 0 )
         {
             TextureManager* pTextureManager = m_pEngineCore->GetManagers()->GetTextureManager();
 
@@ -662,13 +662,13 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             }
             else
             {
-                MyAssert( false ); // the texture shouldn't be loaded and not in the list of files used.
+                MyAssert( false ); // The texture shouldn't be loaded and not in the list of files used.
             }
         }
-        else if( rellen > 4 && strcmp( &relativePath[rellen-4], ".wav" ) == 0 )
+        else if( relLen > 4 && strcmp( &relativePath[relLen-4], ".wav" ) == 0 )
         {
 #if !MYFW_EDITOR
-            // raw wav's shouldn't be loadable in standalone builds, scenes should only reference sound cues
+            // Raw wav's shouldn't be loadable in standalone builds, scenes should only reference sound cues.
             MyAssert( false );
 #else
             // Let SoundPlayer (SDL on windows) load the wav files
@@ -678,12 +678,12 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
 
             pFileInfo->SetSoundCue( pCue );
             pFileInfo->SetFile( pCue->GetFile() );
-            //strcpy_s( pFileInfo->GetSourceFileFullPath(), MAX_PATH, relativepath );
+            //strcpy_s( pFileInfo->GetSourceFileFullPath(), MAX_PATH, relativePath );
 #endif //!MYFW_EDITOR
-            return 0;
+            return nullptr;
         }
 #if MYFW_EDITOR
-        else if( rellen > 14 && strcmp( &relativePath[rellen-14], ".myspritesheet" ) == 0 )
+        else if( relLen > 14 && strcmp( &relativePath[relLen-14], ".myspritesheet" ) == 0 )
         {
             // In editor builds, fully load spritesheets immediately.
             EngineFileManager* pEngineFileManager = static_cast<EngineFileManager*>( m_pEngineCore->GetManagers()->GetFileManager() );
@@ -704,22 +704,22 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             pFile->Release(); // Release ref added by RequestFile.
         }
 
-        // if the extension of the source file is different than that of the file we're loading,
-        //  then store the source file path in the fileobject, so we can detect/reconvert if that file changes.
-        if( rellen > 4 && fulllen > 4 &&
-            ( strcmp( &relativePath[rellen-4], &fullSourceFilePath[fulllen-4] ) != 0 ) )
+        // If the extension of the source file is different than that of the file we're loading,
+        //   then store the source file path in the fileobject, so we can detect/reconvert if that file changes.
+        if( relLen > 4 && fullLen > 4 &&
+            ( strcmp( &relativePath[relLen-4], &fullSourceFilePath[fullLen-4] ) != 0 ) )
         {
             char path[MAX_PATH];
             strcpy_s( path, MAX_PATH, fullSourceFilePath );
-            const char* relativepath = GetRelativePath( path );
+            const char* relativePath = GetRelativePath( path );
 
             char finalpath[MAX_PATH];
 
-            // store the relative path if the file is relative... otherwise store the full path.
-            if( relativepath == 0 )
+            // Store the relative path if the file is relative... otherwise store the full path.
+            if( relativePath == nullptr )
                 strcpy_s( finalpath, MAX_PATH, fullSourceFilePath );
             else
-                strcpy_s( finalpath, MAX_PATH, relativepath );
+                strcpy_s( finalpath, MAX_PATH, relativePath );
 
             FixSlashesInPath( finalpath );
 
@@ -766,7 +766,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             }
         }
 
-        // if we're loading a .mymaterial file, create a Material.
+        // If we're loading a .mymaterial file, create a Material.
         if( strcmp( pFile->GetExtensionWithDot(), ".mymaterial" ) == 0 )
         {
             MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
@@ -775,14 +775,14 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             pMat->Release();
         }
 
-        // if we're loading a .myprefabs file, add it to the prefab manager.
+        // If we're loading a .myprefabs file, add it to the prefab manager.
         if( strcmp( pFile->GetExtensionWithDot(), ".myprefabs" ) == 0 )
         {
             PrefabFile* pPrefabFile = m_pPrefabManager->RequestFile( pFile->GetFullPath() );
             pFileInfo->SetPrefabFile( pPrefabFile );
         }
 
-        // if we're loading a .my2daniminfo file, do nothing for now.
+        // If we're loading a .my2daniminfo file, do nothing for now.
         if( strcmp( pFile->GetExtensionWithDot(), ".my2daniminfo" ) == 0 )
         {
             // Create the anim info block and load the file.
@@ -792,12 +792,12 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
             pAnimInfo->Release();
         }
 
-        // if we're loading a .myspritesheet, we create a material for each texture in the sheet
+        // If we're loading a .myspritesheet, we create a material for each texture in the sheet.
         if( strcmp( pFile->GetExtensionWithDot(), ".myspritesheet" ) == 0 )
         {
             //ShaderGroup* pShaderGroup = m_pEngineCore->GetManagers()->GetShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
             // TODO: Allow the user to choose a shader.
-            MyFileInfo* pFileInfo = LoadDataFile( "Data/Shaders/Shader_Texture.glsl", SCENEID_MainScene, 0, false );
+            MyFileInfo* pFileInfo = LoadDataFile( "Data/Shaders/Shader_Texture.glsl", SCENEID_MainScene, nullptr, false );
             ShaderGroup* pShaderGroup = pFileInfo->GetShaderGroup();
 
             SpriteSheet* pSpriteSheet = MyNew SpriteSheet( m_pEngineCore );
@@ -817,7 +817,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                 if( FileManager::DoesFileExist( animFullPath ) )
                 {
                     // Load the existing animation file.
-                    LoadDataFile( animFullPath, sceneID, 0, false );
+                    LoadDataFile( animFullPath, sceneID, nullptr, false );
                 }
                 else
                 {
@@ -826,7 +826,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
                     MyFileObject* pFile = pFileManager->CreateFileObject( animFullPath );
                     My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
                     pAnimInfo->SetSourceFile( pFile );
-                    AddToFileList( pFile, 0, 0, 0, 0, 0, 0, pAnimInfo, sceneID );
+                    AddToFileList( pFile, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, pAnimInfo, sceneID );
                     pAnimInfo->Release();
 
                     pAnimInfo->LoadFromSpriteSheet( pSpriteSheet, 0.2f );
@@ -836,7 +836,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
 #endif
         }
 
-        // if we're loading a .mycue file, create a Sound Cue.
+        // If we're loading a .mycue file, create a Sound Cue.
         if( strcmp( pFile->GetExtensionWithDot(), ".mycue" ) == 0 )
         {
             SoundCue* pSoundCue = m_pEngineCore->GetSoundManager()->LoadCue( pFile->GetFullPath() );
@@ -849,27 +849,27 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativePath, Scene
 }
 
 #if MYFW_EDITOR
-MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneid, const char* fullsourcefilepath)
+MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneID, const char* fullSourceFilePath)
 {
-    MyAssert( fullsourcefilepath );
-    if( fullsourcefilepath == 0 )
-        return 0;
+    MyAssert( fullSourceFilePath );
+    if( fullSourceFilePath == nullptr )
+        return nullptr;
 
-    //const char* relativepath = GetRelativePath( fullsourcefilepath );
-    //size_t rellen = strlen( relativepath );
+    //const char* relativePath = GetRelativePath( fullSourceFilePath );
+    //size_t relLen = strlen( relativePath );
 
-    size_t fulllen = 0;
-    fulllen = strlen( fullsourcefilepath );
+    size_t fullLen = 0;
+    fullLen = strlen( fullSourceFilePath );
 
-    // convert any .fbx files into a mymesh and load that.
-    if( ( fulllen > 4 && strcmp( &fullsourcefilepath[fulllen-4], ".fbx" ) == 0 ) ||
-        ( fulllen > 4 && strcmp( &fullsourcefilepath[fulllen-4], ".obj" ) == 0 ) ||
-        ( fulllen > 6 && strcmp( &fullsourcefilepath[fulllen-6], ".blend" ) == 0 )
+    // Convert any .fbx files into a mymesh and load that.
+    if( ( fullLen > 4 && strcmp( &fullSourceFilePath[fullLen-4], ".fbx" ) == 0 ) ||
+        ( fullLen > 4 && strcmp( &fullSourceFilePath[fullLen-4], ".obj" ) == 0 ) ||
+        ( fullLen > 6 && strcmp( &fullSourceFilePath[fullLen-6], ".blend" ) == 0 )
       )
     {
-        // run MeshTool to convert the mesh and put the result in "Data/Meshes"
-        const int paramsbuffersize = MAX_PATH * 2 + 50;
-        char params[paramsbuffersize]; // 2 full paths plus a few extra chars
+        // Run MeshTool to convert the mesh and put the result in "Data/Meshes".
+        const int paramsBufferSize = MAX_PATH * 2 + 50;
+        char params[paramsBufferSize]; // 2 full paths plus a few extra chars
 
         char workingdir[MAX_PATH];
 #if MYFW_WINDOWS
@@ -879,67 +879,67 @@ MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneid, const char
 #endif
 
         char filename[MAX_PATH];
-        for( int i=(int)strlen(fullsourcefilepath)-1; i>=0; i-- )
+        for( int i=(int)strlen(fullSourceFilePath)-1; i>=0; i-- )
         {
-            if( fullsourcefilepath[i] == '\\' || fullsourcefilepath[i] == '/' || i == 0 )
+            if( fullSourceFilePath[i] == '\\' || fullSourceFilePath[i] == '/' || i == 0 )
             {
-                strcpy_s( filename, MAX_PATH, &fullsourcefilepath[i+1] );
+                strcpy_s( filename, MAX_PATH, &fullSourceFilePath[i+1] );
                 break;
             }
         }
 
-        sprintf_s( params, paramsbuffersize, "-s %s -o Data/Meshes/%s -m Data/Materials", fullsourcefilepath, filename );
+        sprintf_s( params, paramsBufferSize, "-s %s -o Data/Meshes/%s -m Data/Materials", fullSourceFilePath, filename );
 
-        LOGInfo( LOGTag, "Converting %s to mymesh %s\n", fullsourcefilepath, params );
+        LOGInfo( LOGTag, "Converting %s to mymesh %s\n", fullSourceFilePath, params );
 
 #if MYFW_WINDOWS
         SHELLEXECUTEINFOA info = { 0 };
         info.cbSize = sizeof( SHELLEXECUTEINFOA );
         info.fMask = SEE_MASK_NOASYNC; //SEE_MASK_NOCLOSEPROCESS;
         info.hwnd = 0;
-        info.lpVerb = 0;
+        info.lpVerb = nullptr;
         info.lpFile = "Tools\\MeshTool.exe";
         info.lpParameters = params;
         info.lpDirectory = workingdir;
         info.nShow = SW_SHOWNOACTIVATE;
         info.hInstApp = 0;
         
-        DWORD errorcode = 1;
+        DWORD errorCode = 1;
         BOOL success = ShellExecuteExA( &info );
 
         // If Shell execute gives a process handle, wait for it to finish.
         if( info.hProcess )
         {
             WaitForSingleObject( info.hProcess, INFINITE );
-            GetExitCodeProcess( info.hProcess, &errorcode ); // Get actual return value from MeshTool.
+            GetExitCodeProcess( info.hProcess, &errorCode ); // Get actual return value from MeshTool.
             //TerminateProcess( info.hProcess );
             CloseHandle( info.hProcess );
         }
         else if( success == 1 ) // If it simple returns success, we're good?
         {
-            errorcode = 0;
+            errorCode = 0;
         }
 
 #elif MYFW_OSX
-        char commandwithparams[PATH_MAX*3];
-        sprintf( commandwithparams, "Tools/MeshTool %s", params );
-        int errorcode = system( commandwithparams );
+        char commandWithParams[PATH_MAX*3];
+        sprintf( commandWithParams, "Tools/MeshTool %s", params );
+        int errorCode = system( commandWithParams );
 #else
-        int errorcode = 1;
+        int errorCode = 1;
         LOGError( LOGTag, "Mesh conversion only works on Windows and OSX ATM\n" );
 #endif
 
-        if( errorcode != 0 )
+        if( errorCode != 0 )
         {
-            LOGError( LOGTag, "Something went wrong with conversion: error(%d) %s\n", errorcode, fullsourcefilepath );
+            LOGError( LOGTag, "Something went wrong with conversion: error(%d) %s\n", errorCode, fullSourceFilePath );
         }
         else
         {
-            LOGInfo( LOGTag, "Conversion complete: %s\n", fullsourcefilepath );
+            LOGInfo( LOGTag, "Conversion complete: %s\n", fullSourceFilePath );
 
 #if MYFW_WINDOWS
             // The output file isn't found by loading code on Windows if this sleep isn't here.
-            // TODO: find better solution.
+            // TODO: Find better solution.
             Sleep( 500 ); // Might not be needed since calling "WaitForSingleObject" above.
 #endif
 
@@ -947,13 +947,13 @@ MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneid, const char
             char newrelativepath[MAX_PATH];
             sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
 
-            MyFileInfo* pFileInfo = LoadDataFile( newrelativepath, sceneid, fullsourcefilepath, false );
+            MyFileInfo* pFileInfo = LoadDataFile( newrelativepath, sceneID, fullSourceFilePath, false );
             MyAssert( pFileInfo != nullptr );
             return pFileInfo->GetFile();
         }
     }
 
-    return 0;
+    return nullptr;
 }
 #endif //MYFW_EDITOR
 
@@ -964,12 +964,12 @@ void ComponentSystemManager::FreeDataFile(MyFileInfo* pFileInfo)
 
 void ComponentSystemManager::FreeAllDataFiles(SceneID sceneIDToClear)
 {
-    // loop through both lists of files
-    for( int filelist=0; filelist<2; filelist++ )
+    // Loop through both lists of files.
+    for( int fileList=0; fileList<2; fileList++ )
     {
-        CPPListNode* pFirstNode = 0;
+        CPPListNode* pFirstNode = nullptr;
 
-        if( filelist == 0 )
+        if( fileList == 0 )
             pFirstNode = m_Files.GetHead();
         else
             pFirstNode = m_FilesStillLoading.GetHead();
@@ -989,15 +989,15 @@ void ComponentSystemManager::FreeAllDataFiles(SceneID sceneIDToClear)
 
 void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char* jsonString, SceneID sceneID)
 {
-    cJSON* root = cJSON_Parse( jsonString );
+    cJSON* jRoot = cJSON_Parse( jsonString );
 
-    if( root == nullptr )
+    if( jRoot == nullptr )
         return;
 
-    cJSON* jFileArray = cJSON_GetObjectItem( root, "Files" );
-    cJSON* jGameobjectArray = cJSON_GetObjectItem( root, "GameObjects" );
-    cJSON* jTransformArray = cJSON_GetObjectItem( root, "Transforms" );
-    cJSON* jComponentArray = cJSON_GetObjectItem( root, "Components" );
+    cJSON* jFileArray = cJSON_GetObjectItem( jRoot, "Files" );
+    cJSON* jGameobjectArray = cJSON_GetObjectItem( jRoot, "GameObjects" );
+    cJSON* jTransformArray = cJSON_GetObjectItem( jRoot, "Transforms" );
+    cJSON* jComponentArray = cJSON_GetObjectItem( jRoot, "Components" );
 
 #if MYFW_EDITOR
     if( sceneID != SCENEID_TempPlayStop )
@@ -1116,15 +1116,15 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
     {
         for( int i=0; i<cJSON_GetArraySize( jTransformArray ); i++ )
         {
-            cJSON* transformobj = cJSON_GetArrayItem( jTransformArray, i );
+            cJSON* jTransform = cJSON_GetArrayItem( jTransformArray, i );
         
             if( getSceneIDFromEachObject )
             {
-                cJSONExt_GetUnsignedInt( transformobj, "SceneID", (unsigned int*)&sceneID );
+                cJSONExt_GetUnsignedInt( jTransform, "SceneID", (unsigned int*)&sceneID );
             }
 
             unsigned int gameObjectID = 0;
-            cJSONExt_GetUnsignedInt( transformobj, "GOID", &gameObjectID );
+            cJSONExt_GetUnsignedInt( jTransform, "GOID", &gameObjectID );
             MyAssert( gameObjectID > 0 );
 
             GameObject* pGameObject = FindGameObjectByID( sceneID, gameObjectID );
@@ -1136,12 +1136,12 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
 
                 if( pGameObject->GetTransform() )
                 {
-                    pGameObject->GetTransform()->ImportFromJSONObject( transformobj, sceneID );
+                    pGameObject->GetTransform()->ImportFromJSONObject( jTransform, sceneID );
                 }
                 else
                 {
                     unsigned int parentGOID = 0;
-                    cJSONExt_GetUnsignedInt( transformobj, "ParentGOID", &parentGOID );
+                    cJSONExt_GetUnsignedInt( jTransform, "ParentGOID", &parentGOID );
                 
                     if( parentGOID > 0 )
                     {
@@ -1191,20 +1191,20 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
         // Create all the components, not loading component properties.
         for( int i=0; i<cJSON_GetArraySize( jComponentArray ); i++ )
         {
-            cJSON* componentobj = cJSON_GetArrayItem( jComponentArray, i );
+            cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
         
             if( getSceneIDFromEachObject )
             {
-                cJSONExt_GetUnsignedInt( componentobj, "SceneID", (unsigned int*)&sceneID );
+                cJSONExt_GetUnsignedInt( jComponent, "SceneID", (unsigned int*)&sceneID );
             }
 
             unsigned int gameObjectID = 0;
-            cJSONExt_GetUnsignedInt( componentobj, "GOID", &gameObjectID );
+            cJSONExt_GetUnsignedInt( jComponent, "GOID", &gameObjectID );
             MyAssert( gameObjectID > 0 );
             GameObject* pGameObject = FindGameObjectByID( sceneID, gameObjectID );
             MyAssert( pGameObject );
 
-            CreateComponentFromJSONObject( pGameObject, componentobj );
+            CreateComponentFromJSONObject( pGameObject, jComponent );
         }
 
         // Load all the components properties after all components are created.
@@ -1258,45 +1258,45 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* sceneName, const char
         }
     }
 
-    cJSON_Delete( root );
+    cJSON_Delete( jRoot );
 
     SyncAllRigidBodiesToObjectTransforms();
 }
 
 ComponentBase* ComponentSystemManager::CreateComponentFromJSONObject(GameObject* pGameObject, cJSON* jComponent)
 {
-    SceneID sceneid = pGameObject->GetSceneID();
+    SceneID sceneID = pGameObject->GetSceneID();
 
-    cJSON* typeobj = cJSON_GetObjectItem( jComponent, "Type" );
-    MyAssert( typeobj );
+    cJSON* jType = cJSON_GetObjectItem( jComponent, "Type" );
+    MyAssert( jType );
     int type = -1;
-    if( typeobj )
+    if( jType )
     {
-        type = m_pComponentTypeManager->GetTypeByName( typeobj->valuestring );
+        type = m_pComponentTypeManager->GetTypeByName( jType->valuestring );
 
         if( type == -1 )
         {
-            LOGError( LOGTag, "Unknown component in scene file: %s\n", typeobj->valuestring );
+            LOGError( LOGTag, "Unknown component in scene file: %s\n", jType->valuestring );
             MyAssert( false );
         }
         else
         {
-            ComponentBase* pComponent = 0;
+            ComponentBase* pComponent = nullptr;
 
-            // if the JSON block has a component id, check if that component already exists
+            // If the JSON block has a component id, check if that component already exists.
             unsigned int id = 0;
             {
                 cJSONExt_GetUnsignedInt( jComponent, "ID", &id );
 
                 if( id != 0 )
                 {
-                    pComponent = FindComponentByID( id, sceneid );
+                    pComponent = FindComponentByID( id, sceneID );
                     if( pComponent )
                     {
-                        MyAssert( pComponent->GetSceneID() == sceneid );
+                        MyAssert( pComponent->GetSceneID() == sceneID );
 
-                        if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
-                            m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
+                        if( id >= m_pSceneInfoMap[sceneID].m_NextComponentID )
+                            m_pSceneInfoMap[sceneID].m_NextComponentID = id + 1;
 
                         MyAssert( pGameObject->m_pEngineCore == GetEngineCore() );
                         MyAssert( pComponent->GetComponentSystemManager() == this );
@@ -1308,31 +1308,31 @@ ComponentBase* ComponentSystemManager::CreateComponentFromJSONObject(GameObject*
 
             // Create a new component of this type on the game object.
             MyAssert( g_pComponentSystemManager == this );
-            pComponent = pGameObject->AddNewComponent( type, sceneid, g_pComponentSystemManager );
+            pComponent = pGameObject->AddNewComponent( type, sceneID, g_pComponentSystemManager );
 
             // If this component had an id set in the scene file, then use it.
             if( id != 0 )
             {
                 pComponent->SetID( id );
-                if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
-                    m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
+                if( id >= m_pSceneInfoMap[sceneID].m_NextComponentID )
+                    m_pSceneInfoMap[sceneID].m_NextComponentID = id + 1;
             }
 
             return pComponent;
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
-void ComponentSystemManager::FinishLoading(bool lockwhileloading, SceneID sceneid, bool playwhenfinishedloading)
+void ComponentSystemManager::FinishLoading(bool lockWhileLoading, SceneID sceneID, bool playWhenFinishedLoading)
 {
-    m_StartGamePlayWhenDoneLoading = playwhenfinishedloading;
-    m_WaitingForFilesToFinishLoading = lockwhileloading;
+    m_StartGamePlayWhenDoneLoading = playWhenFinishedLoading;
+    m_WaitingForFilesToFinishLoading = lockWhileLoading;
 
-    if( lockwhileloading )
+    if( lockWhileLoading )
     {
-        if( m_FilesStillLoading.GetHead() != 0 )
+        if( m_FilesStillLoading.GetHead() != nullptr )
             return;
 
         for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
@@ -1347,16 +1347,16 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, SceneID scenei
         m_WaitingForFilesToFinishLoading = false;
     }
 
-    OnLoad( sceneid );
+    OnLoad( sceneID );
 
-    if( playwhenfinishedloading )
+    if( playWhenFinishedLoading )
     {
 #if MYFW_EDITOR
         g_pEngineCore->Editor_QuickSaveScene( "temp_editor_onplay.scene" );
 #endif
 
         g_pEngineCore->RegisterGameplayButtons();
-        OnPlay( sceneid );
+        OnPlay( sceneID );
         m_StartGamePlayWhenDoneLoading = false;
     }
 }
@@ -1388,18 +1388,18 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
                 
                 pNode = pNode->GetNext();
 
-                SceneID sceneid = pComponent->GetSceneID();
+                SceneID sceneID = pComponent->GetSceneID();
 
                 if( (pComponent->GetGameObject()->IsManaged() || clearUnmanagedComponents) &&
-                    (sceneIDToClear == SCENEID_AllScenes || sceneid == sceneIDToClear) )
+                    (sceneIDToClear == SCENEID_AllScenes || sceneID == sceneIDToClear) )
                 {
                     DeleteComponent( pComponent );
                 }
-                else if( pComponent->GetID() > m_pSceneInfoMap[sceneid].m_NextComponentID )
+                else if( pComponent->GetID() > m_pSceneInfoMap[sceneID].m_NextComponentID )
                 {
                     // Not sure how this could happen.
                     MyAssert( false );
-                    m_pSceneInfoMap[sceneid].m_NextComponentID = pComponent->GetID() + 1;
+                    m_pSceneInfoMap[sceneID].m_NextComponentID = pComponent->GetID() + 1;
                 }
             }
         }
@@ -1415,23 +1415,23 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
 
         if( sceneIDToClear == SCENEID_AllScenes || (SceneID)i == sceneIDToClear )
         {
-            GameObject* pNextGameObject = 0;
+            GameObject* pNextGameObject = nullptr;
             for( GameObject* pGameObject = pSceneInfo->m_GameObjects.GetHead(); pGameObject; pGameObject = pNextGameObject )
             {
                 pNextGameObject = pGameObject->GetNext();
 
-                SceneID sceneid = pGameObject->GetSceneID();
+                SceneID sceneID = pGameObject->GetSceneID();
                 unsigned int gameObjectID = pGameObject->GetID();
 
-                MyAssert( (SceneID)i == sceneid );
+                MyAssert( (SceneID)i == sceneID );
 
                 if( (pGameObject->IsManaged() || clearUnmanagedComponents) )
                 {
                     DeleteGameObject( pGameObject, true );
                 }
-                else if( sceneid == sceneIDToClear && gameObjectID > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+                else if( sceneID == sceneIDToClear && gameObjectID > m_pSceneInfoMap[sceneID].m_NextGameObjectID )
                 {
-                    m_pSceneInfoMap[sceneid].m_NextGameObjectID = gameObjectID + 1;
+                    m_pSceneInfoMap[sceneID].m_NextGameObjectID = gameObjectID + 1;
                 }
             }
         }
@@ -1453,15 +1453,15 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
         g_pComponentSystemManager->ResetSceneIDCounter();
 
         // Don't clear unmanaged objects.
-        for( int sceneid=0; sceneid<MAX_SCENES_LOADED; sceneid++ )
+        for( int sceneID=0; sceneID<MAX_SCENES_LOADED; sceneID++ )
         {
-            if( sceneid == SCENEID_Unmanaged || sceneid == SCENEID_EngineObjects )
+            if( sceneID == SCENEID_Unmanaged || sceneID == SCENEID_EngineObjects )
                 continue;
 
-            if( m_pSceneInfoMap[sceneid].m_InUse == false )
+            if( m_pSceneInfoMap[sceneID].m_InUse == false )
                 continue;
 
-            m_pSceneInfoMap[sceneid].Reset();
+            m_pSceneInfoMap[sceneID].Reset();
         }
     }
     else if( sceneIDToClear != SCENEID_Unmanaged ) // If clearing any scene other than the unmanaged scene.
@@ -1471,19 +1471,19 @@ void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnman
     }
 }
 
-bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
+bool ComponentSystemManager::IsSceneLoaded(const char* fullPath)
 {
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse )
         {
-            if( m_pSceneInfoMap[i].m_FullPath[0] != 0 )
+            if( m_pSceneInfoMap[i].m_FullPath[0] != '\0' )
             {
-                if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullpath ) == 0 )
+                if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullPath ) == 0 )
                     return true;
 
-                const char* relativepath = GetRelativePath( m_pSceneInfoMap[i].m_FullPath );
-                if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
+                const char* relativePath = GetRelativePath( m_pSceneInfoMap[i].m_FullPath );
+                if( relativePath != nullptr && strcmp( relativePath, fullPath ) == 0 )
                     return true;
             }
         }
@@ -1492,13 +1492,13 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
     return false;
 }
 
-SceneID ComponentSystemManager::FindSceneID(const char* fullpath)
+SceneID ComponentSystemManager::FindSceneID(const char* fullPath)
 {
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse )
         {
-            if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullpath ) == 0 )
+            if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullPath ) == 0 )
                 return (SceneID)i;
         }
     }
@@ -1509,7 +1509,7 @@ SceneID ComponentSystemManager::FindSceneID(const char* fullpath)
 // Exposed to Lua, change elsewhere if function signature changes.
 GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, uint32 sceneID, bool isFolder, bool hasTransform)
 {
-    GameObject* pGameObject = CreateGameObject( true, (SceneID)sceneID, isFolder, hasTransform, 0 );
+    GameObject* pGameObject = CreateGameObject( true, (SceneID)sceneID, isFolder, hasTransform, nullptr );
 
     pGameObject->SetName( name );
 
@@ -1524,12 +1524,12 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageObject, SceneID 
         unsigned int id = GetNextGameObjectIDAndIncrement( sceneID );
         pGameObject->SetID( id );
 
-        //if( manageobject )
+        //if( manageObject )
         {
             GetSceneInfo( sceneID )->m_GameObjects.AddTail( pGameObject );
         }
 
-        // if we're not in editor mode, place this gameobject in unmanaged scene so it will be destroyed when gameplay is stopped.
+        // If we're not in editor mode, place this gameobject in unmanaged scene so it will be destroyed when gameplay is stopped.
         if( g_pEngineCore->IsInEditorMode() == false )
         {
             pGameObject->SetSceneID( SCENEID_Unmanaged );
@@ -1539,16 +1539,16 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageObject, SceneID 
     return pGameObject;
 }
 
-GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, SceneID sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageObject, SceneID sceneID)
 {
-    return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), 0, manageobject, sceneid );
+    return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), 0, manageObject, sceneID );
 }
 
 GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabChildID, bool manageObject, SceneID sceneID)
 {
-    MyAssert( pPrefab != 0 );
-    MyAssert( jPrefab != 0 );
-    GameObject* pGameObject = 0;
+    MyAssert( pPrefab != nullptr );
+    MyAssert( jPrefab != nullptr );
+    GameObject* pGameObject = nullptr;
 
     // Set values based on SubType.
     bool isfolder = false;
@@ -1567,7 +1567,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         }
     }
 
-    // Sceneid should only be SCENEID_Unmanaged if this is the master prefab gameobject created for the editor.
+    // SceneID should only be SCENEID_Unmanaged if this is the master prefab gameobject created for the editor.
     bool creatingMasterGameObjectForPrefab = false;
     if( sceneID == SCENEID_Unmanaged )
         creatingMasterGameObjectForPrefab = true;
@@ -1596,7 +1596,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     cJSONExt_GetUnsignedInt( jPrefab, "PrefabID", &prefabID );
     if( prefabID != 0 )
     {
-        GameObject* pOtherPrefabGameObject = 0;
+        GameObject* pOtherPrefabGameObject = nullptr;
         if( creatingMasterGameObjectForPrefab )
         {
             PrefabObject* pPrefabWeInheritFrom = pPrefab->GetPrefabFile()->GetPrefabByID( prefabID );
@@ -1644,7 +1644,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
             for( int i=0; i<childarraysize; i++ )
             {
                 cJSON* jChildGameObject = cJSON_GetArrayItem( jChildrenArray, i );
-                GameObject* pChildGameObject = 0;
+                GameObject* pChildGameObject = nullptr;
             
                 uint32 prefabchildid = 0;
                 cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &prefabchildid );
@@ -1652,7 +1652,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 // Create the child game object.
                 if( sceneID == SCENEID_Unmanaged )
                 {
-                    // Sceneid should only be SCENEID_Unmanaged if this is the temporary prefab gameobject created for the editor.
+                    // SceneID should only be SCENEID_Unmanaged if this is the temporary prefab gameobject created for the editor.
                     MyAssert( manageObject == false );
 
                     pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, false, SCENEID_Unmanaged );
@@ -1662,7 +1662,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 {
                     pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, true, sceneID );
                 }
-                MyAssert( pChildGameObject != 0 );
+                MyAssert( pChildGameObject != nullptr );
 
                 pChildGameObject->SetParentGameObject( pGameObject );
                 cJSON* jTransform = cJSON_GetObjectItem( jChildGameObject, "LocalTransform" );
@@ -1675,16 +1675,16 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
 }
 
 #if MYFW_EDITOR
-GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, SceneID sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateID, SceneID sceneID)
 {
-    MyAssert( templateid < m_pGameObjectTemplateManager->GetNumberOfTemplates() );
+    MyAssert( templateID < m_pGameObjectTemplateManager->GetNumberOfTemplates() );
 
-    GameObject* pGameObject = CreateGameObject( true, sceneid, false, true );
+    GameObject* pGameObject = CreateGameObject( true, sceneID, false, true );
     
-    const char* templatename = m_pGameObjectTemplateManager->GetTemplateName( templateid );
+    const char* templatename = m_pGameObjectTemplateManager->GetTemplateName( templateID );
     pGameObject->SetName( templatename );
 
-    cJSON* jTemplate = m_pGameObjectTemplateManager->GetTemplateJSONObject( templateid );
+    cJSON* jTemplate = m_pGameObjectTemplateManager->GetTemplateJSONObject( templateID );
 
     if( jTemplate )
     {
@@ -1703,20 +1703,20 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
             MyAssert( pComponent );
             if( pComponent )
             {
-                pComponent->ImportFromJSONObject( jComponent, sceneid );
+                pComponent->ImportFromJSONObject( jComponent, sceneID );
                 pComponent->FinishImportingFromJSONObject( jComponent );
                 pComponent->OnLoad();
             }
         }
     }
 
-    // Don't delete jTemplate
+    // Don't delete jTemplate.
 
     return pGameObject;
 }
 #endif //MYFW_EDITOR
 
-void ComponentSystemManager::UnmanageGameObject(GameObject* pObject, bool unmanagechildren)
+void ComponentSystemManager::UnmanageGameObject(GameObject* pObject, bool unmanageChildren)
 {
     MyAssert( pObject && pObject->IsManaged() == true );
 
@@ -1727,14 +1727,14 @@ void ComponentSystemManager::UnmanageGameObject(GameObject* pObject, bool unmana
 
         // Remove from list and clear CPPListNode prev/next.
         pComponent->Remove();
-        pComponent->Prev = 0;
-        pComponent->Next = 0;
+        pComponent->Prev = nullptr;
+        pComponent->Next = nullptr;
     }
 
     pObject->SetManaged( false );
 
     // Recurse through children.
-    if( unmanagechildren )
+    if( unmanageChildren )
     {
         GameObject* pChild = pObject->GetFirstChild();
 
@@ -1746,7 +1746,7 @@ void ComponentSystemManager::UnmanageGameObject(GameObject* pObject, bool unmana
     }
 }
 
-void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool managechildren)
+void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool manageChildren)
 {
     MyAssert( pObject && pObject->IsManaged() == false );
 
@@ -1756,7 +1756,7 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool managech
         ComponentBase* pComponent = pObject->GetComponentByIndex( i );
 
         // GameObject::AddExistingComponent adds components to system manager list even if unmanaged.  So, double check it's not in list.
-        if( pComponent->Prev == 0 )
+        if( pComponent->Prev == nullptr )
         {
             AddComponent( pComponent );
         }
@@ -1765,7 +1765,7 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool managech
     pObject->SetManaged( true );
 
     // Recurse through children.
-    if( managechildren )
+    if( manageChildren )
     {
         GameObject* pChild = pObject->GetFirstChild();
 
@@ -1778,7 +1778,7 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool managech
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
+void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteComponents)
 {
 #if MYFW_USING_WX
     if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( pObject ) )
@@ -1787,7 +1787,7 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
     }
 #endif
 
-    if( deletecomponents )
+    if( deleteComponents )
     {
         while( pObject->m_Components.Count() )
         {
@@ -1809,44 +1809,44 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
 }
 
 #if MYFW_EDITOR
-GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld)
+GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bool newObjectInheritsFromOld)
 {
-    GameObject* newgameobject = 0;
+    GameObject* newGameObject = nullptr;
 
-    EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject, NewObjectInheritsFromOld );
+    EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject, newObjectInheritsFromOld );
     if( g_pEngineCore->IsInEditorMode() )
     {
         g_pEngineCore->GetCommandStack()->Do( pCommand );
-        newgameobject = pCommand->GetCreatedObject();
+        newGameObject = pCommand->GetCreatedObject();
     }
     else
     {
-        // if we're not in editor mode, execute the command and delete it.
+        // If we're not in editor mode, execute the command and delete it.
         pCommand->Do();
-        newgameobject = pCommand->GetCreatedObject();
+        newGameObject = pCommand->GetCreatedObject();
         delete pCommand;
     }
 
-    return newgameobject;
+    return newGameObject;
 }
 #endif
 
 // Exposed to Lua, change elsewhere if function signature changes.
-GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname, bool disableNewObject)
+GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newName, bool disableNewObject)
 {
-    if( pObject == 0 )
-        return 0;
+    if( pObject == nullptr )
+        return nullptr;
 
-    // place the new object in the unmanaged scene, unless we're in the editor.
-    SceneID sceneid = SCENEID_Unmanaged;
+    // Place the new object in the unmanaged scene, unless we're in the editor.
+    SceneID sceneID = SCENEID_Unmanaged;
     if( g_pEngineCore->IsInEditorMode() )
-        sceneid = pObject->GetSceneID();
+        sceneID = pObject->GetSceneID();
 
-    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(),
+    GameObject* pNewObject = CreateGameObject( true, sceneID, pObject->IsFolder(),
                                                pObject->GetTransform() ? true : false, pObject->GetPrefabRef() );
 
-    if( newname )
-        pNewObject->SetName( newname );
+    if( newName )
+        pNewObject->SetName( newName );
 
     pNewObject->SetEnabled( disableNewObject ? false : pObject->IsEnabled(), false );
     pNewObject->SetPhysicsSceneID( pObject->GetPhysicsSceneID() );
@@ -1856,7 +1856,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( g_pEngineCore->IsInEditorMode() )
     {
         // If inheriting from a prefab, this was handled by the CreateGameObject call above.
-        if( pObject->GetPrefabRef() == 0 )
+        if( pObject->GetPrefabRef() == nullptr )
         {
             pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
         }
@@ -1864,7 +1864,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
 
     for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
-        ComponentBase* pComponent = 0;
+        ComponentBase* pComponent = nullptr;
 
         if( g_pEngineCore->IsInEditorMode() )
             pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->GetType(), pNewObject->GetSceneID(), g_pComponentSystemManager );
@@ -1897,8 +1897,8 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         }
     }
 
-    // if the object we're copying was parented, set the parent.
-    if( pObject->GetParentGameObject() != 0 )
+    // If the object we're copying was parented, set the parent.
+    if( pObject->GetParentGameObject() != nullptr )
     {
         pNewObject->SetParentGameObject( pObject->GetParentGameObject() );
     }
@@ -1924,25 +1924,25 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     return pNewObject;
 }
 
-unsigned int ComponentSystemManager::GetNextGameObjectIDAndIncrement(SceneID sceneid)
+unsigned int ComponentSystemManager::GetNextGameObjectIDAndIncrement(SceneID sceneID)
 {
-    SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneid );
+    SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneID );
     
     MyAssert( pSceneInfo );
-    if( pSceneInfo == 0 )
-        return 0; // we have problems if this happens.
+    if( pSceneInfo == nullptr )
+        return 0; // We have problems if this happens.
 
     pSceneInfo->m_NextGameObjectID++;
     return pSceneInfo->m_NextGameObjectID-1;
 }
 
-unsigned int ComponentSystemManager::GetNextComponentIDAndIncrement(SceneID sceneid)
+unsigned int ComponentSystemManager::GetNextComponentIDAndIncrement(SceneID sceneID)
 {
-    SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneid );
+    SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneID );
     
     MyAssert( pSceneInfo );
-    if( pSceneInfo == 0 )
-        return 0; // we have problems if this happens.
+    if( pSceneInfo == nullptr )
+        return 0; // We have problems if this happens.
 
     pSceneInfo->m_NextComponentID++;
     return pSceneInfo->m_NextComponentID-1;
@@ -1956,7 +1956,7 @@ GameObject* ComponentSystemManager::EditorLua_GetFirstGameObjectFromScene(uint32
 GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(SceneID sceneID)
 {
     SceneInfo* pSceneInfo = GetSceneInfo( sceneID );
-    if( pSceneInfo == 0 )
+    if( pSceneInfo == nullptr )
         return nullptr;
 
     GameObject* pGameObject = pSceneInfo->m_GameObjects.GetHead();
@@ -1969,25 +1969,25 @@ GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(SceneID sceneID)
     return nullptr;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByID(SceneID sceneid, unsigned int goid)
+GameObject* ComponentSystemManager::FindGameObjectByID(SceneID sceneID, unsigned int goid)
 {
-    SceneInfo* pSceneInfo = GetSceneInfo( sceneid );
-    if( pSceneInfo == 0 )
-        return 0;
+    SceneInfo* pSceneInfo = GetSceneInfo( sceneID );
+    if( pSceneInfo == nullptr )
+        return nullptr;
 
     if( pSceneInfo->m_GameObjects.GetHead() )
         return FindGameObjectByIDFromList( pSceneInfo->m_GameObjects.GetHead(), goid );
 
-    return 0;
+    return nullptr;
 }
 
 GameObject* ComponentSystemManager::FindGameObjectByIDFromList(GameObject* list, unsigned int goid)
 {
-    MyAssert( list != 0 );
-    if( list == 0 )
-        return 0;
+    MyAssert( list != nullptr );
+    if( list == nullptr )
+        return nullptr;
 
-    for( GameObject* pGameObject = list; pGameObject != 0; pGameObject = pGameObject->GetNext() )
+    for( GameObject* pGameObject = list; pGameObject != nullptr; pGameObject = pGameObject->GetNext() )
     {
         if( pGameObject->IsManaged() && pGameObject->GetID() == goid )
             return pGameObject;
@@ -2001,7 +2001,7 @@ GameObject* ComponentSystemManager::FindGameObjectByIDFromList(GameObject* list,
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
@@ -2022,16 +2022,16 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByNameInScene(SceneID sceneid, const char* name)
+GameObject* ComponentSystemManager::FindGameObjectByNameInScene(SceneID sceneID, const char* name)
 {
-    MyAssert( sceneid < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
+    MyAssert( sceneID < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
 
-    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
+    MyAssert( m_pSceneInfoMap[sceneID].m_InUse == true );
 
-    SceneInfo* pSceneInfo = &m_pSceneInfoMap[sceneid];
+    SceneInfo* pSceneInfo = &m_pSceneInfoMap[sceneID];
 
     if( pSceneInfo->m_GameObjects.GetHead() )
     {
@@ -2040,16 +2040,16 @@ GameObject* ComponentSystemManager::FindGameObjectByNameInScene(SceneID sceneid,
             return pGameObjectFound;
     }
 
-    return 0;
+    return nullptr;
 }
 
 GameObject* ComponentSystemManager::FindGameObjectByNameFromList(GameObject* list, const char* name)
 {
-    MyAssert( list != 0 );
-    if( list == 0 )
-        return 0;
+    MyAssert( list != nullptr );
+    if( list == nullptr )
+        return nullptr;
 
-    for( GameObject* pGameObject = list; pGameObject != 0; pGameObject = pGameObject->GetNext() )
+    for( GameObject* pGameObject = list; pGameObject != nullptr; pGameObject = pGameObject->GetNext() )
     {
         if( strcmp( pGameObject->GetName(), name ) == 0 )
             return pGameObject;
@@ -2063,34 +2063,34 @@ GameObject* ComponentSystemManager::FindGameObjectByNameFromList(GameObject* lis
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultSceneID, bool requireSceneBeLoaded)
+GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* jGameObjectRef, SceneID defaultSceneID, bool requireSceneBeLoaded)
 {
     // see GameObject::ExportReferenceAsJSONObject
 
-    cJSON* jScenePath = cJSON_GetObjectItem( pJSONGameObjectRef, "Scene" );
-    SceneID sceneid = defaultSceneID;
+    cJSON* jScenePath = cJSON_GetObjectItem( jGameObjectRef, "Scene" );
+    SceneID sceneID = defaultSceneID;
     if( jScenePath )
     {
-        MyAssert( jScenePath->valuestring != 0 && jScenePath->valuestring[0] != 0 );
+        MyAssert( jScenePath->valuestring != nullptr && jScenePath->valuestring[0] != '\0' );
 
-        sceneid = GetSceneIDFromFullpath( jScenePath->valuestring, requireSceneBeLoaded );
-        if( sceneid == SCENEID_NotFound )
+        sceneID = GetSceneIDFromFullpath( jScenePath->valuestring, requireSceneBeLoaded );
+        if( sceneID == SCENEID_NotFound )
         {
             LOGError( LOGTag, "FindGameObjectByJSONRef: Scene not loaded: '%s'.\n", jScenePath->valuestring );
-            return 0; // scene isn't loaded, so object can't be found.
+            return nullptr; // Scene isn't loaded, so object can't be found.
         }
         
         // TODO: Saving will throw all reference info away and piss people off :)
     }
 
     unsigned int goid = -1;
-    cJSONExt_GetUnsignedInt( pJSONGameObjectRef, "GOID", &goid );
+    cJSONExt_GetUnsignedInt( jGameObjectRef, "GOID", &goid );
     MyAssert( goid != -1 );
 
-    return FindGameObjectByID( sceneid, goid );
+    return FindGameObjectByID( sceneID, goid );
 }
 
 GameObject* ComponentSystemManager::GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags)
@@ -2099,7 +2099,7 @@ GameObject* ComponentSystemManager::GetGameObjectsInRange(Vector3 pos, float ran
     //       Also, create a SceneGraph...
 
     SceneInfo* pScene = GetSceneInfo( SCENEID_MainScene );
-    for( GameObject* pGameObject = pScene->m_GameObjects.GetHead(); pGameObject != 0; pGameObject = pGameObject->GetNext() )
+    for( GameObject* pGameObject = pScene->m_GameObjects.GetHead(); pGameObject != nullptr; pGameObject = pGameObject->GetNext() )
     {
         if( pGameObject->GetPropertiesComponent()->GetFlags() & flags )
         {
@@ -2121,7 +2121,7 @@ luabridge::LuaRef ComponentSystemManager::Lua_GetGameObjectsInRange(Vector3 pos,
     luabridge::LuaRef gameObjectTable = luabridge::newTable( m_pEngineCore->GetLuaGameState()->m_pLuaState );
 
     SceneInfo* pScene = GetSceneInfo( SCENEID_MainScene );
-    for( GameObject* pGameObject = pScene->m_GameObjects.GetHead(); pGameObject != 0; pGameObject = pGameObject->GetNext() )
+    for( GameObject* pGameObject = pScene->m_GameObjects.GetHead(); pGameObject != nullptr; pGameObject = pGameObject->GetNext() )
     {
         if( pGameObject->GetPropertiesComponent()->GetFlags() & flags )
         {
@@ -2137,9 +2137,9 @@ luabridge::LuaRef ComponentSystemManager::Lua_GetGameObjectsInRange(Vector3 pos,
 }
 #endif //MYFW_USING_LUA
 
-ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid)
+ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* jComponentRef, SceneID defaultSceneID)
 {
-    GameObject* pGameObject = FindGameObjectByJSONRef( pJSONComponentRef, defaultsceneid, true );
+    GameObject* pGameObject = FindGameObjectByJSONRef( jComponentRef, defaultSceneID, true );
     if( pGameObject == nullptr )
     {
         LOGError( LOGTag, "A referenced component wasn't found.\n" );
@@ -2147,7 +2147,7 @@ ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONCompon
     else //if( pGameObject )
     {
         unsigned int componentid = -1;
-        cJSONExt_GetUnsignedInt( pJSONComponentRef, "ComponentID", &componentid );
+        cJSONExt_GetUnsignedInt( jComponentRef, "ComponentID", &componentid );
         MyAssert( componentid != -1 );
 
         return pGameObject->FindComponentByID( componentid );
@@ -2166,11 +2166,11 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera(bool preferEditorCam)
     else
 #endif
     {
-        for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
+        for( CPPListNode* pNode = m_Components[BaseComponentType_Camera].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
         {
-            ComponentCamera* pCamera = (ComponentCamera*)node;
+            ComponentCamera* pCamera = (ComponentCamera*)pNode;
 
-            // skip unmanaged cameras. (editor cam)
+            // Skip unmanaged cameras (editor cam).
             if( pCamera->GetGameObject()->IsManaged() == true )
             {
                 MyAssert( pCamera->GetType() == ComponentType_Camera );
@@ -2180,46 +2180,46 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera(bool preferEditorCam)
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 ComponentBase* ComponentSystemManager::GetFirstComponentOfType(const char* type)
 {
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        for( CPPListNode* pNode = m_Components[i].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
         {
-            if( ((ComponentBase*)node)->IsA( type ) )
-                return (ComponentBase*)node;
+            if( ((ComponentBase*)pNode)->IsA( type ) )
+                return (ComponentBase*)pNode;
         }
     }
 
-    return 0; // component not found.
+    return nullptr; // Component not found.
 }
 
 ComponentBase* ComponentSystemManager::GetNextComponentOfType(ComponentBase* pLastComponent)
 {
-    MyAssert( pLastComponent != 0 );
+    MyAssert( pLastComponent != nullptr );
 
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
         bool foundlast = false;
-        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        for( CPPListNode* pNode = m_Components[i].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
         {
-            if( pLastComponent == node )
+            if( pLastComponent == pNode )
                 foundlast = true;
-            else if( foundlast && ((ComponentBase*)node)->IsA( pLastComponent->GetClassname() ) )
-                return (ComponentBase*)node;
+            else if( foundlast && ((ComponentBase*)pNode)->IsA( pLastComponent->GetClassname() ) )
+                return (ComponentBase*)pNode;
         }
     }
 
-    return 0; // component not found.
+    return nullptr; // Component not found.
 }
 
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 {
-    MyAssert( pComponent->GetBaseType() >= 0 && pComponent->GetBaseType() < BaseComponentType_NumTypes ); // shouldn't happen.
-    MyAssert( pComponent->Prev == 0 && pComponent->Next == 0 );
+    MyAssert( pComponent->GetBaseType() >= 0 && pComponent->GetBaseType() < BaseComponentType_NumTypes ); // Shouldn't happen.
+    MyAssert( pComponent->Prev == nullptr && pComponent->Next == nullptr );
     MyAssert( pComponent->GetComponentSystemManager() == this );
 
     m_Components[pComponent->GetBaseType()].AddTail( pComponent );
@@ -2238,7 +2238,7 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
     SAFE_DELETE( pComponent );
 }
 
-ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, SceneID sceneid)
+ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, SceneID sceneID)
 {
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
@@ -2246,23 +2246,23 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, SceneI
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
+            if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneID )
                 return pComponent;
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 void ComponentSystemManager::Tick(float deltaTime)
 {
     if( m_WaitingForFilesToFinishLoading )
     {
-        // TODO: this is hardcoded to the first scene.
+        // TODO: This is hardcoded to the first scene.
         FinishLoading( true, SCENEID_MainScene, m_StartGamePlayWhenDoneLoading );
     }
 
-    // tick the files that are still loading, if handled by us (spritesheets only ATM)
+    // Tick the files that are still loading, if handled by us (spritesheets only ATM).
     CPPListNode* pNextNode;
     for( CPPListNode* pNode = m_FilesStillLoading.GetHead(); pNode; pNode = pNextNode )
     {
@@ -2285,12 +2285,12 @@ void ComponentSystemManager::Tick(float deltaTime)
 
     //deltaTime *= m_TimeScale;
 
-    // update all Components:
+    // Update all Components:
 
-    // all scripts.
-    //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    // All scripts.
+    //for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     //{
-    //    ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
+    //    ComponentUpdateable* pComponent = (ComponentUpdateable*)pNode;
 
     //    if( pComponent->m_BaseType == BaseComponentType_Updateable && pComponent->m_Type == ComponentType_LuaScript )
     //    {
@@ -2298,14 +2298,14 @@ void ComponentSystemManager::Tick(float deltaTime)
     //    }
     //}
 
-    //// don't tick objects if time is 0, useful for debugging, shouldn't be done otherwise
+    //// Don't tick objects if time is 0, useful for debugging, shouldn't be done otherwise
     //if( deltaTime == 0 )
     //    return;
 
-    // then all other "Updateables".
-    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    // Then all other "Updateables".
+    for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     {
-        ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
+        ComponentUpdateable* pComponent = (ComponentUpdateable*)pNode;
 
         if( pComponent->GetBaseType() == BaseComponentType_Updateable ) //&& pComponent->m_Type != ComponentType_LuaScript )
         {
@@ -2313,21 +2313,21 @@ void ComponentSystemManager::Tick(float deltaTime)
         }
     }
 
-    // update all components that registered a tick callback... might unregister themselves while in their callback
-    for( CPPListNode* pNode = m_pComponentCallbackList_Tick.GetHead(); pNode != 0; pNode = pNextNode )
+    // Update all components that registered a tick callback... might unregister themselves while in their callback
+    for( CPPListNode* pNode = m_pComponentCallbackList_Tick.GetHead(); pNode != nullptr; pNode = pNextNode )
     {
         pNextNode = pNode->GetNext();
 
         ComponentCallbackStruct_Tick* pCallbackStruct = (ComponentCallbackStruct_Tick*)pNode;
-        MyAssert( pCallbackStruct->pFunc != 0 );
+        MyAssert( pCallbackStruct->pFunc != nullptr );
 
         (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( deltaTime );
     }
 
-    // update all cameras after game objects are updated.
-    for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
+    // Update all cameras after game objects are updated.
+    for( CPPListNode* pNode = m_Components[BaseComponentType_Camera].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     {
-        ComponentCamera* pComponent = (ComponentCamera*)node;
+        ComponentCamera* pComponent = (ComponentCamera*)pNode;
 
         if( pComponent->GetBaseType() == BaseComponentType_Camera )
         {
@@ -2336,44 +2336,44 @@ void ComponentSystemManager::Tick(float deltaTime)
     }
 }
 
-void ComponentSystemManager::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+void ComponentSystemManager::OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredAspectWidth, unsigned int desiredaspectHeight)
 {
-    for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* pNode = m_Components[BaseComponentType_Camera].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     {
-        ComponentCamera* pCamera = (ComponentCamera*)node;
+        ComponentCamera* pCamera = (ComponentCamera*)pNode;
 
         if( pCamera->GetBaseType() == BaseComponentType_Camera )
         {
-            // TODO: fix this hack, don't resize unmanaged cams (a.k.a. editor camera)
+            // TODO: Fix this hack, don't resize unmanaged cams (a.k.a. editor camera).
             if( pCamera->GetGameObject()->IsManaged() == true )
             {
-                pCamera->OnSurfaceChanged( x, y, width, height, desiredaspectwidth, desiredaspectheight );
+                pCamera->OnSurfaceChanged( x, y, width, height, desiredAspectWidth, desiredaspectHeight );
             }
         }
     }
 
     //// For now, tell menu pages that the aspect ratio changed.
-    //for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
+    //for( CPPListNode* pNode = m_Components[BaseComponentType_MenuPage].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     //{
-    //    ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+    //    ComponentMenuPage* pComponent = (ComponentMenuPage*)pNode;
 
-    //    pComponent->OnSurfaceChanged( x, y, width, height, desiredaspectwidth, desiredaspectheight );
+    //    pComponent->OnSurfaceChanged( x, y, width, height, desiredAspectWidth, desiredaspectHeight );
     //}
 
-    // notify all components that registered a callback of a change to the surfaces/aspect ratio.
+    // Notify all components that registered a callback of a change to the surfaces/aspect ratio.
     for( CPPListNode* pNode = m_pComponentCallbackList_OnSurfaceChanged.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_OnSurfaceChanged* pCallbackStruct = (ComponentCallbackStruct_OnSurfaceChanged*)pNode;
 
-        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( x, y, width, height, desiredaspectwidth, desiredaspectheight );
+        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( x, y, width, height, desiredAspectWidth, desiredaspectHeight );
     }
 }
 
 void ComponentSystemManager::OnDrawFrame()
 {
-    for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* pNode = m_Components[BaseComponentType_Camera].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     {
-        ComponentCamera* pCamera = (ComponentCamera*)node;
+        ComponentCamera* pCamera = (ComponentCamera*)pNode;
 
         if( pCamera->GetBaseType() == BaseComponentType_Camera && pCamera->IsEnabled() == true )
         {
@@ -2384,14 +2384,14 @@ void ComponentSystemManager::OnDrawFrame()
 
 void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays)
 {
-    // Draw all objects in the scene graph
+    // Draw all objects in the scene graph.
     {
         Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
         Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();
 
         // Find nearest shadow casting light. TODO: handle this better.
-        MyMatrix* pShadowVP = 0;
-        TextureDefinition* pShadowTex = 0;
+        MyMatrix* pShadowVP = nullptr;
+        TextureDefinition* pShadowTex = nullptr;
         if( g_ActiveShaderPass == ShaderPass_Main )
         {
             GameObject* pObject = g_pComponentSystemManager->FindGameObjectByName( "Shadow Light" );
@@ -2400,7 +2400,7 @@ void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatP
                 ComponentBase* pComponent = pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera );
                 if( pComponent )
                 {
-                    ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : 0;
+                    ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : nullptr;
                     if( pShadowCam )
                     {
                         pShadowVP = pShadowCam->GetViewProjMatrix();
@@ -2422,13 +2422,13 @@ void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatP
         {
             //RenderGraphFlags flags = (RenderGraphFlags)(baseFlags | RenderGraphFlag_Opaque);
             //baseFlags = (RenderGraphFlags)(baseFlags | ~RenderGraphFlag_Emissive);
-            m_pRenderGraph->Draw( true, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            m_pRenderGraph->Draw( true, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, nullptr );
         }
 
         if( drawTransparents )
         {
             //RenderGraphFlags flags = (RenderGraphFlags)(baseFlags | RenderGraphFlag_Transparent);
-            m_pRenderGraph->Draw( false, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            m_pRenderGraph->Draw( false, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, nullptr );
         }
     }
     
@@ -2440,7 +2440,7 @@ void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatP
 
 void ComponentSystemManager::DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
-    // Draw all components that registered a callback, used mostly for debug info (camera/light icons, collision info)
+    // Draw all components that registered a callback, used mostly for debug info (camera/light icons, collision info).
     // Also used for menu pages.
     {
         for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
@@ -2459,14 +2459,14 @@ void ComponentSystemManager::DrawOverlays(ComponentCamera* pCamera, MyMatrix* pM
     }
 }
 
-void ComponentSystemManager::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
+void ComponentSystemManager::OnFileRenamed(const char* fullPathBefore, const char* fullPathAfter)
 {
-    // call all components that registered a callback.
+    // Call all components that registered a callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_OnFileRenamed.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_OnFileRenamed* pCallbackStruct = (ComponentCallbackStruct_OnFileRenamed*)pNode;
 
-        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( fullpathbefore, fullpathafter );
+        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( fullPathBefore, fullPathAfter );
     }
 }
 
@@ -2482,18 +2482,18 @@ void ComponentSystemManager::MoveInputHandlersToFront(CPPListNode* pOnTouch, CPP
 
 void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
 {
-    if( pShaderOverride == 0 )
+    if( pShaderOverride == nullptr )
         return;
 
-    if( pComponent == 0 )
+    if( pComponent == nullptr )
         return;
 
     ColorByte tint( 0, 0, 0, 0 );
 
-    SceneID sceneid = pComponent->GetGameObject()->GetSceneID();
+    SceneID sceneID = pComponent->GetGameObject()->GetSceneID();
     unsigned int id = pComponent->GetGameObject()->GetID();
                     
-    id = UINT_MAX - (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
+    id = UINT_MAX - (sceneID * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
 
     if( 1 )                 tint.r = id%256;
     if( id > 256 )          tint.g = (id>>8)%256;
@@ -2514,23 +2514,23 @@ void ProgramSceneIDs(RenderGraphObject* pObject, ShaderGroup* pShaderOverride)
 
 void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
-    // always use 4 bone version.
-    // TODO: this might fail with 1-3 bones,
+    // Always use 4 bone version.
+    // TODO: This might fail with 1-3 bones,
     //       but should work with 0 bones since bone attribs are set to 100% weight on bone 0
     //       and bone 0 transform uniform is set to identity.
     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     if( pShader->Activate() )
     {
-        // Draw all objects in the scene graph
+        // Draw all objects in the scene graph.
         {
             Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
             Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();
 
-            m_pRenderGraph->Draw( true, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, 0, 0, pShaderOverride, ProgramSceneIDs );
-            m_pRenderGraph->Draw( false, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, 0, 0, pShaderOverride, ProgramSceneIDs );
+            m_pRenderGraph->Draw( true, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, nullptr, nullptr, pShaderOverride, ProgramSceneIDs );
+            m_pRenderGraph->Draw( false, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, nullptr, nullptr, pShaderOverride, ProgramSceneIDs );
         }
 
-        // draw all components that registered a callback.
+        // Draw all components that registered a callback.
         for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
         {
             ComponentCallbackStruct_Draw* pCallbackStruct = (ComponentCallbackStruct_Draw*)pNode;
@@ -2544,10 +2544,10 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                 {
                     ColorByte tint( 0, 0, 0, 0 );
 
-                    SceneID sceneid = pComponent->GetGameObject()->GetSceneID();
+                    SceneID sceneID = pComponent->GetGameObject()->GetSceneID();
                     unsigned int id = pComponent->GetGameObject()->GetID();
                     
-                    id = UINT_MAX - (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
+                    id = UINT_MAX - (sceneID * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
 
                     if( 1 )                 tint.r = id%256;
                     if( id > 256 )          tint.g = (id>>8)%256;
@@ -2561,13 +2561,13 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
             }
         }
 
-        pShader->DeactivateShader( 0, false );
+        pShader->DeactivateShader( nullptr, false );
     }
 }
 
 SceneID ComponentSystemManager::GetNextSceneID()
 {
-    // TODO: search through list for an unused scene and return that ID.
+    // TODO: Search through list for an unused scene and return that ID.
     SceneID nextid = m_NextSceneID;
 
     m_NextSceneID = (SceneID)(m_NextSceneID+1);
@@ -2582,29 +2582,29 @@ void ComponentSystemManager::ResetSceneIDCounter()
     m_NextSceneID = SCENEID_MainScene;
 }
 
-SceneInfo* ComponentSystemManager::GetSceneInfo(SceneID sceneid)
+SceneInfo* ComponentSystemManager::GetSceneInfo(SceneID sceneID)
 {
-    MyAssert( sceneid >= 0 && sceneid < MAX_SCENES_CREATED );
-    return &m_pSceneInfoMap[sceneid];
+    MyAssert( sceneID >= 0 && sceneID < MAX_SCENES_CREATED );
+    return &m_pSceneInfoMap[sceneID];
 }
 
 // Returns SCENEID_NotFound if scene isn't found.
-SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath, bool requireSceneBeLoaded)
+SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullPath, bool requireSceneBeLoaded)
 {
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
-        SceneID sceneid = (SceneID)i;
+        SceneID sceneID = (SceneID)i;
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 
-        if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
-            return sceneid;
+        if( strcmp( pSceneInfo->m_FullPath, fullPath ) == 0 )
+            return sceneID;
 
-        const char* relativepath = GetRelativePath( pSceneInfo->m_FullPath );
-        if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
-            return sceneid;
+        const char* relativePath = GetRelativePath( pSceneInfo->m_FullPath );
+        if( relativePath != nullptr && strcmp( relativePath, fullPath ) == 0 )
+            return sceneID;
     }
 
-    // Assert if 'fullpath' isn't found and we required it.
+    // Assert if 'fullPath' isn't found and we required it.
     // Some GameObjects and Prefabs may contain references to objects in other files which may not be loaded.
     // That code will explicitly pass in false for 'requireSceneBeLoaded'.
     if( requireSceneBeLoaded )
@@ -2616,30 +2616,30 @@ SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath, boo
 }
 
 #if MYFW_EDITOR
-void ComponentSystemManager::CreateNewScene(const char* scenename, SceneID sceneid)
+void ComponentSystemManager::CreateNewScene(const char* sceneName, SceneID sceneID)
 {
-    MyAssert( sceneid >= SCENEID_MainScene && sceneid < MAX_SCENES_LOADED );
-    m_pSceneInfoMap[sceneid].m_InUse = true;
+    MyAssert( sceneID >= SCENEID_MainScene && sceneID < MAX_SCENES_LOADED );
+    m_pSceneInfoMap[sceneID].m_InUse = true;
 
-    // create the box2d world, pass in a material for the debug renderer.
+    // Create the box2d world, pass in a material for the debug renderer.
     ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
 #if MYFW_USING_BOX2D
-    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, new EngineBox2DContactListener );
+    m_pSceneInfoMap[sceneID].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, new EngineBox2DContactListener );
 #else
-    m_pSceneInfoMap[sceneid].m_pBox2DWorld = nullptr;
+    m_pSceneInfoMap[sceneID].m_pBox2DWorld = nullptr;
 #endif
 }
 
 unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
 {
-    unsigned int numloaded = 0;
+    unsigned int numLoaded = 0;
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse )
-            numloaded++;
+            numLoaded++;
     }
 
-    return numloaded;
+    return numLoaded;
 }
 
 void EditorInternal_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, CPPListNode* pListToSearch, PrefabObject* pPrefabToFind)
@@ -2680,12 +2680,12 @@ int ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
 
     // Check all gameobjects/components in all scenes for a reference to the file.
     //   ATM: This only checks variables registered as "component vars".
-    for( unsigned int sceneindex=0; sceneindex<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; sceneindex++ )
+    for( unsigned int sceneIndex=0; sceneIndex<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; sceneIndex++ )
     {
-        if( m_pSceneInfoMap[sceneindex].m_InUse == false )
+        if( m_pSceneInfoMap[sceneIndex].m_InUse == false )
             continue;
 
-        for( GameObject* pGameObject = m_pSceneInfoMap[sceneindex].m_GameObjects.GetHead(); pGameObject; pGameObject = pGameObject->GetNext() )
+        for( GameObject* pGameObject = m_pSceneInfoMap[sceneIndex].m_GameObjects.GetHead(); pGameObject; pGameObject = pGameObject->GetNext() )
         {
             numRefs += LogAllReferencesForFileInGameObject( pFile, pGameObject );
         }
@@ -2694,7 +2694,7 @@ int ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
     // Check materials for references to files.
     MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
     MaterialDefinition* pMaterial = pMaterialManager->GetFirstMaterial();
-    while( pMaterial != 0 )
+    while( pMaterial != nullptr )
     {
         if( pMaterial->IsReferencingFile( pFile ) )
         {
@@ -2714,7 +2714,7 @@ int ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
     return numRefs;
 }
 
-// Returns number of references
+// Returns number of references.
 int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pFile, GameObject* pGameObject)
 {
     int numRefs = 0;
@@ -2727,9 +2727,9 @@ int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pF
         {
             if( pComponent->IsReferencingFile( pFile ) )
             {
-                SceneID sceneindex = pComponent->GetSceneID();
+                SceneID sceneIndex = pComponent->GetSceneID();
 
-                if( sceneindex == SCENEID_Unmanaged )
+                if( sceneIndex == SCENEID_Unmanaged )
                 {
                     if( pGameObject->IsPrefabInstance() )
                     {
@@ -2738,7 +2738,7 @@ int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pF
                 }
                 else
                 {
-                    LOGInfo( LOGTag, "    (GameObject) %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                    LOGInfo( LOGTag, "    (GameObject) %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneIndex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
                 }
                 numRefs++;
             }
@@ -2764,12 +2764,12 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
     // "    (Prefab) PrefabFileName :: GameObjectName :: ComponentName"
 
     int pos = 0;
-    char scenename[100] = "";
-    char gameobjectname[100] = "";
-    char componentname[100] = "";
+    char sceneName[100] = "";
+    char gameobjectName[100] = "";
+    char componentName[100] = "";
 
-    bool isgameobject = false;
-    bool isprefab = false;
+    bool isGameObject = false;
+    bool isPrefab = false;
 
     // First, make sure this is a GameObject or Prefab.
     {
@@ -2778,63 +2778,63 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
 
         if( pos2 )
         {
-            isgameobject = true;
+            isGameObject = true;
             pos = (int)(pos2 - line) + (int)strlen("(GameObject) ");
         }
         else if( pos3 )
         {
-            isprefab = true;
+            isPrefab = true;
             pos = (int)(pos3 - line) + (int)strlen("(Prefab) ");
         }
         else
         {
-            return 0;
+            return nullptr;
         }
     }
 
-    // Grab the Scene/Prefab filename (can contain spaces)
+    // Grab the Scene/Prefab filename (can contain spaces).
     {
         const char* pos2 = strstr( &line[pos], " :: " );
-        if( pos2 == 0 ) return 0;
-        strncpy_s( scenename, 100, &line[pos], pos2 - &line[pos] );
+        if( pos2 == 0 ) return nullptr;
+        strncpy_s( sceneName, 100, &line[pos], pos2 - &line[pos] );
         pos += (int)(pos2 - &line[pos]) + (int)strlen(" :: ");
     }
 
-    // Grab the GameObject name (can contain spaces)
+    // Grab the GameObject name (can contain spaces).
     {
         const char* pos2 = strstr( &line[pos], " :: " );
-        if( pos2 == 0 ) return 0;
-        strncpy_s( gameobjectname, 100, &line[pos], pos2 - &line[pos] );
+        if( pos2 == 0 ) return nullptr;
+        strncpy_s( gameobjectName, 100, &line[pos], pos2 - &line[pos] );
         pos += (int)(pos2 - &line[pos]) + (int)strlen(" :: ");
     }
 
-    // Grab the Component name (won't contain spaces)
+    // Grab the Component name (won't contain spaces).
     {
         const char* pos2 = strstr( &line[pos], " " );
-        if( pos2 == 0 ) return 0;
-        strncpy_s( componentname, 100, &line[pos], pos2 - &line[pos] );
+        if( pos2 == 0 ) return nullptr;
+        strncpy_s( componentName, 100, &line[pos], pos2 - &line[pos] );
     }
 
     // Find the GameObject.
-    if( isgameobject )
+    if( isGameObject )
     {
-        SceneID sceneid = g_pComponentSystemManager->FindSceneID( scenename );
+        SceneID sceneID = g_pComponentSystemManager->FindSceneID( sceneName );
 
-        if( sceneid != SCENEID_NotFound )
+        if( sceneID != SCENEID_NotFound )
         {
-            MyAssert( sceneid >= 0 && sceneid < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
+            MyAssert( sceneID >= 0 && sceneID < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
 
-            GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByNameInScene( sceneid, gameobjectname );
+            GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByNameInScene( sceneID, gameobjectName );
             return pGameObject;
         }
     }
-    else if( isprefab )
+    else if( isPrefab )
     {
-        PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( scenename );
+        PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( sceneName );
 
         if( pPrefabFile )
         {
-            PrefabObject* pPrefab = pPrefabFile->GetFirstPrefabByName( gameobjectname );
+            PrefabObject* pPrefab = pPrefabFile->GetFirstPrefabByName( gameobjectName );
 
             if( pPrefab )
             {
@@ -2843,7 +2843,7 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
@@ -2853,70 +2853,70 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
     // "    (Prefab) PrefabFileName :: GameObjectName :: ComponentName"
 
     int pos = 0;
-    char materialname[100] = "";
+    char materialName[100] = "";
 
     // First, make sure this is a Material.
     {
         const char* pos2 = strstr( line, "(Material) " );
-        if( pos2 == 0 ) return 0;
+        if( pos2 == 0 ) return nullptr;
         pos = (int)(pos2 - line) + (int)strlen("(Material) ");
     }
 
-    // Grab the Material filename (can contain spaces)
+    // Grab the Material filename (can contain spaces).
     {
         const char* pos2 = strstr( &line[pos], " (" );
-        if( pos2 == 0 ) return 0;
-        strncpy_s( materialname, 100, &line[pos], pos2 - &line[pos] );
+        if( pos2 == 0 ) return nullptr;
+        strncpy_s( materialName, 100, &line[pos], pos2 - &line[pos] );
     }
 
     // Find the GameObject.
     {
         MaterialManager* pMaterialManager = m_pEngineCore->GetManagers()->GetMaterialManager();
-        MaterialDefinition* pMaterial = pMaterialManager->FindMaterialByFilename( materialname );
+        MaterialDefinition* pMaterial = pMaterialManager->FindMaterialByFilename( materialName );
 
         return pMaterial;
     }
 
-    return 0;
+    return nullptr;
 }
 #endif //MYFW_EDITOR
 
-//SceneInfo* ComponentSystemManager::GetSceneInfo(SceneID sceneid)
+//SceneInfo* ComponentSystemManager::GetSceneInfo(SceneID sceneID)
 //{
-//    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
-//    return &m_pSceneInfoMap[sceneid];
+//    MyAssert( m_pSceneInfoMap[sceneID].m_InUse == true );
+//    return &m_pSceneInfoMap[sceneID];
 //}
 
 //void ComponentSystemManager::m_pGameObjectTemplateManager
 
-void ComponentSystemManager::AddMeshToRenderGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers, RenderGraphObject** pOutputList)
+void ComponentSystemManager::AddMeshToRenderGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointSize, unsigned int layers, RenderGraphObject** pOutputList)
 {
-    MyAssert( pComponent != 0 );
-    MyAssert( pComponent->GetGameObject() != 0 );
-    MyAssert( pMesh != 0 );
-    MyAssert( pMaterialList != 0 );
-    MyAssert( pOutputList != 0 );
+    MyAssert( pComponent != nullptr );
+    MyAssert( pComponent->GetGameObject() != nullptr );
+    MyAssert( pMesh != nullptr );
+    MyAssert( pMaterialList != nullptr );
+    MyAssert( pOutputList != nullptr );
     MyAssert( pMesh->GetSubmeshListCount() > 0 );
 
     MyMatrix* pMatWorld = pComponent->GetGameObject()->GetTransform()->GetWorldTransform();
 
     for( unsigned int i=0; i<pMesh->GetSubmeshListCount(); i++ )
     {
-        MyAssert( pOutputList[i] == 0 );
+        MyAssert( pOutputList[i] == nullptr );
         
-        pOutputList[i] = m_pRenderGraph->AddObject( pMatWorld, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitiveType, pointsize, layers, pComponent );
+        pOutputList[i] = m_pRenderGraph->AddObject( pMatWorld, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitiveType, pointSize, layers, pComponent );
     }
 }
 
-RenderGraphObject* ComponentSystemManager::AddSubmeshToRenderGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers)
+RenderGraphObject* ComponentSystemManager::AddSubmeshToRenderGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointSize, unsigned int layers)
 {
-    MyAssert( pComponent != 0 );
-    MyAssert( pComponent->GetGameObject() != 0 );
-    MyAssert( pSubmesh != 0 );
+    MyAssert( pComponent != nullptr );
+    MyAssert( pComponent->GetGameObject() != nullptr );
+    MyAssert( pSubmesh != nullptr );
 
     MyMatrix* pMatWorld = pComponent->GetGameObject()->GetTransform()->GetWorldTransform();
 
-    return m_pRenderGraph->AddObject( pMatWorld, 0, pSubmesh, pMaterial, primitiveType, pointsize, layers, pComponent );
+    return m_pRenderGraph->AddObject( pMatWorld, nullptr, pSubmesh, pMaterial, primitiveType, pointSize, layers, pComponent );
 }
 
 void ComponentSystemManager::RemoveObjectFromRenderGraph(RenderGraphObject* pRenderGraphObject)
@@ -2924,15 +2924,15 @@ void ComponentSystemManager::RemoveObjectFromRenderGraph(RenderGraphObject* pRen
     m_pRenderGraph->RemoveObject( pRenderGraphObject );
 }
 
-void ComponentSystemManager::OnLoad(SceneID sceneid)
+void ComponentSystemManager::OnLoad(SceneID sceneID)
 {
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        for( CPPListNode* pNode = m_Components[i].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
         {
-            ComponentBase* pComponent = (ComponentBase*)node;
+            ComponentBase* pComponent = (ComponentBase*)pNode;
             
-            if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
+            if( sceneID != SCENEID_AllScenes && pComponent->GetSceneID() != sceneID )
                 continue;
 
             pComponent->OnLoad();
@@ -2940,20 +2940,20 @@ void ComponentSystemManager::OnLoad(SceneID sceneid)
     }
 }
 
-void ComponentSystemManager::OnPlay(SceneID sceneid)
+void ComponentSystemManager::OnPlay(SceneID sceneID)
 {
-    // TODO: Find a better solution than 2 passes, sort the OnPlay callback lists(once OnPlay is a callback of course...)
+    // TODO: Find a better solution than 2 passes, sort the OnPlay callback lists(once OnPlay is a callback of course...).
 
     // First pass, everything but 2d physics joints.
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        for( CPPListNode* pNode = m_Components[i].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
         {
-            ComponentBase* pComponent = (ComponentBase*)node;
+            ComponentBase* pComponent = (ComponentBase*)pNode;
 
             //MyAssert( pComponent->IsEnabled() == true );
 
-            if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
+            if( sceneID != SCENEID_AllScenes && pComponent->GetSceneID() != sceneID )
                 continue;
 
             if( pComponent->IsEnabled() == true )
@@ -2967,13 +2967,13 @@ void ComponentSystemManager::OnPlay(SceneID sceneid)
     // Second pass, only 2d physics joints.
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        for( CPPListNode* pNode = m_Components[i].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
         {
-            ComponentBase* pComponent = (ComponentBase*)node;
+            ComponentBase* pComponent = (ComponentBase*)pNode;
 
             //MyAssert( pComponent->IsEnabled() == true );
 
-            if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
+            if( sceneID != SCENEID_AllScenes && pComponent->GetSceneID() != sceneID )
                 continue;
 
             if( pComponent->IsEnabled() == true )
@@ -2985,17 +2985,17 @@ void ComponentSystemManager::OnPlay(SceneID sceneid)
     }
 }
 
-void ComponentSystemManager::OnStop(SceneID sceneid)
+void ComponentSystemManager::OnStop(SceneID sceneID)
 {
     SetTimeScale( 1 );
 
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        for( CPPListNode* pNode = m_Components[i].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
         {
-            ComponentBase* pComponent = (ComponentBase*)node;
+            ComponentBase* pComponent = (ComponentBase*)pNode;
 
-            if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
+            if( sceneID != SCENEID_AllScenes && pComponent->GetSceneID() != sceneID )
                 continue;
 
             pComponent->OnStop();
@@ -3019,7 +3019,7 @@ bool ComponentSystemManager::OnEvent(MyEvent* pEvent)
 
 bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
-    // send touch events to all components that registered a callback.
+    // Send touch events to all components that registered a callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_OnTouch.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_OnTouch* pCallbackStruct = (ComponentCallbackStruct_OnTouch*)pNode;
@@ -3028,10 +3028,10 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
             return true;
     }
 
-    // then regular scene input handlers.
-    for( CPPListNode* node = m_Components[BaseComponentType_InputHandler].GetHead(); node != 0; node = node->GetNext() )
+    // Then regular scene input handlers.
+    for( CPPListNode* pNode = m_Components[BaseComponentType_InputHandler].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     {
-        ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
+        ComponentInputHandler* pComponent = (ComponentInputHandler*)pNode;
 
         if( pComponent->GetBaseType() == BaseComponentType_InputHandler )
         {
@@ -3040,10 +3040,10 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
         }
     }
 
-    //// then send input to all the scripts.
-    //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    //// Then send input to all the scripts.
+    //for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     //{
-    //    ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
+    //    ComponentLuaScript* pComponent = ((ComponentBase*)pNode)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)pNode : nullptr;
 
     //    if( pComponent )
     //    {
@@ -3057,7 +3057,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
 
 bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
-    // send button events to all components that registered a callback.
+    // Send button events to all components that registered a callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_OnButtons.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_OnButtons* pCallbackStruct = (ComponentCallbackStruct_OnButtons*)pNode;
@@ -3066,10 +3066,10 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
             return true;
     }
 
-    // then regular scene input handlers.
-    for( CPPListNode* node = m_Components[BaseComponentType_InputHandler].GetHead(); node != 0; node = node->GetNext() )
+    // Then regular scene input handlers.
+    for( CPPListNode* pNode = m_Components[BaseComponentType_InputHandler].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     {
-        ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
+        ComponentInputHandler* pComponent = (ComponentInputHandler*)pNode;
 
         if( pComponent->GetBaseType() == BaseComponentType_InputHandler )
         {
@@ -3078,10 +3078,10 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
         }
     }
 
-    //// then send input to all the scripts.
-    //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    //// Then send input to all the scripts.
+    //for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     //{
-    //    ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
+    //    ComponentLuaScript* pComponent = ((ComponentBase*)pNode)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)pNode : nullptr;
 
     //    if( pComponent )
     //    {
@@ -3112,9 +3112,9 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keyCode, i
     }
 
     // Then regular scene input handlers.
-    for( CPPListNode* node = m_Components[BaseComponentType_InputHandler].GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* pNode = m_Components[BaseComponentType_InputHandler].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     {
-        ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
+        ComponentInputHandler* pComponent = (ComponentInputHandler*)pNode;
 
         if( pComponent->GetBaseType() == BaseComponentType_InputHandler )
         {
@@ -3124,9 +3124,9 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keyCode, i
     }
 
     //// Then send input to all the scripts.
-    //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    //for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode != nullptr; pNode = pNode->GetNext() )
     //{
-    //    ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
+    //    ComponentLuaScript* pComponent = ((ComponentBase*)pNode)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)pNode : nullptr;
 
     //    if( pComponent )
     //    {
@@ -3232,7 +3232,7 @@ void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialCheck)
             if( handle != INVALID_HANDLE_VALUE )
                 FindClose( handle );
 
-            // if the source file is newer than the data file, reimport it.
+            // If the source file is newer than the data file, reimport it.
             if( data.ftLastWriteTime.dwHighDateTime > pFileInfo->GetFile()->GetFileLastWriteTime().dwHighDateTime ||
                 ( data.ftLastWriteTime.dwHighDateTime == pFileInfo->GetFile()->GetFileLastWriteTime().dwHighDateTime &&
                   data.ftLastWriteTime.dwLowDateTime > pFileInfo->GetFile()->GetFileLastWriteTime().dwLowDateTime ) )
@@ -3308,7 +3308,7 @@ void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
     if( pSoundCue && pSoundCue->GetFile() )
     {
         // Add the sound cue to the file list, so it can be freed on shutdown.
-        AddToFileList( pSoundCue->GetFile(), 0, 0, 0, 0, pSoundCue, 0, 0, SCENEID_MainScene );
+        AddToFileList( pSoundCue->GetFile(), nullptr, nullptr, nullptr, nullptr, pSoundCue, nullptr, nullptr, SCENEID_MainScene );
         pSoundCue->GetFile()->AddRef();
     }
 }
@@ -3318,11 +3318,11 @@ void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue) // StaticOn
     MyAssert( pSoundCue );
 
     // Loop through both lists of files and unload all files referencing this sound cue.
-    for( int filelist=0; filelist<2; filelist++ )
+    for( int fileList=0; fileList<2; fileList++ )
     {
         CPPListNode* pFirstNode = 0;
 
-        if( filelist == 0 )
+        if( fileList == 0 )
             pFirstNode = m_Files.GetHead();
         else
             pFirstNode = m_FilesStillLoading.GetHead();
@@ -3348,11 +3348,11 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
     MyAssert( pFile );
 
     // Loop through both lists of files and unload all files referencing this file.
-    for( int filelist=0; filelist<2; filelist++ )
+    for( int fileList=0; fileList<2; fileList++ )
     {
-        CPPListNode* pFirstNode = 0;
+        CPPListNode* pFirstNode = nullptr;
 
-        if( filelist == 0 )
+        if( fileList == 0 )
             pFirstNode = m_Files.GetHead();
         else
             pFirstNode = m_FilesStillLoading.GetHead();

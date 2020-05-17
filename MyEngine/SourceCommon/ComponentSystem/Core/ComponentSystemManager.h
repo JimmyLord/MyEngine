@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -28,7 +28,7 @@ class ComponentCamera;
 class ComponentLight;
 class RenderGraph_Base;
 class RenderGraphObject;
-class MyFileInfo; // at bottom of this file.
+class MyFileInfo; // At bottom of this file.
 
 enum ObjectListIconTypes
 {
@@ -59,8 +59,8 @@ struct FileUpdatedCallbackStruct
         ComponentCallbackFunc_##CallbackType pFunc; \
         ComponentCallbackStruct_##CallbackType() \
         { \
-            pObj = 0; \
-            pFunc = 0; \
+            pObj = nullptr; \
+            pFunc = nullptr; \
         } \
     };
 
@@ -84,7 +84,7 @@ struct FileUpdatedCallbackStruct
     g_pComponentSystemManager->UnregisterComponentCallback_##CallbackType( &m_CallbackStruct_##CallbackType );
 
 #define MYFW_ASSERT_COMPONENT_CALLBACK_IS_NOT_REGISTERED(CallbackType) \
-    MyAssert( m_CallbackStruct_##CallbackType.Prev == 0 );
+    MyAssert( m_CallbackStruct_##CallbackType.Prev == nullptr );
 
 // Declare callback objects/functions - used by components.
 #define MYFW_DECLARE_COMPONENT_CALLBACK_TICK() \
@@ -93,7 +93,7 @@ struct FileUpdatedCallbackStruct
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED() \
     ComponentCallbackStruct_OnSurfaceChanged m_CallbackStruct_OnSurfaceChanged; \
-    void OnSurfaceChangedCallback(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+    void OnSurfaceChangedCallback(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredAspectWidth, unsigned int desiredAspectHeight);
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_DRAW() \
     ComponentCallbackStruct_Draw m_CallbackStruct_Draw; \
@@ -114,16 +114,16 @@ struct FileUpdatedCallbackStruct
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED() \
     ComponentCallbackStruct_OnFileRenamed m_CallbackStruct_OnFileRenamed; \
-    void OnFileRenamedCallback(const char* fullpathbefore, const char* fullpathafter);
+    void OnFileRenamedCallback(const char* fullPathBefore, const char* fullPathAfter);
 
 // Callback function prototypes and structs.
 typedef void (ComponentBase::*ComponentCallbackFunc_Tick)(float deltaTime);
-typedef void (ComponentBase::*ComponentCallbackFunc_OnSurfaceChanged)(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+typedef void (ComponentBase::*ComponentCallbackFunc_OnSurfaceChanged)(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredAspectWidth, unsigned int desiredaspectHeight);
 typedef void (ComponentBase::*ComponentCallbackFunc_Draw)(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnTouch)(int action, int id, float x, float y, float pressure, float size);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnButtons)(GameCoreButtonActions action, GameCoreButtonIDs id);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnKeys)(GameCoreButtonActions action, int keyCode, int unicodeChar);
-typedef void (ComponentBase::*ComponentCallbackFunc_OnFileRenamed)(const char* fullpathbefore, const char* fullpathafter);
+typedef void (ComponentBase::*ComponentCallbackFunc_OnFileRenamed)(const char* fullPathBefore, const char* fullPathAfter);
 
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( Tick );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnSurfaceChanged );
@@ -138,13 +138,13 @@ class ComponentSystemManager
 protected:
     EngineCore* m_pEngineCore;
 
-    ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
+    ComponentTypeManager* m_pComponentTypeManager; // Memory managed, delete this.
 
-    // List of files used including a scene id and the source file (if applicable)
+    // List of files used including a scene id and the source file (if applicable).
     CPPListHead m_Files;
     CPPListHead m_FilesStillLoading;
 
-    // a component can only exist in one of these lists ATM
+    // A component can only exist in one of these lists ATM.
     CPPListHead m_Components[BaseComponentType_NumTypes];
 
     bool m_WaitingForFilesToFinishLoading;
@@ -166,88 +166,88 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    // Getters
+    // Getters.
     EngineCore* GetEngineCore() { return m_pEngineCore; }
     float GetTimeScale() { return m_TimeScale; }
     RenderGraph_Base* GetRenderGraph() { return m_pRenderGraph; }
     ComponentTypeManager* GetComponentTypeManager() { return m_pComponentTypeManager; }
 
-    // Setters
+    // Setters.
     void SetTimeScale(float scale) { m_TimeScale = scale; } // Exposed to Lua, change elsewhere if function signature changes.
 
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first);
-    void AddListOfFilesUsedToJSONObject(SceneID sceneid, cJSON* filearray);
-    char* SaveSceneToJSON(SceneID sceneid);
+    void AddListOfFilesUsedToJSONObject(SceneID sceneID, cJSON* jFileArray);
+    char* SaveSceneToJSON(SceneID sceneID);
 #if MYFW_USING_BOX2D
-    char* ExportBox2DSceneToJSON(SceneID sceneid);
+    char* ExportBox2DSceneToJSON(SceneID sceneID);
 #endif //MYFW_USING_BOX2D
-    void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
+    void SaveGameObjectListToJSONArray(cJSON* jGameObjectArray, cJSON* jTransformArray, GameObject* first, bool saveSceneID);
     
-    MyFileInfo* GetFileInfoIfUsedByScene(MyFileObject* pFile, SceneID sceneid);
-    MyFileInfo* GetFileInfoIfUsedByScene(const char* fullpath, SceneID sceneid);
-    MyFileObject* GetFileObjectIfUsedByScene(const char* fullpath, SceneID sceneid);
+    MyFileInfo* GetFileInfoIfUsedByScene(MyFileObject* pFile, SceneID sceneID);
+    MyFileInfo* GetFileInfoIfUsedByScene(const char* fullPath, SceneID sceneID);
+    MyFileObject* GetFileObjectIfUsedByScene(const char* fullPath, SceneID sceneID);
 
-    MyFileInfo* AddToFileList(MyFileObject* pFile, SceneID sceneid);
-    MyFileInfo* AddToFileList(MyMesh* pMesh, SceneID sceneid);
-    MyFileInfo* AddToFileList(ShaderGroup* pShaderGroup, SceneID sceneid);
-    MyFileInfo* AddToFileList(TextureDefinition* pTexture, SceneID sceneid);
-    MyFileInfo* AddToFileList(MaterialDefinition* pMaterial, SceneID sceneid);
-    MyFileInfo* AddToFileList(SoundCue* pSoundCue, SceneID sceneid);
-    MyFileInfo* AddToFileList(SpriteSheet* pSpriteSheet, SceneID sceneid);
-    MyFileInfo* AddToFileList(My2DAnimInfo* p2DAnimInfo, SceneID sceneid);
-    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneid);
+    MyFileInfo* AddToFileList(MyFileObject* pFile, SceneID sceneID);
+    MyFileInfo* AddToFileList(MyMesh* pMesh, SceneID sceneID);
+    MyFileInfo* AddToFileList(ShaderGroup* pShaderGroup, SceneID sceneID);
+    MyFileInfo* AddToFileList(TextureDefinition* pTexture, SceneID sceneID);
+    MyFileInfo* AddToFileList(MaterialDefinition* pMaterial, SceneID sceneID);
+    MyFileInfo* AddToFileList(SoundCue* pSoundCue, SceneID sceneID);
+    MyFileInfo* AddToFileList(SpriteSheet* pSpriteSheet, SceneID sceneID);
+    MyFileInfo* AddToFileList(My2DAnimInfo* p2DAnimInfo, SceneID sceneID);
+    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneID);
 
-    MyFileInfo* EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired);
+    MyFileInfo* EditorLua_LoadDataFile(const char* relativePath, uint32 sceneID, const char* fullSourceFilePath, bool convertifrequired);
     MyFileInfo* LoadDataFile(const char* relativePath, SceneID sceneID, const char* fullSourceFilePath, bool convertIfRequired);
 #if MYFW_EDITOR
-    MyFileObject* ImportDataFile(SceneID sceneid, const char* fullsourcefilepath);
+    MyFileObject* ImportDataFile(SceneID sceneID, const char* fullSourceFilePath);
 #endif
     void FreeDataFile(MyFileInfo* pFileInfo);
     void FreeAllDataFiles(SceneID sceneIDToClear);
 
     void LoadSceneFromJSON(const char* sceneName, const char* jsonString, SceneID sceneID);
     ComponentBase* CreateComponentFromJSONObject(GameObject* pGameObject, cJSON* jComponent);
-    void FinishLoading(bool lockwhileloading, SceneID sceneid, bool playwhenfinishedloading);
+    void FinishLoading(bool lockWhileLoading, SceneID sceneID, bool playWhenFinishedLoading);
 
     void SyncAllRigidBodiesToObjectTransforms();
 
-    // can clear everything except editor objects/components
-    // unmanaged components are mainly editor objects and deleted objects in undo stack of editor... might want to rethink that.
+    // Can clear everything except editor objects/components.
+    // Unmanaged components are mainly editor objects and deleted objects in undo stack of editor... might want to rethink that.
     void UnloadScene(SceneID sceneIDToClear = SCENEID_AllScenes, bool clearUnmanagedComponents = true);
-    bool IsSceneLoaded(const char* fullpath);
-    SceneID FindSceneID(const char* fullpath);
+    bool IsSceneLoaded(const char* fullPath);
+    SceneID FindSceneID(const char* fullPath);
 
     GameObject* EditorLua_CreateGameObject(const char* name, uint32 sceneID, bool isFolder, bool hasTransform);
-    GameObject* CreateGameObject(bool manageObject = true, SceneID sceneID = SCENEID_Unmanaged, bool isFolder = false, bool hasTransform = true, PrefabReference* pPrefabRef = 0);
-    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, SceneID sceneid);
+    GameObject* CreateGameObject(bool manageObject = true, SceneID sceneID = SCENEID_Unmanaged, bool isFolder = false, bool hasTransform = true, PrefabReference* pPrefabRef = nullptr);
+    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageObject, SceneID sceneID);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabChildID, bool manageObject, SceneID sceneID);
 #if MYFW_EDITOR
-    GameObject* CreateGameObjectFromTemplate(unsigned int templateid, SceneID sceneid);
+    GameObject* CreateGameObjectFromTemplate(unsigned int templateID, SceneID sceneID);
 #endif
-    void UnmanageGameObject(GameObject* pObject, bool unmanagechildren);
-    void ManageGameObject(GameObject* pObject, bool managechildren);
-    void DeleteGameObject(GameObject* pObject, bool deletecomponents);
+    void UnmanageGameObject(GameObject* pObject, bool unmanageChildren);
+    void ManageGameObject(GameObject* pObject, bool manageChildren);
+    void DeleteGameObject(GameObject* pObject, bool deleteComponents);
 #if MYFW_EDITOR
-    GameObject* EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld);
+    GameObject* EditorCopyGameObject(GameObject* pObject, bool newObjectInheritsFromOld);
 #endif
-    GameObject* CopyGameObject(GameObject* pObject, const char* newname, bool disableNewObject);
+    GameObject* CopyGameObject(GameObject* pObject, const char* newName, bool disableNewObject);
 
-    unsigned int GetNextGameObjectIDAndIncrement(SceneID sceneid);
-    unsigned int GetNextComponentIDAndIncrement(SceneID sceneid);
+    unsigned int GetNextGameObjectIDAndIncrement(SceneID sceneID);
+    unsigned int GetNextComponentIDAndIncrement(SceneID sceneID);
 
     GameObject* EditorLua_GetFirstGameObjectFromScene(uint32 sceneID);
     GameObject* GetFirstGameObjectFromScene(SceneID sceneID);
-    GameObject* FindGameObjectByID(SceneID sceneid, unsigned int goid);
+    GameObject* FindGameObjectByID(SceneID sceneID, unsigned int goid);
     GameObject* FindGameObjectByIDFromList(GameObject* list, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
-    GameObject* FindGameObjectByNameInScene(SceneID sceneid, const char* name);
+    GameObject* FindGameObjectByNameInScene(SceneID sceneID, const char* name);
     GameObject* FindGameObjectByNameFromList(GameObject* list, const char* name);
-    GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultSceneID, bool requireSceneBeLoaded);
+    GameObject* FindGameObjectByJSONRef(cJSON* jGameObjectRef, SceneID defaultSceneID, bool requireSceneBeLoaded);
     GameObject* GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags);
 #if MYFW_USING_LUA
     luabridge::LuaRef Lua_GetGameObjectsInRange(Vector3 pos, float range, unsigned int flags);
 #endif
-    ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid);
+    ComponentBase* FindComponentByJSONRef(cJSON* jComponentRef, SceneID defaultSceneID);
     ComponentCamera* GetFirstCamera(bool preferEditorCam = false);
     ComponentBase* GetFirstComponentOfType(const char* type);
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);
@@ -255,19 +255,19 @@ public:
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);
 
-    ComponentBase* FindComponentByID(unsigned int id, SceneID sceneid = SCENEID_AllScenes);
+    ComponentBase* FindComponentByID(unsigned int id, SceneID sceneID = SCENEID_AllScenes);
 
     // Main events, most should call component callbacks.
     void Tick(float deltaTime);
-    void OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+    void OnSurfaceChanged(uint32 x, uint32 y, uint32 width, uint32 height, unsigned int desiredAspectWidth, unsigned int desiredaspectHeight);
     void OnDrawFrame();
     void DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays);
     void DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
-    void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
+    void OnFileRenamed(const char* fullPathBefore, const char* fullPathAfter);
 
-    void OnLoad(SceneID sceneid);
-    void OnPlay(SceneID sceneid);
-    void OnStop(SceneID sceneid);
+    void OnLoad(SceneID sceneID);
+    void OnPlay(SceneID sceneID);
+    void OnStop(SceneID sceneID);
 
     static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentSystemManager*)pObjectPtr)->OnEvent( pEvent ); }
     bool OnEvent(MyEvent* pEvent);
@@ -294,14 +294,14 @@ public:
     SceneID m_NextSceneID;
     SceneID GetNextSceneID();
     void ResetSceneIDCounter();
-    SceneInfo* GetSceneInfo(SceneID sceneid);
-    SceneID GetSceneIDFromFullpath(const char* fullpath, bool requireSceneBeLoaded); // Returns SCENEID_NotFound if scene isn't found.
+    SceneInfo* GetSceneInfo(SceneID sceneID);
+    SceneID GetSceneIDFromFullpath(const char* fullPath, bool requireSceneBeLoaded); // Returns SCENEID_NotFound if scene isn't found.
 #if MYFW_EDITOR
     SceneHandler* m_pSceneHandler;
-    void CreateNewScene(const char* scenename, SceneID sceneid);
+    void CreateNewScene(const char* sceneName, SceneID sceneID);
 #if MYFW_USING_WX
-    wxTreeItemId GetTreeIDForScene(SceneID sceneid);
-    SceneID GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
+    wxTreeItemId GetTreeIDForScene(SceneID sceneID);
+    SceneID GetSceneIDFromSceneTreeID(wxTreeItemId treeID);
 #endif //MYFW_USING_WX
     unsigned int GetNumberOfScenesLoaded();
     //std::map<int, SceneInfo> m_pSceneInfoMap;
@@ -316,9 +316,9 @@ public:
     PrefabManager* m_pPrefabManager;
     SceneInfo m_pSceneInfoMap[MAX_SCENES_CREATED];
 
-    // RenderGraph Functions
-    void AddMeshToRenderGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers, RenderGraphObject** pOutputList);
-    RenderGraphObject* AddSubmeshToRenderGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointsize, unsigned int layers);
+    // RenderGraph Functions.
+    void AddMeshToRenderGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, MyRE::PrimitiveTypes primitiveType, int pointSize, unsigned int layers, RenderGraphObject** pOutputList);
+    RenderGraphObject* AddSubmeshToRenderGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, MyRE::PrimitiveTypes primitiveType, int pointSize, unsigned int layers);
     void RemoveObjectFromRenderGraph(RenderGraphObject* pRenderGraphObject);
 
 public:
@@ -352,35 +352,35 @@ public:
 class MyFileInfo : public CPPListNode
 {
 protected:
-    // m_pFile might be 0 (for wav's for example, but m_SourceFileFullPath should be set in those cases)
+    // m_pFile might be nullptr (for wav's for example, but m_SourceFileFullPath should be set in those cases).
     MyFileObject* m_pFile;
     char m_SourceFileFullPath[MAX_PATH];
     SceneID m_SceneID;
 
-    MyMesh* m_pMesh; // a mesh may have been created alongside the file.
-    ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
-    TextureDefinition* m_pTexture; //a texture may have been created alongside the file.
-    MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
-    SoundCue* m_pSoundCue; //a sound cue may have been created alongside the file.
-    SpriteSheet* m_pSpriteSheet; //a sprite sheet may have been created alongside the file.
-    PrefabFile* m_pPrefabFile; // a prefab file may have been created alongside the file.
-    My2DAnimInfo* m_p2DAnimInfo; // a prefab file may have been created alongside the file.
+    MyMesh* m_pMesh; // A mesh may have been created alongside the file.
+    ShaderGroup* m_pShaderGroup; // A shadergroup may have been created alongside the file.
+    TextureDefinition* m_pTexture; // A texture may have been created alongside the file.
+    MaterialDefinition* m_pMaterial; // A material may have been created alongside the file.
+    SoundCue* m_pSoundCue; // A sound cue may have been created alongside the file.
+    SpriteSheet* m_pSpriteSheet; // A sprite sheet may have been created alongside the file.
+    PrefabFile* m_pPrefabFile; // A prefab file may have been created alongside the file.
+    My2DAnimInfo* m_p2DAnimInfo; // A prefab file may have been created alongside the file.
 
     bool m_DidInitialCheckIfSourceFileWasUpdated;
 
 public:
     MyFileInfo()
     {
-        m_pFile = 0;
-        m_SourceFileFullPath[0] = 0; // store the source file (fbx, obj, etc) that the data file was converted from.
+        m_pFile = nullptr;
+        m_SourceFileFullPath[0] = '\0'; // Store the source file (fbx, obj, etc) that the data file was converted from.
         m_SceneID = SCENEID_NotSet;
 
-        m_pMesh = 0;
-        m_pShaderGroup = 0;
-        m_pTexture = 0;
-        m_pMaterial = 0;
-        m_pSoundCue = 0;
-        m_pSpriteSheet = 0;
+        m_pMesh = nullptr;
+        m_pShaderGroup = nullptr;
+        m_pTexture = nullptr;
+        m_pMaterial = nullptr;
+        m_pSoundCue = nullptr;
+        m_pSpriteSheet = nullptr;
 
         m_DidInitialCheckIfSourceFileWasUpdated = false;
     }
