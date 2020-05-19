@@ -113,8 +113,8 @@ public:
     //static void StaticOnDropOBJ(void* pObjectPtr, int controlid, int x, int y) { ((Component3DCollisionObject*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
     //void OnDropOBJ(int controlid, int x, int y);
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((Component3DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
-    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor) { ((Component3DCollisionObject*)pObjectPtr)->OnTransformChanged( newPos, newRot, newScale, changedByUserInEditor ); }
+    void OnTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor);
 #endif //MYFW_USING_WX
 
     // Component variable callbacks. //_VARIABLE_LIST

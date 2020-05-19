@@ -169,7 +169,7 @@ void MonoGameState::CheckForUpdatedScripts()
     {
         // TODO: All .cs files are gone, unload and delete the .dll?
         // It should still build and load with just engine .cs files.
-        LOGInfo( LOGTag, "No .cs files found. Old game.dll still in effect.\n" );
+        //LOGInfo( LOGTag, "No .cs files found. Old game.dll still in effect.\n" );
     }
 
     if( monoDLLNeedsRebuilding )

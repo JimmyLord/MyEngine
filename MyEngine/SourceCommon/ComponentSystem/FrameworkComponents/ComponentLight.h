@@ -42,8 +42,8 @@ public:
     virtual void OnGameObjectEnabled() override;
     virtual void OnGameObjectDisabled() override;
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor) { ((ComponentLight*)pObjectPtr)->OnTransformChanged( newPos, newRot, newScale, changedByUserInEditor ); }
-    void OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor) { ((ComponentLight*)pObjectPtr)->OnTransformChanged( newPos, newRot, newScale, changedByUserInEditor ); }
+    void OnTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor);
 
     // Setters.
     virtual bool SetEnabled(bool enableComponent) override;

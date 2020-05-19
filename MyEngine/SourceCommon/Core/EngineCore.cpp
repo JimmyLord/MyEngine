@@ -225,7 +225,7 @@ void EngineCore::Cleanup()
 
     m_SingleFrameMemoryStack.Cleanup();
 
-    delete m_pFileChangeDetector;
+    SAFE_DELETE( m_pFileChangeDetector );
 }
 
 void EngineCore::SaveEditorPrefs()
@@ -555,7 +555,10 @@ void EngineCore::OneTimeInit()
     m_pEditorDocumentManager->RestorePreviouslyOpenDocuments( this );
 #endif
 
-    m_pFileChangeDetector = MyNew FileChangeDetectorWindows( nullptr );
+    if( m_pFileChangeDetector == nullptr )
+    {
+        m_pFileChangeDetector = MyNew FileChangeDetectorWindows( nullptr );
+    }
 }
 
 void EngineCore::OnPrepareToDie()
@@ -604,7 +607,10 @@ float EngineCore::Tick(float deltaTime)
         }
     }
 
-    m_pFileChangeDetector->CheckForChanges();
+    if( m_pFileChangeDetector )
+    {
+        m_pFileChangeDetector->CheckForChanges();
+    }
 
     //ImGui::Begin( "Editor Debug" );
     //ImGui::Text( "IsAnyWindowHovered: %d", ImGui::IsAnyWindowHovered() );

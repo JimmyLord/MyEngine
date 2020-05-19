@@ -133,6 +133,13 @@ MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnButtons );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnKeys );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnFileRenamed );
 
+typedef void TransformChangedCallbackFunc(void* pObjectPtr, const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor);
+struct TransformChangedCallbackStruct : public CPPListNode
+{
+    void* pObj;
+    TransformChangedCallbackFunc* pFunc;
+};
+
 class ComponentSystemManager
 {
 protected:
@@ -154,6 +161,10 @@ protected:
 
     RenderGraph_Base* m_pRenderGraph;
 
+    // Pool for transform changed callbacks.
+    static const int CALLBACK_POOL_SIZE = 1000;
+    MySimplePool<TransformChangedCallbackStruct> m_pComponentTransform_TransformChangedCallbackPool;
+
 #if MYFW_EDITOR
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
 #endif //MYFW_EDITOR
@@ -171,6 +182,7 @@ public:
     float GetTimeScale() { return m_TimeScale; }
     RenderGraph_Base* GetRenderGraph() { return m_pRenderGraph; }
     ComponentTypeManager* GetComponentTypeManager() { return m_pComponentTypeManager; }
+    MySimplePool<TransformChangedCallbackStruct>* GetTransformChangedCallbackPool() { return &m_pComponentTransform_TransformChangedCallbackPool; }
 
     // Setters.
     void SetTimeScale(float scale) { m_TimeScale = scale; } // Exposed to Lua, change elsewhere if function signature changes.
@@ -299,10 +311,6 @@ public:
 #if MYFW_EDITOR
     SceneHandler* m_pSceneHandler;
     void CreateNewScene(const char* sceneName, SceneID sceneID);
-#if MYFW_USING_WX
-    wxTreeItemId GetTreeIDForScene(SceneID sceneID);
-    SceneID GetSceneIDFromSceneTreeID(wxTreeItemId treeID);
-#endif //MYFW_USING_WX
     unsigned int GetNumberOfScenesLoaded();
     //std::map<int, SceneInfo> m_pSceneInfoMap;
 

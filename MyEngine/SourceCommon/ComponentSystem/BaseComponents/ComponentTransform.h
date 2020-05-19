@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -11,15 +11,7 @@
 #define __ComponentTransform_H__
 
 #include "ComponentBase.h"
-
-typedef void TransformChangedCallbackFunc(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
-struct TransformChangedCallbackStruct : public CPPListNode
-{
-    void* pObj;
-    TransformChangedCallbackFunc* pFunc;
-};
-
-extern MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_TransformChangedCallbackPool;
+#include "ComponentSystem/Core/ComponentSystemManager.h"
 
 class ComponentTransform : public ComponentBase
 {
@@ -27,31 +19,27 @@ private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentTransform );
 
-    static const int CALLBACK_POOL_SIZE = 1000;
-
-    static MySimplePool<TransformChangedCallbackStruct> m_pComponentTransform_TransformChangedCallbackPool;
-
 protected:
     CPPListHead m_TransformChangedCallbackList;
 
-    ComponentTransform* m_pParentTransform; // for slightly faster access to transform, parent GameObject is stored in GameObject
+    ComponentTransform* m_pParentTransform; // This is redundant for slightly faster access to transform; The parent GameObject is stored in GameObject.
 
     MyMatrix m_WorldTransform;
     bool m_WorldTransformIsDirty;
     Vector3 m_WorldPosition;
-    Vector3 m_WorldRotation; // in degrees
+    Vector3 m_WorldRotation; // In degrees.
     Vector3 m_WorldScale;
 
     MyMatrix m_LocalTransform;
     bool m_LocalTransformIsDirty;
     Vector3 m_LocalPosition;
-    Vector3 m_LocalRotation; // in degrees
+    Vector3 m_LocalRotation; // In degrees.
     Vector3 m_LocalScale;
 
 public:
     ComponentTransform(EngineCore* pEngineCore, ComponentSystemManager* pComponentSystemManager);
     virtual ~ComponentTransform();
-    SetClassnameBase( "TransformComponent" ); // only first 8 character count.
+    SetClassnameBase( "TransformComponent" ); // Only first 8 character count.
 
     // These 2 methods are called by the EngineComponentTypeManager at startup and shutdown.
     static void SystemStartup();
@@ -72,13 +60,13 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentTransform&)*pObject; }
     ComponentTransform& operator=(const ComponentTransform& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void RegisterCallbacks() {} // TODO: Change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: Change this component to use callbacks.
 
 #if MYFW_EDITOR
     void SetPositionByEditor(Vector3 pos);
     void SetScaleByEditor(Vector3 scale);
-    void SetRotationByEditor(Vector3 eulerangles);
+    void SetRotationByEditor(Vector3 eulerAngles);
 #endif
 
     ComponentTransform* GetParentTransform() { return m_pParentTransform; }
@@ -86,19 +74,19 @@ public:
 
     void SetWorldTransformIsDirty() { m_WorldTransformIsDirty = true; }
     void SetWorldTransform(const MyMatrix* mat);
-    MyMatrix* GetWorldTransform(bool markdirty = false);
+    MyMatrix* GetWorldTransform(bool markDirty = false);
     Vector3 GetWorldPosition();
     Vector3 GetWorldRotation();
     Vector3 GetWorldScale();
     MyMatrix GetWorldRotPosMatrix();
 
-    // recalculate the matrix each time we set any of the 3 properties. // not efficient
+    // Recalculate the matrix each time we set any of the 3 properties. // Not efficient.
     void SetWorldPosition(Vector3 pos);
     void SetWorldRotation(Vector3 rot);
     void SetWorldScale(Vector3 scale);
 
     void SetLocalTransform(MyMatrix* mat);
-    MyMatrix* GetLocalTransform(bool markdirty = false);
+    MyMatrix* GetLocalTransform(bool markDirty = false);
     Vector3 GetLocalPosition();
     Vector3 GetLocalRotation();
     Vector3 GetLocalScale();
@@ -108,7 +96,7 @@ public:
     void Rotate(MyMatrix* pRotMatrix, Vector3 pivot);
     void LookAt(Vector3 pos);
 
-    // recalculate the matrix each time we set any of the 3 properties. // not efficient
+    // Recalculate the matrix each time we set any of the 3 properties. // Not efficient.
     void SetLocalPosition(Vector3 pos);
     void SetLocalRotation(Vector3 rot);
     void SetLocalScale(Vector3 scale);
@@ -117,13 +105,13 @@ public:
     void UpdateWorldSRT();
     void UpdateTransform();
 
-    // Callbacks
+    // Callbacks.
     void RegisterTransformChangedCallback(void* pObj, TransformChangedCallbackFunc* pCallback);
     void UnregisterTransformChangedCallbacks(void* pObj);
 
-    // Parent transform changed
-    static void StaticOnParentTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentTransform*)pObjectPtr)->OnParentTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
-    void OnParentTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+    // Parent transform changed.
+    static void StaticOnParentTransformChanged(void* pObjectPtr, const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor) { ((ComponentTransform*)pObjectPtr)->OnParentTransformChanged( newPos, newRot, newScale, changedByUserInEditor ); }
+    void OnParentTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor);
 
 public:
 #if MYFW_EDITOR

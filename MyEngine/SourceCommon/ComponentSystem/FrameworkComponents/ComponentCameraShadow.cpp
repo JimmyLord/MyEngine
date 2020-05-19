@@ -232,7 +232,7 @@ void ComponentCameraShadow::OnGameObjectDisabled()
     }
 }
 
-void ComponentCameraShadow::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+void ComponentCameraShadow::OnTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor)
 {
     MyAssert( m_pLight );
 

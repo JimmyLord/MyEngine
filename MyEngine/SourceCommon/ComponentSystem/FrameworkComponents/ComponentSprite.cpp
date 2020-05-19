@@ -261,7 +261,7 @@ void ComponentSprite::OnLoad()
         AddToRenderGraph();
 }
 
-void ComponentSprite::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+void ComponentSprite::OnTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor)
 {
     if( m_pRenderGraphObject != 0 )
     {

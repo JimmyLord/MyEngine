@@ -366,7 +366,7 @@ void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool c
     return oldpointer;
 }
 
-void Component2DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedByUserInEditor)
+void Component2DCollisionObject::OnTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor)
 {
     if( changedByUserInEditor )
         SyncRigidBodyToTransform();

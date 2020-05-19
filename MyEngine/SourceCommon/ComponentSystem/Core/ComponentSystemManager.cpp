@@ -56,6 +56,11 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* pTypeManage
     m_pGameObjectTemplateManager = MyNew GameObjectTemplateManager();
 #endif
 
+    // Create a pool of transform changed callback objects.
+    if( m_pComponentTransform_TransformChangedCallbackPool.IsInitialized() == false )
+        m_pComponentTransform_TransformChangedCallbackPool.AllocateObjects( CALLBACK_POOL_SIZE );
+
+    // Initialize managers.
     m_pPrefabManager = MyNew PrefabManager( m_pEngineCore );
 
     EventManager* pEventManager = m_pEngineCore->GetManagers()->GetEventManager();
@@ -140,6 +145,8 @@ ComponentSystemManager::~ComponentSystemManager()
     MyAssert( m_pComponentCallbackList_OnKeys.GetHead() == nullptr );
     MyAssert( m_pComponentCallbackList_OnFileRenamed.GetHead() == nullptr );
     
+    m_pComponentTransform_TransformChangedCallbackPool.FreeObjects();
+
     g_pComponentSystemManager = nullptr;
 }
 
@@ -1780,25 +1787,11 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool manageCh
 // Exposed to Lua, change elsewhere if function signature changes.
 void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteComponents)
 {
-#if MYFW_USING_WX
-    if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( pObject ) )
-    {
-        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-    }
-#endif
-
     if( deleteComponents )
     {
         while( pObject->m_Components.Count() )
         {
             ComponentBase* pComponent = pObject->m_Components.RemoveIndex( 0 );
-
-#if MYFW_USING_WX
-            if( g_pEngineCore->GetEditorState()->IsComponentSelected( pComponent ) )
-            {
-                g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-            }
-#endif
 
             pComponent->SetEnabled( false );
             delete pComponent;

@@ -149,8 +149,8 @@ public:
     void* OnDrop(ComponentVariable* pVar, bool changedByInterface, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedByInterface, bool finishedChanging, double oldValue, ComponentVariableValue* pNewValue);
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedByUserInEditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedByUserInEditor ); }
-    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedByUserInEditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformChanged( newPos, newRot, newScale, changedByUserInEditor ); }
+    void OnTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor);
 
     static void StaticOnButtonEditChain(void* pObjectPtr, int buttonID) { ((Component2DCollisionObject*)pObjectPtr)->OnButtonEditChain( buttonID ); }
     void OnButtonEditChain(int buttonID);

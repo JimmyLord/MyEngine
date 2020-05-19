@@ -184,8 +184,8 @@ public:
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((GameObject*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     void OnGameObjectDeleted(GameObject* pGameObject);
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((GameObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
-    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor) { ((GameObject*)pObjectPtr)->OnTransformChanged( newPos, newRot, newScale, changedByUserInEditor ); }
+    void OnTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor);
 
 public:
 #if MYFW_EDITOR

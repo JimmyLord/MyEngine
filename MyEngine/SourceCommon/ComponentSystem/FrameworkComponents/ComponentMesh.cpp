@@ -475,7 +475,7 @@ bool ComponentMesh::OnEvent(MyEvent* pEvent)
     return false;
 }
 
-void ComponentMesh::OnTransformChanged(Vector3& newPos, Vector3& newRot, Vector3& newScale, bool changedByUserInEditor)
+void ComponentMesh::OnTransformChanged(const Vector3& newPos, const Vector3& newRot, const Vector3& newScale, bool changedByUserInEditor)
 {
     if( m_pMesh )
     {
