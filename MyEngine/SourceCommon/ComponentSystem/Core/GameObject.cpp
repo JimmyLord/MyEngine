@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -24,14 +24,14 @@
 #include "../SourceEditor/Commands/EngineEditorCommands.h"
 #endif
 
-GameObject::GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+GameObject::GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneID, bool isFolder, bool hasTransform, PrefabReference* pPrefabRef)
 : m_Properties( pEngineCore, pEngineCore->GetComponentSystemManager() )
 {
     ClassnameSanityCheck();
 
     m_pEngineCore = pEngineCore;
 
-    m_pGameObjectThisInheritsFrom = 0;
+    m_pGameObjectThisInheritsFrom = nullptr;
 
 #if MYFW_EDITOR
     if( pPrefabRef && pPrefabRef->GetPrefab() )
@@ -40,61 +40,56 @@ GameObject::GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneid, b
     }
 #endif
 
-    m_pParentGameObject = 0;
+    m_pParentGameObject = nullptr;
 
     m_Properties.SetEnabled( false );
     m_Properties.SetGameObject( this );
 
     m_Enabled = true;
-    if( pPrefabRef != 0 )
+    if( pPrefabRef != nullptr )
         m_PrefabRef = *pPrefabRef;
-    m_IsFolder = isfolder;
-    m_SceneID = sceneid;
+    m_IsFolder = isFolder;
+    m_SceneID = sceneID;
     m_ID = 0;
-    m_PhysicsSceneID = sceneid;
-    m_Name = 0;
-    m_pOriginatingPool = 0;
+    m_PhysicsSceneID = sceneID;
+    m_Name = nullptr;
+    m_pOriginatingPool = nullptr;
     
     m_Managed = false;
     if( managed )
         SetManaged( true );
 
-    if( isfolder || hastransform == false )
+    if( isFolder || hasTransform == false )
     {
-        m_pComponentTransform = 0;
+        m_pComponentTransform = nullptr;
     }
     else
     {
         m_pComponentTransform = MyNew ComponentTransform( pEngineCore, pEngineCore->GetComponentSystemManager() );
         m_pComponentTransform->SetType( ComponentType_Transform );
-        m_pComponentTransform->SetSceneID( sceneid );
+        m_pComponentTransform->SetSceneID( sceneID );
         m_pComponentTransform->SetGameObject( this );
         m_pComponentTransform->Reset();
     }
 
-    m_Components.AllocateObjects( MAX_COMPONENTS ); // hard coded nonsense for now, max of 8 components on a game object.
+    m_Components.AllocateObjects( MAX_COMPONENTS ); // Hard coded nonsense for now, max of 8 components on a game object.
 }
 
 GameObject::~GameObject()
 {
-#if MYFW_USING_WX
-    if( g_pPanelWatch->GetObjectBeingWatched() == this )
-        g_pPanelWatch->ClearAllVariables();
-#endif //MYFW_USING_WX
-
     NotifyOthersThisWasDeleted();
 
-    MyAssert( m_pOnDeleteCallbacks.GetHead() == 0 );
+    MyAssert( m_pOnDeleteCallbacks.GetHead() == nullptr );
 
     // If we still have a parent gameobject, then we're likely still registered in its OnDeleted callback list.
     // Unregister ourselves to stop the parent's gameobject from reporting its deletion.
-    if( m_pParentGameObject != 0 )
+    if( m_pParentGameObject != nullptr )
     {
         m_pParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
 
     // If it's in a list, remove it.
-    if( this->Prev != 0 )
+    if( this->Prev != nullptr )
         Remove();
 
     // Delete components.
@@ -130,7 +125,7 @@ GameObject::~GameObject()
 void GameObject::SetGameObjectThisInheritsFrom(GameObject* pObj)
 {
     // TODO: Fix prefab when this gets called.
-    MyAssert( m_PrefabRef.GetPrefab() == 0 );
+    MyAssert( m_PrefabRef.GetPrefab() == nullptr );
 
     m_pGameObjectThisInheritsFrom = pObj;
 }
@@ -151,7 +146,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "GetTransform", &GameObject::GetTransform ) // ComponentTransform* GameObject::GetTransform()
             .addFunction( "GetName", &GameObject::GetName ) // const char* GameObject::GetName()
             .addFunction( "GetComponentByIndex", &GameObject::GetComponentByIndex_Friendly ) // GetComponentByIndex_Friendly(unsigned int index)
-            .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
+            .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes baseType)
             .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
             .addFunction( "GetFirstChild", &GameObject::GetFirstChild ) // GameObject* GetFirstChild()
             .addFunction( "GetNextGameObjectInList", &GameObject::GetNextGameObjectInList ) // GameObject* GetNextGameObjectInList()
@@ -172,7 +167,7 @@ void GameObject::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
+cJSON* GameObject::ExportAsJSONObject(bool saveSceneID)
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
@@ -185,7 +180,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     {
 #if MYFW_EDITOR
         // Don't save parentGO if it's the prefab.
-        if( m_PrefabRef.GetPrefab() == 0 ||
+        if( m_PrefabRef.GetPrefab() == nullptr ||
             (m_pGameObjectThisInheritsFrom != m_PrefabRef.GetGameObject()) )
 #endif
         {
@@ -200,13 +195,13 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( m_Enabled == false )
         cJSON_AddNumberToObject( jGameObject, "Enabled", m_Enabled );
 
-    if( savesceneid )
+    if( saveSceneID )
         cJSON_AddNumberToObject( jGameObject, "SceneID", m_SceneID );
 
     if( m_SceneID != m_PhysicsSceneID )
         cJSON_AddNumberToObject( jGameObject, "PhysicsSceneID", m_PhysicsSceneID );
 
-    if( m_PrefabRef.GetPrefab() != 0 )
+    if( m_PrefabRef.GetPrefab() != nullptr )
     {
         cJSON_AddStringToObject( jGameObject, "PrefabFile", m_PrefabRef.GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath() );
         cJSON_AddNumberToObject( jGameObject, "PrefabID", m_PrefabRef.GetPrefab()->GetID() );
@@ -219,12 +214,12 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     
     if( m_IsFolder == true )
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
-    else if( m_pComponentTransform == 0 )
+    else if( m_pComponentTransform == nullptr )
         cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
 
     cJSON* jProperties = m_Properties.ExportAsJSONObject( false, true );
-    // if no properties were saved, don't write it out to disk
-    if( jProperties->child == 0 )
+    // If no properties were saved, don't write it out to disk.
+    if( jProperties->child == nullptr )
     {
         cJSON_Delete( jProperties );
     }
@@ -248,17 +243,17 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     return jGameObject;
 }
 
-void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
+void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneID)
 {
-    // Load the correct GameObject ID
+    // Load the correct GameObject ID.
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
 
-    // Deal with prefabs // only in editor builds, game builds don't much care.
+    // Deal with prefabs. // Only in editor builds, game builds don't much care.
 #if MYFW_EDITOR
     cJSON* jPrefabID = cJSON_GetObjectItem( jGameObject, "PrefabID" );
     if( jPrefabID )
     {
-        // If we're doing a quick-load of a file, this gameobject should already have its prefab info set up
+        // If we're doing a quick-load of a file, this gameobject should already have its prefab info set up.
         if( m_PrefabRef.GetPrefab() )
         {
             // Quick-loading the file, don't load the prefab info.
@@ -266,7 +261,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
         else
         {
             cJSON* jPrefabFile = cJSON_GetObjectItem( jGameObject, "PrefabFile" );
-            MyAssert( jPrefabFile != 0 );
+            MyAssert( jPrefabFile != nullptr );
 
             if( jPrefabFile )
             {
@@ -276,12 +271,12 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
 
                 PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( jPrefabFile->valuestring );
             
-                // prefab file load must have been initiated by scene load
-                // might want to consider triggering a load here if it's not in the file list.
-                MyAssert( pPrefabFile != 0 );
+                // Prefab file load must have been initiated by scene load.
+                // Might want to consider triggering a load here if it's not in the file list.
+                MyAssert( pPrefabFile != nullptr );
 
-                // if the prefab file isn't loaded yet, store the name and link to the prefab when the file is loaded
-                if( pPrefabFile->GetFile()->IsFinishedLoading() == false ) // still loading
+                // If the prefab file isn't loaded yet, store the name and link to the prefab when the file is loaded.
+                if( pPrefabFile->GetFile()->IsFinishedLoading() == false ) // Still loading.
                 {
                     pPrefabFile->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnPrefabFileFinishedLoading );
                 }
@@ -294,27 +289,18 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
     }
 #endif //MYFW_EDITOR
 
-    unsigned int parentgoid = 0;
-    cJSONExt_GetUnsignedInt( jGameObject, "ParentGOID", &parentgoid );
-    if( parentgoid != 0 )
+    unsigned int parentGOID = 0;
+    cJSONExt_GetUnsignedInt( jGameObject, "ParentGOID", &parentGOID );
+    if( parentGOID != 0 )
     {
-        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentgoid );
+        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneID, parentGOID );
         MyAssert( pParentGameObject );
-
-#if MYFW_USING_WX
-        // Move as last item in parent.
-        GameObject* pLastChild = pParentGameObject->GetChildList()->GetTail();
-        if( pLastChild != 0 )
-            g_pPanelObjectList->Tree_MoveObject( this, pLastChild, false );
-        else
-            g_pPanelObjectList->Tree_MoveObject( this, pParentGameObject, true );
-#endif //MYFW_USING_WX
 
         SetParentGameObject( pParentGameObject );
     }
 
-    // LEGACY: support for old scene files with folders in them
-    //    now stored as "SubType", handled in ComponentSystemManager::LoadSceneFromJSON()
+    // LEGACY: Support for old scene files with folders in them.
+    //    Now stored as "SubType", handled in ComponentSystemManager::LoadSceneFromJSON().
     cJSONExt_GetBool( jGameObject, "IsFolder", &m_IsFolder );
 
     cJSON* jName = cJSON_GetObjectItem( jGameObject, "Name" );
@@ -322,7 +308,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
     {
         SetName( jName->valuestring );
     }
-    SetSceneID( sceneid, false ); // set new scene, but don't assign a new GOID.
+    SetSceneID( sceneID, false ); // Set new scene, but don't assign a new GOID.
 
     m_PhysicsSceneID = m_SceneID;
     cJSONExt_GetUnsignedInt( jGameObject, "PhysicsSceneID", (unsigned int*)&m_PhysicsSceneID );
@@ -333,7 +319,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
 
     cJSON* jProperties = cJSON_GetObjectItem( jGameObject, "Properties" );
     if( jProperties )
-        m_Properties.ImportFromJSONObject( jProperties, sceneid );
+        m_Properties.ImportFromJSONObject( jProperties, sceneID );
 
 #if MYFW_EDITOR
     // Import lists of deleted prefab children and components.
@@ -377,17 +363,17 @@ void GameObject::ImportInheritanceInfoFromJSONObject(cJSON* jGameObject)
         m_pGameObjectThisInheritsFrom = g_pComponentSystemManager->FindGameObjectByJSONRef( jParentGO, m_SceneID, true );
 
         // If this trips, then the other object might come from another scene that isn't loaded.
-        MyAssert( m_pGameObjectThisInheritsFrom != 0 );
+        MyAssert( m_pGameObjectThisInheritsFrom != nullptr );
     }
 }
 
-cJSON* GameObject::ExportReferenceAsJSONObject(SceneID refsceneid)
+cJSON* GameObject::ExportReferenceAsJSONObject(SceneID refSceneID)
 {
-    // see ComponentSystemManager::FindGameObjectByJSONRef
+    // See ComponentSystemManager::FindGameObjectByJSONRef.
 
     cJSON* gameobjectref = cJSON_CreateObject();
 
-    if( refsceneid != m_SceneID )
+    if( refSceneID != m_SceneID )
     {
         cJSON_AddStringToObject( gameobjectref, "Scene", GetSceneInfo()->m_FullPath );
     }
@@ -401,10 +387,10 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
-    // Back-up sceneid.
-    // Set gameobject to scene zero, so any gameobject references will store the sceneid when serialized (since they will differ)
+    // Back-up sceneID.
+    // Set gameobject to scene zero, so any gameobject references will store the sceneID when serialized (since they will differ).
     // Set it back later, without changing gameobject id.
-    SceneID sceneidbackup = GetSceneID();
+    SceneID sceneIDBackup = GetSceneID();
     SetSceneID( SCENEID_Unmanaged, false );
 
     // Don't export the ParentGOID, we'll ignore that it was parented at all.
@@ -416,18 +402,18 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
 
     if( m_IsFolder == true )
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
-    else if( m_pComponentTransform == 0 )
+    else if( m_pComponentTransform == nullptr )
         cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
 
     // Export the prefab this object is an instance of.
-    if( m_PrefabRef.GetPrefab() != 0 )
+    if( m_PrefabRef.GetPrefab() != nullptr )
     {
         // Nested Prefabs must come from the same file.
         // TODO: Replace this assert with an error message.
         MyAssert( m_PrefabRef.GetPrefab()->GetPrefabFile() == pPrefab->GetPrefabFile() );
 
         // If this prefab inherits from another prefab, save the prefabID.
-        if( m_pGameObjectThisInheritsFrom != 0 )
+        if( m_pGameObjectThisInheritsFrom != nullptr )
         {
             PrefabReference* pInheritedPrefabRef = m_pGameObjectThisInheritsFrom->GetPrefabRef();
             //PrefabReference* pInheritedPrefabRef = &m_PrefabRef;
@@ -440,9 +426,9 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         }
     }
 
-    // Export properties, if none were saved, don't add the block to jGameObject
+    // Export properties, if none were saved, don't add the block to jGameObject.
     cJSON* jProperties = m_Properties.ExportAsJSONObject( false, false );
-    if( jProperties->child == 0 )
+    if( jProperties->child == nullptr )
     {
         cJSON_Delete( jProperties );
     }
@@ -451,7 +437,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         cJSON_AddItemToObject( jGameObject, "Properties", jProperties );
     }
 
-    // Export components
+    // Export components.
     if( m_Components.Count() > 0 )
     {
         cJSON* jComponentArray = cJSON_CreateArray();
@@ -479,7 +465,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
     }
 
     // Loop through children and add them to jGameObject.
-    if( m_ChildList.GetHead() != 0 )
+    if( m_ChildList.GetHead() != nullptr )
     {
         cJSON* jChildrenArray = cJSON_CreateArray();
         cJSON_AddItemToObject( jGameObject, "Children", jChildrenArray );
@@ -492,15 +478,15 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
 
             // Add ChildID.
             {
-                uint32 childid = 0;
+                uint32 childID = 0;
 
                 if( assignNewChildIDs )
-                    childid = pPrefab->GetNextChildPrefabIDAndIncrement();
+                    childID = pPrefab->GetNextChildPrefabIDAndIncrement();
                 else
-                    childid = pChildGameObject->GetPrefabRef()->GetChildID();
+                    childID = pChildGameObject->GetPrefabRef()->GetChildID();
 
-                MyAssert( childid != 0 );
-                cJSON_AddNumberToObject( jChildObject, "ChildID", childid );
+                MyAssert( childID != 0 );
+                cJSON_AddNumberToObject( jChildObject, "ChildID", childID );
             }
 
             // Add the child's offset from the parent.
@@ -514,7 +500,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
     }
 
     // Reset scene id to original value, don't change the gameobjectid.
-    SetSceneID( sceneidbackup, false );
+    SetSceneID( sceneIDBackup, false );
 
     return jGameObject;
 }
@@ -579,42 +565,42 @@ void GameObject::SetEnabled(bool enabled, bool affectChildren)
     }
 }
 
-//void GameObject::RegisterAllComponentCallbacks(bool ignoreenabledflag)
+//void GameObject::RegisterAllComponentCallbacks(bool ignoreEnabledFlag)
 //{
 //    // Loop through all components and register/unregister their callbacks.
 //    for( unsigned int i=0; i<m_Components.Count(); i++ )
 //    {
-//        if( m_Components[i]->IsEnabled() || ignoreenabledflag )
+//        if( m_Components[i]->IsEnabled() || ignoreEnabledFlag )
 //            m_Components[i]->RegisterCallbacks();
 //    }
 //}
 //
-//void GameObject::UnregisterAllComponentCallbacks(bool ignoreenabledflag)
+//void GameObject::UnregisterAllComponentCallbacks(bool ignoreEnabledFlag)
 //{
 //    // Loop through all components and register/unregister their callbacks.
 //    for( unsigned int i=0; i<m_Components.Count(); i++ )
 //    {
-//        if( m_Components[i]->IsEnabled() || ignoreenabledflag )
+//        if( m_Components[i]->IsEnabled() || ignoreEnabledFlag )
 //            m_Components[i]->UnregisterCallbacks();
 //    }
 //}
 
-void GameObject::SetSceneID(SceneID sceneid, bool assignnewgoid)
+void GameObject::SetSceneID(SceneID sceneID, bool assignNewGOID)
 {
-    if( m_SceneID == sceneid )
+    if( m_SceneID == sceneID )
         return;
 
-    m_SceneID = sceneid;
+    m_SceneID = sceneID;
 
-    // Loop through components and change the sceneid in each.
+    // Loop through components and change the sceneID in each.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        m_Components[i]->SetSceneID( sceneid );
+        m_Components[i]->SetSceneID( sceneID );
     }
    
-    if( assignnewgoid )
+    if( assignNewGOID )
     {
-        m_ID = g_pComponentSystemManager->GetNextGameObjectIDAndIncrement( sceneid );
+        m_ID = g_pComponentSystemManager->GetNextGameObjectIDAndIncrement( sceneID );
     }
 }
 
@@ -630,7 +616,7 @@ void GameObject::SetName(const char* name)
 
     if( m_Name )
     {
-        if( strcmp( m_Name, name ) == 0 ) // name hasn't changed.
+        if( strcmp( m_Name, name ) == 0 ) // Name hasn't changed.
             return;
 
         delete[] m_Name;
@@ -640,18 +626,11 @@ void GameObject::SetName(const char* name)
     
     m_Name = MyNew char[len+1];
     strcpy_s( m_Name, len+1, name );
-
-#if MYFW_USING_WX
-    if( g_pPanelObjectList )
-    {
-        g_pPanelObjectList->RenameObject( this, m_Name );
-    }
-#endif //MYFW_USING_WX
 }
 
 void GameObject::SetOriginatingPool(ComponentObjectPool* pPool)
 {
-    MyAssert( m_pOriginatingPool == 0 );
+    MyAssert( m_pOriginatingPool == nullptr );
 
     m_pOriginatingPool = pPool;
 }
@@ -666,21 +645,21 @@ void GameObject::SetParentGameObject(GameObject* pNewParentGameObject)
     m_pParentGameObject = pNewParentGameObject;
 
     // If we had an old parent:
-    if( pOldParentGameObject != 0 )
+    if( pOldParentGameObject != nullptr )
     {
         // Stop the parent's gameobject from reporting its deletion.
         pOldParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
 
     // If we have a new parent:
-    if( pNewParentGameObject != 0 )
+    if( pNewParentGameObject != nullptr )
     {
         // Register with the parent's gameobject to notify us of its deletion.
         pNewParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         // The prefab's m_pGameObject will be null when the scene is loading but the prefab file isn't loaded.
         // Skip the check in this case since the childID should already be in the "deleted child" list.
-        if( m_PrefabRef.GetGameObject() != 0 && m_PrefabRef.IsMasterPrefabGameObject() == false )
+        if( m_PrefabRef.GetGameObject() != nullptr && m_PrefabRef.IsMasterPrefabGameObject() == false )
         {
             // If this object is part of the same prefab as the new parent, check if the new parent is missing this child.
             if( m_PrefabRef.GetPrefab() && m_PrefabRef.GetPrefab() == pNewParentGameObject->m_PrefabRef.GetPrefab() )
@@ -724,22 +703,22 @@ void GameObject::SetParentGameObject(GameObject* pNewParentGameObject)
     // Parent one transform to another, if there are transforms.
     if( m_pComponentTransform )
     {
-        ComponentTransform* pNewParentTransform = 0;
-        if( m_pParentGameObject != 0 )
+        ComponentTransform* pNewParentTransform = nullptr;
+        if( m_pParentGameObject != nullptr )
             pNewParentTransform = pNewParentGameObject->m_pComponentTransform;
 
         m_pComponentTransform->SetParentTransform( pNewParentTransform );
     }
 }
 
-bool GameObject::IsParentedTo(GameObject* pPotentialParent, bool onlycheckdirectparent)
+bool GameObject::IsParentedTo(GameObject* pPotentialParent, bool onlyCheckDirectParent)
 {
     GameObject* pParent = GetParentGameObject();
 
     if( pParent == pPotentialParent )
         return true;
 
-    if( pParent == 0 || onlycheckdirectparent )
+    if( pParent == nullptr || onlyCheckDirectParent )
         return false;
 
     return pParent->IsParentedTo( pPotentialParent, false );
@@ -752,67 +731,6 @@ void GameObject::SetManaged(bool managed)
         return;
 
     m_Managed = managed;
-
-#if MYFW_USING_WX
-    if( m_Managed == true )
-    {
-        if( g_pPanelObjectList )
-        {
-            // Add this game object to the root of the objects tree.
-            wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
-            MyAssert( rootid.IsOk() );
-
-            wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
-            g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
-            g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );
-            UpdateObjectListIcon();
-            
-            // Place the child under the parent in the object list.
-            if( m_pParentGameObject )
-            {
-                GameObject* pPrevChild = GetPrev();
-
-                if( pPrevChild != 0 )
-                    gameobjectid = g_pPanelObjectList->Tree_MoveObject( this, pPrevChild, false );
-                else
-                    gameobjectid = g_pPanelObjectList->Tree_MoveObject( this, m_pParentGameObject, true );                
-            }
-
-            if( m_pComponentTransform )
-            {
-                m_pComponentTransform->AddToObjectsPanel( gameobjectid );
-            }
-
-            for( unsigned int i=0; i<m_Components.Count(); i++ )
-            {
-                m_Components[i]->AddToObjectsPanel( gameobjectid );
-            }
-
-        }
-        return;
-    }
-    else
-    {
-        if( g_pPanelObjectList )
-        {
-            // Remove transform component from object list.
-            if( m_pComponentTransform )
-            {
-                g_pPanelObjectList->RemoveObject( m_pComponentTransform );
-            }
-
-            // Remove other components from object list.
-            for( unsigned int i=0; i<m_Components.Count(); i++ )
-            {
-                g_pPanelObjectList->RemoveObject( m_Components[i] );
-            }
-
-            // Remove the gameobject itself from the object list.
-            g_pPanelObjectList->RemoveObject( this );
-        }
-        return;
-    }
-#endif //MYFW_USING_WX
 }
 
 SceneInfo* GameObject::GetSceneInfo()
@@ -846,11 +764,11 @@ unsigned int GameObject::GetComponentCountIncludingCore()
 {
     if( m_pComponentTransform )
     {
-        return m_Components.Count() + 2; // + properties + transform
+        return m_Components.Count() + 2; // + properties + transform.
     }
     else
     {
-        return m_Components.Count() + 1; // + properties
+        return m_Components.Count() + 1; // + properties.
     }
 }
 
@@ -895,7 +813,7 @@ ComponentBase* GameObject::AddNewComponent(int componentType, SceneID sceneID, C
     MyAssert( componentType != -1 );
 
     if( m_Components.Count() >= m_Components.Length() )
-        return 0;
+        return nullptr;
 
     ComponentBase* pComponent = pComponentSystemManager->GetComponentTypeManager()->CreateComponent( componentType );
     //pComponent->SetComponentSystemManager( pComponentSystemManager );
@@ -904,12 +822,6 @@ ComponentBase* GameObject::AddNewComponent(int componentType, SceneID sceneID, C
     {
         // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform.
         //     m_pComponentTransform will be set in AddExistingComponent() below.
-#if MYFW_EDITOR
-#if MYFW_USING_WX
-        // Update the icon
-        UpdateObjectListIcon();
-#endif //MYFW_USING_WX
-#endif //MYFW_EDITOR
     }
     else
     {
@@ -934,33 +846,28 @@ ComponentBase* GameObject::AddNewComponent(int componentType, SceneID sceneID, C
     return pComponent;
 }
 
-ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool resetcomponent)
+ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool resetComponent)
 {
-    // special handling for adding transform component
+    // Special handling for adding transform component.
     if( pComponent->IsA( "TransformComponent" ) )
     {
         m_pComponentTransform = (ComponentTransform*)pComponent;
 
-#if MYFW_USING_WX
-        // Update the icon
-        UpdateObjectListIcon();
-#endif //MYFW_USING_WX
-
         pComponent->SetGameObject( this );
-        if( resetcomponent )
+        if( resetComponent )
             pComponent->Reset();
 
-        // re-parent all child transforms, if they have one
+        // Re-parent all child transforms, if they have one.
         for( GameObject* pChildGameObject = m_ChildList.GetHead(); pChildGameObject; pChildGameObject = pChildGameObject->GetNext() )
         {
-            // TODO: recurse through children
+            // TODO: Recurse through children.
             if( pChildGameObject->m_pComponentTransform )
             {
                 pChildGameObject->m_pComponentTransform->SetParentTransform( m_pComponentTransform );
             }
         }
 
-        // Re-enable all renderable components
+        // Re-enable all renderable components.
         for( unsigned int i=0; i<m_Components.Count(); i++ )
         {
             if( m_Components[i]->IsA( "RenderableComponent" ) )
@@ -972,15 +879,15 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
     else
     {
         if( m_Components.Count() >= m_Components.Length() )
-            return 0;
+            return nullptr;
 
         pComponent->SetGameObject( this );
-        if( resetcomponent )
+        if( resetComponent )
             pComponent->Reset();
 
         m_Components.Add( pComponent );
 
-        // if the component isn't already in the system managers component list, add it, whether gameobject is managed or not
+        // If the component isn't already in the system managers component list, add it, whether gameobject is managed or not.
         if( pComponent->Prev == 0 )
             g_pComponentSystemManager->AddComponent( pComponent );
     }
@@ -1006,17 +913,6 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
     }
 #endif
 
-#if MYFW_USING_WX
-    if( m_Managed )
-    {
-        wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
-        if( gameobjectid.IsOk() )
-            pComponent->AddToObjectsPanel( gameobjectid );
-    }
-
-    g_pPanelWatch->SetNeedsRefresh();
-#endif //MYFW_USING_WX
-
     return pComponent;
 }
 
@@ -1024,22 +920,22 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
 {
     bool found = false;
 
-    // special handling for removing transform component
+    // Special handling for removing transform component.
     if( pComponent->IsA( "TransformComponent" ) )
     {
         found = true;
 
-        // Unparent all child transforms, if they have one
+        // Unparent all child transforms, if they have one.
         for( GameObject* pChildGameObject = m_ChildList.GetHead(); pChildGameObject; pChildGameObject = pChildGameObject->GetNext() )
         {
-            // TODO: recurse through children
+            // TODO: Recurse through children.
             if( pChildGameObject->m_pComponentTransform )
             {
-                pChildGameObject->m_pComponentTransform->SetParentTransform( 0 );
+                pChildGameObject->m_pComponentTransform->SetParentTransform( nullptr );
             }
         }
 
-        // Disable all renderable components
+        // Disable all renderable components.
         for( unsigned int i=0; i<m_Components.Count(); i++ )
         {
             if( m_Components[i]->IsA( "RenderableComponent" ) )
@@ -1048,12 +944,7 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
             }
         }
 
-        m_pComponentTransform = 0;
-
-#if MYFW_USING_WX
-        // Update the icon
-        UpdateObjectListIcon();
-#endif //MYFW_USING_WX
+        m_pComponentTransform = nullptr;
     }
     else
     {
@@ -1064,10 +955,10 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
                 found = true;
                 m_Components.RemoveIndex_MaintainOrder( i );
 
-                // remove from system managers component list.
+                // Remove from system managers component list.
                 pComponent->Remove();
-                pComponent->Prev = 0;
-                pComponent->Next = 0;
+                pComponent->Prev = nullptr;
+                pComponent->Next = nullptr;
             }
         }
     }
@@ -1091,18 +982,10 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
         }
 #endif
 
-#if MYFW_USING_WX
-        // remove the component from the object list.
-        if( g_pPanelObjectList )
-        {
-            g_pPanelObjectList->RemoveObject( pComponent );
-        }
-#endif //MYFW_USING_WX
-
         return pComponent;
     }
 
-    return 0; // component not found.
+    return nullptr; // Component not found.
 }
 
 ComponentBase* GameObject::FindComponentByPrefabComponentID(unsigned int prefabComponentID)
@@ -1117,7 +1000,7 @@ ComponentBase* GameObject::FindComponentByPrefabComponentID(unsigned int prefabC
     }
 #endif //MYFW_EDITOR
 
-    return 0;
+    return nullptr;
 }
 
 ComponentBase* GameObject::FindComponentByID(unsigned int componentID)
@@ -1130,7 +1013,7 @@ ComponentBase* GameObject::FindComponentByID(unsigned int componentID)
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 // Gets the first material found.
@@ -1145,7 +1028,7 @@ MaterialDefinition* GameObject::GetMaterial()
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 // Set the material on all renderable components attached to this object.
@@ -1168,7 +1051,7 @@ void GameObject::SetScriptFile(MyFileObject* pFile)
         if( m_Components[i]->GetBaseType() == BaseComponentType_Updateable )
         {
 #if MYFW_USING_LUA
-            ComponentLuaScript* pLuaComponent = m_Components[i]->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)m_Components[i] : 0;
+            ComponentLuaScript* pLuaComponent = m_Components[i]->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)m_Components[i] : nullptr;
             if( pLuaComponent )
                 pLuaComponent->SetScriptFile( pFile );
 #endif //MYFW_USING_LUA
@@ -1178,28 +1061,28 @@ void GameObject::SetScriptFile(MyFileObject* pFile)
 
 void GameObject::ReturnToPool()
 {
-    MyAssert( m_pOriginatingPool != 0 );
+    MyAssert( m_pOriginatingPool != nullptr );
 
     m_pOriginatingPool->ReturnObjectToPool( this );
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
+ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes baseType)
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Components[i]->GetBaseType() == basetype )
+        if( m_Components[i]->GetBaseType() == baseType )
         {
             return m_Components[i];
         }
     }
 
-    return 0; // component not found.
+    return nullptr; // Component not found.
 }
 
 ComponentBase* GameObject::GetNextComponentOfBaseType(ComponentBase* pLastComponent)
 {
-    MyAssert( pLastComponent != 0 );
+    MyAssert( pLastComponent != nullptr );
 
     bool foundlast = false;
     for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -1214,7 +1097,7 @@ ComponentBase* GameObject::GetNextComponentOfBaseType(ComponentBase* pLastCompon
         }
     }
 
-    return 0; // component not found.
+    return nullptr; // Component not found.
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
@@ -1232,7 +1115,7 @@ ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
 
 ComponentBase* GameObject::GetNextComponentOfType(ComponentBase* pLastComponent)
 {
-    MyAssert( pLastComponent != 0 );
+    MyAssert( pLastComponent != nullptr );
 
     bool foundLast = false;
     for( unsigned int i=0; i<GetComponentCountIncludingCore(); i++ )
@@ -1250,7 +1133,7 @@ ComponentBase* GameObject::GetNextComponentOfType(ComponentBase* pLastComponent)
 
 void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc* pCallback)
 {
-    MyAssert( pCallback != 0 );
+    MyAssert( pCallback != nullptr );
 
 //#if _DEBUG
     // Make sure the same callback isn't being registered.
@@ -1263,7 +1146,7 @@ void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackF
     }
 //#endif
 
-    // TODO: pool callback structures.
+    // TODO: Pool callback structures.
     GameObjectDeletedCallbackStruct* pCallbackStruct = MyNew GameObjectDeletedCallbackStruct;
     pCallbackStruct->pObj = pObj;
     pCallbackStruct->pFunc = pCallback;
@@ -1294,13 +1177,13 @@ void GameObject::NotifyOthersThisWasDeleted()
         GameObjectDeletedCallbackStruct* pCallbackStruct = (GameObjectDeletedCallbackStruct*)pNode;
 
         // Remove the callback struct from the list before calling the function
-        //     since the callback function might try to unregister (and delete) the callback struct
+        //     since the callback function might try to unregister (and delete) the callback struct.
         pCallbackStruct->Remove();
 
-        // Call the onGameObjectDeleted callback function
+        // Call the onGameObjectDeleted callback function.
         pCallbackStruct->pFunc( pCallbackStruct->pObj, this );
 
-        // Delete the struct
+        // Delete the struct.
         delete pCallbackStruct;
 
         pNode = pNextNode;
@@ -1309,14 +1192,14 @@ void GameObject::NotifyOthersThisWasDeleted()
 
 void GameObject::OnGameObjectDeleted(GameObject* pGameObject)
 {
-    // if our parent was deleted, clear the pointer.
-    MyAssert( m_pParentGameObject == pGameObject ); // the callback should have only been registered if needed.
+    // If our parent was deleted, clear the pointer.
+    MyAssert( m_pParentGameObject == pGameObject ); // The callback should have only been registered if needed.
     if( m_pParentGameObject == pGameObject )
     {
-        // we're in the callback, so don't unregister the callback.
+        // We're in the callback, so don't unregister the callback.
         if( m_pComponentTransform )
         {
-            m_pComponentTransform->SetParentTransform( 0 );
+            m_pComponentTransform->SetParentTransform( nullptr );
         }
     }
 }
@@ -1329,7 +1212,7 @@ void GameObject::OnTransformChanged(const Vector3& newPos, const Vector3& newRot
 #if MYFW_EDITOR
 bool GameObject::IsMissingPrefabChild(uint32 childID)
 {
-    MyAssert( m_pGameObjectThisInheritsFrom != 0 );
+    MyAssert( m_pGameObjectThisInheritsFrom != nullptr );
 
     // If this doesn't inherit from it's prefab, kick out, we're likely using direct (single scene) inheritance.
     if( m_pGameObjectThisInheritsFrom->GetPrefabRef()->GetPrefab() != this->m_PrefabRef.GetPrefab() )
@@ -1413,9 +1296,9 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
         if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
             return;
 
-        int type = id; // could be EngineComponentTypes or GameComponentTypes type.
+        int type = id; // Could be EngineComponentTypes or GameComponentTypes type.
 
-        ComponentBase* pComponent = 0;
+        ComponentBase* pComponent = nullptr;
         if( g_pEngineCore->IsInEditorMode() )
             pComponent = pGameObject->AddNewComponent( type, pGameObject->GetSceneID(), g_pComponentSystemManager );
         else
@@ -1439,7 +1322,7 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
     {
         EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-        // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+        // If the object isn't selected, delete just the one object, otherwise delete all selected objects.
         g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ClearParentOfGameObjects( &pEditorState->m_pSelectedObjects ) );
     }
     else if( id >= RightClick_CreatePrefab && id < RightClick_CreatePrefab + 10000 )
@@ -1474,14 +1357,14 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
     {
         EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-        // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+        // If the object isn't selected, delete just the one object, otherwise delete all selected objects.
         if( pEditorState->IsGameObjectSelected( pGameObject ) )
         {
             pEditorState->DeleteSelectedObjects();
         }
         else
         {
-            // create a temp vector to pass into command.
+            // Create a temp vector to pass into command.
             std::vector<GameObject*> gameobjects;
             gameobjects.push_back( pGameObject );
             g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
@@ -1489,7 +1372,7 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
     }
     else if( id == RightClick_DeleteFolder )
     {
-        // delete all gameobjects in the folder, along with the folder itself.
+        // Delete all gameobjects in the folder, along with the folder itself.
         std::vector<GameObject*> gameobjects;
 
         pGameObject->AddToList( &gameobjects );
@@ -1503,243 +1386,19 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
         else
             g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate", false );
     }
-    else if( id >= RightClick_AdditionalSceneHandlerOptions && id < RightClick_EndOfAdditionalSceneHandlerOptions )
-    {
-#if MYFW_USING_WX
-        int idForSceneHandler = id - RightClick_AdditionalSceneHandlerOptions;
-        
-        SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
-        pSceneHandler->HandleRightClickCommand( idForSceneHandler, pGameObject );
-#endif //MYFW_USING_WX
-    }
 }
-
-#if MYFW_USING_WX
-void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging) // StaticOnTitleLabelClicked
-{
-    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled, true ) );
-    g_pPanelWatch->SetNeedsRefresh();
-}
-
-void GameObject::OnLeftClick(unsigned int count, bool clear)
-{
-    g_pEngineCore->OnObjectListTreeMultipleSelection( false );
-    return;
-}
-
-void GameObject::ShowInWatchPanel(bool isprefab)
-{
-    if( g_pEngineCore->GetEditorState() == 0 )
-        return;
-
-    if( m_IsFolder )
-        return;
-
-    g_pPanelWatch->ClearAllVariables();
-    g_pEngineCore->OnObjectListTreeSelectionChanged();
-
-    // Select this GameObject in the editor window if it's not a prefab.
-    if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( this ) == false && isprefab == false )
-        g_pEngineCore->GetEditorState()->m_pSelectedObjects.push_back( this );
-
-    g_pPanelWatch->SetObjectBeingWatched( this );
-
-    // Show the gameobject name and an enabled checkbox.
-    char tempname[100];
-    if( m_Enabled )
-    {
-        if( m_pGameObjectThisInheritsFrom == 0 )
-            sprintf_s( tempname, 100, "%s", m_Name );
-        else
-            sprintf_s( tempname, 100, "%s (%s)", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
-    }
-    else
-    {
-        if( m_pGameObjectThisInheritsFrom == 0 )
-            sprintf_s( tempname, 100, "** DISABLED ** %s ** DISABLED **", m_Name );
-        else
-            sprintf_s( tempname, 100, "** DISABLED ** %s (%s) ** DISABLED **", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
-    }
-
-    // Only allow enable/disable click on regular non-prefab objects.
-    if( isprefab )
-    {
-        g_pPanelWatch->AddSpace( tempname, this, 0 );
-    }
-    else
-    {
-        g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
-    }
-
-    // Add variables from ComponentGameObjectProperties.
-    m_Properties.m_MultiSelectedComponents.clear();
-    m_Properties.FillPropertiesWindow( false );
-
-    // Add variables from ComponentTransform.
-    if( m_pComponentTransform )
-    {
-        m_pComponentTransform->m_MultiSelectedComponents.clear();
-        m_pComponentTransform->FillPropertiesWindow( false, true );
-    }
-
-    // Add variables from all other components.
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        m_Components[i]->m_MultiSelectedComponents.clear();
-        m_Components[i]->FillPropertiesWindow( false, true );
-    }
-}
-
-void GameObject::OnRightClick() // StaticOnRightClick
-{
- 	wxMenu menu;
-    menu.SetClientData( this );
-
-    wxMenu* categorymenu = 0;
-    const char* lastcategory = 0;
-
-    // if there are ever more than 1000 component types?!? increase the RightClick_* initial value in header.
-    MyAssert( m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetNumberOfComponentTypes() < RightClick_DuplicateGameObject );
-
-    if( m_IsFolder == false )
-    {
-        menu.Append( RightClick_DuplicateGameObject, "Duplicate GameObject" );
-        menu.Append( RightClick_CreateChild, "Create Child GameObject" );
-        if( m_pGameObjectThisInheritsFrom )
-        {
-            menu.Append( RightClick_ClearParent, "Clear Parent" );
-        }
-
-        // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
-        int first = 0;
-        if( m_pComponentTransform != 0 )
-            first = 1;
-
-        unsigned int numtypes = m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetNumberOfComponentTypes();
-        for( unsigned int i=first; i<numtypes; i++ )
-        {
-            if( lastcategory != m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeCategory( i ) )
-            {
-                categorymenu = MyNew wxMenu;
-                menu.AppendSubMenu( categorymenu, m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeCategory( i ) );
-
-#if MYFW_OSX
-                // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
-                categorymenu->SetClientData( this );
-                categorymenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
-#endif
-            }
-
-            if( i == ComponentType_Mesh )
-            {
-                // don't include ComponentType_Mesh in the right-click menu.
-                // TODO: if more exceptions are made, improve this system.
-            }
-            else
-            {
-                categorymenu->Append( i, m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeName( i ) );
-            }
-
-            lastcategory = m_pEngineCore->GetComponentSystemManager()->GetComponentTypeManager()->GetTypeCategory( i );
-        }
-
-        // Create prefab menu and submenus.
-        AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
-
-        menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
-    }
-    else
-    {
-        // Add folder specific options to menu.
-        menu.Append( RightClick_DuplicateFolder, "Duplicate Folder and all contents" );
-        menu.Append( RightClick_DeleteFolder, "Delete Folder and all contents" );
-
-        // Have SceneHandler add all of it's options to the menu (Create GameObject, etc...).
-        wxTreeItemId treeid = this->GetSceneInfo()->m_TreeID;
-        SceneID sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
-
-        if( sceneid != SCENEID_NotFound )
-        {
-            SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
-            pSceneHandler->AddGameObjectMenuOptionsToMenu( &menu, RightClick_AdditionalSceneHandlerOptions, sceneid );
-
-            // Create prefab menu and submenus.
-            AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
-        }
-    }
-
-    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
-    
-    // blocking call. // should delete all categorymenu's new'd above when done.
- 	g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
-}
-
-void GameObject::AddPrefabSubmenusToMenu(wxMenu* menu, int itemidoffset)
-{
-    // Create prefab menu and submenus for each file.
-    wxMenu* prefabmenu = MyNew wxMenu;
-    menu->AppendSubMenu( prefabmenu, "Create Prefab in" );
-
-#if MYFW_OSX
-    // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
-    menu->SetClientData( this );
-    menu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
-#endif
-
-    unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
-    for( unsigned int i=0; i<numprefabfiles; i++ )
-    {
-        PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
-        MyFileObject* pFile = pPrefabFile->GetFile();
-        MyAssert( pFile != 0 );
-
-        prefabmenu->Append( itemidoffset + i, pFile->GetFilenameWithoutExtension() );
-    }
-
-    prefabmenu->Append( itemidoffset + numprefabfiles, "New/Load Prefab file..." );
-}
-
-void GameObject::OnPopupClick(wxEvent &evt)
-{
-    GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
-
-    unsigned int id = evt.GetId();
-
-    OnPopupClick( pGameObject, id );
-}
-
-void GameObject::OnDrag()
-{
-    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, this );
-}
-#endif //MYFW_USING_WX
 
 void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions action)
 {
-#if MYFW_USING_WX
-    // If you drop a game object on another, parent them or move above/below depending on the "y".
-    // The bounding rect will change once the first item is moved, so get the rect once before moving things.
-    wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
-    wxRect rect;
-    g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
-#endif //MYFW_USING_WX
-
     std::vector<GameObject*> selectedObjects;
 
-    // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
+    // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this.
     bool setAsChild = true;
-#if MYFW_USING_WX
-    if( y > rect.GetBottom() - 10 )
-    {
-        // Move below the selected item.
-        setAsChild = false;
-    }
-#else
+
     if( action == GameObjectOnDropAction_Reorder )
     {
         setAsChild = false;
     }
-#endif //MYFW_USING_WX
 
     // Move/Reparent all of the selected items.
     for( unsigned int i=0; i<g_DragAndDropStruct.GetItemCount(); i++ )
@@ -1799,38 +1458,11 @@ void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions act
     }
 }
 
-#if MYFW_USING_WX
-void GameObject::OnLabelEdit(wxString newlabel)
-{
-    size_t len = newlabel.length();
-    if( len > 0 )
-    {
-        SetName( newlabel );
-    }
-}
-
-void GameObject::UpdateObjectListIcon()
-{
-    // Set the icon for the gameobject in the objectlist panel tree.
-    int iconindex = ObjectListIcon_GameObject;
-    if( m_PrefabRef.GetPrefab() != 0 )
-        iconindex = ObjectListIcon_Prefab;
-    else if( m_IsFolder )
-        iconindex = ObjectListIcon_Folder;
-    else if( m_pComponentTransform == 0 )
-        iconindex = ObjectListIcon_LogicObject;
-
-    wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
-    if( gameobjectid.IsOk() )
-        g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
-}
-#endif //MYFW_USING_WX
-
 void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
 {
     // Link the PrefabRef to the correct prefab and GameObject now that the file is finished loading.
     m_PrefabRef.FinishLoadingPrefab( pPrefabFile );
-    if( m_pParentGameObject != 0 )
+    if( m_pParentGameObject != nullptr )
     {
         m_PrefabRef.SetOriginalParent( m_pParentGameObject );
     }
@@ -1857,10 +1489,6 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
             }
         }
     }
-
-#if MYFW_USING_WX
-    UpdateObjectListIcon();
-#endif //MYFW_USING_WX
 }
 
 void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile) // StaticOnPrefabFileFinishedLoading
@@ -1875,7 +1503,7 @@ void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile) // StaticOnPre
 // Useful for prefab subobjects(children) to quickly find the starting point of the prefab instance.
 GameObject* GameObject::FindRootGameObjectOfPrefabInstance()
 {
-    MyAssert( m_PrefabRef.GetPrefab() != 0 );
+    MyAssert( m_PrefabRef.GetPrefab() != nullptr );
 
     if( m_PrefabRef.GetChildID() == 0 )
         return this;
@@ -1888,10 +1516,6 @@ void GameObject::Editor_SetPrefab(PrefabReference* pPrefabRef)
 {
     m_PrefabRef = *pPrefabRef;
     m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
-
-#if MYFW_USING_WX
-    UpdateObjectListIcon();
-#endif //MYFW_USING_WX
 }
 
 void GameObject::Editor_SetGameObjectAndAllChildrenToInheritFromPrefab(PrefabObject* pPrefab, uint32 prefabChildID)
@@ -1905,7 +1529,7 @@ void GameObject::Editor_SetGameObjectAndAllChildrenToInheritFromPrefab(PrefabObj
     GameObject* pPrefabChildGO = pPrefab->GetGameObject()->GetChildList()->GetHead();
     while( pChildGO )
     {
-        // Temp assert, test nested prefabs and replace with an 'if'
+        // Temp assert, test nested prefabs and replace with an 'if'.
         MyAssert( pPrefabChildGO->GetPrefabRef()->GetPrefab() == pPrefab );
 
         uint32 prefabChildChildID = pPrefabChildGO->GetPrefabRef()->GetChildID();
@@ -1935,10 +1559,10 @@ void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
             if( pRenderable )
             {
                 // TODO: Deal with more than just the first submeshes material.
-                int submeshindex = 0;
+                int submeshIndex = 0;
 
-                // Go through same code to drop a material on the component, so inheritance and undo/redo will be handled
-                ComponentVariable* pVar = pRenderable->GetComponentVariableForMaterial( submeshindex );
+                // Go through same code to drop a material on the component, so inheritance and undo/redo will be handled.
+                ComponentVariable* pVar = pRenderable->GetComponentVariableForMaterial( submeshIndex );
 
                 g_DragAndDropStruct.Clear();
                 g_DragAndDropStruct.SetControlID( pVar->m_ControlID );

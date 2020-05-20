@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -37,22 +37,19 @@ struct GameObjectDeletedCallbackStruct : CPPListNode
 };
 
 class GameObject : public TCPPListNode<GameObject*>
-#if MYFW_USING_WX
-, public wxEvtHandler
-#endif
 {
-    friend class EditorCommand_DeleteObjects; // for NotifyOthersThisWasDeleted()
-    friend class EditorCommand_RestorePrefabComponent; // for m_DeletedPrefabComponentIDs
-    friend class EditorMainFrame_ImGui; // for m_DeletedPrefabChildIDs and m_DeletedPrefabComponentIDs
-    friend class ComponentSystemManager; // for ComponentSystemManager::DeleteGameObject
+    friend class EditorCommand_DeleteObjects; // For NotifyOthersThisWasDeleted().
+    friend class EditorCommand_RestorePrefabComponent; // For m_DeletedPrefabComponentIDs.
+    friend class EditorMainFrame_ImGui; // For m_DeletedPrefabChildIDs and m_DeletedPrefabComponentIDs.
+    friend class ComponentSystemManager; // For ComponentSystemManager::DeleteGameObject.
 
-    static const int MAX_COMPONENTS = 64; // TODO: fix this hardcodedness
+    static const int MAX_COMPONENTS = 64; // TODO: Fix this hardcodedness.
 
 protected:
     EngineCore* m_pEngineCore;
 
     PrefabReference m_PrefabRef;
-    GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
+    GameObject* m_pGameObjectThisInheritsFrom; // For variables, if set, any changes to the parent will be reflected in this object.
 
     GameObject* m_pParentGameObject;
     TCPPListHead<GameObject*> m_ChildList; // Child game objects, contains the only copy of pointers to each child.
@@ -63,23 +60,23 @@ protected:
     bool m_IsFolder;
     SceneID m_SceneID;
     unsigned int m_ID;
-    SceneID m_PhysicsSceneID; // can't be SCENEID_Unmanaged (runtime scene) if a collision component exists
-    char* m_Name; // this a copy of the string passed in.
-    ComponentObjectPool* m_pOriginatingPool; // If this isn't 0, this object came from a pool and should be returned to it.
+    SceneID m_PhysicsSceneID; // Can't be SCENEID_Unmanaged (runtime scene) if a collision component exists.
+    char* m_Name; // This a copy of the string passed in.
+    ComponentObjectPool* m_pOriginatingPool; // If this isn't nullptr, this object came from a pool and should be returned to it.
     bool m_Managed;
 
     CPPListHead m_pOnDeleteCallbacks;
 
     ComponentTransform* m_pComponentTransform;
-    MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
+    MyList<ComponentBase*> m_Components; // ComponentSystemManager is responsible for deleting these components.
 
 protected:
     void NotifyOthersThisWasDeleted();
 
 public:
-    GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef);
+    GameObject(EngineCore* pEngineCore, bool managed, SceneID sceneID, bool isFolder, bool hasTransform, PrefabReference* pPrefabRef);
     virtual ~GameObject();
-    SetClassnameBase( "GameObject" ); // only first 8 character count.
+    SetClassnameBase( "GameObject" ); // Only first 8 character count.
 
     PrefabReference* GetPrefabRef() { return &m_PrefabRef; }
     bool IsPrefabInstance() { return m_PrefabRef.GetPrefab() != 0; }
@@ -91,17 +88,17 @@ public:
     GameObject* GetNextGameObjectInList() { return this->GetNext(); }
     void SetGameObjectThisInheritsFrom(GameObject* pObj);
 
-    // Parent gameobject, is terms of transform (should also work with folders/gameobject without transforms)
+    // Parent gameobject, in terms of transform (should also work with folders/gameobject without transforms).
     GameObject* GetParentGameObject() { return m_pParentGameObject; }
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    cJSON* ExportAsJSONObject(bool savesceneid);
-    void ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid);
+    cJSON* ExportAsJSONObject(bool saveSceneID);
+    void ImportFromJSONObject(cJSON* jGameObject, SceneID sceneID);
     void ImportInheritanceInfoFromJSONObject(cJSON* jGameObject);
-    cJSON* ExportReferenceAsJSONObject(SceneID refsceneid);
+    cJSON* ExportReferenceAsJSONObject(SceneID refSceneID);
     cJSON* ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChildIDs, bool assignNewComponentIDs);
 
     void SetFlags(unsigned int flags) { return m_Properties.SetFlags( flags ); }
@@ -111,15 +108,15 @@ public:
 
     void SetEnabledViaEvent(bool enabled, bool affectChildren);
     void SetEnabled(bool enabled, bool affectChildren);
-    //void RegisterAllComponentCallbacks(bool ignoreenabledflag);
-    //void UnregisterAllComponentCallbacks(bool ignoreenabledflag);
-    void SetSceneID(SceneID sceneid, bool assignnewgoid = true);
+    //void RegisterAllComponentCallbacks(bool ignoreEnabledFlag);
+    //void UnregisterAllComponentCallbacks(bool ignoreEnabledFlag);
+    void SetSceneID(SceneID sceneID, bool assignNewGOID = true);
     void SetID(unsigned int id);
     void SetName(const char* name);
     void SetOriginatingPool(ComponentObjectPool* pPool);
 
     void SetParentGameObject(GameObject* pNewParentGameObject);
-    bool IsParentedTo(GameObject* pPotentialParent, bool onlycheckdirectparent);
+    bool IsParentedTo(GameObject* pPotentialParent, bool onlyCheckDirectParent);
 
     void SetManaged(bool managed);
     bool IsManaged() { return m_Managed; }
@@ -142,13 +139,13 @@ public:
 
     ComponentBase* AddNewComponent(const char* componentType);
     ComponentBase* AddNewComponent(int componentType, SceneID sceneID, ComponentSystemManager* pComponentSystemManager);
-    ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);
+    ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetComponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
     ComponentBase* FindComponentByPrefabComponentID(unsigned int prefabComponentID);
     ComponentBase* FindComponentByID(unsigned int componentID);
 
-    ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes basetype);
+    ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes baseType);
     ComponentBase* GetNextComponentOfBaseType(ComponentBase* pLastComponent);
 
     ComponentBase* GetFirstComponentOfType(const char* type);
@@ -157,7 +154,7 @@ public:
     // Exposed to Lua, change elsewhere if function signature changes.
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
 
-    // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
+    // TODO: Find a way to find an arbitrary component type that would be accessible from lua script.
     // Exposed to Lua, change elsewhere if function signature changes.
     ComponentSprite* GetSprite()                        { return (ComponentSprite*)GetFirstComponentOfType( "SpriteComponent" ); }
     ComponentVoxelWorld* GetVoxelWorld()                { return (ComponentVoxelWorld*)GetFirstComponentOfType( "VoxelWorldComponent" ); }
@@ -206,9 +203,6 @@ public:
         RightClick_DeleteGameObject = RightClick_CreatePrefab + 10000,
         RightClick_DeleteFolder,
         RightClick_DuplicateFolder,
-        RightClick_AdditionalSceneHandlerOptions,
-            // Next 100000 value reserved for additional options added by SceneHandler
-        RightClick_EndOfAdditionalSceneHandlerOptions = RightClick_AdditionalSceneHandlerOptions + 100000,
     };
 
 protected:
@@ -224,33 +218,7 @@ protected:
 public:
     void OnPopupClick(GameObject* pGameObject, unsigned int id);
 
-#if MYFW_USING_WX
-    static void StaticOnTitleLabelClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((GameObject*)pObjectPtr)->OnTitleLabelClicked( controlid, finishedchanging ); }
-    void OnTitleLabelClicked(int controlid, bool finishedchanging);
-
-    //static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((GameObject*)pObjectPtr)->OnLeftClick( count, true ); }
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { GameObject::OnLeftClick( count, true ); }
-    static void OnLeftClick(unsigned int count, bool clear);
-    void ShowInWatchPanel(bool isprefab);
-
-    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((GameObject*)pObjectPtr)->OnRightClick(); }
-    void OnRightClick();
-    void AddPrefabSubmenusToMenu(wxMenu* menu, int itemidoffset);
-    void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
-
-    static void StaticOnDrag(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrag(); }
-    void OnDrag();
-
-    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, int x, int y) { ((GameObject*)pObjectPtr)->OnDrop(controlid, x, y, GameObjectOnDropAction_Default); }
-#endif //MYFW_USING_WX
     void OnDrop(int controlid, int x, int y, GameObjectOnDropActions action);
-#if MYFW_USING_WX
-
-    static void StaticOnLabelEdit(void* pObjectPtr, wxTreeItemId id, wxString newlabel) { ((GameObject*)pObjectPtr)->OnLabelEdit( newlabel ); }
-    void OnLabelEdit(wxString newlabel);
-
-    void UpdateObjectListIcon();
-#endif //MYFW_USING_WX
 
     // Prefab Loading Vars // Variables moved into prefabref object.
     void FinishLoadingPrefab(PrefabFile* pPrefabFile);
@@ -264,7 +232,7 @@ public:
     void Editor_SetGameObjectThisInheritsFromIgnoringPrefabRef(GameObject* pObj);
     void Editor_SetMaterial(MaterialDefinition* pMaterial);
 
-    // Editor functions
+    // Editor functions.
     void AddToList(std::vector<GameObject*>* pList);
 #endif //MYFW_EDITOR
 };
