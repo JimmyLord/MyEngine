@@ -11,7 +11,7 @@
 #include "../../SourceCommon/GUI/EditorIcons.h"
 
 #include <gl/GL.h>
-#include "../../../Framework/MyFramework/SourceWindows/GLExtensions.h"
+#include "../../../Framework/MyFramework/SourceWindows/OpenGL/GLExtensions.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/GLHelpers.h"
 #include "../../../Framework/MyFramework/SourceCommon/Renderers/OpenGL/Texture_OpenGL.h"
 
