@@ -47,6 +47,12 @@ protected:
     bool m_WindowFocused;
     bool m_WindowVisible;
 
+    // Modifier key states.
+    bool m_KeyDownCtrl;
+    bool m_KeyDownAlt;
+    bool m_KeyDownShift;
+    bool m_KeyDownCommand;
+
 public:
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command);
     EditorDocument* EditorDocumentMenuCommand(EditorDocumentMenuCommands command, std::string value);

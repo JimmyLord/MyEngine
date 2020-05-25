@@ -40,6 +40,12 @@ EditorDocument::EditorDocument(EngineCore* pEngineCore)
      m_WindowHovered = false;
      m_WindowFocused = false;
      m_WindowVisible = false;
+
+     // Modifier key states.
+     m_KeyDownCtrl = false;
+     m_KeyDownAlt = false;
+     m_KeyDownShift = false;
+     m_KeyDownCommand = false;
 }
 
 EditorDocument::~EditorDocument()
@@ -150,11 +156,35 @@ bool EditorDocument::HandleInput(int keyAction, int keyCode, int mouseAction, in
 
     if( keyAction == GCBA_Down )
     {
-        bool N  = !io.KeyCtrl && !io.KeyAlt && !io.KeyShift && !io.KeySuper; // No modifiers held
-        bool C  =  io.KeyCtrl && !io.KeyAlt && !io.KeyShift && !io.KeySuper; // Ctrl
-        bool A  = !io.KeyCtrl &&  io.KeyAlt && !io.KeyShift && !io.KeySuper; // Alt
-        bool S  = !io.KeyCtrl && !io.KeyAlt &&  io.KeyShift && !io.KeySuper; // Shift
-        bool CS =  io.KeyCtrl && !io.KeyAlt &&  io.KeyShift && !io.KeySuper; // Ctrl-Shift
+        if( keyCode == MYKEYCODE_LCTRL || keyCode == MYKEYCODE_RCTRL )
+            m_KeyDownCtrl = true;
+
+        if( keyCode == MYKEYCODE_LALT || keyCode == MYKEYCODE_RALT )
+            m_KeyDownAlt = true;
+
+        if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT )
+            m_KeyDownShift = true;
+    }
+
+    if( keyAction == GCBA_Up )
+    {
+        if( keyCode == MYKEYCODE_LCTRL || keyCode == MYKEYCODE_RCTRL )
+            m_KeyDownCtrl = false;
+
+        if( keyCode == MYKEYCODE_LALT || keyCode == MYKEYCODE_RALT )
+            m_KeyDownAlt = false;
+
+        if( keyCode == MYKEYCODE_LSHIFT || keyCode == MYKEYCODE_RSHIFT )
+            m_KeyDownShift = false;
+    }
+
+    if( keyAction == GCBA_Down )
+    {
+        bool N  = !m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // No modifiers held
+        bool C  =  m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Ctrl
+        bool A  = !m_KeyDownCtrl &&  m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Alt
+        bool S  = !m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Shift
+        bool CS =  m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Ctrl-Shift
 
         if( C  && keyCode == 'Z' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Undo ); return true; }
         if( C  && keyCode == 'Y' ) { EditorDocumentMenuCommand( EditorDocumentMenuCommand_Redo ); return true; }
