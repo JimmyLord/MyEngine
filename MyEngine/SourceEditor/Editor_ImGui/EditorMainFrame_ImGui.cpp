@@ -3670,6 +3670,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                 bool fileTypeOpen = false;
                 while( pFile )
                 {
+                    MyFileObject* pNextFile = (MyFileObject*)pFile->GetNext();
+
                     if( pFile->m_ShowInMemoryPanel )
                     {
                         //numFilesShown++;
@@ -3714,11 +3716,14 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                                         ImGui::EndPopup();
                                     }
 
-                                    if( ImGui::BeginDragDropSource() )
+                                    if( i == 1 )
                                     {
-                                        ImGui::SetDragDropPayload( "File", &pFile, sizeof(pFile), ImGuiCond_Once );
-                                        ImGui::Text( "%s", pFile->GetFullPath() );
-                                        ImGui::EndDragDropSource();
+                                        if( ImGui::BeginDragDropSource() )
+                                        {
+                                            ImGui::SetDragDropPayload( "File", &pFile, sizeof(pFile), ImGuiCond_Once );
+                                            ImGui::Text( "%s", pFile->GetFullPath() );
+                                            ImGui::EndDragDropSource();
+                                        }
                                     }
 
                                     ImGui::TreePop();
@@ -3727,7 +3732,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                         }
                     }
 
-                    pFile = (MyFileObject*)pFile->GetNext();
+                    pFile = pNextFile;
                 }
 
                 if( fileTypeOpen && previousFileType != nullptr )

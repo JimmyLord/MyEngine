@@ -708,15 +708,26 @@ void ComponentHeightmap::LoadFromHeightmap(const char* filename)
     file = fopen( outputFilename, "rb" );
 #endif
 
+    if( file == nullptr )
+    {
+        LOGError( LOGTag, "Heightmap file not found! Generating default heightmap.\n" );
+        return;
+    }
+
     int versionCode;
     fread( &versionCode, 4, 1, file );
-    MyAssert( versionCode == 1 );
+    if( versionCode != 1 )
+    {
+        LOGError( LOGTag, "Heightmap file is invalid! Generating default heightmap.\n" );
+    }
+    else
+    {
+        fread( &m_VertCount.x, 4, 2, file );
 
-    fread( &m_VertCount.x, 4, 2, file );
-
-    SAFE_DELETE_ARRAY( m_Heights );
-    m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
-    fread( m_Heights, 4, m_VertCount.x * m_VertCount.y, file );
+        SAFE_DELETE_ARRAY( m_Heights );
+        m_Heights = MyNew float[m_VertCount.x * m_VertCount.y];
+        fread( m_Heights, 4, m_VertCount.x * m_VertCount.y, file );
+    }
 
     fclose( file );
 }
