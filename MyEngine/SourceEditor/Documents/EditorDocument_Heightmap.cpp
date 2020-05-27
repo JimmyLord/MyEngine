@@ -581,6 +581,14 @@ void EditorDocument_Heightmap::Update()
         ImGui::DragFloat( "Height", &m_LevelHeight, 0.01f, 0.0f, FLT_MAX );
     }
 
+    // Noise.
+    ImGui::Separator();
+
+    if( ImGui::Button( "Overwrite with noise" ) )
+    {
+        m_pHeightmap->FillWithNoise();
+    }
+
     // Other.
     ImGui::Separator();
 

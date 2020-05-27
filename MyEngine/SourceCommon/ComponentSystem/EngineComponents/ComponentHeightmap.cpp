@@ -556,6 +556,31 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
     return true;
 }
 
+void ComponentHeightmap::FillWithNoise()
+{
+    Vector2Int vertCount = m_VertCount;
+
+    uint64_t noiseSeed = 1234;
+    osn_context* noiseContext;
+    open_simplex_noise( noiseSeed, &noiseContext );
+
+    for( int y = 0; y < vertCount.y; y++ )
+    {
+        for( int x = 0; x < vertCount.x; x++ )
+        {
+            unsigned int index = (unsigned int)(y * vertCount.x + x);
+
+            float height = (float)open_simplex_noise2( noiseContext, x * 0.1, y * 0.1 );
+
+            m_Heights[index] = height;
+        }
+    }
+
+    open_simplex_noise_free( noiseContext );
+
+    GenerateHeightmapMesh( false, false, true );
+}
+
 void ComponentHeightmap::RecalculateNormals()
 {
     BufferDefinition* pVertexBuffer = m_pMesh->GetSubmesh( 0 )->m_pVertexBuffer;
