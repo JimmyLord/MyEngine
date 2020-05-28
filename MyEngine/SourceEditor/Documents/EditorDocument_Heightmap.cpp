@@ -536,6 +536,66 @@ void EditorDocument_Heightmap::Update()
     ImGui::SetNextWindowBgAlpha( 1.0f );
     ImGui::Begin( "Heightmap Editor", nullptr, ImGuiWindowFlags_NoFocusOnAppearing );
 
+    if( ImGui::BeginTabBar( "HeightmapEditorTools" ) )
+    {
+        if( ImGui::BeginTabItem( "Paint" ) )
+        {
+            ImGui::EndTabItem();
+            AddPaintTools();
+        }
+        if( ImGui::BeginTabItem( "Noise" ) )
+        {
+            ImGui::EndTabItem();
+
+            m_CurrentTool = Tool::None;
+            m_CurrentToolState = ToolState::Idle;
+
+            AddNoiseTools();
+        }
+
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End(); // "Heightmap Editor" window.
+
+    // Handle save warnings when closing the document window.
+    if( m_ShowWarning_CloseEditor )
+    {
+        m_ShowWarning_CloseEditor = false;
+        ImGui::OpenPopup( "Close Heightmap Editor Warning" );
+    }
+    if( ImGui::BeginPopupModal( "Close Heightmap Editor Warning" ) )
+    {
+        ImGui::Text( "Some changes aren't saved." );
+        ImGui::Dummy( ImVec2( 0, 10 ) );
+
+        if( ImGui::Button( "Revert changes" ) )
+        {
+            while( m_pCommandStack->GetUndoStackSize() > 0 )
+                m_pCommandStack->Undo( 1 );
+            ImGui::CloseCurrentPopup();
+        }
+
+        if( ImGui::Button( "Save" ) )
+        {
+            ImGui::CloseCurrentPopup();
+            Save();
+        }
+
+        if( ImGui::Button( "Keep changes without saving" ) )
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
+    ImGui::SetCursorPos( ImVec2( 8, 28 ) );
+    AddImGuiOverlayItems();
+}
+
+void EditorDocument_Heightmap::AddPaintTools()
+{
     // Icon bar to select tools.
     {
         // TODO: Make new icons.
@@ -581,14 +641,6 @@ void EditorDocument_Heightmap::Update()
         ImGui::DragFloat( "Height", &m_LevelHeight, 0.01f, 0.0f, FLT_MAX );
     }
 
-    // Noise.
-    ImGui::Separator();
-
-    if( ImGui::Button( "Overwrite with noise" ) )
-    {
-        m_pHeightmap->FillWithNoise();
-    }
-
     // Other.
     ImGui::Separator();
 
@@ -601,42 +653,14 @@ void EditorDocument_Heightmap::Update()
     {
         Save();
     }
+}
 
-    ImGui::End();
-
-    if( m_ShowWarning_CloseEditor )
+void EditorDocument_Heightmap::AddNoiseTools()
+{
+    if( ImGui::Button( "Overwrite with noise" ) )
     {
-        m_ShowWarning_CloseEditor = false;
-        ImGui::OpenPopup( "Close Heightmap Editor Warning" );
+        m_pHeightmap->FillWithNoise();
     }
-    if( ImGui::BeginPopupModal( "Close Heightmap Editor Warning" ) )
-    {
-        ImGui::Text( "Some changes aren't saved." );
-        ImGui::Dummy( ImVec2( 0, 10 ) );
-
-        if( ImGui::Button( "Revert changes" ) )
-        {
-            while( m_pCommandStack->GetUndoStackSize() > 0 )
-                m_pCommandStack->Undo( 1 );
-            ImGui::CloseCurrentPopup();
-        }
-
-        if( ImGui::Button( "Save" ) )
-        {
-            ImGui::CloseCurrentPopup();
-            Save();
-        }
-
-        if( ImGui::Button( "Keep changes without saving" ) )
-        {
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::EndPopup();
-    }
-
-    ImGui::SetCursorPos( ImVec2( 8, 28 ) );
-    AddImGuiOverlayItems();
 }
 
 void EditorDocument_Heightmap::SetHeightmap(ComponentHeightmap* pHeightmap)

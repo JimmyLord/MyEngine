@@ -100,6 +100,9 @@ public:
 
     virtual void Update() override; // From EditorDocument.
 
+    void AddPaintTools();
+    void AddNoiseTools();
+
     void CancelCurrentOperation();
 
     ComponentHeightmap* GetHeightmapBeingEdited() { return m_pHeightmap; }
