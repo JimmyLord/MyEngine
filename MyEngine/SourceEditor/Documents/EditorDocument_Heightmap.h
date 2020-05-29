@@ -72,6 +72,12 @@ protected:
     bool m_LevelUseBrushHeight;
     float m_LevelHeight;
 
+    // Noise Settings.
+    bool m_Noise_Dirty;
+    bool m_Noise_AutoGenerate;
+    Vector2 m_Noise_Frequency;
+    Vector2 m_Noise_Offset;
+
     bool m_AlwaysRecalculateNormals;
 
 protected:

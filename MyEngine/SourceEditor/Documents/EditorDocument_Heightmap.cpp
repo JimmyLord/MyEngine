@@ -122,6 +122,12 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, Comp
     m_LevelUseBrushHeight = true;
     m_LevelHeight = 0.0f;
 
+    // Noise Settings.
+    m_Noise_Dirty = true;
+    m_Noise_AutoGenerate = true;
+    m_Noise_Frequency.Set( 0.1f, 0.1f );
+    m_Noise_Offset.Set( 0, 0 );
+
     m_AlwaysRecalculateNormals = false;
 
     Initialize();
@@ -657,9 +663,27 @@ void EditorDocument_Heightmap::AddPaintTools()
 
 void EditorDocument_Heightmap::AddNoiseTools()
 {
-    if( ImGui::Button( "Overwrite with noise" ) )
+    bool forceRebuild = false;
+
+    ImGui::Checkbox( "Auto Rebuild", &m_Noise_AutoGenerate );
+
+    if( ImGui::DragFloat2( "Frequency", &m_Noise_Frequency.x, 0.001f, 0.001f, 100.0f ) )
     {
-        m_pHeightmap->FillWithNoise();
+        m_Noise_Dirty = true;
+    }
+    if( ImGui::DragFloat2( "Offset", &m_Noise_Offset.x, 0.01f ) )
+    {
+        m_Noise_Dirty = true;
+    }
+    if( ImGui::Button( "Generate" ) )
+    {
+        forceRebuild = true;
+    }
+
+    if( m_Noise_Dirty && (m_Noise_AutoGenerate || forceRebuild) )
+    {
+        m_pHeightmap->FillWithNoise( m_Noise_Frequency, m_Noise_Offset );
+        m_Noise_Dirty = false;
     }
 }
 

@@ -556,7 +556,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
     return true;
 }
 
-void ComponentHeightmap::FillWithNoise()
+void ComponentHeightmap::FillWithNoise(Vector2 freq, Vector2 offset)
 {
     Vector2Int vertCount = m_VertCount;
 
@@ -570,7 +570,7 @@ void ComponentHeightmap::FillWithNoise()
         {
             unsigned int index = (unsigned int)(y * vertCount.x + x);
 
-            float height = (float)open_simplex_noise2( noiseContext, x * 0.1, y * 0.1 );
+            float height = (float)open_simplex_noise2( noiseContext, x * freq.x + offset.x, y * freq.y + offset.y );
 
             m_Heights[index] = height;
         }
