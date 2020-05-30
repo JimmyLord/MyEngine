@@ -255,10 +255,12 @@ void EditorDocument::CreateWindowAndUpdate(bool* pDocumentStillOpen)
             ImGui::EndPopup();
         }
 
-        Update();
-
+        // Set some vars to determine if this document's window is in focus.
         m_WindowFocused = ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows );
         m_WindowHovered = ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByActiveItem );
+
+        // Update may be create new sub windows and may change the value of m_WindowFocused if those windows are in focus.
+        Update();
     }
     ImGui::End();
 }

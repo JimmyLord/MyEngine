@@ -125,6 +125,7 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, Comp
     // Noise Settings.
     m_Noise_Dirty = true;
     m_Noise_AutoGenerate = true;
+    m_Noise_Seed = 0;
     m_Noise_Frequency.Set( 0.1f, 0.1f );
     m_Noise_Offset.Set( 0, 0 );
 
@@ -562,6 +563,13 @@ void EditorDocument_Heightmap::Update()
         ImGui::EndTabBar();
     }
 
+    // If the editor controls window is focused, consider the entire editor document in focus.
+    bool editorControlsWindowIsFocused = ImGui::IsWindowFocused( ImGuiFocusedFlags_RootAndChildWindows );
+    if( m_WindowFocused == false )
+    {
+        m_WindowFocused = editorControlsWindowIsFocused;
+    }
+
     ImGui::End(); // "Heightmap Editor" window.
 
     // Handle save warnings when closing the document window.
@@ -667,6 +675,10 @@ void EditorDocument_Heightmap::AddNoiseTools()
 
     ImGui::Checkbox( "Auto Rebuild", &m_Noise_AutoGenerate );
 
+    if( ImGui::DragInt( "Seed", &m_Noise_Seed, 1, 0, INT_MAX ) )
+    {
+        m_Noise_Dirty = true;
+    }
     if( ImGui::DragFloat2( "Frequency", &m_Noise_Frequency.x, 0.001f, 0.001f, 100.0f ) )
     {
         m_Noise_Dirty = true;
@@ -682,7 +694,7 @@ void EditorDocument_Heightmap::AddNoiseTools()
 
     if( m_Noise_Dirty && (m_Noise_AutoGenerate || forceRebuild) )
     {
-        m_pHeightmap->FillWithNoise( m_Noise_Frequency, m_Noise_Offset );
+        m_pHeightmap->FillWithNoise( m_Noise_Seed, m_Noise_Frequency, m_Noise_Offset );
         m_Noise_Dirty = false;
     }
 }

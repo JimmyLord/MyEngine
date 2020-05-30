@@ -556,11 +556,10 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
     return true;
 }
 
-void ComponentHeightmap::FillWithNoise(Vector2 freq, Vector2 offset)
+void ComponentHeightmap::FillWithNoise(int noiseSeed, Vector2 freq, Vector2 offset)
 {
     Vector2Int vertCount = m_VertCount;
 
-    uint64_t noiseSeed = 1234;
     osn_context* noiseContext;
     open_simplex_noise( noiseSeed, &noiseContext );
 

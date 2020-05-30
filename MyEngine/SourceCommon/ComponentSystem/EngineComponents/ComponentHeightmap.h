@@ -89,7 +89,7 @@ protected:
 
     void CreateHeightmap();
     bool GenerateHeightmapMesh(bool createFromTexture, bool sizeChanged, bool rebuildNormals);
-    void FillWithNoise(Vector2 freq, Vector2 offset);
+    void FillWithNoise(int noiseSeed, Vector2 freq, Vector2 offset);
     void RecalculateNormals();
     void RecalculateNormals(Vertex_XYZUVNorm* pVerts);
 

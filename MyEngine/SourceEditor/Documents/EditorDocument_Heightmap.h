@@ -75,6 +75,7 @@ protected:
     // Noise Settings.
     bool m_Noise_Dirty;
     bool m_Noise_AutoGenerate;
+    int m_Noise_Seed;
     Vector2 m_Noise_Frequency;
     Vector2 m_Noise_Offset;
 
