@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2019-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -126,8 +126,12 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, Comp
     m_Noise_Dirty = true;
     m_Noise_AutoGenerate = true;
     m_Noise_Seed = 0;
-    m_Noise_Frequency.Set( 0.1f, 0.1f );
-    m_Noise_Offset.Set( 0, 0 );
+    m_Noise_Amplitude = 1.5f;
+    m_Noise_Frequency.Set( 0.05f, 0.05f );
+    m_Noise_Offset.Set( 0.0f, 0.0f );
+    m_Noise_Octaves = 3;
+    m_Noise_Persistance = 0.08f;
+    m_Noise_Lacunarity = 5.0f;
 
     m_AlwaysRecalculateNormals = false;
 
@@ -679,6 +683,10 @@ void EditorDocument_Heightmap::AddNoiseTools()
     {
         m_Noise_Dirty = true;
     }
+    if( ImGui::DragFloat( "Amplitude", &m_Noise_Amplitude, 0.01f, 0.01f, 100.0f ) )
+    {
+        m_Noise_Dirty = true;
+    }
     if( ImGui::DragFloat2( "Frequency", &m_Noise_Frequency.x, 0.001f, 0.001f, 100.0f ) )
     {
         m_Noise_Dirty = true;
@@ -687,14 +695,27 @@ void EditorDocument_Heightmap::AddNoiseTools()
     {
         m_Noise_Dirty = true;
     }
+    if( ImGui::DragInt( "Octaves", &m_Noise_Octaves, 1, 1, 6 ) )
+    {
+        m_Noise_Dirty = true;
+    }
+    if( ImGui::DragFloat( "Persistance", &m_Noise_Persistance, 0.01f, 0.0f, 1.0f ) )
+    {
+        m_Noise_Dirty = true;
+    }
+    if( ImGui::DragFloat( "Lacunarity", &m_Noise_Lacunarity, 0.01f, 1.0f, 100.0f ) )
+    {
+        m_Noise_Dirty = true;
+    }
     if( ImGui::Button( "Generate" ) )
     {
+        m_Noise_Dirty = true;
         forceRebuild = true;
     }
 
     if( m_Noise_Dirty && (m_Noise_AutoGenerate || forceRebuild) )
     {
-        m_pHeightmap->FillWithNoise( m_Noise_Seed, m_Noise_Frequency, m_Noise_Offset );
+        m_pHeightmap->FillWithNoise( m_Noise_Seed, m_Noise_Amplitude, m_Noise_Frequency, m_Noise_Offset, m_Noise_Octaves, m_Noise_Persistance, m_Noise_Lacunarity );
         m_Noise_Dirty = false;
     }
 }

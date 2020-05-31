@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2019-2020 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -556,20 +556,54 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
     return true;
 }
 
-void ComponentHeightmap::FillWithNoise(int noiseSeed, Vector2 freq, Vector2 offset)
+void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 frequency, Vector2 offset, int octaves, float persistance, float lacunarity)
 {
     Vector2Int vertCount = m_VertCount;
 
     osn_context* noiseContext;
     open_simplex_noise( noiseSeed, &noiseContext );
 
+    float minHeight = FLT_MAX;
+    float maxHeight = FLT_MIN;
+
+    Vector2 offsets[50];
+    if( octaves > 50 )
+        octaves = 50;
+
+    // Select a random offset for each octave.
+    MTRand rng( noiseSeed );
+    for( int i=0; i<octaves; i++ )
+    {
+        offsets[i] = Vector2( (float)rng() * 10000.0f, (float)rng() * 100000.0f );
+        offsets[i] += offset;
+    }
+
+    Vector2 halfSize( m_VertCount.x/2.0f, m_VertCount.y/2.0f );
+
+    // Calculate the height of each vertex.
     for( int y = 0; y < vertCount.y; y++ )
     {
         for( int x = 0; x < vertCount.x; x++ )
         {
             unsigned int index = (unsigned int)(y * vertCount.x + x);
 
-            float height = (float)open_simplex_noise2( noiseContext, x * freq.x + offset.x, y * freq.y + offset.y );
+            Vector2 freq = frequency;
+            float amp = amplitude;
+            float height = 0;
+
+            for( int octave = 0; octave < octaves; octave++ )
+            {
+                Vector2 location = (Vector2((float)x,(float)y) - halfSize) * freq + offsets[octave] * (freq / frequency);
+                float noise = (float)open_simplex_noise2( noiseContext, location.x, location.y );
+                
+                height += noise * amp;
+
+                amp *= persistance;
+                freq *= lacunarity;
+            }
+
+            DecreaseIfLower( minHeight, height );
+            IncreaseIfBigger( maxHeight, height );
 
             m_Heights[index] = height;
         }
