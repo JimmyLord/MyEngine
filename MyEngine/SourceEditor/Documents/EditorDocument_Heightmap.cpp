@@ -858,5 +858,5 @@ void EditorDocument_Heightmap::Load()
     }
 
     m_pHeightmap->LoadFromHeightmap( filename );
-    m_pHeightmap->GenerateHeightmapMesh( false, true, true );
+    m_pHeightmap->GenerateHeightmapMesh( true, true );
 }

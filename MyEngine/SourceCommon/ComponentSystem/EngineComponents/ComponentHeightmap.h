@@ -88,7 +88,8 @@ protected:
     void OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile);
 
     void CreateHeightmap();
-    bool GenerateHeightmapMesh(bool createFromTexture, bool sizeChanged, bool rebuildNormals);
+    bool GenerateHeightmapMeshFromTexture(bool sizeChanged, bool rebuildNormals);
+    bool GenerateHeightmapMesh(bool sizeChanged, bool rebuildNormals);
     void FillWithNoise(int noiseSeed, float amplitude, Vector2 frequency, Vector2 offset, int octaves, float persistance, float lacunarity);
     void RecalculateNormals();
     void RecalculateNormals(Vertex_XYZUVNorm* pVerts);

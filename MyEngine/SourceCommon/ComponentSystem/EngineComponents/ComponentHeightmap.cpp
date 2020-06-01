@@ -369,7 +369,17 @@ void ComponentHeightmap::CreateHeightmap()
         }
     }
 
-    if( GenerateHeightmapMesh( createFromTexture, true, true ) )
+    bool succeeded = false;
+    if( createFromTexture )
+    {
+        succeeded = GenerateHeightmapMeshFromTexture( true, true );
+    }
+    else
+    {
+        succeeded = GenerateHeightmapMesh( true, true );
+    }
+    
+    if( succeeded )
     {
         m_GLPrimitiveType = m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
@@ -383,24 +393,15 @@ void ComponentHeightmap::CreateHeightmap()
 }
 
 // Returns true if successfully generated mesh.
-bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool sizeChanged, bool rebuildNormals)
+bool ComponentHeightmap::GenerateHeightmapMeshFromTexture(bool sizeChanged, bool rebuildNormals)
 {
-    if( createFromTexture && (m_pHeightmapTexture == nullptr || m_pHeightmapTexture->GetFile() == nullptr) )
+    if( (m_pHeightmapTexture == nullptr || m_pHeightmapTexture->GetFile() == nullptr) )
     {
         MyAssert( false );
-    }
-
-    //LOGInfo( LOGTag, "ComponentHeightmap::GenerateHeightmapMesh\n" );
-
-    // Sanity check on vertex count.
-    if( m_VertCount.x <= 0 || m_VertCount.y <= 0 || (uint64)m_VertCount.x * (uint64)m_VertCount.y > UINT_MAX )
-    {
-        LOGError( LOGTag, "vertCount can't be negative.\n" );
         return false;
     }
 
     // If the heightmap texture is still loading, register a callback.
-    if( createFromTexture == true )
     {
         if( m_pHeightmapTexture )
         {
@@ -429,6 +430,63 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
         }
     }
 
+    // Load the height values from the texture.
+    {
+        unsigned char* pixelBuffer = nullptr;
+        unsigned int texWidth, texHeight;
+        Vector2Int vertCount = m_VertCount;
+
+        // Decode the file into a raw buffer.
+        {
+            unsigned char* buffer = (unsigned char*)m_pHeightmapTexture->GetFile()->GetBuffer();
+            MyAssert( buffer != nullptr );
+
+            int length = m_pHeightmapTexture->GetFile()->GetFileLength();
+
+            unsigned int error = lodepng_decode32( &pixelBuffer, &texWidth, &texHeight, buffer, length );
+            MyAssert( error == 0 );
+        }
+
+        // Store the heightmap texture size, so we can show a warning if there's a mismatch.
+        m_HeightmapTextureSize.Set( (int)texWidth, (int)texHeight );
+
+        // Allocate a buffer to store the vertex heights.
+        SAFE_DELETE_ARRAY( m_Heights );
+        m_Heights = MyNew float[vertCount.x * vertCount.y];
+
+        for( int y = 0; y < vertCount.y; y++ )
+        {
+            for( int x = 0; x < vertCount.x; x++ )
+            {
+                unsigned int index = (unsigned int)(y * vertCount.x + x);
+
+                Vector2 texCoord( (float)x/vertCount.x * texWidth, (float)y/vertCount.y * texHeight );
+                int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
+                float height = pixelBuffer[texIndex*4] / 255.0f;
+
+                m_Heights[index] = height;
+            }
+        }
+
+        // Free the memory allocated by lodepng_decode32.
+        free( pixelBuffer );
+    }
+
+    return GenerateHeightmapMesh( sizeChanged, rebuildNormals );
+}
+
+// Returns true if successfully generated mesh.
+bool ComponentHeightmap::GenerateHeightmapMesh(bool sizeChanged, bool rebuildNormals)
+{
+    //LOGInfo( LOGTag, "ComponentHeightmap::GenerateHeightmapMesh\n" );
+
+    // Sanity check on vertex count.
+    if( m_VertCount.x <= 0 || m_VertCount.y <= 0 || (uint64)m_VertCount.x * (uint64)m_VertCount.y > UINT_MAX )
+    {
+        LOGError( LOGTag, "vertCount can't be negative.\n" );
+        return false;
+    }
+
     // Set the parameters. // TODO: Make some of these members.
     Vector2 size = m_Size;
     Vector2Int vertCount = m_VertCount;
@@ -453,47 +511,6 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool createFromTexture, bool size
 
     // Generate the vertex positions
     {
-        if( createFromTexture )
-        {
-            unsigned char* pixelBuffer = nullptr;
-            unsigned int texWidth, texHeight;
-
-            // Decode the file into a raw buffer.
-            {
-                unsigned char* buffer = (unsigned char*)m_pHeightmapTexture->GetFile()->GetBuffer();
-                MyAssert( buffer != nullptr );
-
-                int length = m_pHeightmapTexture->GetFile()->GetFileLength();
-
-                unsigned int error = lodepng_decode32( &pixelBuffer, &texWidth, &texHeight, buffer, length );
-                MyAssert( error == 0 );
-            }
-
-            // Store the heightmap texture size, so we can show a warning if there's a mismatch.
-            m_HeightmapTextureSize.Set( (int)texWidth, (int)texHeight );
-        
-            // Allocate a buffer to store the vertex heights.
-            SAFE_DELETE_ARRAY( m_Heights );
-            m_Heights = MyNew float[vertCount.x * vertCount.y];
-
-            for( int y = 0; y < vertCount.y; y++ )
-            {
-                for( int x = 0; x < vertCount.x; x++ )
-                {
-                    unsigned int index = (unsigned int)(y * vertCount.x + x);
-
-                    Vector2 texCoord( (float)x/vertCount.x * texWidth, (float)y/vertCount.y * texHeight );
-                    int texIndex = (int)( (int)texCoord.y * texWidth + (int)texCoord.x );
-                    float height = pixelBuffer[texIndex*4] / 255.0f;
-
-                    m_Heights[index] = height;
-                }
-            }
-
-            // Free the memory allocated by lodepng_decode32.
-            free( pixelBuffer );
-        }
-
         // Set the vertices.
         for( int y = 0; y < vertCount.y; y++ )
         {
@@ -611,7 +628,7 @@ void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 f
 
     open_simplex_noise_free( noiseContext );
 
-    GenerateHeightmapMesh( false, false, true );
+    GenerateHeightmapMesh( false, true );
 }
 
 void ComponentHeightmap::RecalculateNormals()
@@ -733,7 +750,7 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel(CommandStack* pCommandStack
         {
             // TODO: Undo.
             m_VertCount = m_HeightmapFileSize;
-            GenerateHeightmapMesh( true, true, true );
+            GenerateHeightmapMeshFromTexture( true, true );
         }
     }
 
@@ -744,7 +761,7 @@ void ComponentHeightmap::AddAllVariablesToWatchPanel(CommandStack* pCommandStack
         {
             // TODO: Undo.
             m_VertCount = m_HeightmapTextureSize;
-            GenerateHeightmapMesh( true, true, true );
+            GenerateHeightmapMeshFromTexture( true, true );
         }
     }
 
@@ -1394,7 +1411,7 @@ bool ComponentHeightmap::Tool_Raise(Vector3 position, float amount, float radius
 
     if( rebuild && meshChanged )
     {
-        GenerateHeightmapMesh( false, false, false );
+        GenerateHeightmapMesh( false, false );
     }
 
     return meshChanged;
@@ -1443,7 +1460,7 @@ bool ComponentHeightmap::Tool_Level(Vector3 position, float desiredHeight, float
 
     if( rebuild && meshChanged )
     {
-        GenerateHeightmapMesh( false, false, false );
+        GenerateHeightmapMesh( false, false );
     }
 
     return meshChanged;

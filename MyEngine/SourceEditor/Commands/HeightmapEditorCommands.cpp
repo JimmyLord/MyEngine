@@ -39,7 +39,7 @@ void EditorCommand_Heightmap_Raise::Do()
     // Regenerate the heightmap normals when redoing the last 'raise' command in the clump.
     if( this->m_LinkedToNextCommandOnRedoStack == false )
     {
-        m_pHeightmap->GenerateHeightmapMesh( false, false, true );
+        m_pHeightmap->GenerateHeightmapMesh( false, true );
     }
 }
 
@@ -50,7 +50,7 @@ void EditorCommand_Heightmap_Raise::Undo()
     // Regenerate the heightmap normals when undoing the last 'raise' command in the clump.
     if( this->m_LinkedToPreviousCommandOnUndoStack == false )
     {
-        m_pHeightmap->GenerateHeightmapMesh( false, false, true );
+        m_pHeightmap->GenerateHeightmapMesh( false, true );
     }
 }
 
@@ -107,7 +107,7 @@ void EditorCommand_Heightmap_FullBackup::Do()
     // Regenerate the heightmap when redoing the last 'raise' command in the clump.
     //if( this->m_LinkedToNextCommandOnRedoStack == false )
     {
-        m_pHeightmap->GenerateHeightmapMesh( false, false, true );
+        m_pHeightmap->GenerateHeightmapMesh( false, true );
     }
 }
 
@@ -122,7 +122,7 @@ void EditorCommand_Heightmap_FullBackup::Undo()
     // Regenerate the heightmap when undoing the last 'raise' command in the clump.
     //if( this->m_LinkedToPreviousCommandOnUndoStack == false )
     {
-        m_pHeightmap->GenerateHeightmapMesh( false, false, true );
+        m_pHeightmap->GenerateHeightmapMesh( false, true );
     }
 }
 
