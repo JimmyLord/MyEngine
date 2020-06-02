@@ -92,7 +92,7 @@ protected:
     virtual const char* GetDefaultFileSaveFilter() { return "MyHeightmap Files=*.myheightmap"; };
 
 public:
-    EditorDocument_Heightmap(EngineCore* pEngineCore, ComponentHeightmap* pHeightmap);
+    EditorDocument_Heightmap(EngineCore* pEngineCore, const char* relativePath, ComponentHeightmap* pHeightmap);
     virtual ~EditorDocument_Heightmap();
 
     virtual void Initialize();

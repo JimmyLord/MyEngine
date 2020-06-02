@@ -77,6 +77,10 @@ protected:
     void OnButtonEditHeightmap();
 #endif //MYFW_EDITOR
 
+    // Getters.
+    MyFileObject* GetHeightmapFile() { return m_pHeightmapFile; }
+
+    // Setters.
     void SetHeightmapFile(MyFileObject* pFile);
     void UnregisterHeightmapFileLoadingCallbacks(bool force);
     static void StaticOnFileFinishedLoadingHeightmapFile(void* pObjectPtr, MyFileObject* pFile) { ((ComponentHeightmap*)pObjectPtr)->OnFileFinishedLoadingHeightmapFile( pFile ); }
@@ -87,6 +91,7 @@ protected:
     static void StaticOnFileFinishedLoadingHeightmapTexture(void* pObjectPtr, MyFileObject* pFile) { ((ComponentHeightmap*)pObjectPtr)->OnFileFinishedLoadingHeightmapTexture( pFile ); }
     void OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile);
 
+    // 
     void CreateHeightmap();
     bool GenerateHeightmapMeshFromTexture(bool sizeChanged, bool rebuildNormals);
     bool GenerateHeightmapMesh(bool sizeChanged, bool rebuildNormals);

@@ -51,7 +51,7 @@ public:
     }
 };
 
-EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, ComponentHeightmap* pHeightmap)
+EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, const char* relativePath, ComponentHeightmap* pHeightmap)
 : EditorDocument( pEngineCore )
 {
     m_pCamera = MyNew ComponentCamera( pEngineCore, nullptr );
@@ -75,6 +75,9 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, Comp
         m_HeightmapOwnedByUs = false;
 
         m_pHeightmap = pHeightmap;
+
+        MyFileObject* pFile = m_pHeightmap->GetHeightmapFile();
+        SetRelativePath( pFile->GetFullPath() );
     }
     else
     {
@@ -88,6 +91,13 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, Comp
         m_pHeightmap->SetMaterial( pMaterial, 0 );
         m_pHeightmap->CreateHeightmap();
         m_pHeightmap->RegisterCallbacks();
+
+        if( relativePath != nullptr && relativePath[0] != '\0' )
+        {
+            SetRelativePath( relativePath );
+            MyFileInfo* pFileInfo = m_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativePath, SCENEID_MainScene, nullptr, false );
+            m_pHeightmap->SetHeightmapFile( pFileInfo->GetFile() );
+        }
     }
 
     m_CurrentTool = Tool::Raise;

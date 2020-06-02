@@ -47,7 +47,7 @@ EditorDocument* EditorDocumentManager::AddDocumentMenu(EngineCore* pEngineCore, 
             }
             if( ImGui::MenuItem( "Heightmap" ) )
             {
-                pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+                pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr, nullptr );
             }
             if( ImGui::MenuItem( "Tilemap" ) )
             {
@@ -86,7 +86,7 @@ EditorDocument* EditorDocumentManager::AddDocumentMenu(EngineCore* pEngineCore, 
 
                     if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
                     {
-                        pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+                        pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, relativePath, nullptr );
                     }
 
                     if( strcmp( &relativePath[len-strlen(".mytilemap")], ".mytilemap" ) == 0 )
@@ -207,7 +207,7 @@ EditorDocument* EditorDocumentManager::LoadDocument(EngineCore* pEngineCore)
         }        
         else if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
         {
-            pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+            pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, relativePath, nullptr );
         }
         else if( strcmp( &relativePath[len-strlen(".mytilemap")], ".mytilemap" ) == 0 )
         {
@@ -251,7 +251,7 @@ void EditorDocumentManager::RestorePreviouslyOpenDocuments(EngineCore* pEngineCo
             }        
             else if( strcmp( &relativePath[len-strlen(".myheightmap")], ".myheightmap" ) == 0 )
             {
-                pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr );
+                pNewDocument = MyNew EditorDocument_Heightmap( pEngineCore, relativePath, nullptr );
             }
             else if( strcmp( &relativePath[len-strlen(".mytilemap")], ".mytilemap" ) == 0 )
             {
