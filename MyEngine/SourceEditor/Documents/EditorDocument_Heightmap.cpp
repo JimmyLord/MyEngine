@@ -87,8 +87,14 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, cons
         m_pHeightmap->Reset();
         m_pHeightmap->m_Size.Set( 5, 5 );
         m_pHeightmap->m_VertCount.Set( 128, 128 );
+
+        // Grab the first material that was loaded by the user.
         MaterialDefinition* pMaterial = pEngineCore->GetManagers()->GetMaterialManager()->GetFirstMaterial();
-        m_pHeightmap->SetMaterial( pMaterial, 0 );
+        if( pMaterial->GetFile() != nullptr )
+        {
+            m_pHeightmap->SetMaterial( pMaterial, 0 );
+        }
+
         m_pHeightmap->CreateHeightmap();
         m_pHeightmap->RegisterCallbacks();
 
@@ -221,7 +227,7 @@ bool EditorDocument_Heightmap::IsBusy()
     return false;
 }
 
-void EditorDocument_Heightmap::OnDrawFrame() //unsigned int canvasID)
+void EditorDocument_Heightmap::OnDrawFrame()
 {
     EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
 
@@ -331,6 +337,11 @@ void EditorDocument_Heightmap::AddImGuiOverlayItems()
     if( m_pHeightmap && m_pHeightmap->GetGameObject() )
     {
         ImGui::Text( "Editing Heightmap: %s", m_pHeightmap->GetGameObject()->GetName() );
+    }
+
+    if( m_pHeightmap->GetMaterial( 0 ) == nullptr )
+    {
+        ImGui::Text( "No material assigned, load and drop one on the window." );
     }
 
     //if( m_pCommandStack->GetUndoStackSize() > 0 )
@@ -549,6 +560,17 @@ void EditorDocument_Heightmap::Update()
         {
             TextureDefinition* tex = m_pFBO->GetColorTexture( 0 );
             ImGui::ImageButton( (void*)tex, ImVec2( w, h ), ImVec2(0,h/m_pFBO->GetTextureHeight()), ImVec2(w/m_pFBO->GetTextureWidth(),0), 0 );
+
+            if( ImGui::BeginDragDropTarget() )
+            {
+                if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Material" ) )
+                {
+                    MaterialDefinition* pNewMat = (MaterialDefinition*)*(void**)payload->Data;
+
+                    m_pHeightmap->SetMaterial( pNewMat, 0 );
+                }
+                ImGui::EndDragDropTarget();
+            }
         }
     }
 
