@@ -82,6 +82,7 @@ protected:
     int m_Noise_Octaves;
     float m_Noise_Persistance;
     float m_Noise_Lacunarity;
+    int m_Noise_Debug_Octave;
 
     bool m_AlwaysRecalculateNormals;
 

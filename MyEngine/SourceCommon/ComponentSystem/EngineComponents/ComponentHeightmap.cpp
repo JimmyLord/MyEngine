@@ -573,7 +573,7 @@ bool ComponentHeightmap::GenerateHeightmapMesh(bool sizeChanged, bool rebuildNor
     return true;
 }
 
-void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 frequency, Vector2 offset, int octaves, float persistance, float lacunarity)
+void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 frequency, Vector2 offset, int octaves, float persistance, float lacunarity, int debugOctave)
 {
     Vector2Int vertCount = m_VertCount;
 
@@ -610,10 +610,13 @@ void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 f
 
             for( int octave = 0; octave < octaves; octave++ )
             {
-                Vector2 location = (Vector2((float)x,(float)y) - halfSize) * freq + offsets[octave] * (freq / frequency);
-                float noise = (float)open_simplex_noise2( noiseContext, location.x, location.y );
+                if( debugOctave == octave || debugOctave == -1 )
+                {
+                    Vector2 location = (Vector2((float)x,(float)y) - halfSize) * freq + offsets[octave] * (freq / frequency);
+                    float noise = (float)open_simplex_noise2( noiseContext, location.x, location.y );
                 
-                height += noise * amp;
+                    height += noise * amp;
+                }
 
                 amp *= persistance;
                 freq *= lacunarity;

@@ -148,6 +148,7 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, cons
     m_Noise_Octaves = 3;
     m_Noise_Persistance = 0.08f;
     m_Noise_Lacunarity = 5.0f;
+    m_Noise_Debug_Octave = -1;
 
     m_AlwaysRecalculateNormals = false;
 
@@ -739,6 +740,10 @@ void EditorDocument_Heightmap::AddNoiseTools()
     {
         m_Noise_Dirty = true;
     }
+    if( ImGui::DragInt( "Debug Octave", &m_Noise_Debug_Octave, 1, -1, m_Noise_Octaves ) )
+    {
+        m_Noise_Dirty = true;
+    }
     if( ImGui::Button( "Generate" ) )
     {
         m_Noise_Dirty = true;
@@ -747,7 +752,7 @@ void EditorDocument_Heightmap::AddNoiseTools()
 
     if( m_Noise_Dirty && (m_Noise_AutoGenerate || forceRebuild) )
     {
-        m_pHeightmap->FillWithNoise( m_Noise_Seed, m_Noise_Amplitude, m_Noise_Frequency, m_Noise_Offset, m_Noise_Octaves, m_Noise_Persistance, m_Noise_Lacunarity );
+        m_pHeightmap->FillWithNoise( m_Noise_Seed, m_Noise_Amplitude, m_Noise_Frequency, m_Noise_Offset, m_Noise_Octaves, m_Noise_Persistance, m_Noise_Lacunarity, m_Noise_Debug_Octave );
         m_Noise_Dirty = false;
     }
 }
