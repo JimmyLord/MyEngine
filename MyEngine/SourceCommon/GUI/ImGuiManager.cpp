@@ -610,6 +610,11 @@ bool ImGuiManager::UpdateMouseCursor()
     }
     else
     {
+        // If imgui just wants an arrow cursor, don't change the cursor.
+        // This allows regular windows cursor changes to occur for resizing, etc.
+        if( imgui_cursor == ImGuiMouseCursor_Arrow )
+            return true;
+
         // Show OS mouse cursor.
         LPTSTR win32_cursor = IDC_ARROW;
         switch( imgui_cursor )
