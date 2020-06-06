@@ -740,7 +740,7 @@ void EditorDocument_Heightmap::AddNoiseTools()
     {
         m_Noise_Dirty = true;
     }
-    if( ImGui::DragInt( "Debug Octave", &m_Noise_Debug_Octave, 1, -1, m_Noise_Octaves ) )
+    if( ImGui::DragInt( "Debug Octave", &m_Noise_Debug_Octave, 1, -1, m_Noise_Octaves-1 ) )
     {
         m_Noise_Dirty = true;
     }

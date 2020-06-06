@@ -737,6 +737,7 @@ void EditorMainFrame_ImGui::AddEverything()
 
     // Clear m_pActiveDocument, a new one will be set if a document is in focus.
     m_pActiveDocument = nullptr;
+    m_pVisibleDocuments.clear();
 
     std::vector<EditorDocument*>* pOpenDocuments = &m_pEngineCore->GetEditorState()->m_pOpenDocuments;
     for( uint32 i=0; i<pOpenDocuments->size(); i++ )
@@ -753,6 +754,11 @@ void EditorMainFrame_ImGui::AddEverything()
             m_pLastActiveDocument = pDocument;
         }
 
+        if( pDocument->IsWindowVisible() )
+        {
+            m_pVisibleDocuments.push_back( pDocument );
+        }
+
         if( documentStillOpen == false )
         {
             if( pDocument->HasUnsavedChanges() )
@@ -764,8 +770,9 @@ void EditorMainFrame_ImGui::AddEverything()
             {
                 m_pActiveDocument = nullptr;
                 m_pLastActiveDocument = nullptr;
-                delete pDocument;
+                m_pVisibleDocuments.clear();
                 pOpenDocuments->erase( pOpenDocuments->begin() + i );
+                delete pDocument;
             }
         }
     }
@@ -777,10 +784,10 @@ void EditorMainFrame_ImGui::AddEverything()
 
 void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 {
-    // Only refresh the active document window.
-    if( m_pActiveDocument != nullptr )
+    // Only refresh visible document windows.
+    for( EditorDocument* pDocument : m_pVisibleDocuments )
     {
-        m_pActiveDocument->OnDrawFrame();
+        pDocument->OnDrawFrame();
     }
 
     if( m_GameWindowVisible && m_GameWindowSize.LengthSquared() != 0 )
@@ -1554,6 +1561,7 @@ void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
         {
             m_pActiveDocument = nullptr;
             m_pLastActiveDocument = nullptr;
+            m_pVisibleDocuments.clear();
 
             std::vector<EditorDocument*>* pOpenDocuments = &m_pEngineCore->GetEditorState()->m_pOpenDocuments;
             delete (*pOpenDocuments)[m_DocumentIndexToCloseAfterWarning];

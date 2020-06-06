@@ -51,6 +51,7 @@ protected:
     // Documents.
     EditorDocument* m_pActiveDocument;
     EditorDocument* m_pLastActiveDocument;
+    std::vector<EditorDocument*> m_pVisibleDocuments;
 
     // Layouts.
     EditorLayoutManager_ImGui* m_pLayoutManager;
