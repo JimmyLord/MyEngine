@@ -12,6 +12,7 @@
 
 #include "../SourceEditor/Prefs/EditorKeyBindings.h"
 
+class ComponentBase;
 class ComponentCamera;
 class ComponentTransform;
 
@@ -66,6 +67,9 @@ protected:
 public:
     EditorDocument(EngineCore* pEngineCore);
     virtual ~EditorDocument();
+
+    // Pure virtual methods.
+    virtual ComponentBase* GetComponentBeingEdited() = 0;
 
     // Input/Hotkey handling
     virtual HotkeyContext GetHotkeyContext() { return HotkeyContext::Global; }

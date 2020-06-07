@@ -108,12 +108,14 @@ public:
 
     void Init();
 
+    // Editor Document methods.
     void SaveAllMiscFiles();
     void SaveAllOpenDocuments();
     bool DoAnyOpenDocumentsHaveUnsavedChanges();
-
     void OpenDocument(EditorDocument* pDocument);
+    EditorDocument* GetDocumentCurrentlyEditingComponent(ComponentBase* pComponent);
 
+    // General methods.
     EngineCore* GetEngineCore() { return m_pEngineCore; }
     ComponentCamera* GetEditorCamera();
 

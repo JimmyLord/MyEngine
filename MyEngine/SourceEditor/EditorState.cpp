@@ -197,6 +197,19 @@ void EditorState::OpenDocument(EditorDocument* pDocument)
     m_pOpenDocuments.push_back( pDocument );
 }
 
+EditorDocument* EditorState::GetDocumentCurrentlyEditingComponent(ComponentBase* pComponent)
+{
+    for( EditorDocument* pDocument : m_pOpenDocuments )
+    {
+        if( pDocument->GetComponentBeingEdited() == pComponent )
+        {
+            return pDocument;
+        }
+    }
+
+    return nullptr;
+}
+
 ComponentCamera* EditorState::GetEditorCamera()
 {
     if( m_pEditorCamera == nullptr )

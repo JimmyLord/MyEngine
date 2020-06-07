@@ -156,6 +156,8 @@ public:
     MyNodeGraph(EngineCore* pEngineCore, MyNodeTypeManager* pNodeTypeManager);
     virtual ~MyNodeGraph();
 
+    virtual ComponentBase* GetComponentBeingEdited() override { return nullptr; };
+
     // Returns true if in focus.
     virtual void Update() override;
     virtual void AddItemsAboveNodeGraphWindow();

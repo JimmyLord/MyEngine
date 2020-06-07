@@ -73,6 +73,9 @@ public:
     EditorDocument_Tilemap(EngineCore* pEngineCore, ComponentTilemap* pTilemap);
     virtual ~EditorDocument_Tilemap();
 
+    // Pure virtual methods.
+    virtual ComponentBase* GetComponentBeingEdited() override;
+
     virtual void Initialize();
 
     virtual bool IsBusy();

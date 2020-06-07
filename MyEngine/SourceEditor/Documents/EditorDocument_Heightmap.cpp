@@ -180,6 +180,11 @@ EditorDocument_Heightmap::~EditorDocument_Heightmap()
     SAFE_DELETE( m_pCamera );
 }
 
+ComponentBase* EditorDocument_Heightmap::GetComponentBeingEdited()
+{
+    return m_pHeightmap;
+}
+
 void EditorDocument_Heightmap::Initialize()
 {
     EngineCore* pEngineCore = EditorDocument::m_pEngineCore;

@@ -178,8 +178,15 @@ void ComponentHeightmap::OnButtonEditHeightmap()
 {
     EngineCore* pEngineCore = m_pEngineCore;
 
-    EditorDocument_Heightmap* pDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr, this );
-    pEngineCore->GetEditorState()->OpenDocument( pDocument );
+    if( pEngineCore->GetEditorState()->GetDocumentCurrentlyEditingComponent( this ) == false )
+    {
+        EditorDocument_Heightmap* pDocument = MyNew EditorDocument_Heightmap( pEngineCore, nullptr, this );
+        pEngineCore->GetEditorState()->OpenDocument( pDocument );
+    }
+    else
+    {
+        // TODO: Bring heightmap doc to foreground.
+    }
 }
 #endif //MYFW_EDITOR
 

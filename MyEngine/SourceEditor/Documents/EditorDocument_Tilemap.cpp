@@ -126,6 +126,11 @@ EditorDocument_Tilemap::~EditorDocument_Tilemap()
     SAFE_DELETE( m_pCamera );
 }
 
+ComponentBase* EditorDocument_Tilemap::GetComponentBeingEdited()
+{
+    return m_pTilemap;
+}
+
 void EditorDocument_Tilemap::Initialize()
 {
     EngineCore* pEngineCore = EditorDocument::m_pEngineCore;
