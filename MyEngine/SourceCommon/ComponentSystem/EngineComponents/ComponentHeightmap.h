@@ -96,6 +96,8 @@ protected:
     bool GenerateHeightmapMeshFromTexture(bool sizeChanged, bool rebuildNormals);
     bool GenerateHeightmapMesh(bool sizeChanged, bool rebuildNormals);
     void FillWithNoise(int noiseSeed, float amplitude, Vector2 frequency, Vector2 offset, int octaves, float persistance, float lacunarity, int debugOctave = -1);
+    Vector2 GetGradientAtLocalPosition(Vector3 pos, float* pHeight);
+    void Erode();
     void RecalculateNormals();
     void RecalculateNormals(Vertex_XYZUVNorm* pVerts);
 
@@ -112,7 +114,10 @@ protected:
 
 public:
     bool GetTileCoordsAtWorldXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const;
+    bool GetTileCoordsAtLocalXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const;
     bool GetHeightAtWorldXZ(const float x, const float z, float* pFloat) const;
+    bool GetHeightAtLocalXZ(const float x, const float z, float* pFloat) const;
+    float GetHeightAtPercIntoTile(Vector2Int tileCoords, Vector2 percIntoTile) const;
     bool RayCast(bool rayIsInWorldSpace, Vector3 start, Vector3 end, Vector3* pResult) const;
     bool RayCastAtLocalHeight(bool rayIsInWorldSpace, Vector3 start, Vector3 end, float height, Vector3* pResultAtDesiredHeight, Vector3* pResultOnGround) const;
 

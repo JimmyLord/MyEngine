@@ -760,6 +760,11 @@ void EditorDocument_Heightmap::AddNoiseTools()
         m_pHeightmap->FillWithNoise( m_Noise_Seed, m_Noise_Amplitude, m_Noise_Frequency, m_Noise_Offset, m_Noise_Octaves, m_Noise_Persistance, m_Noise_Lacunarity, m_Noise_Debug_Octave );
         m_Noise_Dirty = false;
     }
+
+    if( ImGui::Button( "Erode" ) )
+    {
+        m_pHeightmap->Erode();
+    }
 }
 
 void EditorDocument_Heightmap::SetHeightmap(ComponentHeightmap* pHeightmap)

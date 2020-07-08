@@ -613,7 +613,9 @@ void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 f
 
             Vector2 freq = frequency;
             float amp = amplitude;
-            float height = 0;
+
+            //float height = 1.0f;
+            float height = 0.0f;
 
             for( int octave = 0; octave < octaves; octave++ )
             {
@@ -621,7 +623,14 @@ void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 f
                 {
                     Vector2 location = (Vector2((float)x,(float)y) - halfSize) * freq + offsets[octave] * (freq / frequency);
                     float noise = (float)open_simplex_noise2( noiseContext, location.x, location.y );
-                
+                    //noise = noise / 2.0f + 0.5f;
+
+                    //noise -= 0.1f;
+                    //if( noise < 0 )
+                    //    noise = 0;
+                    //noise *= pow( lacunarity, -0.4f*octave );
+
+                    //height *= noise * amp;
                     height += noise * amp;
                 }
 
@@ -637,6 +646,123 @@ void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 f
     }
 
     open_simplex_noise_free( noiseContext );
+
+    GenerateHeightmapMesh( false, true );
+}
+
+Vector2 ComponentHeightmap::GetGradientAtLocalPosition(Vector3 pos, float* pHeight)
+{
+    Vector2 gradient( 0 );
+    float height = 0;
+
+    Vector2Int tileCoords;
+    Vector2 percIntoTile;
+    if( GetTileCoordsAtLocalXZ( pos.x, pos.z, &tileCoords, &percIntoTile ) )
+    {
+        int x = tileCoords.x;
+        int y = tileCoords.y;
+
+        Vector2Int vertCount = m_VertCount;
+        int mx = vertCount.x-1;
+        int my = vertCount.y-1;
+
+        //   TL--->TR
+        //   ^      ^
+        //   |      |
+        //   |      |
+        //   BL--->BR
+
+        // Calculate the 4 indices for the corners of this tile.
+        unsigned int indexBL = (unsigned int)(y * vertCount.x + x);
+        unsigned int indexBR =           x < mx ? (unsigned int)((y  ) * vertCount.x + x+1) : indexBL;
+        unsigned int indexTL = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexBL;
+        unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexBL;
+
+        // The slopes of the 4 edges of the tile.
+        float slopeLeft   = m_Heights[indexTL] - m_Heights[indexBL];
+        float slopeRight  = m_Heights[indexTR] - m_Heights[indexBR];
+        float slopeTop    = m_Heights[indexTR] - m_Heights[indexTL];
+        float slopeBottom = m_Heights[indexBR] - m_Heights[indexBL];
+
+        // Interpolated slope based on percentage we are into this tile.
+        gradient.x = slopeLeft * (1 - percIntoTile.x) + slopeRight * percIntoTile.x;
+        gradient.y = slopeBottom * (1 - percIntoTile.y) + slopeTop * percIntoTile.y;
+
+        height = GetHeightAtPercIntoTile( tileCoords, percIntoTile );
+    }
+
+    if( pHeight )
+        *pHeight = height;
+
+    return gradient;
+}
+
+// My implementation of "Implementation of a method for hydraulic erosion" by Hans Theobald Beyer
+// https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf
+void ComponentHeightmap::Erode()
+{
+    // Parameters, will be exposed later.
+    float inertia = 0.3f;
+    float capacity = 8.0f;
+    float deposition = 0.2f;
+    float evalporation = 0.02f;
+    float minSlope = 0.01f;
+    float gravity = 10.0f;
+    float radius = 4.0f;
+    int maxSteps = 64;
+    int numberOfDrops = 100000;
+    
+    for( int dropIndex=0; dropIndex<numberOfDrops; dropIndex++ )
+    {
+        // Pick a random location.
+        Vector2 pos( (rand()%m_VertCount.x)/(float)m_VertCount.x * m_Size.x, (rand()%m_VertCount.y)/(float)m_VertCount.y * m_Size.y );
+        Vector2 dir( 0 );
+        Vector2 vel( 0 );
+        float water = 1;
+        float sediment = 0;
+
+        for( int step=0; step<maxSteps; step++ )
+        {
+            float startHeight = 0.0f;
+            Vector2 gradient = GetGradientAtLocalPosition( Vector3( pos.x, 0, pos.y ), &startHeight );
+
+            // Change the direction of the drop based on the gradient of the tile.
+            dir = dir * inertia - gradient * (1 - inertia);
+            
+            // If there's no direction, pick a random one.
+            if( dir.LengthSquared() < 0.0001f )
+                dir.Set( rand()%10000/10000.0f, rand()%10000/10000.0f );
+            
+            // Normalize the direction, we're going to take a full step to the next tile each "step".
+            dir.Normalize();
+            dir *= m_Size;
+            dir.x /= m_VertCount.x;
+            dir.y /= m_VertCount.y;
+
+            // Step to the new position.
+            pos += dir;
+
+            float endHeight;
+            bool stillOnMap = GetHeightAtLocalXZ( pos.x, pos.y, &endHeight );
+            if( stillOnMap == false )
+                break;
+
+            float heightChange = endHeight - startHeight;
+            
+            // Temp: If we went uphill, set the ground level to -1.
+            if( heightChange > 0 )
+            {
+                Vector2Int tileCoords;
+                if( GetTileCoordsAtLocalXZ( pos.x, pos.y, &tileCoords, nullptr ) )
+                {
+                    unsigned int index = (unsigned int)(tileCoords.y * m_VertCount.x + tileCoords.x);
+                    m_Heights[index] = -1;
+                }
+
+                break;
+            }
+        }
+    }
 
     GenerateHeightmapMesh( false, true );
 }
@@ -849,8 +975,13 @@ bool ComponentHeightmap::GetTileCoordsAtWorldXZ(const float x, const float z, Ve
         localPos = pWorldMat->GetInverse() * localPos;
     }
 
+    return GetTileCoordsAtLocalXZ( localPos.x, localPos.z, pLocalTile, pPercIntoTile );
+}
+
+bool ComponentHeightmap::GetTileCoordsAtLocalXZ(const float x, const float z, Vector2Int* pLocalTile, Vector2* pPercIntoTile) const
+{
     // Get the tile coordinates.
-    Vector2Int tileCoords = (m_VertCount-1) * (localPos.XZ()/m_Size);
+    Vector2Int tileCoords = (m_VertCount-1) * (Vector2(x,z)/m_Size);
 
     if( pLocalTile )
         pLocalTile->Set( tileCoords.x, tileCoords.y );
@@ -858,18 +989,18 @@ bool ComponentHeightmap::GetTileCoordsAtWorldXZ(const float x, const float z, Ve
     if( tileCoords.x < 0 || tileCoords.x >= m_VertCount.x ||
         tileCoords.y < 0 || tileCoords.y >= m_VertCount.y )
     {
-        //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: Out of bounds" );
+        //LOGInfo( LOGTag, "ComponentHeightmap::GetTileCoordsAtLocalXZ: Out of bounds" );
         return false;
     }
 
     if( pPercIntoTile )
     {
         Vector2 tileSize( m_Size.x / (m_VertCount.x-1), m_Size.y / (m_VertCount.y-1) );
-        pPercIntoTile->x = (localPos.x - tileCoords.x * tileSize.x) / tileSize.x;
-        pPercIntoTile->y = (localPos.z - tileCoords.y * tileSize.y) / tileSize.y;
+        pPercIntoTile->x = (x - tileCoords.x * tileSize.x) / tileSize.x;
+        pPercIntoTile->y = (z - tileCoords.y * tileSize.y) / tileSize.y;
     }
 
-    //LOGInfo( LOGTag, "ComponentHeightmap::GetTileCoordsAtWorldXZ: (%d,%d)", posIndex.x, posIndex.y );
+    //LOGInfo( LOGTag, "ComponentHeightmap::GetTileCoordsAtLocalXZ: (%d,%d)", posIndex.x, posIndex.y );
 
     return true;
 }
@@ -882,42 +1013,66 @@ bool ComponentHeightmap::GetHeightAtWorldXZ(const float x, const float z, float*
     Vector2 percIntoTile;
     if( GetTileCoordsAtWorldXZ( x, z, &tileCoords, &percIntoTile ) )
     {
-        // Found here: https://codeplea.com/triangular-interpolation
-        //   and here: https://www.youtube.com/watch?v=6E2zjfzMs7c
-        // ----
-        // | /|  Left triangle X < Y
-        // |/ |  Right triangle X > Y
-        // ----
-        Vector3 p1, p2, p3;
-        if( percIntoTile.x <= percIntoTile.y ) // Left triangle X < Y
-        {
-            p1 = Vector3( 0, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x    ], 0 ); // BL
-            p2 = Vector3( 0, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x    ], 1 ); // TL
-            p3 = Vector3( 1, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x + 1], 1 ); // TR
-        }
-        else //if( percIntoTile.x > percIntoTile.y ) // Right triangle X > Y
-        {
-            p1 = Vector3( 0, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x    ], 0 ); // BL
-            p2 = Vector3( 1, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x + 1], 1 ); // TR
-            p3 = Vector3( 1, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x + 1], 0 ); // BR
-        }
-
-        // Barycentric interpolation.
-        float divisor = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
-        float w1 = ( (p2.z - p3.z) * (percIntoTile.x - p3.x) + (p3.x - p2.x) * (percIntoTile.y - p3.z) ) / divisor;
-        float w2 = ( (p3.z - p1.z) * (percIntoTile.x - p3.x) + (p1.x - p3.x) * (percIntoTile.y - p3.z) ) / divisor;
-        float w3 = 1.0f - w1 - w2;
-        float height = (w1 * p1.y) + (w2 * p2.y) + (w3 * p3.y);
+        float height = GetHeightAtPercIntoTile( tileCoords, percIntoTile );
 
         if( pFloat )
             *pFloat = height;
-
-        //LOGInfo( LOGTag, "ComponentHeightmap::GetHeightAtWorldXZ: (%d,%d) %f", tileCoords.x, tileCoords.y, m_Heights[index] );
 
         return true;
     }
 
     return false;
+}
+
+bool ComponentHeightmap::GetHeightAtLocalXZ(const float x, const float z, float* pFloat) const
+{
+    float height = 0.0f;
+
+    Vector2Int tileCoords;
+    Vector2 percIntoTile;
+    if( GetTileCoordsAtLocalXZ( x, z, &tileCoords, &percIntoTile ) )
+    {
+        float height = GetHeightAtPercIntoTile( tileCoords, percIntoTile );
+
+        if( pFloat )
+            *pFloat = height;
+
+        return true;
+    }
+
+    return false;
+}
+
+float ComponentHeightmap::GetHeightAtPercIntoTile(Vector2Int tileCoords, Vector2 percIntoTile) const
+{
+    // Found here: https://codeplea.com/triangular-interpolation
+    //   and here: https://www.youtube.com/watch?v=6E2zjfzMs7c
+    // ----
+    // | /|  Left triangle X < Y
+    // |/ |  Right triangle X > Y
+    // ----
+    Vector3 p1, p2, p3;
+    if( percIntoTile.x <= percIntoTile.y ) // Left triangle X < Y
+    {
+        p1 = Vector3( 0, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x    ], 0 ); // BL
+        p2 = Vector3( 0, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x    ], 1 ); // TL
+        p3 = Vector3( 1, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x + 1], 1 ); // TR
+    }
+    else //if( percIntoTile.x > percIntoTile.y ) // Right triangle X > Y
+    {
+        p1 = Vector3( 0, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x    ], 0 ); // BL
+        p2 = Vector3( 1, m_Heights[(tileCoords.y + 1) * m_VertCount.x + tileCoords.x + 1], 1 ); // TR
+        p3 = Vector3( 1, m_Heights[(tileCoords.y    ) * m_VertCount.x + tileCoords.x + 1], 0 ); // BR
+    }
+
+    // Barycentric interpolation.
+    float divisor = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    float w1 = ( (p2.z - p3.z) * (percIntoTile.x - p3.x) + (p3.x - p2.x) * (percIntoTile.y - p3.z) ) / divisor;
+    float w2 = ( (p3.z - p1.z) * (percIntoTile.x - p3.x) + (p1.x - p3.x) * (percIntoTile.y - p3.z) ) / divisor;
+    float w3 = 1.0f - w1 - w2;
+    float height = (w1 * p1.y) + (w2 * p2.y) + (w3 * p3.y);
+
+    return height;
 }
 
 bool ComponentHeightmap::SnapToBounds(Vector3 start, const Vector3& dir, Vector3* pResult) const
