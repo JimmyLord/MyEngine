@@ -399,6 +399,20 @@ void ComponentHeightmap::CreateHeightmap()
     }
 }
 
+bool ComponentHeightmap::GenerateDebugSlope()
+{
+    for( int y = 0; y < m_VertCount.y; y++ )
+    {
+        for( int x = 0; x < m_VertCount.x; x++ )
+        {
+            unsigned int index = (unsigned int)(y * m_VertCount.x + x);
+            m_Heights[index] = (float)x / m_VertCount.x;
+        }
+    }
+
+    return GenerateHeightmapMesh( false, true );
+}
+
 // Returns true if successfully generated mesh.
 bool ComponentHeightmap::GenerateHeightmapMeshFromTexture(bool sizeChanged, bool rebuildNormals)
 {
@@ -650,14 +664,14 @@ void ComponentHeightmap::FillWithNoise(int noiseSeed, float amplitude, Vector2 f
     GenerateHeightmapMesh( false, true );
 }
 
-Vector2 ComponentHeightmap::GetGradientAtLocalPosition(Vector3 pos, float* pHeight)
+Vector2 ComponentHeightmap::GetGradientAtLocalPosition(Vector2 pos, float* pHeight)
 {
     Vector2 gradient( 0 );
     float height = 0;
 
     Vector2Int tileCoords;
     Vector2 percIntoTile;
-    if( GetTileCoordsAtLocalXZ( pos.x, pos.z, &tileCoords, &percIntoTile ) )
+    if( GetTileCoordsAtLocalXZ( pos.x, pos.y, &tileCoords, &percIntoTile ) )
     {
         int x = tileCoords.x;
         int y = tileCoords.y;
@@ -685,8 +699,8 @@ Vector2 ComponentHeightmap::GetGradientAtLocalPosition(Vector3 pos, float* pHeig
         float slopeBottom = m_Heights[indexBR] - m_Heights[indexBL];
 
         // Interpolated slope based on percentage we are into this tile.
-        gradient.x = slopeLeft * (1 - percIntoTile.x) + slopeRight * percIntoTile.x;
-        gradient.y = slopeBottom * (1 - percIntoTile.y) + slopeTop * percIntoTile.y;
+        gradient.x = slopeBottom * (1 - percIntoTile.y) + slopeTop * percIntoTile.y;
+        gradient.y = slopeLeft * (1 - percIntoTile.x) + slopeRight * percIntoTile.x;
 
         height = GetHeightAtPercIntoTile( tileCoords, percIntoTile );
     }
@@ -697,47 +711,119 @@ Vector2 ComponentHeightmap::GetGradientAtLocalPosition(Vector3 pos, float* pHeig
     return gradient;
 }
 
+void ComponentHeightmap::DepositSediment(Vector2 pos, float amount)
+{
+    Vector2Int tileCoords;
+    Vector2 percIntoTile;
+    if( GetTileCoordsAtLocalXZ( pos.x, pos.y, &tileCoords, &percIntoTile ) )
+    {
+        int x = tileCoords.x;
+        int y = tileCoords.y;
+
+        Vector2Int vertCount = m_VertCount;
+        int mx = vertCount.x-1;
+        int my = vertCount.y-1;
+
+        //   TL--->TR
+        //   ^      ^
+        //   |      |
+        //   |      |
+        //   BL--->BR
+
+        // Calculate the 4 indices for the corners of this tile.
+        unsigned int indexBL = (unsigned int)(y * vertCount.x + x);
+        unsigned int indexBR =           x < mx ? (unsigned int)((y  ) * vertCount.x + x+1) : indexBL;
+        unsigned int indexTL = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexBL;
+        unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexBL;
+
+        // Divide up the amount between the 4 corners of this tile.
+        m_Heights[indexBL] += amount * (1 - percIntoTile.x) * (1 - percIntoTile.y);
+        m_Heights[indexBR] += amount * percIntoTile.x * (1 - percIntoTile.y);
+        m_Heights[indexTL] += amount * (1 - percIntoTile.x) * percIntoTile.y;
+        m_Heights[indexTR] += amount * percIntoTile.x * percIntoTile.y;
+    }
+}
+
+void ComponentHeightmap::GatherSediment(Vector2 pos, float amount, float radius)
+{
+    Vector2Int tileCoords;
+    Vector2 percIntoTile;
+    if( GetTileCoordsAtLocalXZ( pos.x, pos.y, &tileCoords, &percIntoTile ) )
+    {
+        int x = tileCoords.x;
+        int y = tileCoords.y;
+
+        Vector2Int vertCount = m_VertCount;
+        int mx = vertCount.x-1;
+        int my = vertCount.y-1;
+
+        //   TL--->TR
+        //   ^      ^
+        //   |      |
+        //   |      |
+        //   BL--->BR
+
+        // Calculate the 4 indices for the corners of this tile.
+        unsigned int indexBL = (unsigned int)(y * vertCount.x + x);
+        unsigned int indexBR =           x < mx ? (unsigned int)((y  ) * vertCount.x + x+1) : indexBL;
+        unsigned int indexTL = y < my           ? (unsigned int)((y+1) * vertCount.x + x  ) : indexBL;
+        unsigned int indexTR = y < my && x < mx ? (unsigned int)((y+1) * vertCount.x + x+1) : indexBL;
+
+        // Divide up the amount from the 4 corners of this tile.
+        m_Heights[indexBL] -= amount * (1 - percIntoTile.x) * (1 - percIntoTile.y);
+        m_Heights[indexBR] -= amount * percIntoTile.x * (1 - percIntoTile.y);
+        m_Heights[indexTL] -= amount * (1 - percIntoTile.x) * percIntoTile.y;
+        m_Heights[indexTR] -= amount * percIntoTile.x * percIntoTile.y;
+    }
+}
+
 // My implementation of "Implementation of a method for hydraulic erosion" by Hans Theobald Beyer
 // https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf
-void ComponentHeightmap::Erode()
+void ComponentHeightmap::Erode(float numberOfDroplets, Vector2 singleDropletPos)
 {
     // Parameters, will be exposed later.
     float inertia = 0.3f;
-    float capacity = 8.0f;
-    float deposition = 0.2f;
-    float evalporation = 0.02f;
+    float maxCapacity = 8.0f;
+    float depositionPerc = 0.2f;
+    float evaporation = 0.02f;
     float minSlope = 0.01f;
-    float gravity = 10.0f;
+    float gravity = -10.0f;
     float radius = 4.0f;
+    float erosionFactor = 0.5f;
     int maxSteps = 64;
-    int numberOfDrops = 100000;
     
-    for( int dropIndex=0; dropIndex<numberOfDrops; dropIndex++ )
+    for( int dropletIndex=0; dropletIndex<numberOfDroplets; dropletIndex++ )
     {
         // Pick a random location.
         Vector2 pos( (rand()%m_VertCount.x)/(float)m_VertCount.x * m_Size.x, (rand()%m_VertCount.y)/(float)m_VertCount.y * m_Size.y );
+
+        // Temp hack for testing, if one droplet is requested, use the position passed in.
+        if( numberOfDroplets == 1 )
+        {
+            pos = singleDropletPos;
+        }
         Vector2 dir( 0 );
-        Vector2 vel( 0 );
-        float water = 1;
-        float sediment = 0;
+        float speed = 0;
+        float storedWater = 1;
+        float storedSediment = 0;
 
         for( int step=0; step<maxSteps; step++ )
         {
-            float startHeight = 0.0f;
-            Vector2 gradient = GetGradientAtLocalPosition( Vector3( pos.x, 0, pos.y ), &startHeight );
+            Vector2 oldPos = pos;
 
-            // Change the direction of the drop based on the gradient of the tile.
+            float startHeight = 0.0f;
+            Vector2 gradient = GetGradientAtLocalPosition( pos, &startHeight );
+
+            // Change the direction of the droplet based on the gradient of the tile.
             dir = dir * inertia - gradient * (1 - inertia);
             
             // If there's no direction, pick a random one.
-            if( dir.LengthSquared() < 0.0001f )
+            if( dir.LengthSquared() == 0.0f )
                 dir.Set( rand()%10000/10000.0f, rand()%10000/10000.0f );
             
             // Normalize the direction, we're going to take a full step to the next tile each "step".
             dir.Normalize();
-            dir *= m_Size;
-            dir.x /= m_VertCount.x;
-            dir.y /= m_VertCount.y;
+            dir *= Vector2( m_Size.x/m_VertCount.x, m_Size.y/m_VertCount.y );
 
             // Step to the new position.
             pos += dir;
@@ -748,19 +834,38 @@ void ComponentHeightmap::Erode()
                 break;
 
             float heightChange = endHeight - startHeight;
-            
-            // Temp: If we went uphill, set the ground level to -1.
-            if( heightChange > 0 )
-            {
-                Vector2Int tileCoords;
-                if( GetTileCoordsAtLocalXZ( pos.x, pos.y, &tileCoords, nullptr ) )
-                {
-                    unsigned int index = (unsigned int)(tileCoords.y * m_VertCount.x + tileCoords.x);
-                    m_Heights[index] = -1;
-                }
 
+            // If we're still going downhill.
+            if( heightChange < 0 )
+            {
+                // Determine how much this water droplet can hold based on speed and slope.
+                float capacityLimit = max( -heightChange, minSlope) * speed * storedWater * maxCapacity;
+
+                // Calculate the amount to erode. Limit it to the difference in height values.
+                float amountToErode = min( (capacityLimit - storedSediment) * erosionFactor, -heightChange );
+                storedSediment += amountToErode;
+
+                GatherSediment( oldPos, amountToErode, radius );
+
+                // If we're carrying too much sediment, deposit the overflow.
+                if( storedSediment > capacityLimit )
+                {
+                    float amountToDrop = (storedSediment - capacityLimit) * depositionPerc;
+                    DepositSediment( pos, amountToDrop );
+                    storedSediment -= amountToDrop;
+                }
+            }            
+            else //if( heightChange >= 0 ) // If we went uphill, stop the droplet and deposit the sediment.
+            {
+                DepositSediment( pos, storedSediment );
                 break;
             }
+
+            // Apply gravity.
+            speed = sqrt( speed * speed + heightChange * gravity );
+
+            // Evaporate water.
+            storedWater *= (1 - evaporation);
         }
     }
 

@@ -91,13 +91,22 @@ protected:
     static void StaticOnFileFinishedLoadingHeightmapTexture(void* pObjectPtr, MyFileObject* pFile) { ((ComponentHeightmap*)pObjectPtr)->OnFileFinishedLoadingHeightmapTexture( pFile ); }
     void OnFileFinishedLoadingHeightmapTexture(MyFileObject* pFile);
 
-    // 
+    // Generation of mesh from heights.
     void CreateHeightmap();
+    bool GenerateDebugSlope();
     bool GenerateHeightmapMeshFromTexture(bool sizeChanged, bool rebuildNormals);
     bool GenerateHeightmapMesh(bool sizeChanged, bool rebuildNormals);
+
+    // Noise.
     void FillWithNoise(int noiseSeed, float amplitude, Vector2 frequency, Vector2 offset, int octaves, float persistance, float lacunarity, int debugOctave = -1);
-    Vector2 GetGradientAtLocalPosition(Vector3 pos, float* pHeight);
-    void Erode();
+
+    // Erosion.
+    Vector2 GetGradientAtLocalPosition(Vector2 pos, float* pHeight);
+    void DepositSediment(Vector2 pos, float amount);
+    void GatherSediment(Vector2 pos, float amount, float radius);
+    void Erode(float numberOfDroplets, Vector2 singleDropletPos);
+
+    // Normals.
     void RecalculateNormals();
     void RecalculateNormals(Vertex_XYZUVNorm* pVerts);
 

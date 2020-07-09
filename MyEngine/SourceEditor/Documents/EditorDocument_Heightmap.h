@@ -33,6 +33,7 @@ public:
         Raise,
         Lower,
         Level,
+        Erode,
         None,
     };
 
@@ -117,6 +118,7 @@ public:
 
     void AddPaintTools();
     void AddNoiseTools();
+    void AddErodeTools();
 
     void CancelCurrentOperation();
 

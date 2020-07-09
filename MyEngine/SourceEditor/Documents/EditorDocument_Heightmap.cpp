@@ -601,6 +601,18 @@ void EditorDocument_Heightmap::Update()
 
             AddNoiseTools();
         }
+        if( ImGui::BeginTabItem( "Erode" ) )
+        {
+            ImGui::EndTabItem();
+
+            if( m_CurrentTool != Tool::Erode )
+            {
+                m_CurrentTool = Tool::None;
+                m_CurrentToolState = ToolState::Idle;
+            }
+
+            AddErodeTools();
+        }
 
         ImGui::EndTabBar();
     }
@@ -760,10 +772,30 @@ void EditorDocument_Heightmap::AddNoiseTools()
         m_pHeightmap->FillWithNoise( m_Noise_Seed, m_Noise_Amplitude, m_Noise_Frequency, m_Noise_Offset, m_Noise_Octaves, m_Noise_Persistance, m_Noise_Lacunarity, m_Noise_Debug_Octave );
         m_Noise_Dirty = false;
     }
+}
 
-    if( ImGui::Button( "Erode" ) )
+void EditorDocument_Heightmap::AddErodeTools()
+{
+    bool forceRebuild = false;
+
+    if( ImGui::Button( "Rebuild with noise settings" ) )
     {
-        m_pHeightmap->Erode();
+        m_pHeightmap->FillWithNoise( m_Noise_Seed, m_Noise_Amplitude, m_Noise_Frequency, m_Noise_Offset, m_Noise_Octaves, m_Noise_Persistance, m_Noise_Lacunarity, m_Noise_Debug_Octave );
+    }
+
+    if( ImGui::Button( "Build a debug slope" ) )
+    {
+        m_pHeightmap->GenerateDebugSlope();
+    }    
+
+    if( ImGui::Button( "Erode on Click" ) )
+    {
+        m_CurrentTool = Tool::Erode;
+    }
+
+    if( ImGui::Button( "Erode: 10000 drops" ) )
+    {
+        m_pHeightmap->Erode( 10000, Vector2(0,0) );
     }
 }
 
@@ -843,6 +875,15 @@ void EditorDocument_Heightmap::ApplyCurrentTool(Vector3 localSpacePoint, int mou
                 // TODO: Undo/Redo.
 
                 valuesChanged = true;
+            }
+        }
+        break;
+
+    case Tool::Erode:
+        {
+            if( mouseAction == GCBA_Down )
+            {
+                m_pHeightmap->Erode( 1, localSpacePoint.XZ() );
             }
         }
         break;
