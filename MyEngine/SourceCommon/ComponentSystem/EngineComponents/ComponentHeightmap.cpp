@@ -406,7 +406,7 @@ bool ComponentHeightmap::GenerateDebugSlope()
         for( int x = 0; x < m_VertCount.x; x++ )
         {
             unsigned int index = (unsigned int)(y * m_VertCount.x + x);
-            m_Heights[index] = (float)x / m_VertCount.x;
+            m_Heights[index] = fabs( (float)x / m_VertCount.x - 0.5f ) * 3;
         }
     }
 
@@ -744,7 +744,7 @@ void ComponentHeightmap::DepositSediment(Vector2 pos, float amount)
     }
 }
 
-void ComponentHeightmap::GatherSediment(Vector2 pos, float amount, float radius)
+void ComponentHeightmap::GatherSediment(Vector2 pos, float amount, int radius)
 {
     Vector2Int tileCoords;
     Vector2 percIntoTile;
@@ -779,18 +779,18 @@ void ComponentHeightmap::GatherSediment(Vector2 pos, float amount, float radius)
 
 // My implementation of "Implementation of a method for hydraulic erosion" by Hans Theobald Beyer
 // https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf
-void ComponentHeightmap::Erode(float numberOfDroplets, Vector2 singleDropletPos)
+void ComponentHeightmap::Erode(float inertia, float maxCapacity, float depositionPerc, float evaporation, float minSlope, float gravity, int radius, float erosionFactor, int maxSteps, float numberOfDroplets, Vector2 singleDropletPos)
 {
-    // Parameters, will be exposed later.
-    float inertia = 0.3f;
-    float maxCapacity = 8.0f;
-    float depositionPerc = 0.2f;
-    float evaporation = 0.02f;
-    float minSlope = 0.01f;
-    float gravity = -10.0f;
-    float radius = 4.0f;
-    float erosionFactor = 0.5f;
-    int maxSteps = 64;
+    //// Parameters, will be exposed later.
+    //float inertia = 0.3f;
+    //float maxCapacity = 8.0f;
+    //float depositionPerc = 0.2f;
+    //float evaporation = 0.02f;
+    //float minSlope = 0.01f;
+    //float gravity = -10.0f;
+    //int radius = 4;
+    //float erosionFactor = 0.5f;
+    //int maxSteps = 64;
     
     for( int dropletIndex=0; dropletIndex<numberOfDroplets; dropletIndex++ )
     {
@@ -811,7 +811,7 @@ void ComponentHeightmap::Erode(float numberOfDroplets, Vector2 singleDropletPos)
         {
             Vector2 oldPos = pos;
 
-            float startHeight = 0.0f;
+            float startHeight;
             Vector2 gradient = GetGradientAtLocalPosition( pos, &startHeight );
 
             // Change the direction of the droplet based on the gradient of the tile.
@@ -851,13 +851,13 @@ void ComponentHeightmap::Erode(float numberOfDroplets, Vector2 singleDropletPos)
                 if( storedSediment > capacityLimit )
                 {
                     float amountToDrop = (storedSediment - capacityLimit) * depositionPerc;
-                    DepositSediment( pos, amountToDrop );
+                    DepositSediment( oldPos, amountToDrop );
                     storedSediment -= amountToDrop;
                 }
             }            
             else //if( heightChange >= 0 ) // If we went uphill, stop the droplet and deposit the sediment.
             {
-                DepositSediment( pos, storedSediment );
+                DepositSediment( oldPos, storedSediment );
                 break;
             }
 

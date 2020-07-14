@@ -103,8 +103,8 @@ protected:
     // Erosion.
     Vector2 GetGradientAtLocalPosition(Vector2 pos, float* pHeight);
     void DepositSediment(Vector2 pos, float amount);
-    void GatherSediment(Vector2 pos, float amount, float radius);
-    void Erode(float numberOfDroplets, Vector2 singleDropletPos);
+    void GatherSediment(Vector2 pos, float amount, int radius);
+    void Erode(float inertia, float maxCapacity, float depositionPerc, float evaporation, float minSlope, float gravity, int radius, float erosionFactor, int maxSteps, float numberOfDroplets, Vector2 singleDropletPos);
 
     // Normals.
     void RecalculateNormals();

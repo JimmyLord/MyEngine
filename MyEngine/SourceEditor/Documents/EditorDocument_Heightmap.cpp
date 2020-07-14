@@ -150,6 +150,17 @@ EditorDocument_Heightmap::EditorDocument_Heightmap(EngineCore* pEngineCore, cons
     m_Noise_Lacunarity = 5.0f;
     m_Noise_Debug_Octave = -1;
 
+    // Erosion Settings.
+    m_Erode_Inertia = 0.3f;
+    m_Erode_MaxCapacity = 8.0f;
+    m_Erode_DepositionPerc = 0.2f;
+    m_Erode_Evaporation = 0.02f;
+    m_Erode_MinSlope = 0.01f;
+    m_Erode_Gravity = -10.0f;
+    m_Erode_Radius = 4;
+    m_Erode_ErosionFactor = 0.5f;
+    m_Erode_MaxSteps = 64;
+
     m_AlwaysRecalculateNormals = false;
 
     Initialize();
@@ -795,8 +806,20 @@ void EditorDocument_Heightmap::AddErodeTools()
 
     if( ImGui::Button( "Erode: 10000 drops" ) )
     {
-        m_pHeightmap->Erode( 10000, Vector2(0,0) );
+        m_pHeightmap->Erode( m_Erode_Inertia, m_Erode_MaxCapacity, m_Erode_DepositionPerc, m_Erode_Evaporation,
+                             m_Erode_MinSlope, m_Erode_Gravity, m_Erode_Radius, m_Erode_ErosionFactor, m_Erode_MaxSteps,
+                             10000, Vector2(0,0) );
     }
+
+    ImGui::DragFloat( "Inertia",        &m_Erode_Inertia,           0.01f,   0.0f,  1.0f );
+    ImGui::DragFloat( "Capacity",       &m_Erode_MaxCapacity,       0.50f,   0.0f, 20.0f );
+    ImGui::DragFloat( "Deposit Perc",   &m_Erode_DepositionPerc,    0.01f,   0.0f,  1.0f );
+    ImGui::DragFloat( "Evaporation",    &m_Erode_Evaporation,       0.01f,   0.0f,  1.0f );
+    ImGui::DragFloat( "Min Slope",      &m_Erode_MinSlope,          0.01f,   0.0f,  1.0f );
+    ImGui::DragFloat( "Gravity",        &m_Erode_Gravity,           0.10f, -20.0f,  0.0f );
+    ImGui::DragInt(   "Radius",         &m_Erode_Radius,            1,       0,    10    );
+    ImGui::DragFloat( "Erosion Factor", &m_Erode_ErosionFactor,     0.01f,   0.0f,  1.0f );
+    ImGui::DragInt(   "Max Steps",      &m_Erode_MaxSteps,          1,       0,     1000 );
 }
 
 void EditorDocument_Heightmap::SetHeightmap(ComponentHeightmap* pHeightmap)
@@ -883,7 +906,9 @@ void EditorDocument_Heightmap::ApplyCurrentTool(Vector3 localSpacePoint, int mou
         {
             if( mouseAction == GCBA_Down )
             {
-                m_pHeightmap->Erode( 1, localSpacePoint.XZ() );
+                m_pHeightmap->Erode( m_Erode_Inertia, m_Erode_MaxCapacity, m_Erode_DepositionPerc, m_Erode_Evaporation,
+                    m_Erode_MinSlope, m_Erode_Gravity, m_Erode_Radius, m_Erode_ErosionFactor, m_Erode_MaxSteps,
+                    1, localSpacePoint.XZ() );
             }
         }
         break;

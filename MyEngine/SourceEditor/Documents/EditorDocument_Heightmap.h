@@ -85,6 +85,17 @@ protected:
     float m_Noise_Lacunarity;
     int m_Noise_Debug_Octave;
 
+    // Erosion Settings.
+    float m_Erode_Inertia;
+    float m_Erode_MaxCapacity;
+    float m_Erode_DepositionPerc;
+    float m_Erode_Evaporation;
+    float m_Erode_MinSlope;
+    float m_Erode_Gravity;
+    int m_Erode_Radius;
+    float m_Erode_ErosionFactor;
+    int m_Erode_MaxSteps;
+
     bool m_AlwaysRecalculateNormals;
 
 protected:
