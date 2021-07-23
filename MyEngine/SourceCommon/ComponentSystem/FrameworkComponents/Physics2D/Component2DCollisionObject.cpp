@@ -585,9 +585,9 @@ void Component2DCollisionObject::CreateBody()
             else
                 bodyDef.type = b2_dynamicBody;
             bodyDef.fixedRotation = m_FixedRotation;
+            bodyDef.userData.pointer = (uintptr_t)(void*)this;
 
             m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodyDef );
-            m_pBody->SetUserData( this );
 
             m_Scale = m_pGameObject->GetTransform()->GetWorldScale();
 
@@ -650,9 +650,9 @@ void Component2DCollisionObject::CreateBody()
 
                 // TODO: define edges so they're not limited to x/y axes.
                 if( m_Scale.x > m_Scale.y )
-                    edgeShape.Set( b2Vec2( m_Offset.x + -0.5f * m_Scale.x, m_Offset.y + 0 ), b2Vec2( m_Offset.x + 0.5f * m_Scale.x, m_Offset.y + 0 ) );
+                    edgeShape.SetTwoSided( b2Vec2( m_Offset.x + -0.5f * m_Scale.x, m_Offset.y + 0 ), b2Vec2( m_Offset.x + 0.5f * m_Scale.x, m_Offset.y + 0 ) );
                 else
-                    edgeShape.Set( b2Vec2( m_Offset.x + 0, m_Offset.y + -0.5f * m_Scale.y ), b2Vec2( m_Offset.x + 0, m_Offset.y + 0.5f * m_Scale.y ) );
+                    edgeShape.SetTwoSided( b2Vec2( m_Offset.x + 0, m_Offset.y + -0.5f * m_Scale.y ), b2Vec2( m_Offset.x + 0, m_Offset.y + 0.5f * m_Scale.y ) );
 
                 fixtureDef.shape = &edgeShape;
 
@@ -684,7 +684,7 @@ void Component2DCollisionObject::CreateBody()
 
                 if( count > 0 )
                 {
-                    chainShape.CreateChain( (b2Vec2*)&m_Vertices[0], count );
+                    chainShape.CreateChain( (b2Vec2*)&m_Vertices[0], count, *(b2Vec2*)&m_Vertices[0], *(b2Vec2*)&m_Vertices[count-1] );
 
                     fixtureDef.shape = &chainShape;
 

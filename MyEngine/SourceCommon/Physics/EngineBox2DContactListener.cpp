@@ -35,7 +35,7 @@ void EngineBox2DContactListener::BeginContact(b2Contact* contact)
     for( int i=0; i<2; i++ )
     {
         pBody[i] = pFixture[i]->GetBody();
-        pCollisionComponent[i] = (Component2DCollisionObject*)pBody[i]->GetUserData();
+        pCollisionComponent[i] = (Component2DCollisionObject*)pBody[i]->GetUserData().pointer;
     }
 
     for( int i=0; i<2; i++ )
