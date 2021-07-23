@@ -406,7 +406,7 @@ bool ComponentHeightmap::GenerateDebugSlope()
         for( int x = 0; x < m_VertCount.x; x++ )
         {
             unsigned int index = (unsigned int)(y * m_VertCount.x + x);
-            m_Heights[index] = fabs( (float)x / m_VertCount.x - 0.5f ) * 3;
+            m_Heights[index] = fabsf( (float)x / m_VertCount.x - 0.5f ) * 3;
         }
     }
 
@@ -862,7 +862,7 @@ void ComponentHeightmap::Erode(float inertia, float maxCapacity, float depositio
             }
 
             // Apply gravity.
-            speed = sqrt( speed * speed + heightChange * gravity );
+            speed = sqrtf( speed * speed + heightChange * gravity );
 
             // Evaporate water.
             storedWater *= (1 - evaporation);
