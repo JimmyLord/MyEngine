@@ -83,6 +83,16 @@ ImVec2 MyNodeGraph::MyNode::GetOutputSlotPos(SlotID slotID) const
     return ImVec2( m_Pos.x + m_Size.x, m_Pos.y + m_Size.y * ((float)slotID + 1) / ((float)m_OutputsCount + 1) );
 }
 
+MyNodeGraph::MyNode* MyNodeGraph::MyNode::GetInputNode(uint32 slotID)
+{
+    return m_pNodeGraph->FindNodeConnectedToInput( m_ID, slotID );
+}
+
+MyNodeGraph::MyNode* MyNodeGraph::MyNode::GetOutputNode(uint32 slotID)
+{
+    return m_pNodeGraph->FindNodeConnectedToOutput( m_ID, slotID );
+}
+
 void MyNodeGraph::MyNode::SetTooltipStrings(const char** inputTooltips, const char** outputTooltips)
 {
     m_InputTooltips = inputTooltips;

@@ -13,6 +13,10 @@
 #include "MyNodeGraph.h"
 #include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentVariable.h"
 
+#define DEFINE_NODE_TYPE(type) \
+const char* GetType() override { return NodeType(); } \
+static const char* NodeType() { return type; }
+
 class MyNodeGraph::MyNode : public ComponentVariableCallbackInterface
 {
 public:
@@ -63,6 +67,9 @@ public:
     uint32 MyNode::GetOutputSlotCount() const;
     ImVec2 GetInputSlotPos(SlotID slotID) const;
     ImVec2 GetOutputSlotPos(SlotID slotID) const;
+    MyNodeGraph::MyNode* GetInputNode(uint32 slotID);
+    MyNodeGraph::MyNode* GetOutputNode(uint32 slotID);
+
     NodeID GetID() { return m_ID; }
 
     void SetTooltipStrings(const char** inputTooltips, const char** outputTooltips);
