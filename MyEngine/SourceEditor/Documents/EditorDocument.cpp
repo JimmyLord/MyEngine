@@ -37,6 +37,7 @@ EditorDocument::EditorDocument(EngineCore* pEngineCore)
      m_pFBO = nullptr;
      m_WindowPos.Set( -1, -1 );
      m_WindowSize.Set( -1, -1 );
+     m_WindowScrollOffset.Set( 0.0f, 0.0f );
      m_WindowHovered = false;
      m_WindowFocused = false;
      m_WindowVisible = false;

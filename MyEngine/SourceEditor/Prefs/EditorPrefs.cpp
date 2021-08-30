@@ -309,6 +309,15 @@ cJSON* EditorPrefs::SaveStart()
         }
         cJSON_AddItemToObject( jPrefs, "State_OpenDocuments", jOpenDocumentsArray );
 
+        // Open Documents Scroll offsets.
+        cJSON* jOpenDocumentScrollOffsetsArray = cJSON_CreateArray();
+        for( unsigned int i=0; i<g_pEngineCore->GetEditorState()->m_pOpenDocuments.size(); i++ )
+        {
+            Vector2 offset = g_pEngineCore->GetEditorState()->m_pOpenDocuments[i]->GetWindowScrollOffset();
+            cJSONExt_AddFloatArrayToArray( jOpenDocumentScrollOffsetsArray, &offset.x, 2 );
+        }
+        cJSON_AddItemToObject( jPrefs, "State_OpenDocuments_ScrollOffsets", jOpenDocumentScrollOffsetsArray );
+
         //cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
         //cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
 

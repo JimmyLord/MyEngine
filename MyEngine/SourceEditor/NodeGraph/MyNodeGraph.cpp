@@ -87,7 +87,6 @@ MyNodeGraph::MyNodeGraph(EngineCore* pEngineCore, MyNodeTypeManager* pNodeTypeMa
 
     m_pNodeTypeManager = pNodeTypeManager;
 
-    m_ScrollOffset.Set( 0.0f, 0.0f );
     m_GridVisible = true;
     m_SelectedNodeLinkIndexes.clear();
 
@@ -136,11 +135,11 @@ void MyNodeGraph::DrawGrid(Vector2 offset)
         float GRID_SZ = 64.0f;
         Vector2 windowPos = ImGui::GetCursorScreenPos();
         Vector2 canvasSize = ImGui::GetWindowSize();
-        for( float x = fmodf( m_ScrollOffset.x, GRID_SZ ); x < canvasSize.x; x += GRID_SZ )
+        for( float x = fmodf( m_WindowScrollOffset.x, GRID_SZ ); x < canvasSize.x; x += GRID_SZ )
         {
             pDrawList->AddLine( Vector2(x, 0.0f) + windowPos, Vector2(x, canvasSize.y) + windowPos, COLOR_GRID );
         }
-        for( float y = fmodf( m_ScrollOffset.y, GRID_SZ ); y < canvasSize.y; y += GRID_SZ )
+        for( float y = fmodf( m_WindowScrollOffset.y, GRID_SZ ); y < canvasSize.y; y += GRID_SZ )
         {
             pDrawList->AddLine( Vector2(0.0f, y) + windowPos, Vector2(canvasSize.x, y) + windowPos, COLOR_GRID );
         }
@@ -407,7 +406,7 @@ void MyNodeGraph::Update()
         ImGui::BeginChild( "scrolling region", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove );
         ImGui::PushItemWidth( 120.0f );
 
-        Vector2 offset = m_ScrollOffset + ImGui::GetCursorScreenPos();
+        Vector2 offset = m_WindowScrollOffset + ImGui::GetCursorScreenPos();
         ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 
         // Draw grid.
@@ -631,8 +630,8 @@ void MyNodeGraph::Update()
                 {
                     AABB2D mouseAABB;
                     ImVec2 windowPos = ImGui::GetWindowPos();
-                    Vector2 mouse1 = ImGui::GetMousePos() - windowPos - m_ScrollOffset;
-                    Vector2 mouse2 = ImGui::GetIO().MouseClickedPos[0] - windowPos - m_ScrollOffset;
+                    Vector2 mouse1 = ImGui::GetMousePos() - windowPos - m_WindowScrollOffset;
+                    Vector2 mouse2 = ImGui::GetIO().MouseClickedPos[0] - windowPos - m_WindowScrollOffset;
                     mouseAABB.SetUnsorted( mouse1, mouse2 );
 
                     pDrawList->AddRectFilled( ImGui::GetMousePos(), ImGui::GetIO().MouseClickedPos[0], COLOR_DRAG_SELECTOR );
@@ -689,7 +688,7 @@ void MyNodeGraph::Update()
                 // Scroll view with middle mouse.
                 if( ImGui::IsMouseDragging( 2, 0.0f ) )
                 {
-                    m_ScrollOffset = m_ScrollOffset + ImGui::GetIO().MouseDelta;
+                    m_WindowScrollOffset = m_WindowScrollOffset + ImGui::GetIO().MouseDelta;
                 }
 
                 // Clear selected nodes if left-mouse is pressed, control isn't held and we're not dragging a new link.
@@ -713,7 +712,7 @@ void MyNodeGraph::Update()
 
 void MyNodeGraph::AddItemsAboveNodeGraphWindow()
 {
-    ImGui::Text( "Scroll (%.2f,%.2f)", m_ScrollOffset.x, m_ScrollOffset.y );
+    ImGui::Text( "Scroll (%.2f,%.2f)", m_WindowScrollOffset.x, m_WindowScrollOffset.y );
     ImGui::SameLine();
     if( ImGui::Checkbox( "Lua", &m_ShowingLuaString ) )
     {

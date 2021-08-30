@@ -113,7 +113,6 @@ protected:
     ImVector<NodeID> m_SelectedNodeIDs;
     ImVector<int> m_SelectedNodeLinkIndexes;
 
-    Vector2 m_ScrollOffset;
     bool m_GridVisible;
 
     MouseNodeLinkStartPoint m_MouseNodeLinkStartPoint;

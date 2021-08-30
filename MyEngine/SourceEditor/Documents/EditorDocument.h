@@ -44,6 +44,7 @@ protected:
     FBODefinition* m_pFBO;
     Vector2 m_WindowPos;
     Vector2 m_WindowSize;
+    Vector2 m_WindowScrollOffset;
     bool m_WindowHovered;
     bool m_WindowFocused;
     bool m_WindowVisible;
@@ -95,9 +96,13 @@ public:
 
     Vector2 GetWindowPosition() { return m_WindowPos; }
     Vector2 GetWindowSize() { return m_WindowSize; }
+    Vector2 GetWindowScrollOffset() { return m_WindowScrollOffset; }
     bool IsWindowHovered() { return m_WindowHovered; }
     bool IsWindowFocused() { return m_WindowFocused; }
     bool IsWindowVisible() { return m_WindowVisible; }
+
+    void SetWindowScrollOffset(Vector2 offset) { m_WindowScrollOffset = offset; }
+
 };
 
 #endif //__EditorDocument_H__
