@@ -13,6 +13,10 @@
 #include "MyNodeGraph.h"
 #include "../../SourceCommon/ComponentSystem/BaseComponents/ComponentVariable.h"
 
+#define DEFINE_NODE_BASE_TYPE(type) \
+const char* GetBaseType() override { return NodeBaseType(); } \
+static const char* NodeBaseType() { return type; }
+
 #define DEFINE_NODE_TYPE(type) \
 const char* GetType() override { return NodeType(); } \
 static const char* NodeType() { return type; }
@@ -58,6 +62,7 @@ public:
     virtual ~MyNode();
 
     virtual const char* GetType() = 0;
+    virtual const char* GetBaseType() { return "BaseNodeType"; }
 
     virtual bool HandleInput(int keyAction, int keyCode, int mouseAction, int id, float x, float y, float pressure) { return false; }
 
