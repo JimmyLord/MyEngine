@@ -92,6 +92,7 @@ public:
     virtual uint32 ExportAsLuaString(char* string, uint32 offset, uint32 bytesAllocated) { return 0; }
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jNode);
+    virtual std::string GetSettingsString() { std::string empty; return empty; }
 
     // Component Variables.
     ComponentVariable* GetVariableByLabel(const char* varLabel);
