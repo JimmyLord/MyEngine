@@ -75,9 +75,6 @@ void ImGuiManager::Init(float width, float height)
     io.DisplaySize.y = height;
     //io.IniFilename = "imgui.ini";
     
-    // Set no render callback, we manually render in Draw.
-    io.RenderDrawListsFn = 0;
-
     // Keyboard mapping.  ImGui will use those indices to peek into the io.KeyDown[] array.
     io.KeyMap[ImGuiKey_Tab]         = MYKEYCODE_TAB;
     io.KeyMap[ImGuiKey_LeftArrow]   = MYKEYCODE_LEFT;

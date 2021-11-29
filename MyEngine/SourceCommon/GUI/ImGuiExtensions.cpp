@@ -32,18 +32,6 @@ bool IsMouseHoveringOverItemExpansionArrow()
     return false;
 }
 
-// Idea taken from: https://github.com/ocornut/imgui/issues/1351
-bool WasItemActiveLastFrame()
-{
-    ImGuiContext& g = *GImGui;
-
-    if( g.ActiveIdPreviousFrame )
-    {
-        return g.ActiveIdPreviousFrame == g.CurrentWindow->DC.LastItemId;
-    }
-    return false;
-}
-
 ImGuiID GetActiveItemId()
 {
     ImGuiContext& g = *GImGui;
@@ -57,7 +45,10 @@ ImGuiID GetLastItemId()
 
     ImGuiWindow* window = g.CurrentWindow;
     if( window )
-        return window->DC.LastItemId;
+    {
+        assert( false );
+        //return window->DC.LastItemId;
+    }
 
     return 0;
 }

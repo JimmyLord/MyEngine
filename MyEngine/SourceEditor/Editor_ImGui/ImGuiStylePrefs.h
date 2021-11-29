@@ -62,6 +62,13 @@ public:
         StylePref_Color_PlotLinesHovered,
         StylePref_Color_PlotHistogram,
         StylePref_Color_PlotHistogramHovered,
+
+        StylePref_Color_TableHeaderBg,
+        StylePref_Color_TableBorderStrong,
+        StylePref_Color_TableBorderLight,
+        StylePref_Color_TableRowBg,
+        StylePref_Color_TableRowBgAlt,
+
         StylePref_Color_TextSelectedBg,
         StylePref_Color_DragDropTarget,
         StylePref_Color_NavHighlight,

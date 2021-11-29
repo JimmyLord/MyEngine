@@ -14,7 +14,6 @@ namespace ImGuiExt
 {
     bool IsMouseHoveringOverItemExpansionArrow();
 
-    bool WasItemActiveLastFrame();
     ImGuiID GetActiveItemId();
     ImGuiID GetLastItemId();
     

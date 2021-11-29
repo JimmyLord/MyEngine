@@ -137,7 +137,8 @@ void EditorMemoryWindow_ImGui::DrawMid()
     // Not used, but force scroll to bottom if flag is set.
     if( m_ScrollToBottom )
     {
-        ImGui::SetScrollHere();
+        assert( false );
+        //ImGui::SetScrollHere();
         m_ScrollToBottom = false;
     }
     
