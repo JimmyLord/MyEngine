@@ -375,10 +375,13 @@ void MyNodeGraph::Update()
         }
 
         // Check for right-click context menu.
-        if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
+        if( ImGui::GetIO().KeyCtrl == false )
         {
-            nodeIndexHoveredInList = nodeIndex;
-            openContextMenu = true;
+            if( ImGui::IsMouseReleased( 1 ) && ImGui::IsItemHovered() )
+            {
+                nodeIndexHoveredInList = nodeIndex;
+                openContextMenu = true;
+            }
         }
 
         ImGui::PopID();
@@ -506,10 +509,11 @@ void MyNodeGraph::Update()
         }
 
         // Deal with context menus.
+        if( ImGui::GetIO().KeyCtrl == false )
         {
             // If we right-click an empty part of the grid, unselect everything and open context menu.
-            if( !ImGui::IsAnyItemHovered() &&
-                ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem )
+            if( !ImGui::IsAnyItemHovered()
+                && ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem )
                 && ImGui::IsMouseReleased( 1 ) )
             {
                 m_SelectedNodeIDs.clear();

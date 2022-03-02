@@ -234,11 +234,6 @@ void ImGuiManager::StartTick(float deltaTime)
 
     ImGuiIO& io = ImGui::GetIO();
     io.DeltaTime = deltaTime;
-
-    //io.KeyCtrl = io.KeysDown[MYKEYCODE_LCTRL] || io.KeysDown[MYKEYCODE_RCTRL];
-    //io.KeyShift = io.KeysDown[MYKEYCODE_LSHIFT] || io.KeysDown[MYKEYCODE_RSHIFT];
-    //io.KeyAlt = io.KeysDown[MYKEYCODE_LALT] || io.KeysDown[MYKEYCODE_RALT];
-    //io.KeySuper = io.KeysDown[VK_LWIN] || io.KeysDown[VK_RWIN];
 }
 
 void ImGuiManager::StartFrame()
@@ -256,6 +251,12 @@ void ImGuiManager::StartFrame()
 
     // Update OS mouse cursor with the cursor requested by imgui.
     UpdateMouseCursor();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.KeyCtrl = io.KeysDown[MYKEYCODE_LCTRL] || io.KeysDown[MYKEYCODE_RCTRL];
+    io.KeyShift = io.KeysDown[MYKEYCODE_LSHIFT] || io.KeysDown[MYKEYCODE_RSHIFT];
+    io.KeyAlt = io.KeysDown[MYKEYCODE_LALT] || io.KeysDown[MYKEYCODE_RALT];
+    io.KeySuper = io.KeysDown[VK_LWIN] || io.KeysDown[VK_RWIN];
 
     ImGui::NewFrame();
     //ImGui::ShowTestWindow();
