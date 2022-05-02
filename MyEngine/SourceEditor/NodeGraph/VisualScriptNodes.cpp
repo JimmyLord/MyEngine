@@ -21,6 +21,18 @@
 #undef AddVar
 #define AddVar ComponentBase::AddVariable_Base
 
+const char* VisualScriptNode_MathOp_Add::m_InputLabels[] = { "Value1", "Value2" };
+const char* VisualScriptNode_MathOp_Add::m_OutputLabels[] = { "Sum" };
+
+const char* VisualScriptNode_Condition_GreaterEqual::m_InputLabels[] = { "Trigger", "Value1", "Value2" };
+const char* VisualScriptNode_Condition_GreaterEqual::m_OutputLabels[] = { "If Greater or Equal", "If Less" };
+
+const char* VisualScriptNode_Condition_Keyboard::m_InputLabels[] = { "Keyboard Event" };
+const char* VisualScriptNode_Condition_Keyboard::m_OutputLabels[] = { "Trigger" };
+
+const char* VisualScriptNode_Disable_GameObject::m_InputLabels[] = { "Trigger" };
+const char* VisualScriptNode_Disable_GameObject::m_OutputLabels[] = { 0 };
+
 //====================================================================================================
 // Macros to emit code.
 //====================================================================================================

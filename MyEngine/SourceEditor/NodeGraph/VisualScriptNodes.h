@@ -287,9 +287,6 @@ public:
 //====================================================================================================
 // VisualScriptNode_MathOp_Add
 //====================================================================================================
-static const char* m_VisualScriptNode_MathOp_Add_InputLabels[] = { "Value1", "Value2" };
-static const char* m_VisualScriptNode_MathOp_Add_OutputLabels[] = { "Sum" };
-
 class VisualScriptNode_MathOp_Add : public VisualScriptNode
 {
 protected:
@@ -297,10 +294,11 @@ public:
     VisualScriptNode_MathOp_Add(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
     : VisualScriptNode( pNodeGraph, id, name, pos, 2, 1 )
     {
-        SetTooltipStrings( m_VisualScriptNode_MathOp_Add_InputLabels, m_VisualScriptNode_MathOp_Add_OutputLabels );
+        SetTooltipStrings( m_InputLabels, m_OutputLabels );
     }
 
     const char* GetType() { return "MathOp_Add"; }
+
     virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
     virtual bool DrawContents() override
@@ -325,14 +323,15 @@ public:
 
         return value1 + value2;
     }
+
+private:
+    static const char* m_InputLabels[];
+    static const char* m_OutputLabels[];
 };
 
 //====================================================================================================
 // VisualScriptNode_Condition_GreaterEqual
 //====================================================================================================
-static const char* m_VisualScriptNode_Condition_GreaterEqual_InputLabels[] = { "Trigger", "Value1", "Value2" };
-static const char* m_VisualScriptNode_Condition_GreaterEqual_OutputLabels[] = { "If Greater or Equal", "If Less" };
-
 class VisualScriptNode_Condition_GreaterEqual : public VisualScriptNode
 {
 protected:
@@ -340,10 +339,11 @@ public:
     VisualScriptNode_Condition_GreaterEqual(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos)
     : VisualScriptNode( pNodeGraph, id, name, pos, 3, 2 )
     {
-        SetTooltipStrings( m_VisualScriptNode_Condition_GreaterEqual_InputLabels, m_VisualScriptNode_Condition_GreaterEqual_OutputLabels );
+        SetTooltipStrings( m_InputLabels, m_OutputLabels );
     }
 
     const char* GetType() { return "Condition_GreaterEqual"; }
+
     virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
     virtual bool DrawContents() override
@@ -385,14 +385,15 @@ public:
 
         return false;
     }
+
+private:
+    static const char* m_InputLabels[];
+    static const char* m_OutputLabels[];
 };
 
 //====================================================================================================
 // VisualScriptNode_Condition_Keyboard
 //====================================================================================================
-static const char* m_VisualScriptNode_Condition_Keyboard_InputLabels[] = { "Keyboard Event" };
-static const char* m_VisualScriptNode_Condition_Keyboard_OutputLabels[] = { "Trigger" };
-
 class VisualScriptNode_Condition_Keyboard : public VisualScriptNode
 {
 protected:
@@ -403,7 +404,7 @@ public:
     VisualScriptNode_Condition_Keyboard(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, int buttonAction, int keyCode)
     : VisualScriptNode( pNodeGraph, id, name, pos, 1, 1 )
     {
-        SetTooltipStrings( m_VisualScriptNode_Condition_Keyboard_InputLabels, m_VisualScriptNode_Condition_Keyboard_OutputLabels );
+        SetTooltipStrings( m_InputLabels, m_OutputLabels );
 
         MyAssert( GCBA_Down == 0 );
         MyAssert( GCBA_Up == 1 );
@@ -417,6 +418,7 @@ public:
     }
 
     const char* GetType() { return "Condition_Keyboard"; }
+
     virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
     virtual void DrawTitle() override
@@ -457,6 +459,10 @@ public:
 
         return false;
     }
+
+private:
+    static const char* m_InputLabels[];
+    static const char* m_OutputLabels[];
 };
 
 //====================================================================================================
@@ -519,8 +525,6 @@ public:
 //====================================================================================================
 // VisualScriptNode_Disable_GameObject
 //====================================================================================================
-static const char* m_VisualScriptNode_Disable_GameObject_InputLabels[] = { "Trigger" };
-
 class VisualScriptNode_Disable_GameObject : public VisualScriptNode
 {
 protected:
@@ -530,14 +534,14 @@ public:
     VisualScriptNode_Disable_GameObject(MyNodeGraph* pNodeGraph, MyNodeGraph::NodeID id, const char* name, const Vector2& pos, GameObject* pGameObject)
     : VisualScriptNode( pNodeGraph, id, name, pos, 1, 0 )
     {
+        SetTooltipStrings( m_InputLabels, m_OutputLabels );
+
         m_pGameObject = pGameObject;
         VSNAddVar( &m_VariablesList, "GameObject", ComponentVariableType::GameObjectPtr, MyOffsetOf( this, &this->m_pGameObject ), true, true, "", nullptr, nullptr, nullptr );
-
-        m_InputTooltips = m_VisualScriptNode_Disable_GameObject_InputLabels;
-        m_OutputTooltips = nullptr;
     }
 
     const char* GetType() { return "Disable_GameObject"; }
+
     virtual uint32 ExportAsLuaVariablesString(char* string, uint32 offset, uint32 bytesAllocated) override;
     virtual uint32 EmitLua(char* string, uint32 offset, uint32 bytesAllocated, uint32 tabDepth) override;
 
@@ -570,6 +574,10 @@ public:
 
         return false;
     }
+
+private:
+    static const char* m_InputLabels[];
+    static const char* m_OutputLabels[];
 };
 
 #endif //__VisualScriptNodes_H__
