@@ -60,13 +60,11 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
     "PlotLinesHovered",
     "PlotHistogram",
     "PlotHistogramHovered",
-
     "TableHeaderBg",
     "TableBorderStrong",
     "TableBorderLight",
     "TableRowBg",
     "TableRowBgAlt",
-
     "TextSelectedBg",
     "DragDropTarget",
     "NavHighlight",

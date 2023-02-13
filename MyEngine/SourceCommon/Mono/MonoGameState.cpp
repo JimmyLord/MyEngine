@@ -31,7 +31,7 @@
 #if MYFW_EDITOR
 #if MYFW_WINDOWS
 #pragma warning( push )
-#pragma warning( disable:4267 )
+#pragma warning( disable : 4267 )
 #include "../../Libraries/dirent/dirent.h"
 #pragma warning( pop )
 #else

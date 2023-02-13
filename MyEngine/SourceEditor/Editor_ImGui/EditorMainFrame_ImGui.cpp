@@ -1799,7 +1799,7 @@ void EditorMainFrame_ImGui::AddObjectList()
 
                     if( forceOpen )
                     {
-                        ImGui::SetNextTreeNodeOpen( true );
+                        ImGui::SetNextItemOpen( true );
                     }
 
                     bool treeNodeIsOpen = ImGui::TreeNodeEx( scenename, nodeFlags );
@@ -1897,7 +1897,7 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
 
                 if( forceOpen )
                 {
-                    ImGui::SetNextTreeNodeOpen( true );
+                    ImGui::SetNextItemOpen( true );
                 }
 
                 PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( prefabFileIndex );

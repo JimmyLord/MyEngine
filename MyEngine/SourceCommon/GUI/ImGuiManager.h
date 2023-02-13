@@ -10,8 +10,11 @@
 #ifndef __ImGuiManager_H__
 #define __ImGuiManager_H__
 
+#pragma warning( push )
+#pragma warning( disable : 4355 ) // 'this' : used in base member initializer list
 #include "../../../Libraries/imgui/imgui.h"
 #include "../../../Libraries/imgui/imgui_internal.h"
+#pragma warning( pop )
 
 class ImGuiManager;
 

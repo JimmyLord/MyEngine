@@ -122,11 +122,11 @@ void EditorInterface_VoxelMeshEditor::OnDrawFrame(unsigned int canvasid)
 
     ImGui::End();
 
-    if( ImGui::IsKeyDown( '1' ) ) m_CurrentBlockType = 1;
-    if( ImGui::IsKeyDown( '2' ) ) m_CurrentBlockType = 2;
-    if( ImGui::IsKeyDown( '3' ) ) m_CurrentBlockType = 3;
-    if( ImGui::IsKeyDown( '4' ) ) m_CurrentBlockType = 4;
-    if( ImGui::IsKeyDown( '5' ) ) m_CurrentBlockType = 5;
+    if( ImGui::IsKeyDown( ImGuiKey_1 ) ) m_CurrentBlockType = 1;
+    if( ImGui::IsKeyDown( ImGuiKey_2 ) ) m_CurrentBlockType = 2;
+    if( ImGui::IsKeyDown( ImGuiKey_3 ) ) m_CurrentBlockType = 3;
+    if( ImGui::IsKeyDown( ImGuiKey_4 ) ) m_CurrentBlockType = 4;
+    if( ImGui::IsKeyDown( ImGuiKey_5 ) ) m_CurrentBlockType = 5;
 
     if( buttonpressed != 0 )
     {
