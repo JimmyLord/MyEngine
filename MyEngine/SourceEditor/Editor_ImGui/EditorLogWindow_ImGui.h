@@ -23,7 +23,9 @@ public:
 protected:
     EngineCore* m_pEngineCore;
 
+#if USE_PTHREAD
     pthread_mutex_t m_MessageLogMutex;
+#endif //USE_PTHREAD
 
     std::vector<LogEntry> m_LoggedMessages;
     //ImGuiTextBuffer     m_TextBuffer;

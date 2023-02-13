@@ -41,14 +41,18 @@ EditorLogWindow_ImGui::EditorLogWindow_ImGui(EngineCore* pEngineCore, bool isGlo
     m_ScrollToBottom = false;
     m_Filter[0] = '\0';
 
+#if USE_PTHREAD
     pthread_mutex_init( &m_MessageLogMutex, nullptr );
+#endif //USE_PTHREAD
     g_pMessageLogCallbackFunction = EditorLogWindow_ImGui_MessageLog;
 }
 
 EditorLogWindow_ImGui::~EditorLogWindow_ImGui()
 {
     g_pMessageLogCallbackFunction = nullptr;
+#if USE_PTHREAD
     pthread_mutex_destroy( &m_MessageLogMutex );
+#endif //USE_PTHREAD
 }
 
 void EditorLogWindow_ImGui::Clear()
@@ -58,9 +62,13 @@ void EditorLogWindow_ImGui::Clear()
 
 void EditorLogWindow_ImGui::AddLog(LogEntry logentry)
 {
+#if USE_PTHREAD
     pthread_mutex_lock( &m_MessageLogMutex );
+#endif //USE_PTHREAD
     m_LoggedMessages.push_back( logentry );
+#if USE_PTHREAD
     pthread_mutex_unlock( &m_MessageLogMutex );
+#endif //USE_PTHREAD
 
     m_ScrollToBottom = true;
 }
